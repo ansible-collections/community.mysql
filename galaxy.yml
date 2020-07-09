@@ -1,0 +1,16 @@
+namespace: community
+name: mysql
+version: 1.0.0
+readme: README.md
+authors:
+  - MySQL Working Group (https://github.com/ansible/community/wiki/MySQL)
+description: MySQL collection for Ansible
+license_file: LICENSE
+tags:
+  - database
+  - mysql
+  - mariadb
+repository: https://github.com/ansible-collections/community.mysql
+documentation: https://github.com/ansible-collections/community.mysql
+homepage: https://github.com/ansible-collections/community.mysql
+issues: https://github.com/ansible-collections/community.mysql/issues

@@ -155,10 +155,10 @@ options:
     version_added: '0.2.0'
 
 seealso:
-- module: community.general.mysql_info
-- module: community.general.mysql_variables
-- module: community.general.mysql_user
-- module: community.general.mysql_replication
+- module: community.mysql.mysql_info
+- module: community.mysql.mysql_variables
+- module: community.mysql.mysql_user
+- module: community.mysql.mysql_replication
 - name: MySQL command-line client reference
   description: Complete reference of the MySQL command-line client documentation.
   link: https://dev.mysql.com/doc/refman/8.0/en/mysql.html
@@ -180,7 +180,7 @@ notes:
    - This module is B(not idempotent) when I(state) is C(import),
      and will import the dump file each time if run more than once.
 extends_documentation_fragment:
-- community.general.mysql
+- community.mysql.mysql
 
 '''
 
@@ -317,8 +317,8 @@ import subprocess
 import traceback
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.community.general.plugins.module_utils.database import mysql_quote_identifier
-from ansible_collections.community.general.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg
+from ansible_collections.community.mysql.plugins.module_utils.database import mysql_quote_identifier
+from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg
 from ansible.module_utils.six.moves import shlex_quote
 from ansible.module_utils._text import to_native
 

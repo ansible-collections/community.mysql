@@ -12,4 +12,4 @@
 - name: "{{ role_name }} | config | setup replication topology"
   shell:
     cmd: "dbdeployer deploy multiple {{ install_version }} --base-port {{ mysql_base_port }}"
-    creates: "{{ dbdeployer_sandbox_home_dir }}/rsandbox_{{ install_version|replace('.','_') }}"
+    creates: "{{ dbdeployer_sandbox_home_dir }}/multi_msb_{{ install_version|replace('.','_') }}"

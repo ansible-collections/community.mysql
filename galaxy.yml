@@ -5,7 +5,7 @@ readme: README.md
 authors:
   - MySQL Working Group (https://github.com/ansible/community/wiki/MySQL)
 description: MySQL collection for Ansible
-license_file: LICENSE
+license_file: COPYING
 tags:
   - database
   - mysql

@@ -76,31 +76,31 @@ EXAMPLES = r'''
 # ansible databases -m mysql_info -a 'filter=!settings'
 
 - name: Collect all possible information using passwordless root access
-  mysql_info:
+  community.mysql.mysql_info:
     login_user: root
 
 - name: Get MySQL version with non-default credentials
-  mysql_info:
+  community.mysql.mysql_info:
     login_user: mysuperuser
     login_password: mysuperpass
     filter: version
 
 - name: Collect all info except settings and users by root
-  mysql_info:
+  community.mysql.mysql_info:
     login_user: root
     login_password: rootpass
     filter: "!settings,!users"
 
 - name: Collect info about databases and version using ~/.my.cnf as a credential file
   become: yes
-  mysql_info:
+  community.mysql.mysql_info:
     filter:
     - databases
     - version
 
 - name: Collect info about databases and version using ~alice/.my.cnf as a credential file
   become: yes
-  mysql_info:
+  community.mysql.mysql_info:
     config_file: /home/alice/.my.cnf
     filter:
     - databases
@@ -108,7 +108,7 @@ EXAMPLES = r'''
 
 - name: Collect info about databases including empty and excluding their sizes
   become: yes
-  mysql_info:
+  community.mysql.mysql_info:
     config_file: /home/alice/.my.cnf
     filter:
     - databases

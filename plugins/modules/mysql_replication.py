@@ -165,61 +165,61 @@ seealso:
 
 EXAMPLES = r'''
 - name: Stop mysql slave thread
-  mysql_replication:
+  community.mysql.mysql_replication:
     mode: stopslave
 
 - name: Get master binlog file name and binlog position
-  mysql_replication:
+  community.mysql.mysql_replication:
     mode: getmaster
 
 - name: Change master to master server 192.0.2.1 and use binary log 'mysql-bin.000009' with position 4578
-  mysql_replication:
+  community.mysql.mysql_replication:
     mode: changemaster
     master_host: 192.0.2.1
     master_log_file: mysql-bin.000009
     master_log_pos: 4578
 
 - name: Check slave status using port 3308
-  mysql_replication:
+  community.mysql.mysql_replication:
     mode: getslave
     login_host: ansible.example.com
     login_port: 3308
 
 - name: On MariaDB change master to use GTID current_pos
-  mysql_replication:
+  community.mysql.mysql_replication:
     mode: changemaster
     master_use_gtid: current_pos
 
 - name: Change master to use replication delay 3600 seconds
-  mysql_replication:
+  community.mysql.mysql_replication:
     mode: changemaster
     master_host: 192.0.2.1
     master_delay: 3600
 
 - name: Start MariaDB standby with connection name master-1
-  mysql_replication:
+  community.mysql.mysql_replication:
     mode: startslave
     connection_name: master-1
 
 - name: Stop replication in channel master-1
-  mysql_replication:
+  community.mysql.mysql_replication:
     mode: stopslave
     channel: master-1
 
 - name: >
     Run RESET MASTER command which will delete all existing binary log files
     and reset the binary log index file on the master
-  mysql_replication:
+  community.mysql.mysql_replication:
     mode: resetmaster
 
 - name: Run start slave and fail the task on errors
-  mysql_replication:
+  community.mysql.mysql_replication:
     mode: startslave
     connection_name: master-1
     fail_on_error: yes
 
 - name: Change master and fail on error (like when slave thread is running)
-  mysql_replication:
+  community.mysql.mysql_replication:
     mode: changemaster
     fail_on_error: yes
 

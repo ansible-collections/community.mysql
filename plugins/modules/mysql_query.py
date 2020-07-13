@@ -53,12 +53,12 @@ extends_documentation_fragment:
 
 EXAMPLES = r'''
 - name: Simple select query to acme db
-  mysql_query:
+  community.mysql.mysql_query:
     login_db: acme
     query: SELECT * FROM orders
 
 - name: Select query to db acme with positional arguments
-  mysql_query:
+  community.mysql.mysql_query:
     login_db: acme
     query: SELECT * FROM acme WHERE id = %s AND story = %s
     positional_args:
@@ -66,7 +66,7 @@ EXAMPLES = r'''
     - test
 
 - name: Select query to test_db with named_args
-  mysql_query:
+  community.mysql.mysql_query:
     login_db: test_db
     query: SELECT * FROM test WHERE id = %(id_val)s AND story = %(story_val)s
     named_args:
@@ -74,7 +74,7 @@ EXAMPLES = r'''
       story_val: test
 
 - name: Run several insert queries against db test_db in single transaction
-  mysql_query:
+  community.mysql.mysql_query:
     login_db: test_db
     query:
     - INSERT INTO articles (id, story) VALUES (2, 'my_long_story')

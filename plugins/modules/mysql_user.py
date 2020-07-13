@@ -137,26 +137,26 @@ extends_documentation_fragment:
 
 EXAMPLES = r'''
 - name: Removes anonymous user account for localhost
-  mysql_user:
+  community.mysql.mysql_user:
     name: ''
     host: localhost
     state: absent
 
 - name: Removes all anonymous user accounts
-  mysql_user:
+  community.mysql.mysql_user:
     name: ''
     host_all: yes
     state: absent
 
 - name: Create database user with name 'bob' and password '12345' with all database privileges
-  mysql_user:
+  community.mysql.mysql_user:
     name: bob
     password: 12345
     priv: '*.*:ALL'
     state: present
 
 - name: Create database user using hashed password with all database privileges
-  mysql_user:
+  community.mysql.mysql_user:
     name: bob
     password: '*EE0D72C1085C46C5278932678FBE2C6A782821B4'
     encrypted: yes
@@ -164,14 +164,14 @@ EXAMPLES = r'''
     state: present
 
 - name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
-  mysql_user:
+  community.mysql.mysql_user:
     name: bob
     password: 12345
     priv: '*.*:ALL,GRANT'
     state: present
 
 - name: Create user with password, all database privileges and 'WITH GRANT OPTION' in db1 and db2
-  mysql_user:
+  community.mysql.mysql_user:
     state: present
     name: bob
     password: 12345dd
@@ -181,14 +181,14 @@ EXAMPLES = r'''
 
 # Note that REQUIRESSL is a special privilege that should only apply to *.* by itself.
 - name: Modify user to require SSL connections.
-  mysql_user:
+  community.mysql.mysql_user:
     name: bob
     append_privs: yes
     priv: '*.*:REQUIRESSL'
     state: present
 
 - name: Ensure no user named 'sally'@'localhost' exists, also passing in the auth credentials.
-  mysql_user:
+  community.mysql.mysql_user:
     login_user: root
     login_password: 123456
     name: sally
@@ -199,7 +199,7 @@ EXAMPLES = r'''
     Ensure no user named 'sally'@'localhost' exists, also passing in the auth credentials.
     If mysql allows root/nopassword login, try it without the credentials first.
     If it's not allowed, pass the credentials.
-  mysql_user:
+  community.mysql.mysql_user:
     check_implicit_admin: yes
     login_user: root
     login_password: 123456
@@ -207,20 +207,20 @@ EXAMPLES = r'''
     state: absent
 
 - name: Ensure no user named 'sally' exists at all
-  mysql_user:
+  community.mysql.mysql_user:
     name: sally
     host_all: yes
     state: absent
 
 - name: Specify grants composed of more than one word
-  mysql_user:
+  community.mysql.mysql_user:
     name: replication
     password: 12345
     priv: "*.*:REPLICATION CLIENT"
     state: present
 
 - name: Revoke all privileges for user 'bob' and password '12345'
-  mysql_user:
+  community.mysql.mysql_user:
     name: bob
     password: 12345
     priv: "*.*:USAGE"
@@ -230,13 +230,13 @@ EXAMPLES = r'''
 # mydb.*:INSERT,UPDATE/anotherdb.*:SELECT/yetanotherdb.*:ALL
 
 - name: Example using login_unix_socket to connect to server
-  mysql_user:
+  community.mysql.mysql_user:
     name: root
     password: abc123
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
 - name: Example of skipping binary logging while adding user 'bob'
-  mysql_user:
+  community.mysql.mysql_user:
     name: bob
     password: 12345
     priv: "*.*:USAGE"
@@ -244,7 +244,7 @@ EXAMPLES = r'''
     sql_log_bin: no
 
 - name: Create user 'bob' authenticated with plugin 'AWSAuthenticationPlugin'
-  mysql_user:
+  community.mysql.mysql_user:
     name: bob
     plugin: AWSAuthenticationPlugin
     plugin_hash_string: RDS
@@ -252,7 +252,7 @@ EXAMPLES = r'''
     state: present
 
 - name: Limit bob's resources to 10 queries per hour and 5 connections per hour
-  mysql_user:
+  community.mysql.mysql_user:
     name: bob
     resource_limits:
       MAX_QUERIES_PER_HOUR: 10

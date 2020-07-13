@@ -57,11 +57,11 @@ extends_documentation_fragment:
 
 EXAMPLES = r'''
 - name: Check for sync_binlog setting
-  mysql_variables:
+  community.mysql.mysql_variables:
     variable: sync_binlog
 
 - name: Set read_only variable to 1 persistently
-  mysql_variables:
+  community.mysql.mysql_variables:
     variable: read_only
     value: 1
     mode: persist

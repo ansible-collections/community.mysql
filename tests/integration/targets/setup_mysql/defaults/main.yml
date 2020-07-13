@@ -7,7 +7,7 @@ percona_client_version: 5.7
 
 mariadb_install: false
 
-mysql_version: 8.0.20
+mysql_version: 8.0.21
 mariadb_version: 10.5.4
 
 mysql_base_port: 3306

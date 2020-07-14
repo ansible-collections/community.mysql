@@ -279,79 +279,83 @@
 
     - include: assert_fail_msg.yml output={{ result }}  msg='unable to connect to database'
 
-    #=========================================
-    # Check mode 'persist' and 'persist_only':
-    #
-    - name: update mysql variable value (expect changed=true) in persist mode
-      mysql_variables:
-        <<: *mysql_params
-        variable: '{{ set_name }}'
-        value: '{{ set_value }}'
-        mode: persist
-      register: result
+    - block:
 
-    - assert:
-        that:
-        - result.queries == ["SET PERSIST `{{ set_name }}` = {{ set_value }}"]
+        #=========================================
+        # Check mode 'persist' and 'persist_only':
+        #
+        - name: update mysql variable value (expect changed=true) in persist mode
+          mysql_variables:
+            <<: *mysql_params
+            variable: '{{ set_name }}'
+            value: '{{ set_value }}'
+            mode: persist
+          register: result
 
-    - include: assert_var.yml changed=true output={{ result }} var_name={{ set_name }} var_value='{{ set_value }}'
+        - assert:
+            that:
+            - result.queries == ["SET PERSIST `{{ set_name }}` = {{ set_value }}"]
 
-    - name: try to update mysql variable value (expect changed=false) in persist mode again
-      mysql_variables:
-        <<: *mysql_params
-        variable: '{{ set_name }}'
-        value: '{{ set_value }}'
-        mode: persist
-      register: result
+        - include: assert_var.yml changed=true output={{ result }} var_name={{ set_name }} var_value='{{ set_value }}'
 
-    - include: assert_var.yml changed=false output={{ result }} var_name={{ set_name }} var_value='{{ set_value }}'
+        - name: try to update mysql variable value (expect changed=false) in persist mode again
+          mysql_variables:
+            <<: *mysql_params
+            variable: '{{ set_name }}'
+            value: '{{ set_value }}'
+            mode: persist
+          register: result
 
-    - name: set mysql variable to a temp value
-      mysql_variables:
-        <<: *mysql_params
-        variable: '{{ set_name }}'
-        value: '200'
-        mode: persist
+        - include: assert_var.yml changed=false output={{ result }} var_name={{ set_name }} var_value='{{ set_value }}'
 
-    - name: update mysql variable value (expect changed=true) in persist_only mode
-      mysql_variables:
-        <<: *mysql_params
-        variable: '{{ set_name }}'
-        value: '{{ set_value }}'
-        mode: persist_only
-      register: result
+        - name: set mysql variable to a temp value
+          mysql_variables:
+            <<: *mysql_params
+            variable: '{{ set_name }}'
+            value: '200'
+            mode: persist
 
-    - assert:
-        that:
-        - result is changed
-        - result.queries == ["SET PERSIST_ONLY `{{ set_name }}` = {{ set_value }}"]
+        - name: update mysql variable value (expect changed=true) in persist_only mode
+          mysql_variables:
+            <<: *mysql_params
+            variable: '{{ set_name }}'
+            value: '{{ set_value }}'
+            mode: persist_only
+          register: result
 
-    - name: try to update mysql variable value (expect changed=false) in persist_only mode again
-      mysql_variables:
-        <<: *mysql_params
-        variable: '{{ set_name }}'
-        value: '{{ set_value }}'
-        mode: persist_only
-      register: result
+        - assert:
+            that:
+            - result is changed
+            - result.queries == ["SET PERSIST_ONLY `{{ set_name }}` = {{ set_value }}"]
 
-    - assert:
-        that:
-        - result is not changed
+        - name: try to update mysql variable value (expect changed=false) in persist_only mode again
+          mysql_variables:
+            <<: *mysql_params
+            variable: '{{ set_name }}'
+            value: '{{ set_value }}'
+            mode: persist_only
+          register: result
 
-    - set_fact:
-        set_name: max_connections
-        set_value: 105
-        def_val: 151
+        - assert:
+            that:
+            - result is not changed
 
-    - name: update mysql variable value (expect changed=true) in persist_only mode
-      mysql_variables:
-        <<: *mysql_params
-        variable: '{{ set_name }}'
-        value: '{{ set_value }}'
-        mode: persist_only
-      register: result
+        - set_fact:
+            set_name: max_connections
+            set_value: 105
+            def_val: 151
 
-    - include: assert_var.yml changed=true output={{ result }} var_name={{ set_name }} var_value='{{ def_val }}'
+        - name: update mysql variable value (expect changed=true) in persist_only mode
+          mysql_variables:
+            <<: *mysql_params
+            variable: '{{ set_name }}'
+            value: '{{ set_value }}'
+            mode: persist_only
+          register: result
+
+        - include: assert_var.yml changed=true output={{ result }} var_name={{ set_name }} var_value='{{ def_val }}'
+
+      when: mysql_version is not version('8.0', '<')
 
     # Bugfix of https://github.com/ansible/ansible/issues/54239
     # - name: set variable containing dot

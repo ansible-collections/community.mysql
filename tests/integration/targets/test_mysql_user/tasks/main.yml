@@ -138,6 +138,23 @@
         filter: version
       register: db_version
 
+    - name: create user with TLS requirements in check mode (expect changed=true)
+      mysql_user:
+        <<: *mysql_params
+        name: "{{ user_name_1 }}"
+        password: "{{ user_password_1 }}"
+        tls_requires:
+          SSL:
+        check_mode: yes
+      register: result
+
+    - name: Assert check mode user create reports changed state
+      assert:
+        that:
+          - result is changed
+
+    - include: assert_no_user.yml user_name={{user_name_1}}
+
     - name: create user with TLS requirements state=present (expect changed=true)
       mysql_user:
         <<: *mysql_params
@@ -201,13 +218,44 @@
       # CentOS 6 uses an older version of jinja that does not provide the selectattr filter.
       when: ansible_distribution != 'CentOS' or ansible_distribution_major_version != '6'
 
-    - name: modify user with TLS requirements state=present (expect changed=true)
+    - name: modify user with TLS requirements state=present in check mode (expect changed=true)
       mysql_user:
+        <<: *mysql_params
         name: '{{ user_name_1 }}'
         password: '{{ user_password_1 }}'
         tls_requires:
           X509:
-        login_unix_socket: '{{ mysql_socket }}'
+        check_mode: yes
+      register: result
+
+    - name: Assert check mode user update reports changed state
+      assert:
+        that:
+          - result is changed
+
+    - name: retrieve TLS requiremets for users in old database version
+      command: mysql -L -N -s -e "SHOW GRANTS for '{{ user_name_1 }}'@'localhost'"
+      register: old_result
+      when: db_version.version.major <= 5 and db_version.version.minor <= 6 or db_version.version.major == 10 and db_version.version.minor < 2
+
+    - name: retrieve TLS requiremets for users in new database version
+      command: mysql -L -N -s -e "SHOW CREATE USER '{{ user_name_1 }}'@'localhost'"
+      register: new_result
+      when: db_version.version.major >= 5 and db_version.version.major < 10 and db_version.version.minor > 6 or db_version.version.major == 10 and db_version.version.minor >= 2
+
+    - name: assert user1 TLS requirements was not changed
+      assert:
+        that: "'SSL' in reqs"
+      vars:
+        - reqs: "{{(old_result is skipped | ternary(new_result, old_result)).stdout.split('REQUIRE')[1].split(separator)[0].strip()}}"
+
+    - name: modify user with TLS requirements state=present (expect changed=true)
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        tls_requires:
+          X509:
 
     - name: retrieve TLS requiremets for users in old database version
       command: mysql -L -N -s -e "SHOW GRANTS for '{{ user_name_1 }}'@'localhost'"

@@ -234,12 +234,12 @@
           - result is changed
 
     - name: retrieve TLS requiremets for users in old database version
-      command: mysql -L -N -s -e "SHOW GRANTS for '{{ user_name_1 }}'@'localhost'"
+      command: "{{ mysql_comnand }} -L -N -s -e \"SHOW GRANTS for '{{ user_name_1 }}'@'localhost'\""
       register: old_result
       when: db_version.version.major <= 5 and db_version.version.minor <= 6 or db_version.version.major == 10 and db_version.version.minor < 2
 
     - name: retrieve TLS requiremets for users in new database version
-      command: mysql -L -N -s -e "SHOW CREATE USER '{{ user_name_1 }}'@'localhost'"
+      command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
       register: new_result
       when: db_version.version.major >= 5 and db_version.version.major < 10 and db_version.version.minor > 6 or db_version.version.major == 10 and db_version.version.minor >= 2
 
@@ -258,12 +258,12 @@
           X509:
 
     - name: retrieve TLS requiremets for users in old database version
-      command: mysql -L -N -s -e "SHOW GRANTS for '{{ user_name_1 }}'@'localhost'"
+      command: "{{ mysql_command }} -L -N -s -e \"SHOW GRANTS for '{{ user_name_1 }}'@'localhost'\""
       register: old_result
       when: db_version.version.major <= 5 and db_version.version.minor <= 6 or db_version.version.major == 10 and db_version.version.minor < 2
 
     - name: retrieve TLS requiremets for users in new database version
-      command: mysql -L -N -s -e "SHOW CREATE USER '{{ user_name_1 }}'@'localhost'"
+      command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
       register: new_result
       when: db_version.version.major >= 5 and db_version.version.major < 10 and db_version.version.minor > 6 or db_version.version.major == 10 and db_version.version.minor >= 2
 

@@ -145,7 +145,7 @@
         password: "{{ user_password_1 }}"
         tls_requires:
           SSL:
-        check_mode: yes
+      check_mode: yes
       register: result
 
     - name: Assert check mode user create reports changed state
@@ -225,7 +225,7 @@
         password: '{{ user_password_1 }}'
         tls_requires:
           X509:
-        check_mode: yes
+      check_mode: yes
       register: result
 
     - name: Assert check mode user update reports changed state

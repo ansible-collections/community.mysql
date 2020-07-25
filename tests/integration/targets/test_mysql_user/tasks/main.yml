@@ -192,7 +192,7 @@
         set_fact:
           separator: 'PASSWORD'
       # Semantically: when mysql version >= 5.7 or MariaDB version >= 10.2
-      when: db_version.version.major = 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2
+      when: db_version.version.major == 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2
 
     - block:
       - name: assert user1 TLS requirements
@@ -243,7 +243,7 @@
     - name: retrieve TLS requiremets for users in new database version
       command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
       register: new_result
-      when: db_version.version.major = 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2
+      when: db_version.version.major == 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2
 
     - name: assert user1 TLS requirements was not changed
       assert:
@@ -267,7 +267,7 @@
     - name: retrieve TLS requiremets for users in new database version
       command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
       register: new_result
-      when: db_version.version.major = 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2
+      when: db_version.version.major == 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2
 
     - name: assert user1 TLS requirements
       assert:

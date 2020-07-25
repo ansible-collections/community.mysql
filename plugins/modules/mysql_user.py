@@ -521,12 +521,26 @@ def user_add(
     if check_mode:
         return True
 
+    # Determine what user management method server uses
+    old_user_mgmt = use_old_user_mgmt(cursor)
+
     mogrify = mogrify_requires if server_suports_requires_create(cursor) else do_not_mogrify_requires
 
     if password and encrypted:
         cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password), tls_requires))
     elif password and not encrypted:
-        cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY %s", (user, host, password), tls_requires))
+        if old_user_mgmt:
+            cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY %s", (user, host, password), tls_requires))
+        else:
+            cursor.execute("SELECT CONCAT('*', UCASE(SHA1(UNHEX(SHA1(%s)))))", (password,))
+            encrypted_password = cursor.fetchone()[0]
+            cursor.execute(
+                *mogrify(
+                    "CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s",
+                    (user, host, encrypted_password),
+                    tls_requires,
+                )
+            )
     elif plugin and plugin_hash_string:
         cursor.execute(
             *mogrify(
@@ -659,7 +673,6 @@ def user_mod(
                                 "UPDATE mysql.user SET plugin = %s, authentication_string = %s, Password = '' WHERE User = %s AND Host = %s",
                                 ("mysql_native_password", encrypted_password, user, host),
                             )
-                            cursor.execute("GRANT USAGE on *.* to '%s'@'%s'", (user, host))
                             cursor.execute("FLUSH PRIVILEGES")
                             msg = "Password forced update"
                         else:

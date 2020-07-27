@@ -418,7 +418,7 @@ def do_not_mogrify_requires(query, params, tls_requires):
 
 def get_tls_requires(cursor, user, host):
     if user:
-        if server_suports_requires_create(cursor):
+        if not use_old_user_mgmt(cursor):
             query = "SHOW CREATE USER '%s'@'%s'" % (user, host)
         else:
             query = "SHOW GRANTS for '%s'@'%s'" % (user, host)
@@ -458,7 +458,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     # Determine what user management method server uses
     old_user_mgmt = use_old_user_mgmt(cursor)
 
-    mogrify = mogrify_requires if server_suports_requires_create(cursor) else do_not_mogrify_requires
+    mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
 
     if password and encrypted:
         cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password), tls_requires))
@@ -666,7 +666,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             msg = "TLS requires updated"
             if module.check_mode:
                 return (True, msg)
-            if server_suports_requires_create(cursor):
+            if not old_user_mgmt:
                 pre_query = "ALTER USER"
             else:
                 pre_query = "GRANT %s ON *.* TO" % ",".join(get_grants(cursor, user, host))
@@ -823,7 +823,7 @@ def privileges_grant(cursor, user, host, db_table, priv, tls_requires):
     query = ["GRANT %s ON %s" % (priv_string, db_table)]
     query.append("TO %s@%s")
     params = (user, host)
-    if tls_requires and not server_suports_requires_create(cursor):
+    if tls_requires and use_old_user_mgmt(cursor):
         query, params = mogrify_requires(" ".join(query), params, tls_requires)
         query = [query]
     if 'REQUIRESSL' in priv and not tls_requires:
@@ -846,33 +846,6 @@ def convert_priv_dict_to_str(priv):
     priv_list = ['%s:%s' % (key, val) for key, val in iteritems(priv)]
 
     return '/'.join(priv_list)
-
-
-# TLS requires on user create statement is supported since MySQL 5.7 and MariaDB 10.2
-def server_suports_requires_create(cursor):
-    """Check if the server supports REQUIRES on the CREATE USER statement or doesn't.
-
-    Args:
-        cursor (cursor): DB driver cursor object.
-
-    Returns: True if supports, False otherwise.
-    """
-    cursor.execute("SELECT VERSION()")
-    version_str = cursor.fetchone()[0]
-    version = version_str.split(".")
-
-    if "mariadb" in version_str.lower():
-        # MariaDB 10.2 and later
-        if int(version[0]) * 1000 + int(version[1]) >= 10002:
-            return True
-        else:
-            return False
-    else:
-        # MySQL 5.6 and later
-        if int(version[0]) * 1000 + int(version[1]) >= 5007:
-            return True
-        else:
-            return False
 
 
 # Alter user is supported since MySQL 5.6 and MariaDB 10.2.0

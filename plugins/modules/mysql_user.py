@@ -60,6 +60,14 @@ options:
         user instead of overwriting existing ones.
     type: bool
     default: no
+  tls_requires:
+    description:
+      - Set requirement for secure transport as a dictionary of requirements (see the examples).
+      - Valid requirements are SSL, X509, SUBJECT, ISSUER, CIPHER.
+      - SUBJECT, ISSUER and CIPHER are complementary, and mutually exclusive with SSL and X509.
+      - U(https://mariadb.com/kb/en/securing-connections-for-client-and-server/#requiring-tls).
+    type: dict
+    version_added: 1.0.0
   sql_log_bin:
     description:
       - Whether binary logging should be enabled or disabled for the connection.
@@ -180,12 +188,27 @@ EXAMPLES = r'''
       'db2.*': 'ALL,GRANT'
 
 # Note that REQUIRESSL is a special privilege that should only apply to *.* by itself.
+# Setting this privilege in this manner is supported for backwards compatibility only. Use 'tls_requires' instead.
 - name: Modify user to require SSL connections.
   community.mysql.mysql_user:
     name: bob
     append_privs: yes
     priv: '*.*:REQUIRESSL'
     state: present
+
+- name: Modify user to require TLS connection with a valid client certificate
+  community.mysql.mysql_user:
+    name: bob
+    tls_requires:
+      x509:
+    state: present
+
+- name: Modify user to require TLS connection with a specific client certificate and cipher
+  community.mysql.mysql_user:
+    name: bob
+    tls_requires:
+      subject: '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
+      cipher: 'ECDHE-ECDSA-AES256-SHA384'
 
 - name: Ensure no user named 'sally'@'localhost' exists, also passing in the auth credentials.
   community.mysql.mysql_user:
@@ -358,8 +381,73 @@ def user_exists(cursor, user, host, host_all):
     return count[0] > 0
 
 
+def sanitize_requires(tls_requires):
+    sanitized_requires = {}
+    if tls_requires:
+        for key in tls_requires.keys():
+            sanitized_requires[key.upper()] = tls_requires[key]
+        if any([key in ["CIPHER", "ISSUER", "SUBJECT"] for key in sanitized_requires.keys()]):
+            sanitized_requires.pop("SSL", None)
+            sanitized_requires.pop("X509", None)
+            return sanitized_requires
+
+        if "X509" in sanitized_requires.keys():
+            sanitized_requires = "X509"
+        else:
+            sanitized_requires = "SSL"
+
+        return sanitized_requires
+    return None
+
+
+def mogrify_requires(query, params, tls_requires):
+    if tls_requires:
+        if isinstance(tls_requires, dict):
+            k, v = zip(*tls_requires.items())
+            requires_query = " AND ".join(("%s %%s" % key for key in k))
+            params += v
+        else:
+            requires_query = tls_requires
+        query = " REQUIRE ".join((query, requires_query))
+    return query, params
+
+
+def do_not_mogrify_requires(query, params, tls_requires):
+    return query, params
+
+
+def get_tls_requires(cursor, user, host):
+    if user:
+        if not use_old_user_mgmt(cursor):
+            query = "SHOW CREATE USER '%s'@'%s'" % (user, host)
+        else:
+            query = "SHOW GRANTS for '%s'@'%s'" % (user, host)
+
+        cursor.execute(query)
+        require_list = list(filter(lambda x: "REQUIRE" in x, cursor.fetchall()))
+        require_line = require_list[0] if require_list else ""
+        pattern = r"(?<=\bREQUIRE\b)(.*?)(?=(?:\bPASSWORD\b|$))"
+        requires_match = re.search(pattern, require_line)
+        requires = requires_match.group().strip() if requires_match else ""
+        if len(requires.split()) > 1:
+            import shlex
+
+            items = iter(shlex.split(requires))
+            requires = dict(zip(items, items))
+        return requires or None
+
+
+def get_grants(cursor, user, host):
+    cursor.execute("SHOW GRANTS FOR %s@%s", (user, host))
+    grants_line = list(filter(lambda x: "ON *.*" in x[0], cursor.fetchall()))[0]
+    pattern = r"(?<=\bGRANT\b)(.*?)(?=(?:\bON\b))"
+    grants = re.search(pattern, grants_line[0]).group().strip()
+    return grants.split(", ")
+
+
 def user_add(cursor, user, host, host_all, password, encrypted,
-             plugin, plugin_hash_string, plugin_auth_string, new_priv, check_mode):
+             plugin, plugin_hash_string, plugin_auth_string, new_priv,
+             tls_requires, check_mode):
     # we cannot create users without a proper hostname
     if host_all:
         return False
@@ -370,27 +458,44 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     # Determine what user management method server uses
     old_user_mgmt = use_old_user_mgmt(cursor)
 
+    mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
+
     if password and encrypted:
-        cursor.execute("CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password))
+        cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password), tls_requires))
     elif password and not encrypted:
         if old_user_mgmt:
-            cursor.execute("CREATE USER %s@%s IDENTIFIED BY %s", (user, host, password))
+            cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY %s", (user, host, password), tls_requires))
         else:
             cursor.execute("SELECT CONCAT('*', UCASE(SHA1(UNHEX(SHA1(%s)))))", (password,))
             encrypted_password = cursor.fetchone()[0]
-            cursor.execute("CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, encrypted_password))
-
+            cursor.execute(
+                *mogrify(
+                    "CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s",
+                    (user, host, encrypted_password),
+                    tls_requires,
+                )
+            )
     elif plugin and plugin_hash_string:
-        cursor.execute("CREATE USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string))
+        cursor.execute(
+            *mogrify(
+                "CREATE USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string), tls_requires
+            )
+        )
     elif plugin and plugin_auth_string:
-        cursor.execute("CREATE USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string))
+        cursor.execute(
+            *mogrify(
+                "CREATE USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string), tls_requires
+            )
+        )
     elif plugin:
-        cursor.execute("CREATE USER %s@%s IDENTIFIED WITH %s", (user, host, plugin))
+        cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED WITH %s", (user, host, plugin), tls_requires))
     else:
-        cursor.execute("CREATE USER %s@%s", (user, host))
+        cursor.execute(*mogrify("CREATE USER %s@%s", (user, host), tls_requires))
     if new_priv is not None:
         for db_table, priv in iteritems(new_priv):
-            privileges_grant(cursor, user, host, db_table, priv)
+            privileges_grant(cursor, user, host, db_table, priv, tls_requires)
+    if tls_requires is not None:
+        privileges_grant(cursor, user, host, "*.*", get_grants(cursor, user, host), tls_requires)
     return True
 
 
@@ -403,7 +508,8 @@ def is_hash(password):
 
 
 def user_mod(cursor, user, host, host_all, password, encrypted,
-             plugin, plugin_hash_string, plugin_auth_string, new_priv, append_privs, module):
+             plugin, plugin_hash_string, plugin_auth_string, new_priv,
+             append_privs, tls_requires, module):
     changed = False
     msg = "User unchanged"
     grant_option = False
@@ -537,7 +643,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     msg = "New privileges granted"
                     if module.check_mode:
                         return (True, msg)
-                    privileges_grant(cursor, user, host, db_table, priv)
+                    privileges_grant(cursor, user, host, db_table, priv, tls_requires)
                     changed = True
 
             # If the db.table specification exists in both the user's current privileges
@@ -551,8 +657,27 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                         return (True, msg)
                     if not append_privs:
                         privileges_revoke(cursor, user, host, db_table, curr_priv[db_table], grant_option)
-                    privileges_grant(cursor, user, host, db_table, new_priv[db_table])
+                    privileges_grant(cursor, user, host, db_table, new_priv[db_table], tls_requires)
                     changed = True
+
+        # Handle TLS requirements
+        current_requires = get_tls_requires(cursor, user, host)
+        if current_requires != tls_requires:
+            msg = "TLS requires updated"
+            if module.check_mode:
+                return (True, msg)
+            if not old_user_mgmt:
+                pre_query = "ALTER USER"
+            else:
+                pre_query = "GRANT %s ON *.* TO" % ",".join(get_grants(cursor, user, host))
+
+            if tls_requires is not None:
+                query = " ".join((pre_query, "%s@%s"))
+                cursor.execute(*mogrify_requires(query, (user, host), tls_requires))
+            else:
+                query = " ".join(pre_query, "%s@%s REQUIRE NONE")
+                cursor.execute(query, (user, host))
+            changed = True
 
     return (changed, msg)
 
@@ -611,7 +736,7 @@ def privileges_get(cursor, user, host):
         privileges = [pick(x.strip()) for x in privileges]
         if "WITH GRANT OPTION" in res.group(7):
             privileges.append('GRANT')
-        if "REQUIRE SSL" in res.group(7):
+        if 'REQUIRE SSL' in res.group(7):
             privileges.append('REQUIRESSL')
         db = res.group(2)
         output.setdefault(db, []).extend(privileges)
@@ -690,19 +815,23 @@ def privileges_revoke(cursor, user, host, db_table, priv, grant_option):
     cursor.execute(query, (user, host))
 
 
-def privileges_grant(cursor, user, host, db_table, priv):
+def privileges_grant(cursor, user, host, db_table, priv, tls_requires):
     # Escape '%' since mysql db.execute uses a format string and the
     # specification of db and table often use a % (SQL wildcard)
     db_table = db_table.replace('%', '%%')
     priv_string = ",".join([p for p in priv if p not in ('GRANT', 'REQUIRESSL')])
     query = ["GRANT %s ON %s" % (priv_string, db_table)]
     query.append("TO %s@%s")
-    if 'REQUIRESSL' in priv:
+    params = (user, host)
+    if tls_requires and use_old_user_mgmt(cursor):
+        query, params = mogrify_requires(" ".join(query), params, tls_requires)
+        query = [query]
+    if 'REQUIRESSL' in priv and not tls_requires:
         query.append("REQUIRE SSL")
     if 'GRANT' in priv:
         query.append("WITH GRANT OPTION")
     query = ' '.join(query)
-    cursor.execute(query, (user, host))
+    cursor.execute(query, params)
 
 
 def convert_priv_dict_to_str(priv):
@@ -850,6 +979,7 @@ def limit_resources(module, cursor, user, host, resource_limits, check_mode):
     cursor.execute(query, (user, host))
     return True
 
+
 # ===========================================
 # Module execution.
 #
@@ -870,6 +1000,7 @@ def main():
             host_all=dict(type="bool", default=False),
             state=dict(type='str', default='present', choices=['absent', 'present']),
             priv=dict(type='raw'),
+            tls_requires=dict(type='dict'),
             append_privs=dict(type='bool', default=False),
             check_implicit_admin=dict(type='bool', default=False),
             update_password=dict(type='str', default='always', choices=['always', 'on_create'], no_log=False),
@@ -895,9 +1026,10 @@ def main():
     host_all = module.params["host_all"]
     state = module.params["state"]
     priv = module.params["priv"]
-    check_implicit_admin = module.params['check_implicit_admin']
-    connect_timeout = module.params['connect_timeout']
-    config_file = module.params['config_file']
+    tls_requires = sanitize_requires(module.params["tls_requires"])
+    check_implicit_admin = module.params["check_implicit_admin"]
+    connect_timeout = module.params["connect_timeout"]
+    config_file = module.params["config_file"]
     append_privs = module.boolean(module.params["append_privs"])
     update_password = module.params['update_password']
     ssl_cert = module.params["client_cert"]
@@ -922,7 +1054,7 @@ def main():
     try:
         if check_implicit_admin:
             try:
-                cursor, db_conn = mysql_connect(module, 'root', '', config_file, ssl_cert, ssl_key, ssl_ca, db,
+                cursor, db_conn = mysql_connect(module, "root", "", config_file, ssl_cert, ssl_key, ssl_ca, db,
                                                 connect_timeout=connect_timeout)
             except Exception:
                 pass
@@ -950,14 +1082,14 @@ def main():
     if state == "present":
         if user_exists(cursor, user, host, host_all):
             try:
-                if update_password == 'always':
+                if update_password == "always":
                     changed, msg = user_mod(cursor, user, host, host_all, password, encrypted,
                                             plugin, plugin_hash_string, plugin_auth_string,
-                                            priv, append_privs, module)
+                                            priv, append_privs, tls_requires, module)
                 else:
                     changed, msg = user_mod(cursor, user, host, host_all, None, encrypted,
                                             plugin, plugin_hash_string, plugin_auth_string,
-                                            priv, append_privs, module)
+                                            priv, append_privs, tls_requires, module)
 
             except (SQLParseError, InvalidPrivsError, mysql_driver.Error) as e:
                 module.fail_json(msg=to_native(e))
@@ -967,7 +1099,7 @@ def main():
             try:
                 changed = user_add(cursor, user, host, host_all, password, encrypted,
                                    plugin, plugin_hash_string, plugin_auth_string,
-                                   priv, module.check_mode)
+                                   priv, tls_requires, module.check_mode)
                 if changed:
                     msg = "User added"
 

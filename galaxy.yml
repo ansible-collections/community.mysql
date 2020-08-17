@@ -1,6 +1,6 @@
 namespace: community
 name: mysql
-version: 0.1.0
+version: 1.0.0
 readme: README.md
 authors:
   - MySQL Working Group (https://github.com/ansible-collections/community.mysql/wiki/MySQL-Working-Group)

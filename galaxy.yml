@@ -3,7 +3,7 @@ name: mysql
 version: 0.1.0
 readme: README.md
 authors:
-  - MySQL Working Group (https://github.com/ansible/community/wiki/MySQL)
+  - MySQL Working Group (https://github.com/ansible-collections/community.mysql/wiki/MySQL-Working-Group)
 description: MySQL collection for Ansible
 license_file: COPYING
 tags:

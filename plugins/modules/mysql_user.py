@@ -21,6 +21,7 @@ options:
       - Name of the user (role) to add or remove.
     type: str
     required: true
+    aliases: ['user']
   password:
     description:
       - Set the user's password..
@@ -58,7 +59,6 @@ options:
     description:
       - Append the privileges defined by priv to the existing ones for this
         user instead of overwriting existing ones.
-    type: bool
     default: no
   tls_requires:
     description:

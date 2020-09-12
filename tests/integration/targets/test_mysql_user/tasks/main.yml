@@ -275,6 +275,28 @@
       vars:
         - reqs: "{{(old_result is skipped | ternary(new_result, old_result)).stdout.split('REQUIRE')[1].split(separator)[0].strip()}}"
 
+    - name: remove TLS requiremets from user (expect changed=true)
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        tls_requires:
+
+    - name: retrieve TLS requiremets for users in old database version
+      command: "{{ mysql_command }} -L -N -s -e \"SHOW GRANTS for '{{ user_name_1 }}'@'localhost'\""
+      register: old_result
+      when: db_version.version.major <= 5 and db_version.version.minor <= 6 or db_version.version.major == 10 and db_version.version.minor < 2
+
+    - name: retrieve TLS requiremets for users in new database version
+      command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
+      register: new_result
+      when: db_version.version.major == 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2
+
+    - name: assert user1 TLS requirements
+      assert:
+        that: "'NONE' in reqs"
+      vars:
+        - reqs: "{{(old_result is skipped | ternary(new_result, old_result)).stdout.split('REQUIRE')[1].split(separator)[0].strip() | default('NONE') }}"
 
     - include: remove_user.yml user_name={{user_name_1}} user_password={{ user_password_1 }}
 

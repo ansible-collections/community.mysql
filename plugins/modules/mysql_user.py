@@ -210,6 +210,11 @@ EXAMPLES = r'''
       subject: '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
       cipher: 'ECDHE-ECDSA-AES256-SHA384'
 
+- name: Modify user to no longer require SSL.
+  community.mysql.mysql_user:
+    name: bob
+    tls_requires:
+
 - name: Ensure no user named 'sally'@'localhost' exists, also passing in the auth credentials.
   community.mysql.mysql_user:
     login_user: root

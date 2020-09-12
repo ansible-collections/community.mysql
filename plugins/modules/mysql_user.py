@@ -519,6 +519,9 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
     msg = "User unchanged"
     grant_option = False
 
+    # Determine what user management method server uses
+    old_user_mgmt = use_old_user_mgmt(cursor)
+
     if host_all:
         hostnames = user_get_hostnames(cursor, [user])
     else:
@@ -527,8 +530,6 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
     for host in hostnames:
         # Handle clear text and hashed passwords.
         if bool(password):
-            # Determine what user management method server uses
-            old_user_mgmt = use_old_user_mgmt(cursor)
 
             # Get a list of valid columns in mysql.user table to check if Password and/or authentication_string exist
             cursor.execute("""
@@ -680,7 +681,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 query = " ".join((pre_query, "%s@%s"))
                 cursor.execute(*mogrify_requires(query, (user, host), tls_requires))
             else:
-                query = " ".join(pre_query, "%s@%s REQUIRE NONE")
+                query = " ".join((pre_query, "%s@%s REQUIRE NONE"))
                 cursor.execute(query, (user, host))
             changed = True
 

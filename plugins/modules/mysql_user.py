@@ -434,7 +434,11 @@ def get_tls_requires(cursor, user, host):
         pattern = r"(?<=\bREQUIRE\b)(.*?)(?=(?:\bPASSWORD\b|$))"
         requires_match = re.search(pattern, require_line)
         requires = requires_match.group().strip() if requires_match else ""
-        if len(requires.split()) > 1:
+        if any((requires.startswith(req) for req in ('SSL', 'X509', 'NONE'))):
+            requires = requires.split()[0]
+            if requires == 'NONE':
+                requires = None
+        else:
             import shlex
 
             items = iter(shlex.split(requires))

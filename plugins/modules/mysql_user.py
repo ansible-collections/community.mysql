@@ -820,7 +820,7 @@ def privileges_grant(cursor, user, host, db_table, priv, tls_requires):
     # specification of db and table often use a % (SQL wildcard)
     db_table = db_table.replace('%', '%%')
     priv_string = ",".join([p for p in priv if p not in ('GRANT', 'REQUIRESSL')])
-    query = ["GRANT %s ON %s" % (priv_string, db_table)]
+    query = ["GRANT %s ON mysql.%s" % (priv_string, db_table)]
     query.append("TO %s@%s")
     params = (user, host)
     if tls_requires and use_old_user_mgmt(cursor):

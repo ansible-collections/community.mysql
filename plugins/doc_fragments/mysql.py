@@ -66,10 +66,14 @@ requirements:
    - PyMySQL (Python 2.7 and Python 3.X), or
    - MySQLdb (Python 2.x)
 notes:
-   - Requires the PyMySQL (Python 2.7 and Python 3.X) or MySQL-python (Python 2.X) package on the remote host.
+   - Requires the PyMySQL (Python 2.7 and Python 3.X) or MySQL-python (Python 2.X) package installed on the remote host.
      The Python package may be installed with apt-get install python-pymysql (Ubuntu; see M(ansible.builtin.apt)) or
      yum install python2-PyMySQL (RHEL/CentOS/Fedora; see M(ansible.builtin.yum)). You can also use dnf install python2-PyMySQL
      for newer versions of Fedora; see M(ansible.builtin.dnf).
+   - Be sure you have PyMySQL or MySQLdb library installed on the target machine
+     for the Python interpreter Ansible uses, for example, if it is Python 3,
+     you must install the library for Python 3. You can also change the interpreter.
+     For more information, see U(https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html).
    - Both C(login_password) and C(login_user) are required when you are
      passing credentials. If none are present, the module will attempt to read
      the credentials from C(~/.my.cnf), and finally fall back to using the MySQL

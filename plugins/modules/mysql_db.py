@@ -569,7 +569,7 @@ def main():
             skip_lock_tables=dict(type='bool', default=False),
             dump_extra_args=dict(type='str'),
             use_shell=dict(type='bool', default=False),
-            unsafe_login_password=dict(type='bool', default=False),
+            unsafe_login_password=dict(type='bool', default=False, no_log=True),
             restrict_config_file=dict(type='bool', default=False),
             check_implicit_admin=dict(type='bool', default=False),
             config_overrides_defaults=dict(type='bool', default=False),

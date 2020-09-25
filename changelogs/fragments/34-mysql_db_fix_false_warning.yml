@@ -1,2 +1,2 @@
 bugfixes:
-- mysql_db - fix false warning related to ``unsafe_login_password`` (https://github.com/ansible-collections/community.mysql/issues/33).
+- mysql_db - fix false warning related to ``unsafe_login_password`` option (https://github.com/ansible-collections/community.mysql/issues/33).

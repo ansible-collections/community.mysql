@@ -1,3 +1,4 @@
 bugfixes:
-- mysql_user - Correct procedure to check existing TLS requirements.
-- mysql_user - Minor syntax fixes.
+- mysql_user - added tests to verify that TLS requirements are removed with an empty ``tls_requires`` option (https://github.com/ansible-collections/community.mysql/issues/20).
+- mysql_user - correct procedure to check existing TLS requirements (https://github.com/ansible-collections/community.mysql/pull/26).
+- mysql_user - minor syntax fixes.

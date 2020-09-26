@@ -1,7 +1,3 @@
 bugfixes:
 - mysql_user - Correct procedure to check existing TLS requirements.
 - mysql_user - Minor syntax fixes.
-improvements:
-- mysql_user - Added tests to verify that TLS requirements are removed with an empty `tls_requires` parameter.
-- mysql_user - Added examples on how to remove TLS requirements by setting an empty `tls_requires` parameter.
-- mysql_user - Refactored TLS requirement tests into their own file.

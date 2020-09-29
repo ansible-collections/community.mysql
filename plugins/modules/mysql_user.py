@@ -297,7 +297,7 @@ import string
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import SQLParseError
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg
+from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
 
@@ -996,35 +996,27 @@ def limit_resources(module, cursor, user, host, resource_limits, check_mode):
 
 
 def main():
+    argument_spec = mysql_common_argument_spec()
+    argument_spec.update(
+        user=dict(type='str', required=True, aliases=['name']),
+        password=dict(type='str', no_log=True),
+        encrypted=dict(type='bool', default=False),
+        host=dict(type='str', default='localhost'),
+        host_all=dict(type="bool", default=False),
+        state=dict(type='str', default='present', choices=['absent', 'present']),
+        priv=dict(type='raw'),
+        tls_requires=dict(type='dict'),
+        append_privs=dict(type='bool', default=False),
+        check_implicit_admin=dict(type='bool', default=False),
+        update_password=dict(type='str', default='always', choices=['always', 'on_create'], no_log=False),
+        sql_log_bin=dict(type='bool', default=True),
+        plugin=dict(default=None, type='str'),
+        plugin_hash_string=dict(default=None, type='str'),
+        plugin_auth_string=dict(default=None, type='str'),
+        resource_limits=dict(type='dict'),
+    )
     module = AnsibleModule(
-        argument_spec=dict(
-            login_user=dict(type='str'),
-            login_password=dict(type='str', no_log=True),
-            login_host=dict(type='str', default='localhost'),
-            login_port=dict(type='int', default=3306),
-            login_unix_socket=dict(type='str'),
-            user=dict(type='str', required=True, aliases=['name']),
-            password=dict(type='str', no_log=True),
-            encrypted=dict(type='bool', default=False),
-            host=dict(type='str', default='localhost'),
-            host_all=dict(type="bool", default=False),
-            state=dict(type='str', default='present', choices=['absent', 'present']),
-            priv=dict(type='raw'),
-            tls_requires=dict(type='dict'),
-            append_privs=dict(type='bool', default=False),
-            check_implicit_admin=dict(type='bool', default=False),
-            update_password=dict(type='str', default='always', choices=['always', 'on_create'], no_log=False),
-            connect_timeout=dict(type='int', default=30),
-            config_file=dict(type='path', default='~/.my.cnf'),
-            sql_log_bin=dict(type='bool', default=True),
-            client_cert=dict(type='path', aliases=['ssl_cert']),
-            client_key=dict(type='path', aliases=['ssl_key']),
-            ca_cert=dict(type='path', aliases=['ssl_ca']),
-            plugin=dict(default=None, type='str'),
-            plugin_hash_string=dict(default=None, type='str'),
-            plugin_auth_string=dict(default=None, type='str'),
-            resource_limits=dict(type='dict'),
-        ),
+        argument_spec=argument_spec,
         supports_check_mode=True,
     )
     login_user = module.params["login_user"]
@@ -1045,6 +1037,7 @@ def main():
     ssl_cert = module.params["client_cert"]
     ssl_key = module.params["client_key"]
     ssl_ca = module.params["ca_cert"]
+    check_hostname = module.params["check_hostname"]
     db = ''
     sql_log_bin = module.params["sql_log_bin"]
     plugin = module.params["plugin"]
@@ -1065,13 +1058,13 @@ def main():
         if check_implicit_admin:
             try:
                 cursor, db_conn = mysql_connect(module, "root", "", config_file, ssl_cert, ssl_key, ssl_ca, db,
-                                                connect_timeout=connect_timeout)
+                                                connect_timeout=connect_timeout, check_hostname=check_hostname)
             except Exception:
                 pass
 
         if not cursor:
             cursor, db_conn = mysql_connect(module, login_user, login_password, config_file, ssl_cert, ssl_key, ssl_ca, db,
-                                            connect_timeout=connect_timeout)
+                                            connect_timeout=connect_timeout, check_hostname=check_hostname)
     except Exception as e:
         module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "
                              "Exception message: %s" % (config_file, to_native(e)))

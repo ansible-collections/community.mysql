@@ -71,7 +71,7 @@
   assert:
     that:
     - result is failed
-    - result.msg is search("Can't connect to MySQL server on '{{ fake_host }}'")
+    - result.msg is search("Can't connect to MySQL server on '{{ fake_host }}'") or result.msg is search("Unknown MySQL server host '{{ fake_host }}'")
 
 # Clean up
 - name: Remove test db

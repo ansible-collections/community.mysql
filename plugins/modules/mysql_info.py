@@ -509,6 +509,7 @@ def main():
     ssl_cert = module.params['client_cert']
     ssl_key = module.params['client_key']
     ssl_ca = module.params['ca_cert']
+    check_hostname = module.params['check_hostname']
     config_file = module.params['config_file']
     filter_ = module.params['filter']
     exclude_fields = module.params['exclude_fields']
@@ -526,6 +527,7 @@ def main():
     try:
         cursor, db_conn = mysql_connect(module, login_user, login_password,
                                         config_file, ssl_cert, ssl_key, ssl_ca, db,
+                                        check_hostname=check_hostname,
                                         connect_timeout=connect_timeout, cursor_class='DictCursor')
     except Exception as e:
         module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "

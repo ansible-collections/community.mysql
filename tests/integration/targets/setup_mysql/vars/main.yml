@@ -15,7 +15,6 @@ percona_mysql_packages:
   - percona-server-client-{{ percona_client_version }}
 
 python_packages: [pymysql == 0.9.3]
-  # - mysqlclient == 2.0.1  #  temporary fix pinning to 0.9.3 to ensure warnings are handled (https://github.com/ansible-collections/community.mysql/pull/9#issuecomment-663040948)
 
 install_prereqs:
   - libaio1

@@ -144,6 +144,7 @@ def main():
     ssl_cert = module.params['client_cert']
     ssl_key = module.params['client_key']
     ssl_ca = module.params['ca_cert']
+    check_hostname = module.params['check_hostname']
     config_file = module.params['config_file']
     query = module.params["query"]
     if module.params["single_transaction"]:
@@ -165,12 +166,14 @@ def main():
     try:
         cursor, db_connection = mysql_connect(module, login_user, login_password,
                                               config_file, ssl_cert, ssl_key, ssl_ca, db,
+                                              check_hostname=check_hostname,
                                               connect_timeout=connect_timeout,
                                               cursor_class='DictCursor', autocommit=autocommit)
     except Exception as e:
         module.fail_json(msg="unable to connect to database, check login_user and "
                              "login_password are correct or %s has the credentials. "
                              "Exception message: %s" % (config_file, to_native(e)))
+
     # Set defaults:
     changed = False
 
@@ -210,7 +213,11 @@ def main():
             if keyword in q:
                 changed = True
 
-        executed_queries.append(cursor._last_executed)
+        try:
+            executed_queries.append(cursor._last_executed)
+        except AttributeError:
+            # MySQLdb removed cursor._last_executed as a duplicate of cursor._executed
+            executed_queries.append(cursor._executed)
         rowcount.append(cursor.rowcount)
 
     # When the module run with the single_transaction == True:

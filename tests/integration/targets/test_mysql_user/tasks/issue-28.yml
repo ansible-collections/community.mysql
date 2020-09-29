@@ -9,6 +9,9 @@
   block:
 
     # ============================================================
+    - shell: pip show pymysql | awk '/Version/ {print $2}'
+      register: pymysql_version
+
     - name: get server certificate
       copy:
         content: "{{ lookup('pipe', \"openssl s_client -starttls mysql -connect localhost:3307 -showcerts 2>/dev/null </dev/null |  sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p'\") }}"
@@ -30,15 +33,6 @@
         tls_requires:
           SSL:
 
-    - mysql_info:
-        login_user: '{{ user_name_1 }}'
-        login_password: '{{ user_password_1 }}'
-        login_host: 127.0.0.1
-        login_port: '{{ mysql_primary_port }}'
-        ca_cert: /tmp/cert.pem
-        filter: version
-      ignore_errors: yes
-
     - name: attempt connection with newly created user (expect failure)
       mysql_user:
         name: "{{ user_name_2 }}"
@@ -52,12 +46,10 @@
       register: result
       ignore_errors: yes
 
-    - pause:
-        seconds: 600
-
     - assert:
         that:
           - result is failed
+      when: pymysql_version.stdout != ""
 
     - name: attempt connection with newly created user ignoring hostname
       mysql_user:

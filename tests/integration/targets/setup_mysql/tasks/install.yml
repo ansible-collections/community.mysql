@@ -18,6 +18,13 @@
   environment:
     DEBIAN_FRONTEND: noninteractive
 
+- name: "{{ role_name }} | install | install packages required by mysql connector"
+  apt:
+    name: "{{ install_python_prereqs }}"
+    state: present
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
 - name: "{{ role_name }} | install | install python packages"
   pip:
     name: "{{ python_packages }}"

@@ -6,3 +6,6 @@ mysql_host: 127.0.0.1
 mysql_primary_port: 3307
 
 db_name: data
+
+user_name_1: 'db_user1'
+user_password_1: 'gadfFDSdtTU^Sdfuj'

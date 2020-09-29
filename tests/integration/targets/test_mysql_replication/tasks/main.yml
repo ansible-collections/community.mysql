@@ -17,3 +17,5 @@
 
 # Tests of resetmaster mode:
 - import_tasks: mysql_replication_resetmaster_mode.yml
+
+- include: issue-28.yml

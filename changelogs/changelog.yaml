@@ -100,3 +100,22 @@ releases:
     - mysql_info_add_parameter.yml
     - mysql_user_idempotency.yml
     release_date: '2020-08-17'
+  1.0.1:
+    changes:
+      bugfixes:
+      - mysql_db - fix false warning related to ``unsafe_login_password`` option (https://github.com/ansible-collections/community.mysql/issues/33).
+      - mysql_user - added tests to verify that TLS requirements are removed with
+        an empty ``tls_requires`` option (https://github.com/ansible-collections/community.mysql/issues/20).
+      - mysql_user - correct procedure to check existing TLS requirements (https://github.com/ansible-collections/community.mysql/pull/26).
+      - mysql_user - minor syntax fixes (https://github.com/ansible-collections/community.mysql/pull/26).
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection that
+        have been added after the release of ``community.mysql`` 1.0.0.
+
+        '
+    fragments:
+    - 1.0.1.yml
+    - 26-remove_tls_requirements.yml
+    - 34-mysql_db_fix_false_warning.yml
+    release_date: '2020-09-29'

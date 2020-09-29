@@ -5,6 +5,24 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v1.0.1
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection that have been added after the release of ``community.mysql`` 1.0.0.
+
+
+Bugfixes
+--------
+
+- mysql_db - fix false warning related to ``unsafe_login_password`` option (https://github.com/ansible-collections/community.mysql/issues/33).
+- mysql_user - added tests to verify that TLS requirements are removed with an empty ``tls_requires`` option (https://github.com/ansible-collections/community.mysql/issues/20).
+- mysql_user - correct procedure to check existing TLS requirements (https://github.com/ansible-collections/community.mysql/pull/26).
+- mysql_user - minor syntax fixes (https://github.com/ansible-collections/community.mysql/pull/26).
+
 v1.0.0
 ======
 

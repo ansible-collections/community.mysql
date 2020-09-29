@@ -33,7 +33,6 @@
         tls_requires:
           SSL:
 
-  register: mysql_primary_status
     - name: attempt connection with newly created user (expect failure)
       mysql_replication:
         mode: getmaster

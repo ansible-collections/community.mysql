@@ -196,6 +196,7 @@
         name: '{{ user_name_1 }}'
         priv: '%db.*:INSERT'
         append_privs: yes
+        host_all: yes
         password: '{{ user_password_1 }}'
 
     - name: show grants access for user1 on multiple database

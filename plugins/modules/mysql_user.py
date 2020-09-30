@@ -527,7 +527,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
     old_user_mgmt = use_old_user_mgmt(cursor)
 
     if host_all:
-        hostnames = user_get_hostnames(cursor, [user])
+        hostnames = user_get_hostnames(cursor, user)
     else:
         hostnames = [host]
 

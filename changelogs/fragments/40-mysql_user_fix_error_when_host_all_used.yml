@@ -1,0 +1,2 @@
+bugfixes:
+- mysql_user - fix module's crash when modifying a user with ``host_all`` (https://github.com/ansible-collections/community.mysql/issues/39).

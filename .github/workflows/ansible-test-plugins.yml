@@ -48,7 +48,7 @@ jobs:
         working-directory: ./ansible_collections/community/mysql
 
   integration:
-    name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, MySQL: ${{ matrix.mysql }})"
+    name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, MySQL: ${{ matrix.mysql }}, Connector: ${{ matrix.connector }})"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

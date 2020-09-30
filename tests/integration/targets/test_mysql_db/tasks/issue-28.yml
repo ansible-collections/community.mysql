@@ -30,6 +30,7 @@
         <<: *mysql_params
         name: "{{ user_name_1 }}"
         password: "{{ user_password_1 }}"
+        priv: '*.*:ALL,GRANT'
         tls_requires:
           SSL:
 
@@ -53,7 +54,7 @@
     - name: attempt connection with newly created user ignoring hostname
       mysql_db:
         name: '{{ db_name }}'
-        state: present
+        state: absent
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
         login_host: 127.0.0.1

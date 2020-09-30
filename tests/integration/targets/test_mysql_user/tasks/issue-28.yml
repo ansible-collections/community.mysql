@@ -30,6 +30,7 @@
         <<: *mysql_params
         name: "{{ user_name_1 }}"
         password: "{{ user_password_1 }}"
+        priv: '*.*:ALL,GRANT'
         tls_requires:
           SSL:
 

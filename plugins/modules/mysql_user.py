@@ -746,8 +746,6 @@ def privileges_get(cursor, user, host):
         privileges = [pick(x.strip()) for x in privileges]
         if "WITH GRANT OPTION" in res.group(7):
             privileges.append('GRANT')
-        if 'REQUIRE SSL' in res.group(7):
-            privileges.append('REQUIRESSL')
         db = res.group(2)
         output.setdefault(db, []).extend(privileges)
     return output

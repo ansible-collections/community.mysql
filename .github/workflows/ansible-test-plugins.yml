@@ -63,10 +63,11 @@ jobs:
         python:
           - 3.6
         connector:
+          - pymysql==0.7.10
           - pymysql==0.9.3
           - mysqlclient==2.0.1
-        include:
-          - mysql: 5.7.31
+        exclude:
+          - mysql: 8.0.21
             connector: pymysql==0.7.10
     steps:
 

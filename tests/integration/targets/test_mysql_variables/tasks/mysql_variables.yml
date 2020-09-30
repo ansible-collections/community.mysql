@@ -159,13 +159,13 @@
         <<: *mysql_params
         variable: max_connect_errors
         value: -1
-      register: result
+      register: oor_result
       ignore_errors: true
 
-    - include: assert_var.yml changed=true output={{ result }} var_name=max_connect_errors var_value=1
+    - include: assert_var.yml changed=true output={{ oor_result }} var_name=max_connect_errors var_value=1
       when: pymysql_version.stdout == ""
 
-    - include: assert_fail_msg.yml output={{ result }}  msg='Truncated incorrect'
+    - include: assert_fail_msg.yml output={{ oor_result }}  msg='Truncated incorrect'
       when: pymysql_version.stdout != ""
 
     # ============================================================
@@ -176,14 +176,10 @@
         <<: *mysql_params
         variable: max_connect_errors
         value: TEST
-      register: result
+      register: nvv_result
       ignore_errors: true
 
-    - include: assert_var.yml changed=true output={{ result }} var_name=max_connect_errors var_value=1
-      when: pymysql_version.stdout == ""
-
-    - include: assert_fail_msg.yml output={{ result }}  msg='Incorrect argument type to variable'
-      when: pymysql_version.stdout != ""
+    - include: assert_fail_msg.yml output={{ nvv_result }}  msg='Incorrect argument type to variable'
 
     # ============================================================
     # Verify mysql_variable fails when setting an unknown variable

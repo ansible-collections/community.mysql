@@ -119,3 +119,17 @@ releases:
     - 26-remove_tls_requirements.yml
     - 34-mysql_db_fix_false_warning.yml
     release_date: '2020-09-29'
+  1.0.2:
+    changes:
+      bugfixes:
+      - mysql_user - fix module's crash when modifying a user with ``host_all`` (https://github.com/ansible-collections/community.mysql/issues/39).
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection that
+        have been added after the release of ``community.mysql`` 1.0.1.
+
+        '
+    fragments:
+    - 1.0.2.yml
+    - 40-mysql_user_fix_error_when_host_all_used.yml
+    release_date: '2020-10-01'

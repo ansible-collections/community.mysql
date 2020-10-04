@@ -66,7 +66,8 @@ options:
     description:
       - Whether to validate the server host name when an SSL connection is required.
       - Setting this to False disables hostname verification. Use with caution.
-      - Requires pymysql >= 0.7.11. MySQLdb does not support this option.
+      - Requires pymysql >= 0.7.11.
+      - This optoin has no effect on MySQLdb.
     type: bool
 requirements:
    - PyMySQL (Python 2.7 and Python 3.X), or

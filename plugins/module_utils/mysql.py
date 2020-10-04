@@ -87,8 +87,6 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
                 config['ssl']['check_hostname'] = check_hostname
             else:
                 module.fail_json(msg='To use check_hostname, pymysql >= 0.7.11 is required on the target host')
-        else:
-            module.fail_json(msg='Connector %s does not support the check_hostname option' % mysql_driver.__name__)
 
     if _mysql_cursor_param == 'cursor':
         # In case of PyMySQL driver:

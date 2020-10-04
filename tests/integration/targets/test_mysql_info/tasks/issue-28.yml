@@ -49,6 +49,11 @@
           - result is failed
       when: pymysql_version.stdout != ""
 
+    - assert:
+        that:
+          - result is succeeded
+      when: pymysql_version.stdout == ""
+
     - name: attempt connection with newly created user ignoring hostname
       mysql_info:
         filter: version
@@ -63,7 +68,7 @@
 
     - assert:
         that:
-          - result is succeeded or 'pymysql >= 0.7.11 is required' in result.msg or 'MySQLdb does not support' in result.msg
+          - result is succeeded or 'pymysql >= 0.7.11 is required' in result.msg
 
     - name: Drop mysql user
       mysql_user:

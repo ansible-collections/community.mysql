@@ -89,6 +89,12 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
         if autocommit:
             db_connection.autocommit(True)
 
+    # Monkey patch the Connection class to close the connection when garbage collected
+    def _conn_patch(conn_self):
+        conn_self.close()
+    db_connection.__class__.__del__ = _conn_patch
+    # Patched
+
     if cursor_class == 'DictCursor':
         return db_connection.cursor(**{_mysql_cursor_param: mysql_driver.cursors.DictCursor}), db_connection
     else:

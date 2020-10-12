@@ -82,7 +82,7 @@ from re import match
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import SQLParseError, mysql_quote_identifier
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg
+from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
 from ansible.module_utils._text import to_native
 
 executed_queries = []
@@ -168,22 +168,15 @@ def setvariable(cursor, mysqlvar, value, mode='global'):
 
 
 def main():
+    argument_spec = mysql_common_argument_spec()
+    argument_spec.update(
+        variable=dict(type='str'),
+        value=dict(type='str'),
+        mode=dict(type='str', choices=['global', 'persist', 'persist_only'], default='global'),
+    )
+
     module = AnsibleModule(
-        argument_spec=dict(
-            login_user=dict(type='str'),
-            login_password=dict(type='str', no_log=True),
-            login_host=dict(type='str', default='localhost'),
-            login_port=dict(type='int', default=3306),
-            login_unix_socket=dict(type='str'),
-            variable=dict(type='str'),
-            value=dict(type='str'),
-            client_cert=dict(type='path', aliases=['ssl_cert']),
-            client_key=dict(type='path', aliases=['ssl_key']),
-            ca_cert=dict(type='path', aliases=['ssl_ca']),
-            connect_timeout=dict(type='int', default=30),
-            config_file=dict(type='path', default='~/.my.cnf'),
-            mode=dict(type='str', choices=['global', 'persist', 'persist_only'], default='global'),
-        ),
+        argument_spec=argument_spec
     )
     user = module.params["login_user"]
     password = module.params["login_password"]
@@ -191,6 +184,7 @@ def main():
     ssl_cert = module.params["client_cert"]
     ssl_key = module.params["client_key"]
     ssl_ca = module.params["ca_cert"]
+    check_hostname = module.params["check_hostname"]
     config_file = module.params['config_file']
     db = 'mysql'
 
@@ -209,7 +203,7 @@ def main():
 
     try:
         cursor, db_conn = mysql_connect(module, user, password, config_file, ssl_cert, ssl_key, ssl_ca, db,
-                                        connect_timeout=connect_timeout)
+                                        connect_timeout=connect_timeout, check_hostname=check_hostname)
     except Exception as e:
         if os.path.exists(config_file):
             module.fail_json(msg=("unable to connect to database, check login_user and "

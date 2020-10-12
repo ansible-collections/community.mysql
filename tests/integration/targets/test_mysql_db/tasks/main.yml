@@ -322,3 +322,5 @@
 
 - include: config_overrides_defaults.yml
   when: ansible_python.version_info[0] >= 3
+
+- include: issue-28.yml

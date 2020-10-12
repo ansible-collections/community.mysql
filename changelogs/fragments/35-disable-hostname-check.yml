@@ -1,0 +1,2 @@
+minor_changes:
+  - mysql modules - add the ``check_hostname`` option (https://github.com/ansible-collections/community.mysql/issues/28).

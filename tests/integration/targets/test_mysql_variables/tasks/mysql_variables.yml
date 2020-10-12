@@ -141,7 +141,7 @@
     - name: set mysql variable value to an expression
       mysql_variables:
         <<: *mysql_params
-        variable: max_tmp_tables
+        variable: max_connect_errors
         value: "1024*4"
       register: result
       ignore_errors: true
@@ -151,15 +151,22 @@
     # ============================================================
     # Verify mysql_variable fails when setting an incorrect value (out of range)
     #
+    - shell: pip show pymysql | awk '/Version/ {print $2}'
+      register: pymysql_version
+
     - name: set mysql variable value to a number out of range
       mysql_variables:
         <<: *mysql_params
-        variable: max_tmp_tables
+        variable: max_connect_errors
         value: -1
-      register: result
+      register: oor_result
       ignore_errors: true
 
-    - include: assert_fail_msg.yml output={{ result }}  msg='Truncated incorrect'
+    - include: assert_var.yml changed=true output={{ oor_result }} var_name=max_connect_errors var_value=1
+      when: pymysql_version.stdout == ""
+
+    - include: assert_fail_msg.yml output={{ oor_result }}  msg='Truncated incorrect'
+      when: pymysql_version.stdout != ""
 
     # ============================================================
     # Verify mysql_variable fails when setting an incorrect value (incorrect type)
@@ -167,12 +174,12 @@
     - name: set mysql variable value to a non-valid value number
       mysql_variables:
         <<: *mysql_params
-        variable: max_tmp_tables
+        variable: max_connect_errors
         value: TEST
-      register: result
+      register: nvv_result
       ignore_errors: true
 
-    - include: assert_fail_msg.yml output={{ result }}  msg='Incorrect argument type to variable'
+    - include: assert_fail_msg.yml output={{ nvv_result }}  msg='Incorrect argument type to variable'
 
     # ============================================================
     # Verify mysql_variable fails when setting an unknown variable

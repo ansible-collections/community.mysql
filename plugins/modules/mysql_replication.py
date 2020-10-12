@@ -238,7 +238,7 @@ import os
 import warnings
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg
+from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
 from ansible.module_utils._text import to_native
 
 executed_queries = []
@@ -381,43 +381,35 @@ def changemaster(cursor, chm, connection_name='', channel=''):
 
 
 def main():
+    argument_spec = mysql_common_argument_spec()
+    argument_spec.update(
+        mode=dict(type='str', default='getslave', choices=[
+            'getmaster', 'getslave', 'changemaster', 'stopslave',
+            'startslave', 'resetmaster', 'resetslave', 'resetslaveall']),
+        master_auto_position=dict(type='bool', default=False),
+        master_host=dict(type='str'),
+        master_user=dict(type='str'),
+        master_password=dict(type='str', no_log=True),
+        master_port=dict(type='int'),
+        master_connect_retry=dict(type='int'),
+        master_log_file=dict(type='str'),
+        master_log_pos=dict(type='int'),
+        relay_log_file=dict(type='str'),
+        relay_log_pos=dict(type='int'),
+        master_ssl=dict(type='bool', default=False),
+        master_ssl_ca=dict(type='str'),
+        master_ssl_capath=dict(type='str'),
+        master_ssl_cert=dict(type='str'),
+        master_ssl_key=dict(type='str'),
+        master_ssl_cipher=dict(type='str'),
+        master_use_gtid=dict(type='str', choices=['current_pos', 'slave_pos', 'disabled']),
+        master_delay=dict(type='int'),
+        connection_name=dict(type='str'),
+        channel=dict(type='str'),
+        fail_on_error=dict(type='bool', default=False),
+    )
     module = AnsibleModule(
-        argument_spec=dict(
-            login_user=dict(type='str'),
-            login_password=dict(type='str', no_log=True),
-            login_host=dict(type='str', default='localhost'),
-            login_port=dict(type='int', default=3306),
-            login_unix_socket=dict(type='str'),
-            mode=dict(type='str', default='getslave', choices=[
-                'getmaster', 'getslave', 'changemaster', 'stopslave',
-                'startslave', 'resetmaster', 'resetslave', 'resetslaveall']),
-            master_auto_position=dict(type='bool', default=False),
-            master_host=dict(type='str'),
-            master_user=dict(type='str'),
-            master_password=dict(type='str', no_log=True),
-            master_port=dict(type='int'),
-            master_connect_retry=dict(type='int'),
-            master_log_file=dict(type='str'),
-            master_log_pos=dict(type='int'),
-            relay_log_file=dict(type='str'),
-            relay_log_pos=dict(type='int'),
-            master_ssl=dict(type='bool', default=False),
-            master_ssl_ca=dict(type='str'),
-            master_ssl_capath=dict(type='str'),
-            master_ssl_cert=dict(type='str'),
-            master_ssl_key=dict(type='str'),
-            master_ssl_cipher=dict(type='str'),
-            connect_timeout=dict(type='int', default=30),
-            config_file=dict(type='path', default='~/.my.cnf'),
-            client_cert=dict(type='path', aliases=['ssl_cert']),
-            client_key=dict(type='path', aliases=['ssl_key']),
-            ca_cert=dict(type='path', aliases=['ssl_ca']),
-            master_use_gtid=dict(type='str', choices=['current_pos', 'slave_pos', 'disabled']),
-            master_delay=dict(type='int'),
-            connection_name=dict(type='str'),
-            channel=dict(type='str'),
-            fail_on_error=dict(type='bool', default=False),
-        ),
+        argument_spec=argument_spec,
         mutually_exclusive=[
             ['connection_name', 'channel']
         ],
@@ -442,6 +434,7 @@ def main():
     ssl_cert = module.params["client_cert"]
     ssl_key = module.params["client_key"]
     ssl_ca = module.params["ca_cert"]
+    check_hostname = module.params["check_hostname"]
     connect_timeout = module.params['connect_timeout']
     config_file = module.params['config_file']
     master_delay = module.params['master_delay']
@@ -464,7 +457,7 @@ def main():
     try:
         cursor, db_conn = mysql_connect(module, login_user, login_password, config_file,
                                         ssl_cert, ssl_key, ssl_ca, None, cursor_class='DictCursor',
-                                        connect_timeout=connect_timeout)
+                                        connect_timeout=connect_timeout, check_hostname=check_hostname)
     except Exception as e:
         if os.path.exists(config_file):
             module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "

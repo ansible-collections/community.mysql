@@ -62,6 +62,14 @@ options:
       - The path to the client private key.
     type: path
     aliases: [ ssl_key ]
+  check_hostname:
+    description:
+      - Whether to validate the server host name when an SSL connection is required.
+      - Setting this to C(false) disables hostname verification. Use with caution.
+      - Requires pymysql >= 0.7.11.
+      - This optoin has no effect on MySQLdb.
+    type: bool
+    version_added: '1.1.0'
 requirements:
    - PyMySQL (Python 2.7 and Python 3.X), or
    - MySQLdb (Python 2.x)

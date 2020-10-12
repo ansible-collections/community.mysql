@@ -14,12 +14,16 @@ percona_mysql_repos:
 percona_mysql_packages:
   - percona-server-client-{{ percona_client_version }}
 
-python_packages:
-  - pymysql==0.9.3  #  temporary fix pinning to 0.9.3 to ensure warnings are handled (https://github.com/ansible-collections/community.mysql/pull/9#issuecomment-663040948)
+python_packages: [pymysql == 0.9.3]
 
 install_prereqs:
   - libaio1
   - libnuma1
+
+install_python_prereqs:
+  - python3-dev
+  - default-libmysqlclient-dev
+  - build-essential
 
 mysql_tarball: "mysql-{{ mysql_version }}-linux-glibc2.12-x86_64.tar.{{ mysql_compression_extension }}"
 mysql_src: "https://dev.mysql.com/get/Downloads/MySQL-{{ mysql_major_version }}/{{ mysql_tarball }}"

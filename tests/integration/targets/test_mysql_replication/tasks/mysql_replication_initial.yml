@@ -165,6 +165,9 @@
         that:
         - slave_status.Exec_Master_Log_Pos != mysql_primary_status.Position
 
+    - shell: pip show pymysql | awk '/Version/ {print $2}'
+      register: pymysql_version
+
     - name: Start slave that is already running
       mysql_replication:
         <<: *mysql_params
@@ -176,6 +179,7 @@
     - assert:
         that:
         - result is not changed
+      when: (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '<=')
 
     # Test stopslave mode:
     - name: Stop slave
@@ -202,3 +206,4 @@
     - assert:
         that:
         - result is not changed
+      when: (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '<=')

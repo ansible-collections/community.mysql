@@ -10,6 +10,7 @@
 # Simplified BSD License (see licenses/simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
 
 from __future__ import (absolute_import, division, print_function)
+from functools import reduce
 __metaclass__ = type
 
 import os
@@ -37,8 +38,8 @@ def parse_from_mysql_config_file(cnf):
 
 
 def mysql_connect(module, login_user=None, login_password=None, config_file='', ssl_cert=None,
-                  ssl_key=None, ssl_ca=None, db=None, cursor_class=None,
-                  connect_timeout=30, autocommit=False, config_overrides_defaults=False):
+                  ssl_key=None, ssl_ca=None, db=None, cursor_class=None, connect_timeout=30,
+                  autocommit=False, config_overrides_defaults=False, check_hostname=None):
     config = {}
 
     if config_file and os.path.exists(config_file):
@@ -51,10 +52,10 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
                 module.params['login_port'] = cp.getint('client', 'port', fallback=module.params['login_port'])
             except Exception as e:
                 if "got an unexpected keyword argument 'fallback'" in e.message:
-                    module.fail_json('To use config_overrides_defaults, '
+                    module.fail_json(msg='To use config_overrides_defaults, '
                                      'it needs Python 3.5+ as the default interpreter on a target host')
 
-    if ssl_ca is not None or ssl_key is not None or ssl_cert is not None:
+    if ssl_ca is not None or ssl_key is not None or ssl_cert is not None or check_hostname is not None:
         config['ssl'] = {}
 
     if module.params['login_unix_socket']:
@@ -79,6 +80,13 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
         config['db'] = db
     if connect_timeout is not None:
         config['connect_timeout'] = connect_timeout
+    if check_hostname is not None:
+        if mysql_driver.__name__ == "pymysql":
+            version_tuple = (n for n in mysql_driver.__version__.split('.') if n != 'None')
+            if reduce(lambda x, y: int(x) * 100 + int(y), version_tuple) >= 711:
+                config['ssl']['check_hostname'] = check_hostname
+            else:
+                module.fail_json(msg='To use check_hostname, pymysql >= 0.7.11 is required on the target host')
 
     if _mysql_cursor_param == 'cursor':
         # In case of PyMySQL driver:
@@ -113,4 +121,5 @@ def mysql_common_argument_spec():
         client_cert=dict(type='path', aliases=['ssl_cert']),
         client_key=dict(type='path', aliases=['ssl_key']),
         ca_cert=dict(type='path', aliases=['ssl_ca']),
+        check_hostname=dict(type='bool', default=None),
     )

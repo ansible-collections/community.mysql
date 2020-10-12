@@ -318,7 +318,7 @@ import traceback
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import mysql_quote_identifier
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg
+from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
 from ansible.module_utils.six.moves import shlex_quote
 from ansible.module_utils._text import to_native
 
@@ -543,37 +543,30 @@ def db_create(cursor, db, encoding, collation):
 
 
 def main():
+    argument_spec = mysql_common_argument_spec()
+    argument_spec.update(
+        name=dict(type='list', required=True, aliases=['db']),
+        encoding=dict(type='str', default=''),
+        collation=dict(type='str', default=''),
+        target=dict(type='path'),
+        state=dict(type='str', default='present', choices=['absent', 'dump', 'import', 'present']),
+        single_transaction=dict(type='bool', default=False),
+        quick=dict(type='bool', default=True),
+        ignore_tables=dict(type='list', default=[]),
+        hex_blob=dict(default=False, type='bool'),
+        force=dict(type='bool', default=False),
+        master_data=dict(type='int', default=0, choices=[0, 1, 2]),
+        skip_lock_tables=dict(type='bool', default=False),
+        dump_extra_args=dict(type='str'),
+        use_shell=dict(type='bool', default=False),
+        unsafe_login_password=dict(type='bool', default=False),
+        restrict_config_file=dict(type='bool', default=False),
+        check_implicit_admin=dict(type='bool', default=False),
+        config_overrides_defaults=dict(type='bool', default=False),
+    )
+
     module = AnsibleModule(
-        argument_spec=dict(
-            login_user=dict(type='str'),
-            login_password=dict(type='str', no_log=True),
-            login_host=dict(type='str', default='localhost'),
-            login_port=dict(type='int', default=3306),
-            login_unix_socket=dict(type='str'),
-            name=dict(type='list', required=True, aliases=['db']),
-            encoding=dict(type='str', default=''),
-            collation=dict(type='str', default=''),
-            target=dict(type='path'),
-            state=dict(type='str', default='present', choices=['absent', 'dump', 'import', 'present']),
-            client_cert=dict(type='path', aliases=['ssl_cert']),
-            client_key=dict(type='path', aliases=['ssl_key']),
-            ca_cert=dict(type='path', aliases=['ssl_ca']),
-            connect_timeout=dict(type='int', default=30),
-            config_file=dict(type='path', default='~/.my.cnf'),
-            single_transaction=dict(type='bool', default=False),
-            quick=dict(type='bool', default=True),
-            ignore_tables=dict(type='list', default=[]),
-            hex_blob=dict(default=False, type='bool'),
-            force=dict(type='bool', default=False),
-            master_data=dict(type='int', default=0, choices=[0, 1, 2]),
-            skip_lock_tables=dict(type='bool', default=False),
-            dump_extra_args=dict(type='str'),
-            use_shell=dict(type='bool', default=False),
-            unsafe_login_password=dict(type='bool', default=False, no_log=True),
-            restrict_config_file=dict(type='bool', default=False),
-            check_implicit_admin=dict(type='bool', default=False),
-            config_overrides_defaults=dict(type='bool', default=False),
-        ),
+        argument_spec=argument_spec,
         supports_check_mode=True,
     )
 
@@ -596,6 +589,7 @@ def main():
     ssl_cert = module.params["client_cert"]
     ssl_key = module.params["client_key"]
     ssl_ca = module.params["ca_cert"]
+    check_hostname = module.params["check_hostname"]
     connect_timeout = module.params['connect_timeout']
     config_file = module.params['config_file']
     login_password = module.params["login_password"]
@@ -636,7 +630,7 @@ def main():
         if check_implicit_admin:
             try:
                 cursor, db_conn = mysql_connect(module, 'root', '', config_file, ssl_cert, ssl_key, ssl_ca,
-                                                connect_timeout=connect_timeout,
+                                                connect_timeout=connect_timeout, check_hostname=check_hostname,
                                                 config_overrides_defaults=config_overrides_defaults)
             except Exception as e:
                 check_implicit_admin = False
@@ -644,7 +638,8 @@ def main():
 
         if not cursor:
             cursor, db_conn = mysql_connect(module, login_user, login_password, config_file, ssl_cert, ssl_key, ssl_ca,
-                                            connect_timeout=connect_timeout, config_overrides_defaults=config_overrides_defaults)
+                                            connect_timeout=connect_timeout, config_overrides_defaults=config_overrides_defaults,
+                                            check_hostname=check_hostname)
     except Exception as e:
         if os.path.exists(config_file):
             module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "

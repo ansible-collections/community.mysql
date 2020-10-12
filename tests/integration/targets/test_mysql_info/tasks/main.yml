@@ -189,3 +189,5 @@
         <<: *mysql_params
         name: acme
         state: absent
+
+    - include: issue-28.yml

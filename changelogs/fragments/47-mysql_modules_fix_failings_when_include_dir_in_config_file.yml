@@ -1,2 +1,2 @@
 bugfixes:
-- "mysql modules - fix crash when ``!include_dir`` option is in config file (https://github.com/ansible-collections/community.mysql/issues/46)."
+- "mysql modules - fix crash when ``!includedir`` option is in config file (https://github.com/ansible-collections/community.mysql/issues/46)."

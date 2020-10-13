@@ -3,7 +3,7 @@
     config_file: "/root/.my1.cnf"
     fake_port: 9999
     fake_host: "blahblah.local"
-    include_dir: "/root/.my.cnf.d"
+    include_dir: "/root/mycnf.d"
 
 - name: Create custom config file
   shell: 'echo "[client]" > {{ config_file }}'

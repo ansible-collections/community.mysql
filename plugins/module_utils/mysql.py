@@ -35,7 +35,7 @@ mysql_driver_fail_msg = 'The PyMySQL (Python 2.7 and Python 3.X) or MySQL-python
 def parse_from_mysql_config_file(cnf):
     # Default values of comment_prefix is '#' and ';'.
     # '!' added to prevent a parsing error
-    # when a config file contains !include_dir parameter.
+    # when a config file contains !includedir parameter.
     cp = configparser.ConfigParser(comment_prefixes=('#', ';', '!'))
     cp.read(cnf)
     return cp

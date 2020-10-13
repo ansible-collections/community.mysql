@@ -5,6 +5,27 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v1.1.0
+======
+
+Release Summary
+---------------
+
+This is the minor release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection that have been added after the release of ``community.mysql`` 1.0.2.
+
+
+Minor Changes
+-------------
+
+- mysql modules - add the ``check_hostname`` option (https://github.com/ansible-collections/community.mysql/issues/28).
+- mysql modules - patch the ``Connection`` class to add a destructor that ensures connections to the server are explicitly closed (https://github.com/ansible-collections/community.mysql/pull/44).
+
+Bugfixes
+--------
+
+- mysql modules - fix crash when ``!includedir`` option is in config file (https://github.com/ansible-collections/community.mysql/issues/46).
+
 v1.0.2
 ======
 

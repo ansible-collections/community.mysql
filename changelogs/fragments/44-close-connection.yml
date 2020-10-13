@@ -1,2 +1,0 @@
-minor_changes:
-  - mysql modules - patch the ``Connection`` class to add a destructor that ensures connections to the server are explicitly closed (https://github.com/ansible-collections/community.mysql/pull/44).

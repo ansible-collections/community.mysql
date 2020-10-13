@@ -16,6 +16,7 @@ __metaclass__ = type
 import os
 
 from ansible.module_utils.six.moves import configparser
+from ansible.module_utils._text import to_native
 
 try:
     import pymysql as mysql_driver
@@ -32,7 +33,10 @@ mysql_driver_fail_msg = 'The PyMySQL (Python 2.7 and Python 3.X) or MySQL-python
 
 
 def parse_from_mysql_config_file(cnf):
-    cp = configparser.ConfigParser()
+    # Default values of comment_prefix is '#' and ';'.
+    # '!' added to prevent a parsing error
+    # when a config file contains !includedir parameter.
+    cp = configparser.ConfigParser(comment_prefixes=('#', ';', '!'))
     cp.read(cnf)
     return cp
 
@@ -44,16 +48,22 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
 
     if config_file and os.path.exists(config_file):
         config['read_default_file'] = config_file
-        cp = parse_from_mysql_config_file(config_file)
-        # Override some commond defaults with values from config file if needed
-        if cp and cp.has_section('client') and config_overrides_defaults:
+
+        if config_overrides_defaults:
             try:
-                module.params['login_host'] = cp.get('client', 'host', fallback=module.params['login_host'])
-                module.params['login_port'] = cp.getint('client', 'port', fallback=module.params['login_port'])
+                cp = parse_from_mysql_config_file(config_file)
             except Exception as e:
-                if "got an unexpected keyword argument 'fallback'" in e.message:
-                    module.fail_json(msg='To use config_overrides_defaults, '
-                                     'it needs Python 3.5+ as the default interpreter on a target host')
+                module.fail_json(msg="Failed to parse %s: %s" % (config_file, to_native(e)))
+
+            # Override some commond defaults with values from config file if needed
+            if cp and cp.has_section('client'):
+                try:
+                    module.params['login_host'] = cp.get('client', 'host', fallback=module.params['login_host'])
+                    module.params['login_port'] = cp.getint('client', 'port', fallback=module.params['login_port'])
+                except Exception as e:
+                    if "got an unexpected keyword argument 'fallback'" in e.message:
+                        module.fail_json(msg='To use config_overrides_defaults, '
+                                             'it needs Python 3.5+ as the default interpreter on a target host')
 
     if ssl_ca is not None or ssl_key is not None or ssl_cert is not None or check_hostname is not None:
         config['ssl'] = {}

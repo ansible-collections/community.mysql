@@ -320,11 +320,7 @@
 
 - include: encoding_dump_import.yml file=latin1.sql format_msg_type=ASCII
 
-- name: Get pymysql version for the next include
-  shell: pip show pymysql | awk '/Version/ {print $2}'
-  register: pymysql_version
-
 - include: config_overrides_defaults.yml
-  when: ansible_python.version_info[0] >= 3 and (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '>=')
+  when: ansible_python.version_info[0] >= 3
 
 - include: issue-28.yml

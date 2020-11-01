@@ -243,7 +243,12 @@
       <<: *mysql_params
       login_db: '{{ test_db }}'
       query: 'CREATE TABLE {{ test_table3 }} (id int, story text)'
-    register: result
+
+  - name: Add data to {{ test_table3 }}
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ test_db }}'
+      query: "INSERT INTO {{ test_table3 }} (id, story) VALUES (1, 'first'), (2, 'second')"
 
   - name: Select from {{ test_table3 }}
     mysql_query:
@@ -251,6 +256,10 @@
       login_db: '{{ test_db }}'
       query: 'SELECT id, story FROM {{ test_table3 }}'
     register: result
+
+  - assert:
+      that:
+      - result.rowcount == [2]
 
   - name: Drop db {{ test_db }}
     mysql_query:

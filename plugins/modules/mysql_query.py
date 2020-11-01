@@ -20,6 +20,7 @@ options:
   query:
     description:
     - SQL query to run. Multiple queries can be passed using YAML list syntax.
+    - Must be a string or YAML list.
     type: raw
     required: yes
   positional_args:
@@ -146,6 +147,10 @@ def main():
     check_hostname = module.params['check_hostname']
     config_file = module.params['config_file']
     query = module.params["query"]
+
+    if not isinstance(query, str) and not isinstance(query, list):
+        module.fail_json("the query option value must be string or list, passed %s" % type(query))
+
     if module.params["single_transaction"]:
         autocommit = False
     else:

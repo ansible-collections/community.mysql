@@ -57,6 +57,13 @@ EXAMPLES = r'''
     login_db: acme
     query: SELECT * FROM orders
 
+
+- name: Simple select query to acme db
+  community.mysql.mysql_query:
+    login_db: acme
+    query: 
+      - SELECT id, story FROM articles
+
 - name: Select query to db acme with positional arguments
   community.mysql.mysql_query:
     login_db: acme

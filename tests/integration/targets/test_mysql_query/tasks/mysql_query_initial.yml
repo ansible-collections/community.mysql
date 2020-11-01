@@ -261,6 +261,19 @@
       that:
       - result.rowcount == [2]
 
+  - name: Pass wrong query type
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ test_db }}'
+      query: {'this type is': 'wrong'}
+    register: result
+    ignore_errors: yes
+
+  - assert:
+      that:
+      - result is failed
+      - result.msg is search('the query option value must be a string or list')
+
   - name: Drop db {{ test_db }}
     mysql_query:
       <<: *mysql_params

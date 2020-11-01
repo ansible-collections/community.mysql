@@ -238,6 +238,20 @@
       that:
       - result.rowcount == [0]
 
+  - name: Create {{ test_table3 }}
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ test_db }}'
+      query: 'CREATE TABLE {{ test_table3 }} (id int, story text)'
+    register: result
+
+  - name: Select from {{ test_table3 }}
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ test_db }}'
+      query: 'SELECT id, story FROM {{ test_table3 }}'
+    register: result
+
   - name: Drop db {{ test_db }}
     mysql_query:
       <<: *mysql_params

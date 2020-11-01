@@ -149,7 +149,7 @@ def main():
     query = module.params["query"]
 
     if not isinstance(query, str) and not isinstance(query, list):
-        module.fail_json("the query option value must be a string or list, passed %s" % type(query))
+        module.fail_json(msg="the query option value must be a string or list, passed %s" % type(query))
 
     if module.params["single_transaction"]:
         autocommit = False

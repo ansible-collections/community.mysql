@@ -42,8 +42,6 @@ options:
     - Where passed queries run in a single transaction (C(yes)) or commit them one-by-one (C(no)).
     type: bool
     default: no
-notes:
-- To pass a query containing commas, use YAML list notation with hyphen (see EXAMPLES block).
 author:
 - Andrew Klychkov (@Andersson007)
 extends_documentation_fragment:

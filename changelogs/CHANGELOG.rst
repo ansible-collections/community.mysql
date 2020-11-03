@@ -5,6 +5,22 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v1.1.1
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection that
+have been added after the release of ``community.mysql`` 1.1.0.
+
+
+Bugfixes
+--------
+
+- mysql_query - fix failing when single-row query contains commas (https://github.com/ansible-collections/community.mysql/issues/51).
+
 v1.1.0
 ======
 

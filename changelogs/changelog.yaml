@@ -153,3 +153,18 @@ releases:
     - 44-close-connection.yml
     - 47-mysql_modules_fix_failings_when_include_dir_in_config_file.yml
     release_date: '2020-10-13'
+  1.1.1:
+    changes:
+      bugfixes:
+      - mysql_query - fix failing when single-row query contains commas (https://github.com/ansible-collections/community.mysql/issues/51).
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection that
+
+        have been added after the release of ``community.mysql`` 1.1.0.
+
+        '
+    fragments:
+    - 1.1.1.yml
+    - 53-mysql_query_fix_single_query_with_commas.yml
+    release_date: '2020-11-03'

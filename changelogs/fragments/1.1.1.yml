@@ -1,4 +1,0 @@
-release_summary: |
-  This is the patch release of the ``community.mysql`` collection.
-  This changelog contains all changes to the modules in this collection that
-  have been added after the release of ``community.mysql`` 1.1.0.

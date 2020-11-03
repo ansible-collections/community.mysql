@@ -20,7 +20,7 @@ options:
   query:
     description:
     - SQL query to run. Multiple queries can be passed using YAML list syntax.
-    - Must be a string or YAML list.
+    - Must be a string or YAML list containing strings.
     type: raw
     required: yes
   positional_args:
@@ -149,6 +149,13 @@ def main():
     if not isinstance(query, str) and not isinstance(query, list):
         module.fail_json(msg="the query option value must be a string or list, passed %s" % type(query))
 
+    if isinstance(query, str):
+        query = [query]
+
+    for elem in query:
+        if not isinstance(elem, str):
+            module.fail_json(msg="the elements in query list must be strings, passed '%s' %s" % (elem, type(elem)))
+
     if module.params["single_transaction"]:
         autocommit = False
     else:
@@ -185,8 +192,6 @@ def main():
     query_result = []
     executed_queries = []
     rowcount = []
-    if isinstance(query, str):
-        query = [query]
 
     for q in query:
         try:

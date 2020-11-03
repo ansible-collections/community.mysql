@@ -1,0 +1,2 @@
+bugfixes:
+- mysql_query - fix failing when single-row query contains commas (https://github.com/ansible-collections/community.mysql/issues/51).

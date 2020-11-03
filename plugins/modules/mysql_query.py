@@ -20,8 +20,8 @@ options:
   query:
     description:
     - SQL query to run. Multiple queries can be passed using YAML list syntax.
-    type: list
-    elements: str
+    - Must be a string or YAML list containing strings.
+    type: raw
     required: yes
   positional_args:
     description:
@@ -42,8 +42,6 @@ options:
     - Where passed queries run in a single transaction (C(yes)) or commit them one-by-one (C(no)).
     type: bool
     default: no
-notes:
-- To pass a query containing commas, use YAML list notation with hyphen (see EXAMPLES block).
 author:
 - Andrew Klychkov (@Andersson007)
 extends_documentation_fragment:
@@ -123,7 +121,7 @@ DDL_QUERY_KEYWORDS = ('CREATE', 'DROP', 'ALTER', 'RENAME', 'TRUNCATE')
 def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
-        query=dict(type='list', elements='str', required=True),
+        query=dict(type='raw', required=True),
         login_db=dict(type='str'),
         positional_args=dict(type='list'),
         named_args=dict(type='dict'),
@@ -147,6 +145,17 @@ def main():
     check_hostname = module.params['check_hostname']
     config_file = module.params['config_file']
     query = module.params["query"]
+
+    if not isinstance(query, str) and not isinstance(query, list):
+        module.fail_json(msg="the query option value must be a string or list, passed %s" % type(query))
+
+    if isinstance(query, str):
+        query = [query]
+
+    for elem in query:
+        if not isinstance(elem, str):
+            module.fail_json(msg="the elements in query list must be strings, passed '%s' %s" % (elem, type(elem)))
+
     if module.params["single_transaction"]:
         autocommit = False
     else:
@@ -183,6 +192,7 @@ def main():
     query_result = []
     executed_queries = []
     rowcount = []
+
     for q in query:
         try:
             cursor.execute(q, arguments)

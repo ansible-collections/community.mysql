@@ -15,6 +15,7 @@ description:
 - Runs arbitrary MySQL queries.
 - Pay attention, the module does not support check mode!
   All queries will be executed in autocommit mode.
+- To run SQL queries from a file, use M(community.mysql.mysql_db) module.
 version_added: '0.1.0'
 options:
   query:
@@ -42,6 +43,8 @@ options:
     - Where passed queries run in a single transaction (C(yes)) or commit them one-by-one (C(no)).
     type: bool
     default: no
+seealso:
+- module: community.mysql.mysql_db
 author:
 - Andrew Klychkov (@Andersson007)
 extends_documentation_fragment:

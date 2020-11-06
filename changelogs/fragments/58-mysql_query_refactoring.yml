@@ -1,0 +1,2 @@
+minor_changes:
+- mysql_query - simple refactoring of query type check (https://github.com/ansible-collections/community.mysql/pull/58).

@@ -146,7 +146,7 @@ def main():
     config_file = module.params['config_file']
     query = module.params["query"]
 
-    if not isinstance(query, str) and not isinstance(query, list):
+    if not isinstance(query, (str, list)):
         module.fail_json(msg="the query option value must be a string or list, passed %s" % type(query))
 
     if isinstance(query, str):

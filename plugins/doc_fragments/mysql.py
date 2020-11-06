@@ -91,4 +91,7 @@ notes:
      and later uses the unix_socket authentication plugin by default that
      without using I(login_unix_socket=/var/run/mysqld/mysqld.sock) (the default path)
      causes the error ``Host '127.0.0.1' is not allowed to connect to this MariaDB server``.
+   - Alternatively, you can use the mysqlclient library instead of MySQL-python (MySQLdb)
+     which supports both Python 2.X and Python >=3.5.
+     See U(https://pypi.org/project/mysqlclient/) how to install it.
 '''

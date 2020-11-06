@@ -1044,7 +1044,7 @@ def main():
     plugin_hash_string = module.params["plugin_hash_string"]
     plugin_auth_string = module.params["plugin_auth_string"]
     resource_limits = module.params["resource_limits"]
-    if priv and not (isinstance(priv, str) or isinstance(priv, dict)):
+    if priv and not isinstance(priv, (str, dict)):
         module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
 
     if priv and isinstance(priv, dict):

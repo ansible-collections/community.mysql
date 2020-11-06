@@ -192,6 +192,25 @@
           - "'%db' in result.stdout"
           - "'SELECT' in result.stdout"
 
+    - name: test priv type check, must fail
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        priv:
+        - unsuitable
+        - type
+        append_privs: yes
+        host_all: yes
+        password: '{{ user_password_1 }}'
+      register: result
+      ignore_errors: yes
+
+    - name: check fail message
+      assert:
+        that:
+          - result is failed
+          - result.msg is search('priv parameter must be str or dict')
+
     - name: change user access to database via wildcard
       mysql_user:
         <<: *mysql_params

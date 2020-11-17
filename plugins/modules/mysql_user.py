@@ -116,6 +116,14 @@ options:
       - Used when I(state=present), ignored otherwise.
     type: dict
     version_added: '0.1.0'
+  account_locking:
+    description:
+      - Configure user accounts such that too many consecutive login failures cause temporary account locking. Provided since MySQL 8.0.19.
+      - "Available options are C(FAILED_LOGIN_ATTEMPTS: num), C(PASSWORD_LOCK_TIME: num | UNBOUNDED)."
+      - Used when I(state=present) and target server is MySQL >= 8.0.19, ignored otherwise.
+      - U(https://dev.mysql.com/doc/refman/8.0/en/password-management.html#failed-login-tracking).
+    type: dict
+    version_added: '1.1.2'
 
 notes:
    - "MySQL server installs with default I(login_user) of C(root) and no password.
@@ -139,6 +147,7 @@ author:
 - Jonathan Mainguy (@Jmainguy)
 - Benjamin Malynovytch (@bmalynovytch)
 - Lukasz Tomaszkiewicz (@tomaszkiewicz)
+- Jorge Rodriguez (@Jorge-Rodriguez)
 extends_documentation_fragment:
 - community.mysql.mysql
 
@@ -187,6 +196,22 @@ EXAMPLES = r'''
     priv:
       'db1.*': 'ALL,GRANT'
       'db2.*': 'ALL,GRANT'
+
+- name: Create user with password and locking such that the account locks after three failed attempts
+  community.mysql.mysql_user:
+    name: bob
+    password: 12345
+    account_locking:
+      FAILED_LOGIN_ATTEMPTS: 3
+      PASSWORD_LOCK_TIME: UNBOUNDED
+
+- name: Create user with password and locking such that the account locks for 5 days after three failed attempts
+  community.mysql.mysql_user:
+    name: bob
+    password: 12345
+    account_locking:
+      FAILED_LOGIN_ATTEMPTS: 3
+      PASSWORD_LOCK_TIME: 5
 
 # Note that REQUIRESSL is a special privilege that should only apply to *.* by itself.
 # Setting this privilege in this manner is supported for backwards compatibility only.
@@ -386,6 +411,50 @@ def supports_identified_by_password(cursor):
         return LooseVersion(version_str) < LooseVersion('8')
 
 
+def validate_account_locking(cursor, account_locking):
+    cursor.execute("SELECT VERSION()")
+    result = cursor.fetchone()
+    version_str = result[0]
+    version = version_str.split('.')
+
+    locking = {}
+
+    if 'mariadb' in version_str.lower():
+        msg = "MariaDB does not support this manner of account locking. Use the MAX_PASSWORD_ERRORS server variable instead."
+    else:
+        if int(version[0]) * 1000 + int(version[2]) < 8019:
+            msg = "MySQL is too old to support this manner of account locking."
+        else:
+            msg = None
+            if account_locking is not None:
+                locking = {
+                    "FAILED_LOGIN_ATTEMPTS": str(account_locking.get("FAILED_LOGIN_ATTEMPTS", 0)),
+                    "PASSWORD_LOCK_TIME": str(account_locking.get("PASSWORD_LOCK_TIME", 0))
+                }
+    return msg, locking
+
+
+def get_account_locking(cursor, user, host):
+    cursor.execute("SELECT VERSION()")
+    result = cursor.fetchone()
+    version_str = result[0]
+    version = version_str.split('.')
+
+    locking = {}
+
+    if 'mariadb' in version_str.lower() or int(version[0]) * 1000 + int(version[2]) < 8019:
+        return locking
+
+    cursor.execute("SHOW CREATE USER %s@%s", (user, host))
+    result = cursor.fetchone()
+
+    for setting in ('FAILED_LOGIN_ATTEMPTS', 'PASSWORD_LOCK_TIME'):
+        match = re.search("%s (\\d+|UNBOUNDED)" % setting, result[0])
+        if match:
+            locking[setting] = match.groups()[0]
+    return locking
+
+
 def get_mode(cursor):
     cursor.execute('SELECT @@GLOBAL.sql_mode')
     result = cursor.fetchone()
@@ -426,7 +495,7 @@ def sanitize_requires(tls_requires):
     return None
 
 
-def mogrify_requires(query, params, tls_requires):
+def mogrify_requires(query, params, tls_requires, account_locking):
     if tls_requires:
         if isinstance(tls_requires, dict):
             k, v = zip(*tls_requires.items())
@@ -435,10 +504,17 @@ def mogrify_requires(query, params, tls_requires):
         else:
             requires_query = tls_requires
         query = " REQUIRE ".join((query, requires_query))
+    return mogrify_account_locking(query, params, account_locking)
+
+
+def do_not_mogrify_requires(query, params, tls_requires, account_locking):
     return query, params
 
 
-def do_not_mogrify_requires(query, params, tls_requires):
+def mogrify_account_locking(query, params, account_locking):
+    if account_locking:
+        for k, v in account_locking.items():
+            query = ' '.join((query, k, str(v)))
     return query, params
 
 
@@ -477,13 +553,14 @@ def get_grants(cursor, user, host):
 
 def user_add(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             tls_requires, check_mode):
+             tls_requires, account_locking, check_mode):
     # we cannot create users without a proper hostname
     if host_all:
         return False
 
+    msg, locking = validate_account_locking(cursor, account_locking)
     if check_mode:
-        return True
+        return (True, msg)
 
     # Determine what user management method server uses
     old_user_mgmt = use_old_user_mgmt(cursor)
@@ -519,7 +596,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
             privileges_grant(cursor, user, host, db_table, priv, tls_requires)
     if tls_requires is not None:
         privileges_grant(cursor, user, host, "*.*", get_grants(cursor, user, host), tls_requires)
-    return True
+    return (True, msg)
 
 
 def is_hash(password):
@@ -532,7 +609,7 @@ def is_hash(password):
 
 def user_mod(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             append_privs, tls_requires, module):
+             append_privs, tls_requires, account_locking, module):
     changed = False
     msg = "User unchanged"
     grant_option = False
@@ -712,6 +789,20 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 query_with_args = query, (user, host)
 
             cursor.execute(*query_with_args)
+            changed = True
+
+        # Handle Account locking
+        note, locking = validate_account_locking(cursor, account_locking)
+        if note:
+            module.warn(note)
+            module.warn("Account locking settings are being ignored.")
+        current_locking = get_account_locking(cursor, user, host)
+        clear_locking = {x: y for x, y in locking.items() if y != '0'}
+        if current_locking != clear_locking:
+            msg = "Account locking updated"
+            if module.check_mode:
+                return (True, msg)
+            cursor.execute(*mogrify_account_locking("ALTER USER %s@%s", (user, host), locking))
             changed = True
 
     return (changed, msg)
@@ -1031,6 +1122,7 @@ def main():
         state=dict(type='str', default='present', choices=['absent', 'present']),
         priv=dict(type='raw'),
         tls_requires=dict(type='dict'),
+        account_locking=dict(type='dict', default={}),
         append_privs=dict(type='bool', default=False),
         check_implicit_admin=dict(type='bool', default=False),
         update_password=dict(type='str', default='always', choices=['always', 'on_create'], no_log=False),
@@ -1054,6 +1146,7 @@ def main():
     state = module.params["state"]
     priv = module.params["priv"]
     tls_requires = sanitize_requires(module.params["tls_requires"])
+    account_locking = module.params['account_locking']
     check_implicit_admin = module.params["check_implicit_admin"]
     connect_timeout = module.params["connect_timeout"]
     config_file = module.params["config_file"]
@@ -1112,12 +1205,12 @@ def main():
             try:
                 if update_password == "always":
                     changed, msg = user_mod(cursor, user, host, host_all, password, encrypted,
-                                            plugin, plugin_hash_string, plugin_auth_string,
-                                            priv, append_privs, tls_requires, module)
+                                            plugin, plugin_hash_string, plugin_auth_string, priv,
+                                            append_privs, tls_requires, account_locking, module)
                 else:
                     changed, msg = user_mod(cursor, user, host, host_all, None, encrypted,
-                                            plugin, plugin_hash_string, plugin_auth_string,
-                                            priv, append_privs, tls_requires, module)
+                                            plugin, plugin_hash_string, plugin_auth_string, priv,
+                                            append_privs, tls_requires, account_locking, module)
 
             except (SQLParseError, InvalidPrivsError, mysql_driver.Error) as e:
                 module.fail_json(msg=to_native(e))
@@ -1127,7 +1220,7 @@ def main():
             try:
                 changed = user_add(cursor, user, host, host_all, password, encrypted,
                                    plugin, plugin_hash_string, plugin_auth_string,
-                                   priv, tls_requires, module.check_mode)
+                                   priv, tls_requires, account_locking, module.check_mode)
                 if changed:
                     msg = "User added"
 

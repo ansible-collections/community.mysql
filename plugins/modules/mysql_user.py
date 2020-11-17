@@ -559,7 +559,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         return False
 
     msg, locking = validate_account_locking(cursor, account_locking)
-    if msg:
+    if msg and account_locking:
         module.warn(msg)
         module.warn("Account locking settings are being ignored.")
 
@@ -797,7 +797,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
         # Handle Account locking
         note, locking = validate_account_locking(cursor, account_locking)
-        if note:
+        if note and account_locking:
             module.warn(note)
             module.warn("Account locking settings are being ignored.")
         current_locking = get_account_locking(cursor, user, host)

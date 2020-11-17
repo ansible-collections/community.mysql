@@ -109,6 +109,11 @@
 
     - assert:
         that: result is changed
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - assert:
+        that: result is not changed
+      when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
 
     - block:
       - name: retrieve create request
@@ -132,6 +137,11 @@
 
     - assert:
         that: result is changed
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - assert:
+        that: result is not changed
+      when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
 
     - block:
       - name: retrieve create request

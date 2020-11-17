@@ -553,12 +553,16 @@ def get_grants(cursor, user, host):
 
 def user_add(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             tls_requires, account_locking, check_mode):
+             tls_requires, account_locking, check_mode, module):
     # we cannot create users without a proper hostname
     if host_all:
         return False
 
     msg, locking = validate_account_locking(cursor, account_locking)
+    if msg:
+        module.warn(msg)
+        module.warn("Account locking settings are being ignored.")
+
     if check_mode:
         return (True, msg)
 
@@ -1219,8 +1223,8 @@ def main():
                 module.fail_json(msg="host_all parameter cannot be used when adding a user")
             try:
                 changed = user_add(cursor, user, host, host_all, password, encrypted,
-                                   plugin, plugin_hash_string, plugin_auth_string,
-                                   priv, tls_requires, account_locking, module.check_mode)
+                                   plugin, plugin_hash_string, plugin_auth_string, priv,
+                                   tls_requires, account_locking, module.check_mode, module)
                 if changed:
                     msg = "User added"
 

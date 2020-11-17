@@ -438,7 +438,7 @@ def get_account_locking(cursor, user, host):
     cursor.execute("SELECT VERSION()")
     result = cursor.fetchone()
     version_str = result[0]
-    version = version_str.split('.')
+    version = version_str.split('-')[0].split('.')
 
     locking = {}
 

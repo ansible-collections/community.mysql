@@ -80,7 +80,7 @@
     - name: assert output message mysql user was removed
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - include: assert_no_user.yml user_name={{user_name_1}}
 

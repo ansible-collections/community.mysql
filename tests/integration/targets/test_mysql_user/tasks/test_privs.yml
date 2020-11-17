@@ -51,7 +51,7 @@
     - name: assert output message for current privileges
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - name: run command to show privileges for user (expect privileges in stdout)
       command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{user_name_2}}'@'localhost'\""
@@ -101,7 +101,7 @@
     - name: Assert that priv changed
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - name: Add privs to a specific table (expect ok)
       mysql_user:
@@ -162,7 +162,7 @@
     - name: Assert that priv changed
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - name: Test idempotency (expect ok)
       mysql_user:

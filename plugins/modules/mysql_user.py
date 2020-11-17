@@ -123,7 +123,7 @@ options:
       - Used when I(state=present) and target server is MySQL >= 8.0.19, ignored otherwise.
       - U(https://dev.mysql.com/doc/refman/8.0/en/password-management.html#failed-login-tracking).
     type: dict
-    version_added: '1.1.2'
+    version_added: '1.1.0'
 
 notes:
    - "MySQL server installs with default I(login_user) of C(root) and no password.

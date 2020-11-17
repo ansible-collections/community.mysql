@@ -797,7 +797,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             module.warn(note)
             module.warn("Account locking settings are being ignored.")
         current_locking = get_account_locking(cursor, user, host)
-        clear_locking = {x: y for x, y in locking.items() if y != '0'}
+        clear_locking = dict((x, y) for x, y in locking.items() if y != '0')
         if current_locking != clear_locking:
             msg = "Account locking updated"
             if module.check_mode:

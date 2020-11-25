@@ -27,7 +27,7 @@ options:
     aliases: [db]
   state:
     description:
-    - The database state
+    - The database state.
     type: str
     default: present
     choices: ['absent', 'dump', 'import', 'present']
@@ -65,20 +65,17 @@ options:
       of the form database_name.table_name.
     type: list
     elements: str
-    required: no
     default: []
   hex_blob:
     description:
     - Dump binary columns using hexadecimal notation.
-    required: no
-    default: no
     type: bool
+    default: no
     version_added: '0.1.0'
   force:
     description:
     - Continue dump or import even if we get an SQL error.
     - Used only when I(state) is C(dump) or C(import).
-    required: no
     type: bool
     default: no
     version_added: '0.1.0'
@@ -91,7 +88,6 @@ options:
         required on the slave to start the replication process.
       - C(2) to generate a commented 'CHANGE MASTER TO'.
       - Can be used when I(state=dump).
-    required: no
     type: int
     choices: [0, 1, 2]
     default: 0
@@ -99,7 +95,6 @@ options:
   skip_lock_tables:
     description:
       - Skip locking tables for read. Used when I(state=dump), ignored otherwise.
-    required: no
     type: bool
     default: no
     version_added: '0.1.0'
@@ -107,7 +102,6 @@ options:
     description:
       - Provide additional arguments for mysqldump.
         Used when I(state=dump) only, ignored otherwise.
-    required: no
     type: str
     version_added: '0.1.0'
   use_shell:
@@ -115,22 +109,25 @@ options:
       - Used to prevent C(Broken pipe) errors when the imported I(target) file is compressed.
       - If C(yes), the module will internally execute commands via a shell.
       - Used when I(state=import), ignored otherwise.
-    required: no
     type: bool
     default: no
     version_added: '0.1.0'
   unsafe_login_password:
     description:
-      - If C(no), the module will safely use a shell-escaped version of the I(login_password) value.
-      - It makes sense to use C(yes) only if there are special symbols in the value and errors C(Access denied) occur.
-      - Used only when I(state) is C(import) or C(dump) and I(login_password) is passed, ignored otherwise.
+      - If C(no), the module will safely use a shell-escaped
+        version of the I(login_password) value.
+      - It makes sense to use C(yes) only if there are special
+        symbols in the value and errors C(Access denied) occur.
+      - Used only when I(state) is C(import) or C(dump) and
+        I(login_password) is passed, ignored otherwise.
     type: bool
     default: no
     version_added: '0.1.0'
   restrict_config_file:
     description:
       - Read only passed I(config_file).
-      - When I(state) is C(dump) or C(import), by default the module passes I(config_file) parameter
+      - When I(state) is C(dump) or C(import),
+        by default the module passes I(config_file) parameter
         using C(--defaults-extra-file) command-line argument to C(mysql/mysqldump) utilities
         under the hood that read named option file in addition to usual option files.
       - If this behavior is undesirable, use C(yes) to read only named option file.
@@ -176,6 +173,7 @@ requirements:
    - mysql (command line binary)
    - mysqldump (command line binary)
 notes:
+   - Supports C(check_mode).
    - Requires the mysql and mysqldump binaries on the remote host.
    - This module is B(not idempotent) when I(state) is C(import),
      and will import the dump file each time if run more than once.

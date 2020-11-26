@@ -119,7 +119,7 @@ options:
     version_added: '0.1.0'
 
 notes:
-   - "MySQL server installs with default login_user of C(root) and no password.
+   - "MySQL server installs with default I(login_user) of C(root) and no password.
      To secure this user as part of an idempotent playbook, you must create at least two tasks:
      1) change the root user's password, without providing any I(login_user)/I(login_password) details,
      2) drop a C(~/.my.cnf) file containing the new root credentials.

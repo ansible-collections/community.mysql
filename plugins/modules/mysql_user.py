@@ -124,7 +124,7 @@ notes:
      1) change the root user's password, without providing any I(login_user)/I(login_password) details,
      2) drop a C(~/.my.cnf) file containing the new root credentials.
      Subsequent runs of the playbook will then succeed by reading the new credentials from the file."
-   - Currently, there is only support for the `mysql_native_password` encrypted password hash module.
+   - Currently, there is only support for the C(mysql_native_password) encrypted password hash module.
    - Supports (check_mode).
 
 seealso:

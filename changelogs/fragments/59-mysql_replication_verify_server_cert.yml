@@ -1,0 +1,2 @@
+minor_changes:
+- mysql_replication - add missing CHANGE MASTER TO options (https://github.com/ansible-collections/community.mysql/issues/59).

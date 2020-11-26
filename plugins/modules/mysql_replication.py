@@ -19,6 +19,7 @@ description:
 author:
 - Balazs Pocze (@banyek)
 - Andrew Klychkov (@Andersson007)
+- Jorge Rodriguez (@Jorge-Rodriguez)
 options:
   mode:
     description:
@@ -42,6 +43,11 @@ options:
     - resetslave
     - resetslaveall
     default: getslave
+  master_bind:
+    description:
+    - same as mysql_variable.
+    type: str
+    version_added: 1.2.0
   master_host:
     description:
     - Same as mysql variable.
@@ -58,10 +64,20 @@ options:
     description:
     - Same as mysql variable.
     type: int
+  master_heartbeat_period:
+    description:
+    - Same as mysql variable.
+    type: int
+    version_added: 1.2.0
   master_connect_retry:
     description:
     - Same as mysql variable.
     type: int
+  master_retry_count:
+    description:
+    - Same as mysql variable.
+    type: int
+    version_added: 1.2.0
   master_log_file:
     description:
     - Same as mysql variable.
@@ -94,6 +110,16 @@ options:
     description:
     - Same as mysql variable.
     type: str
+  master_ssl_crl:
+    description:
+    - Same as mysql variable.
+    type: str
+    version_added: 1.2.0
+  master_ssl_crlpath:
+    description:
+    - Same as mysql variable.
+    type: str
+    version_added: 1.2.0
   master_ssl_key:
     description:
     - Same as mysql variable.
@@ -102,10 +128,38 @@ options:
     description:
     - Same as mysql variable.
     type: str
+  master_ssl_verify_server_cert:
+    description:
+    - Same as mysql variable.
+    type: bool
+    version_added: 1.2.0
+  master_tls_version:
+    description:
+    - Same as mysql variable.
+    type: str
+    version_added: 1.2.0
   master_auto_position:
     description:
     - Whether the host uses GTID based replication or not.
     type: bool
+  ignore_server_ids:
+    description:
+    - List of server IDs whose events are ignored.
+    type: list
+    elements: str
+    version_added: 1.2.0
+  do_domain_ids:
+    description:
+    - Same as MariaDB variable.
+    type: list
+    elements: str
+    version_added: 1.2.0
+  ignore_domain_ids:
+    description:
+    - Same as MariaDB variable.
+    type: list
+    elements: str
+    version_added: 1.2.0
   master_use_gtid:
     description:
     - Configures the slave to use the MariaDB Global Transaction ID.
@@ -131,6 +185,59 @@ options:
     - For more information see U(https://mariadb.com/kb/en/library/multi-source-replication/).
     type: str
     version_added: '0.1.0'
+  privilege_checks_user:
+    description:
+    - Same as mysql variable.
+    choices: [account]
+    type: str
+    version_added: 1.2.0
+  require_row_format:
+    description:
+    - Same as mysql variable.
+    type: bool
+    version_added: 1.2.0
+  require_table_primary_key_check:
+    description:
+    - Same as mysql variable.
+    choices: [stream, on, off]
+    type: str
+    version_added: 1.2.0
+  source_connection_auto_failover:
+    description:
+    - Same as mysql variable.
+    type: bool
+    version_added: 1.2.0
+  master_compression_algorithms:
+    description:
+    - Same as mysql variable.
+    type: str
+    version_added: 1.2.0
+  master_zstd_compression_level:
+    description:
+    - Same as mysql variable.
+    choices: [1-22]
+    type: int
+    version_added: 1.2.0
+  master_tls_ciphersuites:
+    description:
+    - Same as mysql variable.
+    type: str
+    version_added: 1.2.0
+  master_public_key_path:
+    description:
+    - Same as mysql variable.
+    type: str
+    version_added: 1.2.0
+  get_master_public_key:
+    description:
+    - Same as mysql variable.
+    type: bool
+    version_added: 1.2.0
+  network_namespace:
+    description:
+    - Same as mysql variable.
+    type: str
+    version_added: 1.2.0
   channel:
     description:
     - Name of replication channel.
@@ -387,11 +494,14 @@ def main():
             'getmaster', 'getslave', 'changemaster', 'stopslave',
             'startslave', 'resetmaster', 'resetslave', 'resetslaveall']),
         master_auto_position=dict(type='bool', default=False),
+        master_bind=dict(type='str'),
         master_host=dict(type='str'),
         master_user=dict(type='str'),
         master_password=dict(type='str', no_log=True),
         master_port=dict(type='int'),
+        master_heartbeat_period=dict(type='int'),
         master_connect_retry=dict(type='int'),
+        master_retry_count=dict(type='int'),
         master_log_file=dict(type='str'),
         master_log_pos=dict(type='int'),
         relay_log_file=dict(type='str'),
@@ -400,11 +510,28 @@ def main():
         master_ssl_ca=dict(type='str'),
         master_ssl_capath=dict(type='str'),
         master_ssl_cert=dict(type='str'),
+        master_ssl_crl=dict(type='str'),
+        master_ssl_crlpath=dict(type='str'),
         master_ssl_key=dict(type='str'),
         master_ssl_cipher=dict(type='str'),
+        master_ssl_verify_server_cert=dict(type='bool', default=False),
+        master_tls_version=dict(type='str'),
+        master_compression_algorithms=dict(type='str'),
+        master_zstd_compression_level=dict(type='int', choices=list(range(1, 23))),
+        master_tls_ciphersuites=dict(type='str'),
+        master_public_key_path=dict(type='str'),
+        get_master_public_key=dict(type='bool', default=False),
         master_use_gtid=dict(type='str', choices=['current_pos', 'slave_pos', 'disabled']),
+        ignore_server_ids=dict(type='list'),
+        do_domain_ids=dict(type='list'),
+        ignore_domain_ids=dict(type='list'),
         master_delay=dict(type='int'),
         connection_name=dict(type='str'),
+        privilege_checks_user=dict(type='str', choices=['account']),
+        require_row_format=dict(type='bool', default=False),
+        require_table_primary_key_check=dict(type='str', choices=['stream', 'on', 'off']),
+        source_connection_auto_failover=dict(type='bool', default=False),
+        network_namespace=dict(type='str'),
         channel=dict(type='str'),
         fail_on_error=dict(type='bool', default=False),
     )
@@ -415,11 +542,14 @@ def main():
         ],
     )
     mode = module.params["mode"]
+    master_bind = module.params["master_bind"]
     master_host = module.params["master_host"]
     master_user = module.params["master_user"]
     master_password = module.params["master_password"]
     master_port = module.params["master_port"]
+    master_heartbeat_period = module.params["master_heartbeat_period"]
     master_connect_retry = module.params["master_connect_retry"]
+    master_retry_count = module.params["master_retry_count"]
     master_log_file = module.params["master_log_file"]
     master_log_pos = module.params["master_log_pos"]
     relay_log_file = module.params["relay_log_file"]
@@ -428,9 +558,26 @@ def main():
     master_ssl_ca = module.params["master_ssl_ca"]
     master_ssl_capath = module.params["master_ssl_capath"]
     master_ssl_cert = module.params["master_ssl_cert"]
+    master_ssl_crl = module.params["master_ssl_crl"]
+    master_ssl_crlpath = module.params["master_ssl_crlpath"]
     master_ssl_key = module.params["master_ssl_key"]
     master_ssl_cipher = module.params["master_ssl_cipher"]
+    master_ssl_verify_server_cert = module.params["master_ssl_verify_server_cert"]
+    master_tls_version = module.params["master_tls_version"]
+    master_compression_algorithms = module.params["master_compression_algorithms"]
+    master_zstd_compression_level = module.params["master_zstd_compression_level"]
+    master_tls_ciphersuites = module.params["master_tls_ciphersuites"]
+    master_public_key_path = module.params["master_public_key_path"]
+    get_master_public_key = module.params["get_master_public_key"]
     master_auto_position = module.params["master_auto_position"]
+    ignore_server_ids = module.params["ignore_server_ids"]
+    do_domain_ids = module.params["do_domain_ids"]
+    ignore_domain_ids = module.params["ignore_domain_ids"]
+    privilege_checks_user = module.params["privilege_checks_user"]
+    require_row_format = module.params["require_row_format"]
+    require_table_primary_key_check = module.params["require_table_primary_key_check"]
+    source_connection_auto_failover = module.params["source_connection_auto_failover"]
+    network_namespace = module.params["network_namespace"]
     ssl_cert = module.params["client_cert"]
     ssl_key = module.params["client_key"]
     ssl_ca = module.params["ca_cert"]
@@ -484,6 +631,8 @@ def main():
     elif mode in "changemaster":
         chm = []
         result = {}
+        if master_bind is not None:
+            chm.append("MASTER_BIND='%s'" % master_bind)
         if master_host is not None:
             chm.append("MASTER_HOST='%s'" % master_host)
         if master_user is not None:
@@ -492,8 +641,12 @@ def main():
             chm.append("MASTER_PASSWORD='%s'" % master_password)
         if master_port is not None:
             chm.append("MASTER_PORT=%s" % master_port)
+        if master_heartbeat_period is not None:
+            chm.append("MASTER_HEARTBEAT_PERIOD='%s'" % master_heartbeat_period)
         if master_connect_retry is not None:
             chm.append("MASTER_CONNECT_RETRY=%s" % master_connect_retry)
+        if master_retry_count is not None:
+            chm.append("MASTER_RETRY_COUNT='%s'" % master_retry_count)
         if master_log_file is not None:
             chm.append("MASTER_LOG_FILE='%s'" % master_log_file)
         if master_log_pos is not None:
@@ -512,14 +665,48 @@ def main():
             chm.append("MASTER_SSL_CAPATH='%s'" % master_ssl_capath)
         if master_ssl_cert is not None:
             chm.append("MASTER_SSL_CERT='%s'" % master_ssl_cert)
+        if master_ssl_crl is not None:
+            chm.append("MASTER_SSL_CRL='%s'" % master_ssl_crl)
+        if master_ssl_crlpath is not None:
+            chm.append("MASTER_SSL_CRLPATH='%s'" % master_ssl_crlpath)
         if master_ssl_key is not None:
             chm.append("MASTER_SSL_KEY='%s'" % master_ssl_key)
         if master_ssl_cipher is not None:
             chm.append("MASTER_SSL_CIPHER='%s'" % master_ssl_cipher)
+        if master_ssl_verify_server_cert:
+            chm.append("MASTER_SSL_VERIFY_SERVER_CERT=1")
+        if master_tls_version is not None:
+            chm.append("MASTER_TLS_VERSION='%s'" % master_tls_version)
+        if master_compression_algorithms is not None:
+            chm.append("MASTER_COMPRESSION_ALGORITHMS='%s'" % master_compression_algorithms)
+        if master_zstd_compression_level is not None:
+            chm.append("MASTER_ZSTD_COMPRESSION_LEVEL='%s'" % master_zstd_compression_level)
+        if master_tls_ciphersuites is not None:
+            chm.append("MASTER_TLS_CIPHERSUITES='%s'" % master_tls_ciphersuites)
+        if master_public_key_path is not None:
+            chm.append("MASTER_PUBLIC_KEY_PATH='%s'" % master_public_key_path)
+        if get_master_public_key:
+            chm.append("GET_MASTER_PUBLIC_KEY=1")
         if master_auto_position:
             chm.append("MASTER_AUTO_POSITION=1")
         if master_use_gtid is not None:
             chm.append("MASTER_USE_GTID=%s" % master_use_gtid)
+        if ignore_server_ids:
+            chm.append("IGNORE_SERVER_IDS='%s'" % ','.join(ignore_server_ids))
+        if do_domain_ids:
+            chm.append("DO_DOMAIN_IDS='%s'" % ','.join(do_domain_ids))
+        if ignore_domain_ids:
+            chm.append("IGNORE_DOMAIN_IDS='%s'" % ','.join(ignore_domain_ids))
+        if privilege_checks_user is not None:
+            chm.append("PRIVILEGE_CHECKS_USER='%s'" % privilege_checks_user)
+        if require_row_format:
+            chm.append("REQUIRE_ROW_FORMAT=1")
+        if require_table_primary_key_check is not None:
+            chm.append("REQUIRE_TABLE_PRIMARY_KEY_CHECK='%s'" % require_table_primary_key_check)
+        if source_connection_auto_failover:
+            chm.append("SOURCE_CONNECTION_AUTO_FAILOVER=1")
+        if network_namespace is not None:
+            chm.append("NETWORK_NAMESPACE='%s'" % network_namespace)
         try:
             changemaster(cursor, chm, connection_name, channel)
         except mysql_driver.Warning as e:

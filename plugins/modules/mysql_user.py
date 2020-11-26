@@ -23,7 +23,7 @@ options:
     required: true
   password:
     description:
-      - Set the user's password..
+      - Set the user's password.
     type: str
   encrypted:
     description:
@@ -37,7 +37,8 @@ options:
     default: localhost
   host_all:
     description:
-      - Override the host option, making ansible apply changes to all hostnames for a given user.
+      - Override the host option, making ansible apply changes
+        to all hostnames for a given user.
       - This option cannot be used when creating users.
     type: bool
     default: no
@@ -118,12 +119,13 @@ options:
     version_added: '0.1.0'
 
 notes:
-   - "MySQL server installs with default login_user of 'root' and no password. To secure this user
-     as part of an idempotent playbook, you must create at least two tasks: the first must change the root user's password,
-     without providing any login_user/login_password details. The second must drop a ~/.my.cnf file containing
-     the new root credentials. Subsequent runs of the playbook will then succeed by reading the new credentials from
-     the file."
-   - Currently, there is only support for the `mysql_native_password` encrypted password hash module.
+   - "MySQL server installs with default I(login_user) of C(root) and no password.
+     To secure this user as part of an idempotent playbook, you must create at least two tasks:
+     1) change the root user's password, without providing any I(login_user)/I(login_password) details,
+     2) drop a C(~/.my.cnf) file containing the new root credentials.
+     Subsequent runs of the playbook will then succeed by reading the new credentials from the file."
+   - Currently, there is only support for the C(mysql_native_password) encrypted password hash module.
+   - Supports (check_mode).
 
 seealso:
 - module: community.mysql.mysql_info
@@ -188,8 +190,9 @@ EXAMPLES = r'''
       'db2.*': 'ALL,GRANT'
 
 # Note that REQUIRESSL is a special privilege that should only apply to *.* by itself.
-# Setting this privilege in this manner is supported for backwards compatibility only. Use 'tls_requires' instead.
-- name: Modify user to require SSL connections.
+# Setting this privilege in this manner is supported for backwards compatibility only.
+# Use 'tls_requires' instead.
+- name: Modify user to require SSL connections
   community.mysql.mysql_user:
     name: bob
     append_privs: yes
@@ -210,12 +213,12 @@ EXAMPLES = r'''
       subject: '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
       cipher: 'ECDHE-ECDSA-AES256-SHA384'
 
-- name: Modify user to no longer require SSL.
+- name: Modify user to no longer require SSL
   community.mysql.mysql_user:
     name: bob
     tls_requires:
 
-- name: Ensure no user named 'sally'@'localhost' exists, also passing in the auth credentials.
+- name: Ensure no user named 'sally'@'localhost' exists, also passing in the auth credentials
   community.mysql.mysql_user:
     login_user: root
     login_password: 123456
@@ -226,7 +229,7 @@ EXAMPLES = r'''
 - name: >
     Ensure no user named 'sally'@'localhost' exists, also passing in the auth credentials.
     If mysql allows root/nopassword login, try it without the credentials first.
-    If it's not allowed, pass the credentials.
+    If it's not allowed, pass the credentials
   community.mysql.mysql_user:
     check_implicit_admin: yes
     login_user: root
@@ -291,6 +294,8 @@ EXAMPLES = r'''
 # user=root
 # password=n<_665{vS43y
 '''
+
+RETURN = '''#'''
 
 import re
 import string

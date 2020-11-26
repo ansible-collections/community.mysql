@@ -34,7 +34,7 @@ options:
   exclude_fields:
     description:
     - List of fields which are not needed to collect.
-    - "Supports elements: C(db_size). Unsupported elements will be ignored"
+    - "Supports elements: C(db_size). Unsupported elements will be ignored."
     type: list
     elements: str
     version_added: '0.1.0'
@@ -47,6 +47,7 @@ options:
 notes:
 - Calculating the size of a database might be slow, depending on the number and size of tables in it.
   To avoid this, use I(exclude_fields=db_size).
+- Supports C(check_mode).
 
 seealso:
 - module: community.mysql.mysql_variables
@@ -59,7 +60,6 @@ author:
 
 extends_documentation_fragment:
 - community.mysql.mysql
-
 '''
 
 EXAMPLES = r'''

@@ -20,12 +20,12 @@ author:
 options:
   variable:
     description:
-    - Variable name to operate
+    - Variable name to operate.
     type: str
     required: yes
   value:
     description:
-    - If set, then sets variable value to this
+    - If set, then sets variable value to this.
     type: str
   mode:
     description:
@@ -44,6 +44,9 @@ options:
     default: global
     version_added: '0.1.0'
 
+notes:
+- Does not support C(check_mode).
+
 seealso:
 - module: community.mysql.mysql_info
 - name: MySQL SET command reference
@@ -52,7 +55,6 @@ seealso:
 
 extends_documentation_fragment:
 - community.mysql.mysql
-
 '''
 
 EXAMPLES = r'''

@@ -440,10 +440,12 @@ def validate_account_locking(cursor, account_locking):
     locking = {}
 
     if 'mariadb' in version_str.lower():
-        msg = "MariaDB does not support this manner of account locking. Use the MAX_PASSWORD_ERRORS server variable instead."
+        module.warn("MariaDB does not support this manner of account locking. Use the MAX_PASSWORD_ERRORS server variable instead.")
+        module.warn("Account locking settings are being ignored.")
     else:
         if int(version[0]) * 1000 + int(version[2]) < 8019:
-            msg = "MySQL is too old to support this manner of account locking."
+            module.warn("MySQL is too old to support this manner of account locking.")
+            module.warn("Account locking settings are being ignored.")
         else:
             msg = None
             if account_locking is not None:
@@ -451,7 +453,11 @@ def validate_account_locking(cursor, account_locking):
                     "FAILED_LOGIN_ATTEMPTS": str(account_locking.get("FAILED_LOGIN_ATTEMPTS", 0)),
                     "PASSWORD_LOCK_TIME": str(account_locking.get("PASSWORD_LOCK_TIME", 0))
                 }
-    return msg, locking
+    if any([int(value) < 0 or int(value) > 32767 for value in locking.values() if re.match("[-+]?\\d+$", value)]):
+        module.fail_json(msg="Account locking values are out of the valid range (0-32767)")
+    if not re.match("[-+]?\\d+$", locking["PASSWORD_LOCK_TIME"]) and locking["PASSWORD_LOCK_TIME"] != "UNBOUNDED":
+        module.fail_json(msg="PASSWORD_LOCK_TIME must be an integer between 0 and 32767 or 'UNBOUNDED'")
+    return locking
 
 
 def get_account_locking(cursor, user, host):
@@ -578,13 +584,10 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     if host_all:
         return False
 
-    msg, locking = validate_account_locking(cursor, account_locking)
-    if msg and account_locking:
-        module.warn(msg)
-        module.warn("Account locking settings are being ignored.")
+    locking = validate_account_locking(cursor, account_locking, module)
 
     if check_mode:
-        return (True, msg)
+        return True
 
     # Determine what user management method server uses
     old_user_mgmt = use_old_user_mgmt(cursor)
@@ -816,10 +819,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             changed = True
 
         # Handle Account locking
-        note, locking = validate_account_locking(cursor, account_locking)
-        if note and account_locking:
-            module.warn(note)
-            module.warn("Account locking settings are being ignored.")
+        locking = validate_account_locking(cursor, account_locking, module)
         current_locking = get_account_locking(cursor, user, host)
         clear_locking = dict((x, y) for x, y in locking.items() if y != '0')
         if current_locking != clear_locking:

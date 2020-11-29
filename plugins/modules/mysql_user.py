@@ -119,10 +119,23 @@ options:
   account_locking:
     description:
       - Configure user accounts such that too many consecutive login failures cause temporary account locking. Provided since MySQL 8.0.19.
-      - "Available options are C(FAILED_LOGIN_ATTEMPTS: num), C(PASSWORD_LOCK_TIME: num | UNBOUNDED)."
+      - Available options are C(FAILED_LOGIN_ATTEMPTS: num), C(PASSWORD_LOCK_TIME: num | UNBOUNDED).
       - Used when I(state=present) and target server is MySQL >= 8.0.19, ignored otherwise.
       - U(https://dev.mysql.com/doc/refman/8.0/en/password-management.html#failed-login-tracking).
     type: dict
+    suboptions:
+      FAILED_LOGIN_ATTEMPTS:
+        description:
+          - Number of failed login attempts before the user account is locked.
+          - Permitted values are in the range from 0 to 32767.
+          - A value of 0 disables the option.
+        type: int
+      PASSWORD_LOCK_TIME:
+        description:
+          - Number of days the account stays locked after the FAILED_LOGIN_ATTEMPTS threshold is exceeded.
+          - Permitted values are in the range from 0 to 32767, or the string ``UNBOUNDED``
+          - A value of 0 disables the option.
+          - A value of ``UNBOUNDED`` permanently locks the account until it's administratively unlocked.
     version_added: '1.2.0'
 
 notes:
@@ -242,7 +255,14 @@ EXAMPLES = r'''
     name: bob
     tls_requires:
 
-- name: Ensure no user named 'sally'@'localhost' exists, also passing in the auth credentials
+- name: Create user with enabled loging tracking.
+  community.mysql.mysql_user:
+    name: bob
+    account_locking:
+      PASSWORD_LOCK_TIME: 2
+      FAILED_LOGIN_ATTEMPTS: 5
+
+- name: Ensure no user named 'sally'@'localhost' exists, also passing in the auth credentials.
   community.mysql.mysql_user:
     login_user: root
     login_password: 123456

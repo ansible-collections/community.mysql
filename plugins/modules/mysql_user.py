@@ -623,7 +623,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
             privileges_grant(cursor, user, host, db_table, priv, tls_requires)
     if tls_requires is not None:
         privileges_grant(cursor, user, host, "*.*", get_grants(cursor, user, host), tls_requires)
-    return (True, msg)
+    return True
 
 
 def is_hash(password):

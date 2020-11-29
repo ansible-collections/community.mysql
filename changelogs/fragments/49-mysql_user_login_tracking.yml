@@ -1,2 +1,2 @@
 minor_changes:
-- mysql_user - add support for login attempt tracking and account locking feature (https://github.com/ansible-collections/community.mysql/pull/62).
+- mysql_user - add the ``account_locking`` option sot support login attempt tracking and account locking feature (https://github.com/ansible-collections/community.mysql/issues/49).

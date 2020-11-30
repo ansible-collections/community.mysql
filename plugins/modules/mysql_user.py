@@ -119,7 +119,7 @@ options:
   account_locking:
     description:
       - Configure user accounts such that too many consecutive login failures cause temporary account locking. Provided since MySQL 8.0.19.
-      - Available options are C(FAILED_LOGIN_ATTEMPTS: num), C(PASSWORD_LOCK_TIME: num | UNBOUNDED).
+      - "Available options are C(FAILED_LOGIN_ATTEMPTS: num), C(PASSWORD_LOCK_TIME: num | UNBOUNDED)."
       - Used when I(state=present) and target server is MySQL >= 8.0.19, ignored otherwise.
       - U(https://dev.mysql.com/doc/refman/8.0/en/password-management.html#failed-login-tracking).
     type: dict

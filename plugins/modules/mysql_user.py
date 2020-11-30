@@ -455,7 +455,7 @@ def validate_account_locking(cursor, account_locking):
                 }
     if any([int(value) < 0 or int(value) > 32767 for value in locking.values() if re.match("[-+]?\\d+$", value)]):
         module.fail_json(msg="Account locking values are out of the valid range (0-32767)")
-    if not re.match("[-+]?\\d+$", locking.get("PASSWORD_LOCK_TIME", "")) and locking.get("PASSWORD_LOCK_TIME") != "UNBOUNDED":
+    if "PASSWORD_LOCK_TIME" in locking.keys() and not re.match("[-+]?\\d+$", locking.get("PASSWORD_LOCK_TIME")) and locking.get("PASSWORD_LOCK_TIME") != "UNBOUNDED":
         module.fail_json(msg="PASSWORD_LOCK_TIME must be an integer between 0 and 32767 or 'UNBOUNDED'")
     return locking
 

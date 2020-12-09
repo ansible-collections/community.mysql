@@ -23,7 +23,11 @@
       set_fact:
         mysql8022_and_higher: true
       when:
-      - db.version.major > 8 or (db.version.major == 8 and db.version.minor > 0) or (db.version.major == 8 and db.version.minor == 0 and db.version.release > 21)
+      - db.version.major > 8 or (db.version.major == 8 and db.version.minor > 0) or (db.version.major == 8 and db.version.minor == 0 and db.version.release >= 22)
+
+    - name: Debug mysql8022_and_higher
+      debug:
+        msg: "{{ mysql8022_and_higher }} , {{ db.version }}"
 
     - name: alias mysql command to include default options
       set_fact:

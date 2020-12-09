@@ -8,6 +8,22 @@
       login_host: 127.0.0.1
 
   block:
+    - name: find out the database version
+      mysql_info:
+        <<: *mysql_params
+        login_port: '{{ mysql_primary_port }}'
+        filter: version
+      register: db
+
+    - name: Set mysql8022_and_higher
+      set_fact:
+        mysql8022_and_higher: false
+
+    - name: Set mysql8022_and_higher
+      set_fact:
+        mysql8022_and_higher: true
+      when:
+      - db.version.major > 8 or (db.version.major == 8 and db.version.minor > 0) or (db.version.major == 8 and db.version.minor == 0 and db.version.release > 21)
 
     - name: alias mysql command to include default options
       set_fact:
@@ -139,6 +155,18 @@
         - slave_status.Last_IO_Errno == 0
         - slave_status.Last_IO_Error == ''
         - slave_status is not changed
+      when: mysql8022_and_higher == false
+
+    - assert:
+        that:
+        - slave_status.Is_Slave == true
+        - slave_status.Source_Host == '{{ mysql_host }}'
+        - slave_status.Exec_Source_Log_Pos == mysql_primary_status.Position
+        - slave_status.Source_Port == {{ mysql_primary_port }}
+        - slave_status.Last_IO_Errno == 0
+        - slave_status.Last_IO_Error == ''
+        - slave_status is not changed
+      when: mysql8022_and_higher == true
 
     # Create test table and add data to it:
     - name: Create test table
@@ -164,6 +192,12 @@
     - assert:
         that:
         - slave_status.Exec_Master_Log_Pos != mysql_primary_status.Position
+      when: mysql8022_and_higher == false
+
+    - assert:
+        that:
+        - slave_status.Exec_Source_Log_Pos != mysql_primary_status.Position
+      when: mysql8022_and_higher == true
 
     - shell: pip show pymysql | awk '/Version/ {print $2}'
       register: pymysql_version

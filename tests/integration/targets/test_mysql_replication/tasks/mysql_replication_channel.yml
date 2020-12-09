@@ -69,6 +69,20 @@
         - slave_status.Last_IO_Error == ''
         - slave_status.Channel_Name == '{{ test_channel }}'
         - slave_status is not changed
+      when: mysql8022_and_higher == false
+
+    - assert:
+        that:
+        - slave_status.Is_Slave == true
+        - slave_status.Source_Host == '{{ mysql_host }}'
+        - slave_status.Exec_Source_Log_Pos == mysql_primary_status.Position
+        - slave_status.Source_Port == {{ mysql_primary_port }}
+        - slave_status.Last_IO_Errno == 0
+        - slave_status.Last_IO_Error == ''
+        - slave_status.Channel_Name == '{{ test_channel }}'
+        - slave_status is not changed
+      when: mysql8022_and_higher == true
+
 
     # Test stopslave mode:
     - name: Stop slave with channel

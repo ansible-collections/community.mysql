@@ -48,7 +48,7 @@
     - assert:
         that:
         - result is changed
-        - result.queries == ["START SLAVE FOR CHANNEL '{{ test_channel }}'"]
+        - result.queries == ["START SLAVE FOR CHANNEL '{{ test_channel }}'"] or result.queries == ["START REPLICA FOR CHANNEL '{{ test_channel }}'"]
 
     # Test getslave mode:
     - name: Get standby status with channel
@@ -82,7 +82,7 @@
     - assert:
         that:
         - result is changed
-        - result.queries == ["STOP SLAVE FOR CHANNEL '{{ test_channel }}'"]
+        - result.queries == ["STOP SLAVE FOR CHANNEL '{{ test_channel }}'"] or result.queries == ["STOP REPLICA FOR CHANNEL '{{ test_channel }}'"]
 
     # Test reset
     - name: Reset slave with channel
@@ -96,7 +96,7 @@
     - assert:
         that:
         - result is changed
-        - result.queries == ["RESET SLAVE FOR CHANNEL '{{ test_channel }}'"]
+        - result.queries == ["RESET SLAVE FOR CHANNEL '{{ test_channel }}'"] or result.queries == ["RESET REPLICA FOR CHANNEL '{{ test_channel }}'"]
 
     # Test reset all
     - name: Reset slave all with channel
@@ -110,4 +110,4 @@
     - assert:
         that:
         - result is changed
-        - result.queries == ["RESET SLAVE ALL FOR CHANNEL '{{ test_channel }}'"]
+        - result.queries == ["RESET SLAVE ALL FOR CHANNEL '{{ test_channel }}'"] or result.queries == ["RESET REPLICA ALL FOR CHANNEL '{{ test_channel }}'"]

@@ -120,7 +120,7 @@
     - assert:
         that:
         - result is changed
-        - result.queries == ["START SLAVE"]
+        - result.queries == ["START SLAVE"] or result.queries == ["START REPLICA"]
 
     # Test getslave mode:
     - name: Get standby status
@@ -192,7 +192,7 @@
     - assert:
         that:
         - result is changed
-        - result.queries == ["STOP SLAVE"]
+        - result.queries == ["STOP SLAVE"] or result.queries == ["STOP REPLICA"]
 
     # Test stopslave mode:
     - name: Stop slave that is no longer running

@@ -19,7 +19,7 @@ class dummy_cursor_class():
 
     def fetchone(self):
         if self.ret_val_type == 'dict':
-            return {'VERSION()': self.output}
+            return {'version': self.output}
 
         elif self.ret_val_type == 'list':
             return [self.output]

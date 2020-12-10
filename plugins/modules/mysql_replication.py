@@ -248,14 +248,11 @@ executed_queries = []
 
 def uses_replica_terminology(cursor):
     """Checks if REPLICA must be used instead of SLAVE"""
-    cursor.execute("SELECT VERSION()")
+    cursor.execute("SELECT VERSION() AS version")
     result = cursor.fetchone()
 
     if isinstance(result, dict):
-        if 'VERSION()' in result:
-            version_str = result['VERSION()']
-        else:
-            version_str = result['version()']
+        version_str = result['version']
 
     else:
         version_str = result[0]

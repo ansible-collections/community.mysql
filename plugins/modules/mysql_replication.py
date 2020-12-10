@@ -253,7 +253,6 @@ def uses_replica_terminology(cursor):
 
     if isinstance(result, dict):
         version_str = result['version']
-
     else:
         version_str = result[0]
 

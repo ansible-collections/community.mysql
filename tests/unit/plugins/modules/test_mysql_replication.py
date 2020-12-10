@@ -39,6 +39,7 @@ class dummy_cursor_class():
         (True, '9.0.0-mysql', 'list'),
         (True, '10.5.1-mariadb', 'dict'),
         (True, '10.6.0-mariadb', 'dict'),
+        (True, '11.5.1-mariadb', 'dict'),
     ]
 )
 def test_uses_replica_terminology(f_output, c_output, c_ret_type):

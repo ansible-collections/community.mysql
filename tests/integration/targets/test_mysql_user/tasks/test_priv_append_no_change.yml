@@ -1,0 +1,79 @@
+# Test code to ensure that appending privileges will not result in unnecessary changes when the current privileges
+# are a superset of the new privileges that have been defined.
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+      login_port: '{{ mysql_primary_port }}'
+
+  block:
+
+    - name: Create test databases
+      mysql_db:
+        <<: *mysql_params
+        name: '{{ item }}'
+        state: present
+      loop:
+      - data1
+      - data2
+
+    - name: Create user with privileges
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_4 }}'
+        password: '{{ user_password_4 }}'
+        priv: 'data1.*:SELECT,INSERT/data2.*:SELECT,DELETE'
+        state: present
+
+    - name: Run command to show privileges for user (expect privileges in stdout)
+      command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_4 }}'@'localhost'\""
+      register: result
+
+    - name: Assert user given privileges
+      assert:
+        that:
+          - "'GRANT SELECT, INSERT ON `data1`.*' in result.stdout"
+          - "'GRANT SELECT, DELETE ON `data2`.*' in result.stdout"
+
+    - name: Append privileges that are a subset of the current privileges, which should be a no-op
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_4 }}'
+        password: '{{ user_password_4 }}'
+        priv: 'data1.*:SELECT/data2.*:SELECT'
+        append_privs: yes
+        state: present
+      register: result
+
+    - name: Assert that there wasn't a change and that the permissions are still the same
+      assert:
+        that:
+          - "result.changed == false"
+
+    - name: Run command to show privileges for user once more (expect privileges in stdout)
+      command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_4 }}'@'localhost'\""
+      register: result
+
+    - name: Assert user given privileges once more
+      assert:
+        that:
+          - "'GRANT SELECT, INSERT ON `data1`.*' in result.stdout"
+          - "'GRANT SELECT, DELETE ON `data2`.*' in result.stdout"
+
+    ##########
+    # Clean up
+    - name: Drop test databases
+      mysql_db:
+        <<: *mysql_params
+        name: '{{ item }}'
+        state: present
+      loop:
+      - data1
+      - data2
+
+    - name: Drop test user
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_4 }}'
+        state: absent

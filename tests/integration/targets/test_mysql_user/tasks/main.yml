@@ -261,6 +261,10 @@
     # Tests for the priv parameter with dict value (https://github.com/ansible/ansible/issues/57533)
     - include: test_priv_dict.yml
 
+    # Test that append_privs will not attempt to make a change where current privileges are a superset of new privileges
+    # (https://github.com/ansible-collections/community.mysql/issues/69)
+    - include: test_priv_append_no_change.yml
+
     # Tests for the TLS requires dictionary
     - include: tls_requirements.yml
 

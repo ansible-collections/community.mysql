@@ -44,6 +44,7 @@
         priv: 'data1.*:SELECT/data2.*:SELECT'
         append_privs: yes
         state: present
+      check_mode: '{{ enable_check_mode }}'
       register: result
 
     - name: Assert that there wasn't a change and that the permissions are still the same

@@ -665,7 +665,14 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             # and in the new privileges, then we need to see if there's a difference.
             db_table_intersect = set(new_priv.keys()) & set(curr_priv.keys())
             for db_table in db_table_intersect:
-                priv_diff = set(new_priv[db_table]) ^ set(curr_priv[db_table])
+
+                # If appending privileges, only the set difference between new privileges and current privileges matter.
+                # The symmetric difference isn't relevant for append because existing privileges will not be revoked.
+                if append_privs:
+                    priv_diff = set(new_priv[db_table]) - set(curr_priv[db_table])
+                else:
+                    priv_diff = set(new_priv[db_table]) ^ set(curr_priv[db_table])
+
                 if len(priv_diff) > 0:
                     msg = "Privileges updated"
                     if module.check_mode:

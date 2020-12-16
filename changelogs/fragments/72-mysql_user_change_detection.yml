@@ -1,0 +1,2 @@
+bugfixes:
+- mysql_user - fixed change detection when using append_privs (https://github.com/ansible-collections/community.mysql/pull/72).

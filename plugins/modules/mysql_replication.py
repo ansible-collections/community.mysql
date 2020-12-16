@@ -82,6 +82,7 @@ options:
     description:
     - Same as mysql variable.
     type: bool
+    default: false
   master_ssl_ca:
     description:
     - Same as mysql variable.
@@ -106,6 +107,7 @@ options:
     description:
     - Whether the host uses GTID based replication or not.
     type: bool
+    default: false
   master_use_gtid:
     description:
     - Configures the slave to use the MariaDB Global Transaction ID.

@@ -18,7 +18,7 @@
       - data1
       - data2
 
-    - name: Create user with privileges
+    - name: Create a user with an initial set of privileges
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_4 }}'
@@ -30,7 +30,7 @@
       command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_4 }}'@'localhost'\""
       register: result
 
-    - name: Assert user given privileges
+    - name: Assert that the initial set of privileges matches what is expected
       assert:
         that:
           - "'GRANT SELECT, INSERT ON `data1`.*' in result.stdout"
@@ -47,20 +47,54 @@
       check_mode: '{{ enable_check_mode }}'
       register: result
 
-    - name: Assert that there wasn't a change and that the permissions are still the same
+    - name: Assert that there wasn't a change in permissions
       assert:
         that:
           - "result.changed == false"
 
-    - name: Run command to show privileges for user once more (expect privileges in stdout)
+    - name: Run command to show privileges for user (expect privileges in stdout)
       command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_4 }}'@'localhost'\""
       register: result
 
-    - name: Assert user given privileges once more
+    - name: Assert that the permissions still match what was originally granted
       assert:
         that:
           - "'GRANT SELECT, INSERT ON `data1`.*' in result.stdout"
           - "'GRANT SELECT, DELETE ON `data2`.*' in result.stdout"
+
+    - name: Append privileges that are not included in the current set of privileges to test that privileges are updated
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_4 }}'
+        password: '{{ user_password_4 }}'
+        priv: 'data1.*:DELETE/data2.*:SELECT'
+        append_privs: yes
+        state: present
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+
+    - name: Assert that there was a change because permissions were added to data1.*
+      assert:
+        that:
+          - "result.changed == true"
+
+    - name: Run command to show privileges for user (expect privileges in stdout)
+      command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_4 }}'@'localhost'\""
+      register: result
+
+    - name: Assert that the permissions were changed as expected if check_mode is set to 'no'
+      assert:
+        that:
+          - "'GRANT SELECT, INSERT, DELETE ON `data1`.*' in result.stdout"
+          - "'GRANT SELECT, DELETE ON `data2`.*' in result.stdout"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that the permissions were not actually changed if check_mode is set to 'yes'
+      assert:
+        that:
+          - "'GRANT SELECT, INSERT ON `data1`.*' in result.stdout"
+          - "'GRANT SELECT, DELETE ON `data2`.*' in result.stdout"
+      when: enable_check_mode == 'yes'
 
     ##########
     # Clean up

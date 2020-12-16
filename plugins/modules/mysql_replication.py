@@ -242,6 +242,7 @@ import warnings
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
 from ansible.module_utils._text import to_native
+from distutils.version import LooseVersion
 
 executed_queries = []
 
@@ -256,40 +257,12 @@ def uses_replica_terminology(cursor):
     else:
         version_str = result[0]
 
-    version = version_str.split('.')
-
-    ver_major = int(version[0])
-    ver_minor = int(version[1])
-    if '-' in version[2]:
-        ver_patch = int(version[2].split('-')[0])
-    else:
-        ver_patch = int(version[2])
+    version = LooseVersion(version_str)
 
     if 'mariadb' in version_str.lower():
-        # Since MariaDB 10.5.1
-        if ver_major > 10:
-            return True
-
-        elif ver_major == 10 and ver_minor > 5:
-            return True
-
-        elif ver_major == 10 and ver_minor == 5 and ver_patch >= 1:
-            return True
-
-        return False
-
+        return version >= LooseVersion('10.5.1')
     else:
-        # Since MySQL 8.0.22
-        if ver_major > 8:
-            return True
-
-        elif ver_major == 8 and ver_minor > 0:
-            return True
-
-        elif ver_major == 8 and ver_minor == 0 and ver_patch >= 22:
-            return True
-
-        return False
+        return version >= LooseVersion('8.0.22')
 
 
 def get_master_status(cursor):

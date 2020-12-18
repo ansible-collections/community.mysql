@@ -242,8 +242,27 @@ import warnings
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
 from ansible.module_utils._text import to_native
+from distutils.version import LooseVersion
 
 executed_queries = []
+
+
+def uses_replica_terminology(cursor):
+    """Checks if REPLICA must be used instead of SLAVE"""
+    cursor.execute("SELECT VERSION() AS version")
+    result = cursor.fetchone()
+
+    if isinstance(result, dict):
+        version_str = result['version']
+    else:
+        version_str = result[0]
+
+    version = LooseVersion(version_str)
+
+    if 'mariadb' in version_str.lower():
+        return version >= LooseVersion('10.5.1')
+    else:
+        return version >= LooseVersion('8.0.22')
 
 
 def get_master_status(cursor):
@@ -252,11 +271,11 @@ def get_master_status(cursor):
     return masterstatus
 
 
-def get_slave_status(cursor, connection_name='', channel=''):
+def get_slave_status(cursor, connection_name='', channel='', term='REPLICA'):
     if connection_name:
-        query = "SHOW SLAVE '%s' STATUS" % connection_name
+        query = "SHOW %s '%s' STATUS" % (term, connection_name)
     else:
-        query = "SHOW SLAVE STATUS"
+        query = "SHOW %s STATUS" % term
 
     if channel:
         query += " FOR CHANNEL '%s'" % channel
@@ -266,11 +285,11 @@ def get_slave_status(cursor, connection_name='', channel=''):
     return slavestatus
 
 
-def stop_slave(module, cursor, connection_name='', channel='', fail_on_error=False):
+def stop_slave(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
     if connection_name:
-        query = "STOP SLAVE '%s'" % connection_name
+        query = "STOP %s '%s'" % (term, connection_name)
     else:
-        query = 'STOP SLAVE'
+        query = 'STOP %s' % term
 
     if channel:
         query += " FOR CHANNEL '%s'" % channel
@@ -288,11 +307,11 @@ def stop_slave(module, cursor, connection_name='', channel='', fail_on_error=Fal
     return stopped
 
 
-def reset_slave(module, cursor, connection_name='', channel='', fail_on_error=False):
+def reset_slave(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
     if connection_name:
-        query = "RESET SLAVE '%s'" % connection_name
+        query = "RESET %s '%s'" % (term, connection_name)
     else:
-        query = 'RESET SLAVE'
+        query = 'RESET %s' % term
 
     if channel:
         query += " FOR CHANNEL '%s'" % channel
@@ -310,11 +329,11 @@ def reset_slave(module, cursor, connection_name='', channel='', fail_on_error=Fa
     return reset
 
 
-def reset_slave_all(module, cursor, connection_name='', channel='', fail_on_error=False):
+def reset_slave_all(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
     if connection_name:
-        query = "RESET SLAVE '%s' ALL" % connection_name
+        query = "RESET %s '%s' ALL" % (term, connection_name)
     else:
-        query = 'RESET SLAVE ALL'
+        query = 'RESET %s ALL' % term
 
     if channel:
         query += " FOR CHANNEL '%s'" % channel
@@ -347,11 +366,11 @@ def reset_master(module, cursor, fail_on_error=False):
     return reset
 
 
-def start_slave(module, cursor, connection_name='', channel='', fail_on_error=False):
+def start_slave(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
     if connection_name:
-        query = "START SLAVE '%s'" % connection_name
+        query = "START %s '%s'" % (term, connection_name)
     else:
-        query = 'START SLAVE'
+        query = 'START %s' % term
 
     if channel:
         query += " FOR CHANNEL '%s'" % channel
@@ -467,6 +486,13 @@ def main():
         else:
             module.fail_json(msg="unable to find %s. Exception message: %s" % (config_file, to_native(e)))
 
+    # Since MySQL 8.0.22 and MariaDB 10.5.1,
+    # "REPLICA" must be used instead of "SLAVE"
+    if uses_replica_terminology(cursor):
+        replica_term = 'REPLICA'
+    else:
+        replica_term = 'SLAVE'
+
     if mode in "getmaster":
         status = get_master_status(cursor)
         if not isinstance(status, dict):
@@ -476,7 +502,7 @@ def main():
         module.exit_json(queries=executed_queries, **status)
 
     elif mode in "getslave":
-        status = get_slave_status(cursor, connection_name, channel)
+        status = get_slave_status(cursor, connection_name, channel, replica_term)
         if not isinstance(status, dict):
             status = dict(Is_Slave=False, msg="Server is not configured as mysql slave")
         else:
@@ -531,13 +557,13 @@ def main():
         result['changed'] = True
         module.exit_json(queries=executed_queries, **result)
     elif mode in "startslave":
-        started = start_slave(module, cursor, connection_name, channel, fail_on_error)
+        started = start_slave(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if started is True:
             module.exit_json(msg="Slave started ", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Slave already started (Or cannot be started)", changed=False, queries=executed_queries)
     elif mode in "stopslave":
-        stopped = stop_slave(module, cursor, connection_name, channel, fail_on_error)
+        stopped = stop_slave(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if stopped is True:
             module.exit_json(msg="Slave stopped", changed=True, queries=executed_queries)
         else:
@@ -549,13 +575,13 @@ def main():
         else:
             module.exit_json(msg="Master already reset", changed=False, queries=executed_queries)
     elif mode in "resetslave":
-        reset = reset_slave(module, cursor, connection_name, channel, fail_on_error)
+        reset = reset_slave(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if reset is True:
             module.exit_json(msg="Slave reset", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Slave already reset", changed=False, queries=executed_queries)
     elif mode in "resetslaveall":
-        reset = reset_slave_all(module, cursor, connection_name, channel, fail_on_error)
+        reset = reset_slave_all(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if reset is True:
             module.exit_json(msg="Slave reset", changed=True, queries=executed_queries)
         else:

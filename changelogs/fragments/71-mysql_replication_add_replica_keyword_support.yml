@@ -1,2 +1,0 @@
-bugfixes:
-- mysql_replication - fix crashes of mariadb >= 10.5.1 and mysql >= 8.0.22 caused by using deprecated terminology (https://github.com/ansible-collections/community.mysql/issues/70).

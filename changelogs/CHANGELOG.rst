@@ -5,6 +5,29 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v1.1.2
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection that
+have been added after the release of ``community.mysql`` 1.1.1.
+
+Minor Changes
+-------------
+
+- mysql_query - simple refactoring of query type check (https://github.com/ansible-collections/community.mysql/pull/58).
+- mysql_user - simple refactoring of priv type check (https://github.com/ansible-collections/community.mysql/pull/58).
+
+Bugfixes
+--------
+
+- mysql_db - fix false warning related to ``unsafe_login_password`` option (https://github.com/ansible-collections/community.mysql/issues/33).
+- mysql_replication - fix crashes of mariadb >= 10.5.1 and mysql >= 8.0.22 caused by using deprecated terminology (https://github.com/ansible-collections/community.mysql/issues/70).
+- mysql_user - fixed change detection when using append_privs (https://github.com/ansible-collections/community.mysql/pull/72).
+
 v1.1.1
 ======
 

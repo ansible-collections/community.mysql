@@ -168,3 +168,25 @@ releases:
     - 1.1.1.yml
     - 53-mysql_query_fix_single_query_with_commas.yml
     release_date: '2020-11-03'
+  1.1.2:
+    changes:
+      bugfixes:
+      - mysql_db - fix false warning related to ``unsafe_login_password`` option (https://github.com/ansible-collections/community.mysql/issues/33).
+      - mysql_replication - fix crashes of mariadb >= 10.5.1 and mysql >= 8.0.22 caused
+        by using deprecated terminology (https://github.com/ansible-collections/community.mysql/issues/70).
+      - mysql_user - fixed change detection when using append_privs (https://github.com/ansible-collections/community.mysql/pull/72).
+      minor_changes:
+      - mysql_query - simple refactoring of query type check (https://github.com/ansible-collections/community.mysql/pull/58).
+      - mysql_user - simple refactoring of priv type check (https://github.com/ansible-collections/community.mysql/pull/58).
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection that
+
+        have been added after the release of ``community.mysql`` 1.1.1.'
+    fragments:
+    - 1.1.2.yml
+    - 58-mysql_query_refactoring.yml
+    - 71-mysql_replication_add_replica_keyword_support.yml
+    - 72-mysql_db_fix_false_warning.yml
+    - 72-mysql_user_change_detection.yml
+    release_date: '2020-12-18'

@@ -475,36 +475,26 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
 
     if password and encrypted:
-        cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password), tls_requires))
+        query_with_args = "CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password)
     elif password and not encrypted:
         if old_user_mgmt:
-            cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY %s", (user, host, password), tls_requires))
+            query_with_args = "CREATE USER %s@%s IDENTIFIED BY %s", (user, host, password)
         else:
             cursor.execute("SELECT CONCAT('*', UCASE(SHA1(UNHEX(SHA1(%s)))))", (password,))
             encrypted_password = cursor.fetchone()[0]
-            cursor.execute(
-                *mogrify(
-                    "CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s",
-                    (user, host, encrypted_password),
-                    tls_requires,
-                )
-            )
+            query_with_args = "CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, encrypted_password)
     elif plugin and plugin_hash_string:
-        cursor.execute(
-            *mogrify(
-                "CREATE USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string), tls_requires
-            )
-        )
+        query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string)
     elif plugin and plugin_auth_string:
-        cursor.execute(
-            *mogrify(
-                "CREATE USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string), tls_requires
-            )
-        )
+        query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)
     elif plugin:
-        cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED WITH %s", (user, host, plugin), tls_requires))
+        query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s", (user, host, plugin)
     else:
-        cursor.execute(*mogrify("CREATE USER %s@%s", (user, host), tls_requires))
+        query_with_args = "CREATE USER %s@%s", (user, host)
+
+    query_with_args_and_tls_requires = query_with_args + (tls_requires,)
+    cursor.execute(*mogrify(*query_with_args_and_tls_requires))
+
     if new_priv is not None:
         for db_table, priv in iteritems(new_priv):
             privileges_grant(cursor, user, host, db_table, priv, tls_requires)
@@ -626,11 +616,13 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
             if update:
                 if plugin_hash_string:
-                    cursor.execute("ALTER USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string))
+                    query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string)
                 elif plugin_auth_string:
-                    cursor.execute("ALTER USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string))
+                    query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)
                 else:
-                    cursor.execute("ALTER USER %s@%s IDENTIFIED WITH %s", (user, host, plugin))
+                    query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s", (user, host, plugin)
+
+                cursor.execute(*query_with_args)
                 changed = True
 
         # Handle privileges
@@ -695,10 +687,12 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
             if tls_requires is not None:
                 query = " ".join((pre_query, "%s@%s"))
-                cursor.execute(*mogrify_requires(query, (user, host), tls_requires))
+                query_with_args = mogrify_requires(query, (user, host), tls_requires)
             else:
                 query = " ".join((pre_query, "%s@%s REQUIRE NONE"))
-                cursor.execute(query, (user, host))
+                query_with_args = query, (user, host)
+
+            cursor.execute(*query_with_args)
             changed = True
 
     return (changed, msg)
@@ -710,11 +704,11 @@ def user_delete(cursor, user, host, host_all, check_mode):
 
     if host_all:
         hostnames = user_get_hostnames(cursor, user)
-
-        for hostname in hostnames:
-            cursor.execute("DROP USER %s@%s", (user, hostname))
     else:
-        cursor.execute("DROP USER %s@%s", (user, host))
+        hostnames = [host]
+
+    for hostname in hostnames:
+        cursor.execute("DROP USER %s@%s", (user, hostname))
 
     return True
 

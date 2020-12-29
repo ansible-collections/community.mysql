@@ -8,7 +8,6 @@
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-
 DOCUMENTATION = r'''
 ---
 module: mysql_user
@@ -299,10 +298,13 @@ RETURN = '''#'''
 
 import re
 import string
+from distutils.version import LooseVersion
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import SQLParseError
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
+from ansible_collections.community.mysql.plugins.module_utils.mysql import (
+    mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec, get_server_version
+)
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
 
@@ -475,7 +477,19 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
 
     if password and encrypted:
-        cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password), tls_requires))
+        server_version = get_server_version(cursor)
+
+        # The IDENTIFIED BY PASSWORD syntax was dropped in MySQL 8.0, but appears to be supported by MariaDB 10.x.
+        if server_version < LooseVersion("8") or server_version > LooseVersion("10"):
+            cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password), tls_requires))
+        else:
+            cursor.execute(
+                *mogrify(
+                    "CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, password),
+                    tls_requires
+                )
+            )
+
     elif password and not encrypted:
         if old_user_mgmt:
             cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY %s", (user, host, password), tls_requires))

@@ -10,6 +10,8 @@
 # Simplified BSD License (see licenses/simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
 
 from __future__ import (absolute_import, division, print_function)
+
+from distutils.version import LooseVersion
 from functools import reduce
 __metaclass__ = type
 
@@ -133,3 +135,9 @@ def mysql_common_argument_spec():
         ca_cert=dict(type='path', aliases=['ssl_ca']),
         check_hostname=dict(type='bool', default=None),
     )
+
+
+def get_server_version(cursor):
+    cursor.execute("SELECT VERSION()")
+    version_str = cursor.fetchone()[0]
+    return LooseVersion(version_str)

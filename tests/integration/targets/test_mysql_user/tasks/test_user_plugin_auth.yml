@@ -18,7 +18,7 @@
   block:
 
     # ============================================================
-    # Test plugin auth initially with a hash and then changing to a different hash.
+    # Test plugin auth initially setting a hash and then changing to a different hash.
     #
 
     - name: Create user with plugin auth (with hash string)
@@ -30,10 +30,15 @@
         priv: '{{ test_default_priv }}'
       register: result
 
-    - name: Check that the module made a change
+    - name: Get user information
+      command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
+      register: show_create_user
+
+    - name: Check that the module made a change and that the expected plugin type is set
       assert:
         that:
           - "result.changed == true"
+          - "'{{ test_plugin_type }}' in show_create_user.stdout"
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -96,10 +101,15 @@
         priv: '{{ test_default_priv }}'
       register: result
 
-    - name: Check that the module made a change
+    - name: Get user information
+      command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
+      register: show_create_user
+
+    - name: Check that the module made a change and that the expected plugin type is set
       assert:
         that:
           - "result.changed == true"
+          - "'{{ test_plugin_type }}' in show_create_user.stdout"
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -164,7 +174,7 @@
     - include: remove_user.yml user_name={{ test_user_name }} user_password={{ test_plugin_auth_string }}
 
     # ============================================================
-    # Test plugin auth initially setting a plaintext auth string and then switching to a plaintext auth string.
+    # Test plugin auth initially setting a plaintext auth string and then switching to a hash.
     #
 
     - name: Create user with plugin auth (with auth string)
@@ -176,10 +186,15 @@
         priv: '{{ test_default_priv }}'
       register: result
 
-    - name: Check that the module made a change
+    - name: Get user information
+      command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
+      register: show_create_user
+
+    - name: Check that the module made a change and that the expected plugin type is set
       assert:
         that:
           - "result.changed == true"
+          - "'{{ test_plugin_type }}' in show_create_user.stdout"
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -256,10 +271,15 @@
         priv: '{{ test_default_priv }}'
       register: result
 
-    - name: Check that the module made a change
+    - name: Get user information
+      command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
+      register: show_create_user
+
+    - name: Check that the module made a change and that the expected plugin type is set
       assert:
         that:
           - "result.changed == true"
+          - "'{{ test_plugin_type }}' in show_create_user.stdout"
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -310,8 +330,9 @@
     - include: remove_user.yml user_name={{ test_user_name }} user_password={{ test_plugin_auth_string }}
 
     # ============================================================
-    # Test plugin auth switching from one type of plugin to another. The only other plugins that are loaded by default
-    # are sha2*, but these aren't compatible with pymysql < 0.9, so skip these tests for those versions.
+    # Test plugin auth switching from one type of plugin to another without an auth string or hash. The only other
+    # plugins that are loaded by default are sha2*, but these aren't compatible with pymysql < 0.9, so skip these tests
+    # for those versions.
     #
     - name: Get pymysql version
       shell: pip show pymysql | awk '/Version/ {print $2}'
@@ -329,52 +350,37 @@
           priv: '{{ test_default_priv }}'
         register: result
 
+      - name: Get user information
+        command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
+        register: show_create_user
 
-      - name: Check that the module made a change
+      - name: Check that the module made a change and that the expected plugin type is set
         assert:
           that:
             - "result.changed == true"
+            - "'{{ test_plugin_type }}' in show_create_user.stdout"
 
       - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
-
-      - name: Get the MySQL version using an empty password for the newly created user
-        mysql_info:
-          login_user: '{{ test_user_name }}'
-          login_password: ''
-          login_host: '{{ mysql_host }}'
-          login_port: '{{ mysql_primary_port }}'
-          filter: version
-        register: result
-        ignore_errors: true
-
-      - name: Assert that mysql_info was successful
-        assert:
-          that:
-            - "result.failed == false"
 
       - name: Switch user to sha256_password auth plugin
         mysql_user:
           <<: *mysql_params
           name: '{{ test_user_name }}'
           plugin: sha256_password
-          plugin_auth_string: '{{ test_plugin_auth_string }}'
           priv: '{{ test_default_priv }}'
         register: result
 
-      - name: Get the MySQL version using the new plugin auth string
-        mysql_info:
-          login_user: '{{ test_user_name }}'
-          login_password: '{{ test_plugin_auth_string }}'
-          login_host: '{{ mysql_host }}'
-          login_port: '{{ mysql_primary_port }}'
-          filter: version
-        register: result
-        ignore_errors: true
+      - name: Get user information
+        command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
+        register: show_create_user
 
-      - name: Assert that mysql_info was successful
+      - name: Check that the module made a change and that the expected plugin type is set
         assert:
           that:
-            - "result.failed == false"
+            - "result.changed == true"
+            - "'sha256_password' in show_create_user.stdout"
+
+      - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
       # Cleanup
       - include: remove_user.yml user_name={{ test_user_name }} user_password={{ test_plugin_auth_string }}

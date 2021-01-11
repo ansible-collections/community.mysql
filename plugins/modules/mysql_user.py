@@ -372,6 +372,19 @@ def use_old_user_mgmt(cursor):
             return False
 
 
+def supports_identified_by_password(cursor):
+    """
+    Determines whether the 'CREATE USER %s@%s IDENTIFIED BY PASSWORD %s' syntax is supported. This was dropped in
+    MySQL 8.0.
+    """
+    version_str = get_server_version(cursor)
+
+    if 'mariadb' in version_str.lower():
+        return True
+    else:
+        return LooseVersion(version_str) < LooseVersion('8')
+
+
 def get_mode(cursor):
     cursor.execute('SELECT @@GLOBAL.sql_mode')
     result = cursor.fetchone()
@@ -477,10 +490,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
 
     if password and encrypted:
-        server_version = get_server_version(cursor)
-
-        # The IDENTIFIED BY PASSWORD syntax was dropped in MySQL 8.0, but appears to be supported by MariaDB 10.x.
-        if server_version < LooseVersion("8") or server_version > LooseVersion("10"):
+        if supports_identified_by_password(cursor):
             cursor.execute(*mogrify("CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password), tls_requires))
         else:
             cursor.execute(

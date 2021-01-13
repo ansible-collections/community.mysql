@@ -338,7 +338,8 @@ VALID_PRIVS = frozenset(('CREATE', 'DROP', 'GRANT', 'GRANT OPTION',
                          'REPLICATION MASTER ADMIN',
                          'REPLICATION SLAVE',
                          'REPLICATION SLAVE ADMIN',
-                         'SET USER',))
+                         'SET USER',
+                         'SHOW_ROUTINE',))
 
 
 class InvalidPrivsError(Exception):

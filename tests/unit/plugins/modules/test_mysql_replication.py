@@ -7,22 +7,7 @@ __metaclass__ = type
 import pytest
 
 from ansible_collections.community.mysql.plugins.modules.mysql_replication import uses_replica_terminology
-
-
-class dummy_cursor_class():
-    def __init__(self, output, ret_val_type='dict'):
-        self.output = output
-        self.ret_val_type = ret_val_type
-
-    def execute(self, query):
-        pass
-
-    def fetchone(self):
-        if self.ret_val_type == 'dict':
-            return {'version': self.output}
-
-        elif self.ret_val_type == 'list':
-            return [self.output]
+from ..utils import dummy_cursor_class
 
 
 @pytest.mark.parametrize(

@@ -133,3 +133,16 @@ def mysql_common_argument_spec():
         ca_cert=dict(type='path', aliases=['ssl_ca']),
         check_hostname=dict(type='bool', default=None),
     )
+
+
+def get_server_version(cursor):
+    """Returns a string representation of the server version."""
+    cursor.execute("SELECT VERSION() AS version")
+    result = cursor.fetchone()
+
+    if isinstance(result, dict):
+        version_str = result['version']
+    else:
+        version_str = result[0]
+
+    return version_str

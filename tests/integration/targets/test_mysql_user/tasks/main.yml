@@ -233,10 +233,14 @@
     - include: remove_user.yml user_name={{user_name_1}} user_password={{ user_password_1 }}
 
     # ============================================================
-    # Update user password for a user.
-    # Assert the user password is updated and old password can no longer be used.
+    # Test plaintext and encrypted password scenarios.
     #
-    #- include: user_password_update_test.yml
+    - include: test_user_password.yml
+
+    # ============================================================
+    # Test plugin authentication scenarios.
+    #
+    - include: test_user_plugin_auth.yml
 
     # ============================================================
     # Assert create user with SELECT privileges, attempt to create database and update privileges to create database

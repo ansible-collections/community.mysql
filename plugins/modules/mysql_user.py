@@ -294,7 +294,15 @@ EXAMPLES = r'''
 # password=n<_665{vS43y
 '''
 
-RETURN = '''#'''
+RETURN = r'''
+queries:
+  description: List of executed queries which modified DB's state.
+  returned: if executed successfully
+  type: list
+  sample: ["CREATE USER 'db_user2'@'localhost' IDENTIFIED WITH mysql_native_password AS '********'"]
+  version_added: '1.1.0'
+'''
+
 
 import re
 import string
@@ -347,9 +355,24 @@ VALID_PRIVS = frozenset(('CREATE', 'DROP', 'GRANT', 'GRANT OPTION',
 class InvalidPrivsError(Exception):
     pass
 
+
+# Same as what is used by Ansible no_log parameters for consistency.
+REDACTED_AUTH_STRING = "*" * 8
+
+_executed_queries = []
+
 # ===========================================
 # MySQL module specific support methods.
 #
+
+
+def log_query(cursor, query, args=None):
+    """
+    Logs the query including the args provided.
+
+    Note: check that all args handle credentials properly (parameters should have no_log set or other mitigations).
+    """
+    _executed_queries.append(cursor.mogrify(query, args))
 
 
 # User Authentication Management changed in MySQL 5.7 and MariaDB 10.2.0
@@ -490,6 +513,8 @@ def user_add(cursor, user, host, host_all, password, encrypted,
 
     mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
 
+    sanitized_query_with_args = ""
+
     if password and encrypted:
         if supports_identified_by_password(cursor):
             query_with_args = "CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password)
@@ -502,6 +527,14 @@ def user_add(cursor, user, host, host_all, password, encrypted,
             cursor.execute("SELECT CONCAT('*', UCASE(SHA1(UNHEX(SHA1(%s)))))", (password,))
             encrypted_password = cursor.fetchone()[0]
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, encrypted_password)
+
+            # encrypted_password above is not a module argument and therefore cannot use no_log to prevent logging. This
+            # is a workaround for that. Using 'BY' instead of 'AS' in the statement appears to allow passing in
+            # plaintext values for MySQL 5.7 and 8.0. It is not clear whether this was avoided for a specific reason.
+            # This special case can be removed if the change described above is implemented in the future.
+
+            sanitized_query_with_args = "CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s",\
+                                        (user, host, REDACTED_AUTH_STRING)
     elif plugin and plugin_hash_string:
         query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string)
     elif plugin and plugin_auth_string:
@@ -512,6 +545,14 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         query_with_args = "CREATE USER %s@%s", (user, host)
 
     query_with_args_and_tls_requires = query_with_args + (tls_requires,)
+
+    # Handle the special case where a no_log module parameter isn't being used.
+    if sanitized_query_with_args:
+        sanitized_query_with_args_and_tls = sanitized_query_with_args + (tls_requires,)
+        log_query(cursor, *mogrify(*sanitized_query_with_args_and_tls))
+    else:
+        log_query(cursor, *mogrify(*query_with_args_and_tls_requires))
+
     cursor.execute(*mogrify(*query_with_args_and_tls_requires))
 
     if new_priv is not None:
@@ -592,11 +633,15 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 if module.check_mode:
                     return (True, msg)
                 if old_user_mgmt:
-                    cursor.execute("SET PASSWORD FOR %s@%s = %s", (user, host, encrypted_password))
+                    query = "SET PASSWORD FOR %s@%s = %s"
+                    log_query(cursor, query, (user, host, REDACTED_AUTH_STRING))
+                    cursor.execute(query, (user, host, encrypted_password))
                     msg = "Password updated (old style)"
                 else:
                     try:
-                        cursor.execute("ALTER USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, encrypted_password))
+                        query = "ALTER USER %s@%s IDENTIFIED WITH mysql_native_password AS %s"
+                        log_query(cursor, query, (user, host, REDACTED_AUTH_STRING))
+                        cursor.execute(query, (user, host, encrypted_password))
                         msg = "Password updated (new style)"
                     except (mysql_driver.Error) as e:
                         # https://stackoverflow.com/questions/51600000/authentication-string-of-root-user-on-mysql
@@ -641,6 +686,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 else:
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s", (user, host, plugin)
 
+                log_query(cursor, *query_with_args)
                 cursor.execute(*query_with_args)
                 changed = True
 
@@ -711,6 +757,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 query = " ".join((pre_query, "%s@%s REQUIRE NONE"))
                 query_with_args = query, (user, host)
 
+            log_query(cursor, *query_with_args)
             cursor.execute(*query_with_args)
             changed = True
 
@@ -727,7 +774,9 @@ def user_delete(cursor, user, host, host_all, check_mode):
         hostnames = [host]
 
     for hostname in hostnames:
-        cursor.execute("DROP USER %s@%s", (user, hostname))
+        query_with_args = "DROP USER %s@%s", (user, hostname)
+        log_query(cursor, *query_with_args)
+        cursor.execute(*query_with_args)
 
     return True
 
@@ -842,12 +891,16 @@ def privileges_revoke(cursor, user, host, db_table, priv, grant_option):
         query = ["REVOKE GRANT OPTION ON %s" % db_table]
         query.append("FROM %s@%s")
         query = ' '.join(query)
-        cursor.execute(query, (user, host))
+        query_with_args = query, (user, host)
+        log_query(cursor, *query_with_args)
+        cursor.execute(*query_with_args)
     priv_string = ",".join([p for p in priv if p not in ('GRANT', 'REQUIRESSL')])
     query = ["REVOKE %s ON %s" % (priv_string, db_table)]
     query.append("FROM %s@%s")
     query = ' '.join(query)
-    cursor.execute(query, (user, host))
+    query_with_args = query, (user, host)
+    log_query(cursor, *query_with_args)
+    cursor.execute(*query_with_args)
 
 
 def privileges_grant(cursor, user, host, db_table, priv, tls_requires):
@@ -866,7 +919,9 @@ def privileges_grant(cursor, user, host, db_table, priv, tls_requires):
     if 'GRANT' in priv:
         query.append("WITH GRANT OPTION")
     query = ' '.join(query)
-    cursor.execute(query, params)
+    query_with_args = query, params
+    log_query(cursor, *query_with_args)
+    cursor.execute(*query_with_args)
 
 
 def convert_priv_dict_to_str(priv):
@@ -1011,7 +1066,9 @@ def limit_resources(module, cursor, user, host, resource_limits, check_mode):
 
     query = "ALTER USER %s@%s"
     query += ' WITH %s' % ' '.join(tmp)
-    cursor.execute(query, (user, host))
+    query_with_args = query, (user, host)
+    log_query(cursor, *query_with_args)
+    cursor.execute(*query_with_args)
     return True
 
 
@@ -1036,8 +1093,8 @@ def main():
         update_password=dict(type='str', default='always', choices=['always', 'on_create'], no_log=False),
         sql_log_bin=dict(type='bool', default=True),
         plugin=dict(default=None, type='str'),
-        plugin_hash_string=dict(default=None, type='str'),
-        plugin_auth_string=dict(default=None, type='str'),
+        plugin_hash_string=dict(default=None, type='str', no_log=True),
+        plugin_auth_string=dict(default=None, type='str', no_log=True),
         resource_limits=dict(type='dict'),
     )
     module = AnsibleModule(
@@ -1144,7 +1201,13 @@ def main():
         else:
             changed = False
             msg = "User doesn't exist"
-    module.exit_json(changed=changed, user=user, msg=msg)
+
+    module_output = {"changed": changed, "user": user, "msg": msg}
+
+    if not module.check_mode:
+        module_output["queries"] = _executed_queries
+
+    module.exit_json(**module_output)
 
 
 if __name__ == '__main__':

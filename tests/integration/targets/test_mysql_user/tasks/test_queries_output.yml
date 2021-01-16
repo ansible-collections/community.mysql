@@ -1,0 +1,280 @@
+# Tests for ensuring that "queries" is in the output of the mysql_user module and that credentials are not being logged
+
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+      login_port: '{{ mysql_primary_port }}'
+    test_user_name: 'test_queries_output'
+    test_user_password: 'Uq109*yhQ5KybNerab'
+    test_user_hash: '*4BA890B12C1DF5C88D7B1B0B0BE8FF800AACAED9'
+    test_user_new_pasword: 'mE6M^83ET&##midxeE'
+    test_user_new_hash: '*D5F6294364E7E732DD8C81FB5BE1D175DB341A0C'
+
+  block:
+    - name: Create test databases
+      mysql_db:
+        <<: *mysql_params
+        name: '{{ item }}'
+        state: present
+      loop:
+      - queries_output_1
+      - queries_output_2
+
+    # ============================================================
+    # Test a simple sequence of creating, modifying, and dropping a user. These tests exclude exact query syntax
+    # because the scope of the test is simply that queries exists, rather than that a specific statement is executed
+    # (that should be covered in other tests).
+
+    - name: Create a user
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        password: '{{ test_user_password }}'
+        priv: 'queries_output_1.*:SELECT,INSERT/queries_output_2.*:SELECT,DELETE'
+        state: present
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+
+    - name: Join queries list from result
+      set_fact:
+        result_queries: "{{ result.queries|join('; ') }}"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries are in the result with expected patterns and password isn't logged
+      assert:
+        that:
+          - "result.queries is defined"
+          - "'CREATE USER' in result_queries"
+          - "'GRANT' in result_queries"
+          - "'{{ test_user_password }}' not in result_queries"
+          - "'********' in result_queries"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries isn't present in result in check mode
+      assert:
+        that:
+          - "result.queries is undefined"
+      when: enable_check_mode == 'yes'
+
+    - name: Modify privileges for existing user
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        password: '{{ test_user_password }}'
+        priv: 'queries_output_1.*:SELECT/queries_output_2.*:SELECT'
+        state: present
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+
+    - name: Join queries list from result
+      set_fact:
+        result_queries: "{{ result.queries|join('; ') }}"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries are in the result with expected patterns
+      assert:
+        that:
+          - "result.queries is defined"
+          - "'GRANT' in result_queries"
+          - "'REVOKE' in result_queries"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries isn't present in result in check mode
+      assert:
+        that:
+          - "result.queries is undefined"
+      when: enable_check_mode == 'yes'
+
+    - name: Modify password for existing user
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        password: '{{ test_user_new_pasword }}'
+        priv: 'queries_output_1.*:SELECT/queries_output_2.*:SELECT'
+        state: present
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+
+    - name: Join queries list from result
+      set_fact:
+        result_queries: "{{ result.queries|join('; ') }}"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries are in the result with expected patterns
+      assert:
+        that:
+          - "result.queries is defined"
+          - "'ALTER USER' in result_queries"
+          - "'{{ test_user_new_pasword }}' not in result_queries"
+          - "'********' in result_queries"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries isn't present in result in check mode
+      assert:
+        that:
+          - "result.queries is undefined"
+      when: enable_check_mode == 'yes'
+
+    - name: Drop test user
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        state: absent
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+
+    - name: Assert that queries are in the result with expected patterns
+      assert:
+        that:
+          - "result.queries is defined"
+          - "'DROP USER' in result.queries|join('; ')"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries isn't present in result in check mode
+      assert:
+        that:
+          - "result.queries is undefined"
+      when: enable_check_mode == 'yes'
+
+    # ============================================================
+    # Test that credentials aren't logged when using plugin auth and plugin_auth_string.
+
+    - name: Create a user with plugin_auth_string
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        plugin: mysql_native_password
+        plugin_auth_string: '{{ test_user_password }}'
+        state: present
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+
+    - name: Join queries list from result
+      set_fact:
+        result_queries: "{{ result.queries|join('; ') }}"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries are in the result with expected patterns and password isn't logged
+      assert:
+        that:
+          - "result.queries is defined"
+          - "'CREATE USER' in result_queries"
+          - "'{{ test_user_password }}' not in result_queries"
+          - "'********' in result_queries"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries isn't present in result in check mode
+      assert:
+        that:
+          - "result.queries is undefined"
+      when: enable_check_mode == 'yes'
+
+    - name: Modify password for existing user using plugin_auth_string
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        plugin: mysql_native_password
+        plugin_auth_string: '{{ test_user_new_pasword }}'
+        state: present
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+
+    - name: Join queries list from result
+      set_fact:
+        result_queries: "{{ result.queries|join('; ') }}"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries are in the result with expected patterns
+      assert:
+        that:
+          - "result.queries is defined"
+          - "'ALTER USER' in result_queries"
+          - "'{{ test_user_new_pasword }}' not in result_queries"
+          - "'********' in result_queries"
+      when: enable_check_mode == 'no'
+
+    - name: Drop test user
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        state: absent
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+
+    # ============================================================
+    # Test that credentials aren't logged when using plugin auth and plugin_hash_string
+
+    - name: Create a user
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        plugin: mysql_native_password
+        plugin_hash_string: '{{ test_user_hash }}'
+        state: present
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+
+    - name: Join queries list from result
+      set_fact:
+        result_queries: "{{ result.queries|join('; ') }}"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries are in the result with expected patterns and password isn't logged
+      assert:
+        that:
+          - "result.queries is defined"
+          - "'CREATE USER' in result_queries"
+          - "'{{ test_user_hash }}' not in result_queries"
+          - "'********' in result_queries"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries isn't present in result in check mode
+      assert:
+        that:
+          - "result.queries is undefined"
+      when: enable_check_mode == 'yes'
+
+    - name: Modify password for existing user using plugin_hash_string
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        plugin: mysql_native_password
+        plugin_hash_string: '{{ test_user_new_hash }}'
+        state: present
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+
+    - name: Join queries list from result
+      set_fact:
+        result_queries: "{{ result.queries|join('; ') }}"
+      when: enable_check_mode == 'no'
+
+    - name: Assert that queries are in the result with expected patterns
+      assert:
+        that:
+          - "result.queries is defined"
+          - "'ALTER USER' in result_queries"
+          - "'{{ test_user_new_hash }}' not in result_queries"
+          - "'********' in result_queries"
+      when: enable_check_mode == 'no'
+
+    - name: Drop test user
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        state: absent
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+
+    ##########
+    # Clean up
+    - name: Drop test databases
+      mysql_db:
+        <<: *mysql_params
+        name: '{{ item }}'
+        state: present
+      loop:
+      - queries_output_1
+      - queries_output_2

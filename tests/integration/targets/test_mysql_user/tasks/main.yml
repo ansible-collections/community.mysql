@@ -273,6 +273,10 @@
     # Tests for the TLS requires dictionary
     - include: tls_requirements.yml
 
+    # Tests for queries module output
+    - include: test_queries_output.yml enable_check_mode=no
+    - include: test_queries_output.yml enable_check_mode=yes
+
     - import_tasks: issue-29511.yaml
       tags:
         - issue-29511

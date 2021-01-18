@@ -1,2 +1,0 @@
-minor_changes:
-  - mysql_user - refactor to reduce cursor.execute() calls in preparation for adding query logging (https://github.com/ansible-collections/community.mysql/pull/76).

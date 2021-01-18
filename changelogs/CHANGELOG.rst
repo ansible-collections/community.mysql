@@ -5,6 +5,27 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v1.2.0
+======
+
+Release Summary
+---------------
+
+This is the minor release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection
+that have been added after the release of ``community.mysql`` 1.1.2.
+
+Minor Changes
+-------------
+
+- mysql_user - refactor to reduce cursor.execute() calls in preparation for adding query logging (https://github.com/ansible-collections/community.mysql/pull/76).
+
+Bugfixes
+--------
+
+- mysql_user - add ``SHOW_ROUTINE`` privilege support (https://github.com/ansible-collections/community.mysql/issues/86).
+- mysql_user - fixed creating user with encrypted password in MySQL 8.0 (https://github.com/ansible-collections/community.mysql/pull/79).
+
 v1.1.2
 ======
 

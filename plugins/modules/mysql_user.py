@@ -300,7 +300,7 @@ queries:
   returned: if executed successfully
   type: list
   sample: ["CREATE USER 'db_user2'@'localhost' IDENTIFIED WITH mysql_native_password AS '********'"]
-  version_added: '1.1.0'
+  version_added: '1.3.0'
 '''
 
 

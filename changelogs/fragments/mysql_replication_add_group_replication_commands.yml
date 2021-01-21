@@ -1,0 +1,2 @@
+minor_changes:
+  - mysql_replication - added options to `start_group_replication` and `stop_group_replication`

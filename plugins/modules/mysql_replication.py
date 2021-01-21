@@ -32,8 +32,8 @@ options:
       C(resetmaster) (RESET MASTER) - supported since community.mysql 0.1.0,
       C(resetslave) (RESET SLAVE),
       C(resetslaveall) (RESET SLAVE ALL).
-      C(startgroupreplication) (START GROUP_REPLICATION).
-      C(stopgroupreplication) (STOP GROUP_REPLICATION).
+      C(start_group_replication) (START GROUP_REPLICATION).
+      C(stop_group_replication) (STOP GROUP_REPLICATION).
     type: str
     choices:
     - changemaster
@@ -44,8 +44,8 @@ options:
     - resetmaster
     - resetslave
     - resetslaveall
-    - startgroupreplication
-    - stopgroupreplication
+    - start_group_replication
+    - stop_group_replication
     default: getslave
   master_host:
     description:
@@ -232,7 +232,7 @@ EXAMPLES = r'''
 
 - name: Start mysql group replication
   community.mysql.mysql_replication:
-    mode: startgroupreplication
+    mode: start_group_replication
 
 '''
 
@@ -448,7 +448,7 @@ def main():
         mode=dict(type='str', default='getslave', choices=[
             'getmaster', 'getslave', 'changemaster', 'stopslave',
             'startslave', 'resetmaster', 'resetslave', 'resetslaveall',
-            'startgroupreplication', 'stopgroupreplication']),
+            'start_group_replication', 'stop_group_replication']),
         master_auto_position=dict(type='bool', default=False),
         master_host=dict(type='str'),
         master_user=dict(type='str'),
@@ -629,14 +629,14 @@ def main():
             module.exit_json(msg="Slave reset", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Slave already reset", changed=False, queries=executed_queries)
-    elif mode in "startgroupreplication":
+    elif mode in "start_group_replication":
         started = start_group_replication(module, cursor, fail_on_error)
         if started is True:
             module.exit_json(msg="Group replication started ", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Group replication already started (Or cannot be started)", changed=False,
                              ueries=executed_queries)
-    elif mode in "stopgroupreplication":
+    elif mode in "stop_group_replication":
         stopped = stop_group_replication(module, cursor, channel, fail_on_error)
         if stopped is True:
             module.exit_json(msg="Group replication stopped", changed=True, queries=executed_queries)

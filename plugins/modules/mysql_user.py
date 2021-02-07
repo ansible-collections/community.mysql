@@ -617,7 +617,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         query_with_args = "CREATE USER %s@%s", (user, host)
 
     query_with_args_and_tls_requires = query_with_args + (tls_requires,)
-    cursor.execute(*mogrify(*query_with_args_and_tls_requires))
+    cursor.execute(*mogrify(*query_with_args_and_tls_requires, locking))
 
     if new_priv is not None:
         for db_table, priv in iteritems(new_priv):

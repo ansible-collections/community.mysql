@@ -81,7 +81,7 @@
 
     - assert:
        that:
-         - result is changed
+         - result is succeeded
       when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
 
     - name: Create user with account locking with failed login attempts below range
@@ -103,7 +103,7 @@
 
     - assert:
        that:
-         - result is changed
+         - result is succeeded
       when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
 
     - name: Create user with account locking with failed login attempts above range
@@ -125,7 +125,7 @@
 
     - assert:
        that:
-         - result is changed
+         - result is succeeded
       when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
 
     - name: Create user with account locking with invalid password lock time
@@ -147,7 +147,7 @@
 
     - assert:
        that:
-         - result is changed
+         - result is succeeded
       when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
 
     - include: assert_no_user.yml user_name={{ user_name_1 }}
@@ -164,12 +164,13 @@
       register: result
 
     - assert:
-        that:
-          - result is changed
+       that:
+         - result is changed
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
 
     - assert:
        that:
-         - result is changed
+         - result is succeeded
       when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
 
     - include: assert_user.yml user_name={{ user_name_1 }}

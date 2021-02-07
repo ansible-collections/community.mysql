@@ -431,7 +431,7 @@ def supports_identified_by_password(cursor):
         return LooseVersion(version_str) < LooseVersion('8')
 
 
-def validate_account_locking(cursor, account_locking):
+def validate_account_locking(cursor, account_locking, module):
     cursor.execute("SELECT VERSION()")
     result = cursor.fetchone()
     version_str = result[0]
@@ -447,7 +447,6 @@ def validate_account_locking(cursor, account_locking):
             module.warn("MySQL is too old to support this manner of account locking.")
             module.warn("Account locking settings are being ignored.")
         else:
-            msg = None
             if account_locking is not None:
                 locking = {
                     "FAILED_LOGIN_ATTEMPTS": str(account_locking.get("FAILED_LOGIN_ATTEMPTS", 0)),

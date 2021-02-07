@@ -616,8 +616,8 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     else:
         query_with_args = "CREATE USER %s@%s", (user, host)
 
-    query_with_args_and_tls_requires = query_with_args + (tls_requires,)
-    cursor.execute(*mogrify(*query_with_args_and_tls_requires, locking))
+    query_with_args_and_tls_requires = query_with_args + (tls_requires, locking)
+    cursor.execute(*mogrify(*query_with_args_and_tls_requires))
 
     if new_priv is not None:
         for db_table, priv in iteritems(new_priv):
@@ -644,6 +644,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
     # Determine what user management method server uses
     old_user_mgmt = use_old_user_mgmt(cursor)
+
+    locking = validate_account_locking(cursor, account_locking, module)
 
     if host_all:
         hostnames = user_get_hostnames(cursor, user)
@@ -811,7 +813,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
             if tls_requires is not None:
                 query = " ".join((pre_query, "%s@%s"))
-                query_with_args = mogrify_requires(query, (user, host), tls_requires)
+                query_with_args = mogrify_requires(query, (user, host), tls_requires, locking)
             else:
                 query = " ".join((pre_query, "%s@%s REQUIRE NONE"))
                 query_with_args = query, (user, host)

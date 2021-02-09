@@ -338,7 +338,6 @@ VALID_PRIVS = frozenset(('CREATE', 'DROP', 'GRANT', 'GRANT OPTION',
                          'CONNECTION ADMIN',
                          'READ_ONLY ADMIN',
                          'REPLICATION MASTER ADMIN',
-                         'REPLICATION SLAVE',
                          'REPLICATION SLAVE ADMIN',
                          'SET USER',
                          'SHOW_ROUTINE',))

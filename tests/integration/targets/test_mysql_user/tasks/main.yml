@@ -237,6 +237,7 @@
     # Test plaintext and encrypted password scenarios.
     #
     - include: test_user_password.yml
+    - include: test_user_password_update.yml
 
     # ============================================================
     # Test plugin authentication scenarios.

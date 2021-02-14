@@ -15,7 +15,7 @@ DOCUMENTATION = r'''
 module: mysql_replication
 short_description: Manage MySQL replication
 description:
-- Manages MySQL server replication, slave, master status, get and change master host.
+- Manages MySQL server replication, replica, master status, get and change master host.
 author:
 - Balazs Pocze (@banyek)
 - Andrew Klychkov (@Andersson007)
@@ -25,23 +25,28 @@ options:
     - Module operating mode. Could be
       C(changemaster) (CHANGE MASTER TO),
       C(getmaster) (SHOW MASTER STATUS),
-      C(getslave) (SHOW SLAVE STATUS),
-      C(startslave) (START SLAVE),
-      C(stopslave) (STOP SLAVE),
+      C(getreplica | getslave) (SHOW REPLICA | SLAVE STATUS),
+      C(startreplica | startslave) (START REPLICA | SLAVE),
+      C(stopreplica | stopslave) (STOP REPLICA | SLAVE),
       C(resetmaster) (RESET MASTER) - supported since community.mysql 0.1.0,
-      C(resetslave) (RESET SLAVE),
-      C(resetslaveall) (RESET SLAVE ALL).
+      C(resetreplica, resetslave) (RESET REPLICA | SLAVE),
+      C(resetreplicaall, resetslave) (RESET REPLICA | SLAVE ALL).
     type: str
     choices:
     - changemaster
     - getmaster
+    - getreplica
     - getslave
+    - startreplica
     - startslave
+    - stopreplica
     - stopslave
     - resetmaster
+    - resetreplica
     - resetslave
+    - resetreplicaall
     - resetslaveall
-    default: getslave
+    default: getreplica
   master_host:
     description:
     - Same as mysql variable.
@@ -110,12 +115,14 @@ options:
     default: false
   master_use_gtid:
     description:
-    - Configures the slave to use the MariaDB Global Transaction ID.
+    - Configures the replica to use the MariaDB Global Transaction ID.
     - C(disabled) equals MASTER_USE_GTID=no command.
     - To find information about available values see
       U(https://mariadb.com/kb/en/library/change-master-to/#master_use_gtid).
     - Available since MariaDB 10.0.2.
-    choices: [current_pos, slave_pos, disabled]
+    - C(replica_pos) has been introduced in MariaDB 10.5.1 and
+      it is an alias for C(slave_pos).
+    choices: [current_pos, replica_pos, slave_pos, disabled]
     type: str
     version_added: '0.1.0'
   master_delay:
@@ -166,9 +173,9 @@ seealso:
 '''
 
 EXAMPLES = r'''
-- name: Stop mysql slave thread
+- name: Stop mysql replica thread
   community.mysql.mysql_replication:
-    mode: stopslave
+    mode: stopreplica
 
 - name: Get master binlog file name and binlog position
   community.mysql.mysql_replication:
@@ -181,9 +188,9 @@ EXAMPLES = r'''
     master_log_file: mysql-bin.000009
     master_log_pos: 4578
 
-- name: Check slave status using port 3308
+- name: Check replica status using port 3308
   community.mysql.mysql_replication:
-    mode: getslave
+    mode: getreplica
     login_host: ansible.example.com
     login_port: 3308
 
@@ -198,14 +205,14 @@ EXAMPLES = r'''
     master_host: 192.0.2.1
     master_delay: 3600
 
-- name: Start MariaDB standby with connection name master-1
+- name: Start MariaDB replica with connection name master-1
   community.mysql.mysql_replication:
-    mode: startslave
+    mode: startreplica
     connection_name: master-1
 
 - name: Stop replication in channel master-1
   community.mysql.mysql_replication:
-    mode: stopslave
+    mode: stopreplica
     channel: master-1
 
 - name: >
@@ -214,13 +221,13 @@ EXAMPLES = r'''
   community.mysql.mysql_replication:
     mode: resetmaster
 
-- name: Run start slave and fail the task on errors
+- name: Run start replica and fail the task on errors
   community.mysql.mysql_replication:
-    mode: startslave
+    mode: startreplica
     connection_name: master-1
     fail_on_error: yes
 
-- name: Change master and fail on error (like when slave thread is running)
+- name: Change master and fail on error (like when replica thread is running)
   community.mysql.mysql_replication:
     mode: changemaster
     fail_on_error: yes
@@ -240,7 +247,12 @@ import os
 import warnings
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
+from ansible_collections.community.mysql.plugins.module_utils.mysql import (
+    mysql_connect,
+    mysql_driver,
+    mysql_driver_fail_msg,
+    mysql_common_argument_spec,
+)
 from ansible.module_utils._text import to_native
 from distutils.version import LooseVersion
 
@@ -271,7 +283,7 @@ def get_master_status(cursor):
     return masterstatus
 
 
-def get_slave_status(cursor, connection_name='', channel='', term='REPLICA'):
+def get_replica_status(cursor, connection_name='', channel='', term='REPLICA'):
     if connection_name:
         query = "SHOW %s '%s' STATUS" % (term, connection_name)
     else:
@@ -281,11 +293,11 @@ def get_slave_status(cursor, connection_name='', channel='', term='REPLICA'):
         query += " FOR CHANNEL '%s'" % channel
 
     cursor.execute(query)
-    slavestatus = cursor.fetchone()
-    return slavestatus
+    replica_status = cursor.fetchone()
+    return replica_status
 
 
-def stop_slave(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
+def stop_replica(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
     if connection_name:
         query = "STOP %s '%s'" % (term, connection_name)
     else:
@@ -307,7 +319,7 @@ def stop_slave(module, cursor, connection_name='', channel='', fail_on_error=Fal
     return stopped
 
 
-def reset_slave(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
+def reset_replica(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
     if connection_name:
         query = "RESET %s '%s'" % (term, connection_name)
     else:
@@ -329,7 +341,7 @@ def reset_slave(module, cursor, connection_name='', channel='', fail_on_error=Fa
     return reset
 
 
-def reset_slave_all(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
+def reset_replica_all(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
     if connection_name:
         query = "RESET %s '%s' ALL" % (term, connection_name)
     else:
@@ -366,7 +378,7 @@ def reset_master(module, cursor, fail_on_error=False):
     return reset
 
 
-def start_slave(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
+def start_replica(module, cursor, connection_name='', channel='', fail_on_error=False, term='REPLICA'):
     if connection_name:
         query = "START %s '%s'" % (term, connection_name)
     else:
@@ -404,9 +416,11 @@ def changemaster(cursor, chm, connection_name='', channel=''):
 def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
-        mode=dict(type='str', default='getslave', choices=[
-            'getmaster', 'getslave', 'changemaster', 'stopslave',
-            'startslave', 'resetmaster', 'resetslave', 'resetslaveall']),
+        mode=dict(type='str', default='getreplica', choices=[
+            'getmaster', 'getreplica', 'getslave', 'changemaster',
+            'stopreplica', 'stopslave', 'startreplica', 'startslave',
+            'resetmaster', 'resetreplica', 'resetslave',
+            'resetreplicaall', 'resetslaveall']),
         master_auto_position=dict(type='bool', default=False),
         master_host=dict(type='str'),
         master_user=dict(type='str'),
@@ -423,7 +437,8 @@ def main():
         master_ssl_cert=dict(type='str'),
         master_ssl_key=dict(type='str'),
         master_ssl_cipher=dict(type='str'),
-        master_use_gtid=dict(type='str', choices=['current_pos', 'slave_pos', 'disabled']),
+        master_use_gtid=dict(type='str', choices=[
+            'current_pos', 'replica_pos', 'slave_pos', 'disabled']),
         master_delay=dict(type='int'),
         connection_name=dict(type='str'),
         channel=dict(type='str'),
@@ -481,7 +496,8 @@ def main():
                                         connect_timeout=connect_timeout, check_hostname=check_hostname)
     except Exception as e:
         if os.path.exists(config_file):
-            module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "
+            module.fail_json(msg="unable to connect to database, check login_user and "
+                                 "login_password are correct or %s has the credentials. "
                                  "Exception message: %s" % (config_file, to_native(e)))
         else:
             module.fail_json(msg="unable to find %s. Exception message: %s" % (config_file, to_native(e)))
@@ -490,8 +506,14 @@ def main():
     # "REPLICA" must be used instead of "SLAVE"
     if uses_replica_terminology(cursor):
         replica_term = 'REPLICA'
+        if master_use_gtid == 'slave_pos':
+            module.warn('master_use_gtid "slave_pos" value is deprecated. '
+                        'Please, use "replica_pos" instead.')
+            master_use_gtid = 'replica_pos'
     else:
         replica_term = 'SLAVE'
+        if master_use_gtid == 'replica_pos':
+            master_use_gtid = 'slave_pos'
 
     if mode in "getmaster":
         status = get_master_status(cursor)
@@ -501,8 +523,12 @@ def main():
             status['Is_Master'] = True
         module.exit_json(queries=executed_queries, **status)
 
-    elif mode in "getslave":
-        status = get_slave_status(cursor, connection_name, channel, replica_term)
+    elif mode in ("getreplica", "getslave"):
+        if mode == "getslave":
+            module.warn('"getslave" option is deprecated. '
+                        'Please, use "getreplica" instead.')
+
+        status = get_replica_status(cursor, connection_name, channel, replica_term)
         if not isinstance(status, dict):
             status = dict(Is_Slave=False, msg="Server is not configured as mysql slave")
         else:
@@ -556,14 +582,22 @@ def main():
             module.fail_json(msg='%s. Query == CHANGE MASTER TO %s' % (to_native(e), chm))
         result['changed'] = True
         module.exit_json(queries=executed_queries, **result)
-    elif mode in "startslave":
-        started = start_slave(module, cursor, connection_name, channel, fail_on_error, replica_term)
+    elif mode in ("startreplica", "startslave"):
+        if mode == "startslave":
+            module.warn('"startslave" option is deprecated. '
+                        'Please, use "startreplica" instead.')
+
+        started = start_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if started is True:
             module.exit_json(msg="Slave started ", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Slave already started (Or cannot be started)", changed=False, queries=executed_queries)
-    elif mode in "stopslave":
-        stopped = stop_slave(module, cursor, connection_name, channel, fail_on_error, replica_term)
+    elif mode in ("stopreplica", "stopslave"):
+        if mode == "stopslave":
+            module.warn('"stopslave" option is deprecated. '
+                        'Please, use "stopreplica" instead.')
+
+        stopped = stop_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if stopped is True:
             module.exit_json(msg="Slave stopped", changed=True, queries=executed_queries)
         else:
@@ -574,14 +608,22 @@ def main():
             module.exit_json(msg="Master reset", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Master already reset", changed=False, queries=executed_queries)
-    elif mode in "resetslave":
-        reset = reset_slave(module, cursor, connection_name, channel, fail_on_error, replica_term)
+    elif mode in ("resetreplica", "resetslave"):
+        if mode == "resetslave":
+            module.warn('"resetslave" option is deprecated. '
+                        'Please, use "resetreplica" instead.')
+
+        reset = reset_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if reset is True:
             module.exit_json(msg="Slave reset", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Slave already reset", changed=False, queries=executed_queries)
-    elif mode in "resetslaveall":
-        reset = reset_slave_all(module, cursor, connection_name, channel, fail_on_error, replica_term)
+    elif mode in ("resetreplicaall", "resetslaveall"):
+        if mode == "resetslaveall":
+            module.warn('"resetslaveall" option is deprecated. '
+                        'Please, use "resetreplicaall" instead.')
+
+        reset = reset_replica_all(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if reset is True:
             module.exit_json(msg="Slave reset", changed=True, queries=executed_queries)
         else:

@@ -1,2 +1,5 @@
 minor_changes:
 - mysql_replication - deprecate offending terminology, add alternative choices to the ``mode`` option (https://github.com/ansible-collections/community.mysql/issues/78).
+
+major_changes:
+- mysql_replication - the word ``SLAVE`` in messages returned by the module will be changed to ``REPLICA`` in the next major release (https://github.com/ansible-collections/community.mysql/issues/98).

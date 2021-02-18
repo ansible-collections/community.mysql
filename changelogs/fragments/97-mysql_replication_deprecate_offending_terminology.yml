@@ -1,0 +1,2 @@
+minor_changes:
+- mysql_replication - deprecate offending terminology, add alternative choices to the ``mode`` option (https://github.com/ansible-collections/community.mysql/issues/78).

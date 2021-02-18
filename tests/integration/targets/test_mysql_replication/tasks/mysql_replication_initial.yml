@@ -138,12 +138,12 @@
         - result is changed
         - result.queries == ["START SLAVE"] or result.queries == ["START REPLICA"]
 
-    # Test getslave mode:
+    # Test getreplica mode:
     - name: Get standby status
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: getslave
+        mode: getreplica
       register: slave_status
 
     - assert:
@@ -184,7 +184,7 @@
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: getslave
+        mode: getreplica
       register: slave_status
 
     # mysql_primary_status.Position is not actual and it has been changed by the prev step,

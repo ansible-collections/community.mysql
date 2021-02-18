@@ -50,12 +50,12 @@
         - result is changed
         - result.queries == ["START SLAVE FOR CHANNEL '{{ test_channel }}'"] or result.queries == ["START REPLICA FOR CHANNEL '{{ test_channel }}'"]
 
-    # Test getslave mode:
+    # Test getreplica mode:
     - name: Get standby status with channel
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica2_port }}'
-        mode: getslave
+        mode: getreplica
         channel: '{{ test_channel }}'
       register: slave_status
 

@@ -24,11 +24,11 @@
         - result.queries == ["CHANGE MASTER TO MASTER_DELAY=60"]
 
     # Auxiliary step:
-    - name: Start slave
+    - name: Start replica
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: startslave
+        mode: startreplica
       register: result
 
     # Check master_delay:
@@ -37,9 +37,9 @@
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
         mode: getreplica
-      register: slave_status
+      register: replica_status
 
     - assert:
         that:
-        - slave_status.SQL_Delay == {{ test_master_delay }}
-        - slave_status is not changed
+        - replica_status.SQL_Delay == {{ test_master_delay }}
+        - replica_status is not changed

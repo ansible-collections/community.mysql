@@ -768,6 +768,17 @@ def privileges_get(cursor, user, host):
             raise InvalidPrivsError('unable to parse the MySQL grant string: %s' % grant[0])
         privileges = res.group(1).split(",")
         privileges = [pick(x.strip()) for x in privileges]
+
+        # Handle cases when there's GRANT SELECT (colA, ...) in privileges.
+        # To this point, the privileges list can look like
+        # ['SELECT (`A`', '`B`)', 'INSERT'] that is incorrect (SELECT statement is splitted).
+        # Columns should also be sorted to compare it with desired privileges later.
+        # Determine if there's a case similar to the above:
+        start, end = has_select_on_col(privileges)
+        # If not, either start and end will be None
+        if start is not None:
+            privileges = handle_select_on_col(privileges, start, end)
+
         if "WITH GRANT OPTION" in res.group(7):
             privileges.append('GRANT')
         if 'REQUIRE SSL' in res.group(7):
@@ -775,6 +786,102 @@ def privileges_get(cursor, user, host):
         db = res.group(2)
         output.setdefault(db, []).extend(privileges)
     return output
+
+
+def has_select_on_col(privileges):
+    """Check if there is a statement like SELECT (colA, colB)
+    in the privilege list.
+
+    Return (start index, end index).
+    """
+    # Determine elements of privileges where
+    # columns are listed
+    start = None
+    end = None
+    for n, priv in enumerate(privileges):
+        if 'SELECT (' in priv:
+            # We found the start element
+            start = n
+
+        if start is not None and ')' in priv:
+            # We found the end element
+            end = n
+            break
+
+    if start is not None and end is not None:
+        # if the privileges list consist of, for example,
+        # ['SELECT (A', 'B), 'INSERT'], return indexes of related elements
+        return start, end
+    else:
+        # If start and end position is the same element,
+        # it means there's expression like 'SELECT (A)',
+        # so no need to handle it
+        return None, None
+
+
+def handle_select_on_col(privileges, start, end):
+    """Handle cases when the SELECT (colA, ...) is in the privileges list."""
+    # When the privileges list look like ['SELECT (colA,', 'colB)']
+    # (Notice that the statement is splitted)
+    if start != end:
+        output = list(privileges[:start])
+
+        select_on_col = ', '.join(privileges[start:end + 1])
+
+        select_on_col = sort_column_order(select_on_col)
+
+        output.append(select_on_col)
+
+        output.extend(privileges[end + 1:])
+
+    # When it look like it should be, e.g. ['SELECT (colA, colB)'],
+    # we need to be sure, the columns is sorted
+    else:
+        output = list(privileges)
+        output[start] = sort_column_order(output[start])
+
+    return output
+
+
+def sort_column_order(statement):
+    """Sort column order in SELECT (colA, colB, ...) grants.
+
+    MySQL changes columns order like below:
+    ---------------------------------------
+    mysql> GRANT SELECT (testColA, testColB), INSERT ON `testDb`.`testTable` TO 'testUser'@'localhost';
+    Query OK, 0 rows affected (0.04 sec)
+
+    mysql> flush privileges;
+    Query OK, 0 rows affected (0.00 sec)
+
+    mysql> SHOW GRANTS FOR testUser@localhost;
+    +---------------------------------------------------------------------------------------------+
+    | Grants for testUser@localhost                                                               |
+    +---------------------------------------------------------------------------------------------+
+    | GRANT USAGE ON *.* TO 'testUser'@'localhost'                                                |
+    | GRANT SELECT (testColB, testColA), INSERT ON `testDb`.`testTable` TO 'testUser'@'localhost' |
+    +---------------------------------------------------------------------------------------------+
+
+    We should sort columns in our statement, otherwise the module always will return
+    that the state has changed.
+    """
+    # 1. Extract stuff inside ()
+    # 2. Split, wrap in quotes
+    # 3. Sort
+    # 4. Put between () and return
+
+    # "SELECT (colA, colB) => "colA, colB"
+    columns = statement.split('(')[1].rstrip(')')
+
+    # "colA, colB" => ["colA", "colB"]
+    columns = columns.split(',')
+
+    for i, col in enumerate(columns):
+        col = col.strip()
+        columns[i] = col.strip('`')
+
+    columns.sort()
+    return 'SELECT (%s)' % ', '.join(columns)
 
 
 def privileges_unpack(priv, mode):
@@ -819,6 +926,12 @@ def privileges_unpack(priv, mode):
         else:
             output[pieces[0]] = pieces[1].upper().split(',')
             privs = output[pieces[0]]
+
+        # Handle cases when there's GRANT SELECT (colA, ...) in privs.
+        start, end = has_select_on_col(output[pieces[0]])
+        if start is not None:
+            output[pieces[0]] = handle_select_on_col(output[pieces[0]], start, end)
+
         new_privs = frozenset(privs)
         if not new_privs.issubset(VALID_PRIVS):
             raise InvalidPrivsError('Invalid privileges specified: %s' % new_privs.difference(VALID_PRIVS))
@@ -1096,6 +1209,7 @@ def main():
     if not sql_log_bin:
         cursor.execute("SET SQL_LOG_BIN=0;")
 
+    mode = None
     if priv is not None:
         try:
             mode = get_mode(cursor)

@@ -1209,7 +1209,6 @@ def main():
     if not sql_log_bin:
         cursor.execute("SET SQL_LOG_BIN=0;")
 
-    mode = None
     if priv is not None:
         try:
             mode = get_mode(cursor)

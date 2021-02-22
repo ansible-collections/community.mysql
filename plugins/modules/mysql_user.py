@@ -866,7 +866,7 @@ def sort_column_order(statement):
     that the state has changed.
     """
     # 1. Extract stuff inside ()
-    # 2. Split, wrap in quotes
+    # 2. Split
     # 3. Sort
     # 4. Put between () and return
 

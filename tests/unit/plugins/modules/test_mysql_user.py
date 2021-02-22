@@ -6,6 +6,7 @@ __metaclass__ = type
 import pytest
 
 from ansible_collections.community.mysql.plugins.modules.mysql_user import (
+    handle_select_on_col,
     has_select_on_col,
     sort_column_order,
     supports_identified_by_password,
@@ -48,9 +49,9 @@ def test_supports_identified_by_password(function_return, cursor_output, cursor_
         (['just', 'a', 'random', 'text'], (None, None)),
         (['SELECT (A, B, C)'], (0, 0)),
         (['UPDATE', 'SELECT (A, B, C)'], (1, 1)),
-        (['INSERT', 'SELECT (', 'A)'], (1, 2)),
-        (['SELECT (', 'A', 'B)', 'UPDATE'], (0, 2)),
-        (['INSERT', 'SELECT (', 'A', 'B)', 'UPDATE'], (1, 3)),
+        (['INSERT', 'SELECT (A', 'B)'], (1, 2)),
+        (['SELECT (A', 'B)', 'UPDATE'], (0, 1)),
+        (['INSERT', 'SELECT (A', 'B)', 'UPDATE'], (1, 2)),
     ]
 )
 def test_has_select_on_col(input_list, output_tuple):
@@ -73,3 +74,17 @@ def test_has_select_on_col(input_list, output_tuple):
 def test_sort_column_order(input_, output):
     """Tests sort_column_order function."""
     assert sort_column_order(input_) == output
+
+
+@pytest.mark.parametrize(
+    'privileges,start,end,output',
+    [
+        (['UPDATE', 'SELECT (C, B, A)'], 1, 1, ['UPDATE', 'SELECT (A, B, C)']),
+        (['INSERT', 'SELECT (A', 'B)'], 1, 2, ['INSERT', 'SELECT (A, B)']),
+        (['SELECT (`A`', 'B)', 'UPDATE'], 0, 1, ['SELECT (A, B)', 'UPDATE']),
+        (['INSERT', 'SELECT (`B`', 'A', 'C)', 'UPDATE'], 1, 3, ['INSERT', 'SELECT (A, B, C)', 'UPDATE']),
+    ]
+)
+def test_handle_select_on_col(privileges, start, end, output):
+    """Tests handle_select_on_col function."""
+    assert handle_select_on_col(privileges, start, end) == output

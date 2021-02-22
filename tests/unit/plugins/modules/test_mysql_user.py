@@ -6,8 +6,9 @@ __metaclass__ = type
 import pytest
 
 from ansible_collections.community.mysql.plugins.modules.mysql_user import (
-    supports_identified_by_password,
     has_select_on_col,
+    sort_column_order,
+    supports_identified_by_password,
 )
 from ..utils import dummy_cursor_class
 
@@ -55,3 +56,20 @@ def test_supports_identified_by_password(function_return, cursor_output, cursor_
 def test_has_select_on_col(input_list, output_tuple):
     """Tests has_select_on_col function."""
     assert has_select_on_col(input_list) == output_tuple
+
+
+@pytest.mark.parametrize(
+    'input_,output',
+    [
+        ('SELECT (A)', 'SELECT (A)'),
+        ('SELECT (`A`)', 'SELECT (A)'),
+        ('SELECT (A, B)', 'SELECT (A, B)'),
+        ('SELECT (`A`, `B`)', 'SELECT (A, B)'),
+        ('SELECT (B, A)', 'SELECT (A, B)'),
+        ('SELECT (`B`, `A`)', 'SELECT (A, B)'),
+        ('SELECT (`B`, `A`, C)', 'SELECT (A, B, C)'),
+    ]
+)
+def test_sort_column_order(input_, output):
+    """Tests sort_column_order function."""
+    assert sort_column_order(input_) == output

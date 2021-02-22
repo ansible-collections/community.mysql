@@ -1,9 +1,14 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 import pytest
 
-from ansible_collections.community.mysql.plugins.modules.mysql_user import supports_identified_by_password
+from ansible_collections.community.mysql.plugins.modules.mysql_user import (
+    supports_identified_by_password,
+    has_select_on_col,
+)
 from ..utils import dummy_cursor_class
 
 
@@ -26,8 +31,27 @@ from ..utils import dummy_cursor_class
 )
 def test_supports_identified_by_password(function_return, cursor_output, cursor_ret_type):
     """
-    Tests whether 'CREATE USER %s@%s IDENTIFIED BY PASSWORD %s' is supported, which is currently supported by everything
-    besides MySQL >= 8.0.
+    Tests whether 'CREATE USER %s@%s IDENTIFIED BY PASSWORD %s' is supported,
+    which is currently supported by everything besides MySQL >= 8.0.
     """
     cursor = dummy_cursor_class(cursor_output, cursor_ret_type)
     assert supports_identified_by_password(cursor) == function_return
+
+
+@pytest.mark.parametrize(
+    'input_list,output_tuple',
+    [
+        (['INSERT', 'DELETE'], (None, None)),
+        (['SELECT', 'UPDATE'], (None, None)),
+        (['INSERT', 'UPDATE', 'INSERT', 'DELETE'], (None, None)),
+        (['just', 'a', 'random', 'text'], (None, None)),
+        (['SELECT (A, B, C)'], (0, 0)),
+        (['UPDATE', 'SELECT (A, B, C)'], (1, 1)),
+        (['INSERT', 'SELECT (', 'A)'], (1, 2)),
+        (['SELECT (', 'A', 'B)', 'UPDATE'], (0, 2)),
+        (['INSERT', 'SELECT (', 'A', 'B)', 'UPDATE'], (1, 3)),
+    ]
+)
+def test_has_select_on_col(input_list, output_tuple):
+    """Tests has_select_on_col function."""
+    assert has_select_on_col(input_list) == output_tuple

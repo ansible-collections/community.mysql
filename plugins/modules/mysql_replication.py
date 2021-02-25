@@ -507,8 +507,8 @@ def main():
     if uses_replica_terminology(cursor):
         replica_term = 'REPLICA'
         if master_use_gtid == 'slave_pos':
-            module.warn('master_use_gtid "slave_pos" value is deprecated. '
-                        'Please, use "replica_pos" instead.')
+            module.deprecate('master_use_gtid "slave_pos" value is deprecated, use "replica_pos" instead.',
+                             version='3.0.0', collection_name='community.mysql')
             master_use_gtid = 'replica_pos'
     else:
         replica_term = 'SLAVE'
@@ -525,8 +525,8 @@ def main():
 
     elif mode in ("getreplica", "getslave"):
         if mode == "getslave":
-            module.warn('"getslave" option is deprecated. '
-                        'Please, use "getreplica" instead.')
+            module.deprecate('"getslave" option is deprecated, use "getreplica" instead.',
+                             version='3.0.0', collection_name='community.mysql')
 
         status = get_replica_status(cursor, connection_name, channel, replica_term)
         if not isinstance(status, dict):
@@ -584,8 +584,8 @@ def main():
         module.exit_json(queries=executed_queries, **result)
     elif mode in ("startreplica", "startslave"):
         if mode == "startslave":
-            module.warn('"startslave" option is deprecated. '
-                        'Please, use "startreplica" instead.')
+            module.deprecate('"startslave" option is deprecated, use "startreplica" instead.',
+                             version='3.0.0', collection_name='community.mysql')
 
         started = start_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if started is True:
@@ -594,8 +594,8 @@ def main():
             module.exit_json(msg="Slave already started (Or cannot be started)", changed=False, queries=executed_queries)
     elif mode in ("stopreplica", "stopslave"):
         if mode == "stopslave":
-            module.warn('"stopslave" option is deprecated. '
-                        'Please, use "stopreplica" instead.')
+            module.deprecate('"stopslave" option is deprecated, use "stopreplica" instead.',
+                             version='3.0.0', collection_name='community.mysql')
 
         stopped = stop_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if stopped is True:
@@ -610,8 +610,8 @@ def main():
             module.exit_json(msg="Master already reset", changed=False, queries=executed_queries)
     elif mode in ("resetreplica", "resetslave"):
         if mode == "resetslave":
-            module.warn('"resetslave" option is deprecated. '
-                        'Please, use "resetreplica" instead.')
+            module.deprecate('"resetslave" option is deprecated, use "resetreplica" instead.',
+                             version='3.0.0', collection_name='community.mysql')
 
         reset = reset_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if reset is True:
@@ -620,8 +620,8 @@ def main():
             module.exit_json(msg="Slave already reset", changed=False, queries=executed_queries)
     elif mode in ("resetreplicaall", "resetslaveall"):
         if mode == "resetslaveall":
-            module.warn('"resetslaveall" option is deprecated. '
-                        'Please, use "resetreplicaall" instead.')
+            module.deprecate('"resetslaveall" option is deprecated, use "resetreplicaall" instead.',
+                             version='3.0.0', collection_name='community.mysql')
 
         reset = reset_replica_all(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if reset is True:

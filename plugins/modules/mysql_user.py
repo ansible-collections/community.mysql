@@ -353,40 +353,6 @@ class InvalidPrivsError(Exception):
 #
 
 
-# User Authentication Management changed in MySQL 5.7 and MariaDB 10.2.0
-def use_old_user_mgmt(cursor):
-    cursor.execute("SELECT VERSION()")
-    result = cursor.fetchone()
-    version_str = result[0]
-    version = version_str.split('.')
-
-    if 'mariadb' in version_str.lower():
-        # Prior to MariaDB 10.2
-        if int(version[0]) * 1000 + int(version[1]) < 10002:
-            return True
-        else:
-            return False
-    else:
-        # Prior to MySQL 5.7
-        if int(version[0]) * 1000 + int(version[1]) < 5007:
-            return True
-        else:
-            return False
-
-
-def supports_identified_by_password(cursor):
-    """
-    Determines whether the 'CREATE USER %s@%s IDENTIFIED BY PASSWORD %s' syntax is supported. This was dropped in
-    MySQL 8.0.
-    """
-    version_str = get_server_version(cursor)
-
-    if 'mariadb' in version_str.lower():
-        return True
-    else:
-        return LooseVersion(version_str) < LooseVersion('8')
-
-
 def get_mode(cursor):
     cursor.execute('SELECT @@GLOBAL.sql_mode')
     result = cursor.fetchone()
@@ -445,7 +411,7 @@ def do_not_mogrify_requires(query, params, tls_requires):
 
 def get_tls_requires(cursor, user, host):
     if user:
-        if not use_old_user_mgmt(cursor):
+        if not impl.use_old_user_mgmt(cursor):
             query = "SHOW CREATE USER '%s'@'%s'" % (user, host)
         else:
             query = "SHOW GRANTS for '%s'@'%s'" % (user, host)
@@ -487,12 +453,12 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         return True
 
     # Determine what user management method server uses
-    old_user_mgmt = use_old_user_mgmt(cursor)
+    old_user_mgmt = impl.use_old_user_mgmt(cursor)
 
     mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
 
     if password and encrypted:
-        if supports_identified_by_password(cursor):
+        if impl.supports_identified_by_password(cursor):
             query_with_args = "CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password)
         else:
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, password)
@@ -539,7 +505,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
     grant_option = False
 
     # Determine what user management method server uses
-    old_user_mgmt = use_old_user_mgmt(cursor)
+    old_user_mgmt = impl.use_old_user_mgmt(cursor)
 
     if host_all:
         hostnames = user_get_hostnames(cursor, user)
@@ -985,7 +951,7 @@ def privileges_grant(cursor, user, host, db_table, priv, tls_requires):
     query = ["GRANT %s ON %s" % (priv_string, db_table)]
     query.append("TO %s@%s")
     params = (user, host)
-    if tls_requires and use_old_user_mgmt(cursor):
+    if tls_requires and impl.use_old_user_mgmt(cursor):
         query, params = mogrify_requires(" ".join(query), params, tls_requires)
         query = [query]
     if 'REQUIRESSL' in priv and not tls_requires:
@@ -1223,6 +1189,12 @@ def main():
 
     if not sql_log_bin:
         cursor.execute("SET SQL_LOG_BIN=0;")
+
+    cursor.execute("SELECT VERSION()")
+    if 'mariadb' in cursor.fetchone()[0].lower():
+        from ansible_collections.community.mysql.plugins.implementations.mariadb import user as impl
+    else:
+        from ansible_collections.community.mysql.plugins.implementations.mysql import user as impl
 
     if priv is not None:
         try:

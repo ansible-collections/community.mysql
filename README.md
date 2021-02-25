@@ -4,12 +4,12 @@
 ## Included content
 
 - **Modules**:
-  - [mysql_db](https://docs.ansible.com/ansible/latest/modules/mysql_db_module.html)
-  - [mysql_info](https://docs.ansible.com/ansible/latest/modules/mysql_info_module.html)
-  - [mysql_query](https://docs.ansible.com/ansible/latest/modules/mysql_query_module.html)
-  - [mysql_replication](https://docs.ansible.com/ansible/latest/modules/mysql_replication_module.html)
-  - [mysql_user](https://docs.ansible.com/ansible/latest/modules/mysql_user_module.html)
-  - [mysql_variables](https://docs.ansible.com/ansible/latest/modules/mysql_variables_module.html)
+  - [mysql_db](https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_db_module.html)
+  - [mysql_info](https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_info_module.html)
+  - [mysql_query](https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_query_module.html)
+  - [mysql_replication](https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_replication_module.html)
+  - [mysql_user](https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_user_module.html)
+  - [mysql_variables](https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_variables_module.html)
 
 ## Tested with Ansible
 

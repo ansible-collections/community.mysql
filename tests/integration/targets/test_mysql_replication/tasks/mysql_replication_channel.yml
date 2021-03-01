@@ -36,12 +36,12 @@
         - result is changed
         - result.queries == ["CHANGE MASTER TO MASTER_HOST='{{ mysql_host }}',MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='********',MASTER_PORT={{ mysql_primary_port }},MASTER_LOG_FILE='{{ mysql_primary_status.File }}',MASTER_LOG_POS={{ mysql_primary_status.Position }} FOR CHANNEL '{{ test_channel }}'"]
 
-    # Test startslave mode:
-    - name: Start slave with channel
+    # Test startreplica mode:
+    - name: Start replica with channel
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica2_port }}'
-        mode: startslave
+        mode: startreplica
         channel: '{{ test_channel }}'
       register: result
 
@@ -50,46 +50,46 @@
         - result is changed
         - result.queries == ["START SLAVE FOR CHANNEL '{{ test_channel }}'"] or result.queries == ["START REPLICA FOR CHANNEL '{{ test_channel }}'"]
 
-    # Test getslave mode:
+    # Test getreplica mode:
     - name: Get standby status with channel
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica2_port }}'
-        mode: getslave
+        mode: getreplica
         channel: '{{ test_channel }}'
-      register: slave_status
+      register: replica_status
 
     - assert:
         that:
-        - slave_status.Is_Slave == true
-        - slave_status.Master_Host == '{{ mysql_host }}'
-        - slave_status.Exec_Master_Log_Pos == mysql_primary_status.Position
-        - slave_status.Master_Port == {{ mysql_primary_port }}
-        - slave_status.Last_IO_Errno == 0
-        - slave_status.Last_IO_Error == ''
-        - slave_status.Channel_Name == '{{ test_channel }}'
-        - slave_status is not changed
+        - replica_status.Is_Slave == true
+        - replica_status.Master_Host == '{{ mysql_host }}'
+        - replica_status.Exec_Master_Log_Pos == mysql_primary_status.Position
+        - replica_status.Master_Port == {{ mysql_primary_port }}
+        - replica_status.Last_IO_Errno == 0
+        - replica_status.Last_IO_Error == ''
+        - replica_status.Channel_Name == '{{ test_channel }}'
+        - replica_status is not changed
       when: mysql8022_and_higher == false
 
     - assert:
         that:
-        - slave_status.Is_Slave == true
-        - slave_status.Source_Host == '{{ mysql_host }}'
-        - slave_status.Exec_Source_Log_Pos == mysql_primary_status.Position
-        - slave_status.Source_Port == {{ mysql_primary_port }}
-        - slave_status.Last_IO_Errno == 0
-        - slave_status.Last_IO_Error == ''
-        - slave_status.Channel_Name == '{{ test_channel }}'
-        - slave_status is not changed
+        - replica_status.Is_Slave == true
+        - replica_status.Source_Host == '{{ mysql_host }}'
+        - replica_status.Exec_Source_Log_Pos == mysql_primary_status.Position
+        - replica_status.Source_Port == {{ mysql_primary_port }}
+        - replica_status.Last_IO_Errno == 0
+        - replica_status.Last_IO_Error == ''
+        - replica_status.Channel_Name == '{{ test_channel }}'
+        - replica_status is not changed
       when: mysql8022_and_higher == true
 
 
-    # Test stopslave mode:
-    - name: Stop slave with channel
+    # Test stopreplica mode:
+    - name: Stop replica with channel
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica2_port }}'
-        mode: stopslave
+        mode: stopreplica
         channel: '{{ test_channel }}'
       register: result
 
@@ -99,11 +99,11 @@
         - result.queries == ["STOP SLAVE FOR CHANNEL '{{ test_channel }}'"] or result.queries == ["STOP REPLICA FOR CHANNEL '{{ test_channel }}'"]
 
     # Test reset
-    - name: Reset slave with channel
+    - name: Reset replica with channel
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica2_port }}'
-        mode: resetslave
+        mode: resetreplica
         channel: '{{ test_channel }}'
       register: result
 
@@ -113,11 +113,11 @@
         - result.queries == ["RESET SLAVE FOR CHANNEL '{{ test_channel }}'"] or result.queries == ["RESET REPLICA FOR CHANNEL '{{ test_channel }}'"]
 
     # Test reset all
-    - name: Reset slave all with channel
+    - name: Reset replica all with channel
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica2_port }}'
-        mode: resetslaveall
+        mode: resetreplicaall
         channel: '{{ test_channel }}'
       register: result
 

@@ -63,8 +63,8 @@
         - mysql_primary_status.Position != 0
         - mysql_primary_status is not changed
 
-    # Test startslave fails without changemaster first. This needs fail_on_error
-    - name: Start slave and fail because master is not specified; failing on error as requested
+    # Test startreplica fails without changemaster first. This needs fail_on_error
+    - name: Start replica (using deprecated startslave choice) and fail because master is not specified; failing on error as requested
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
@@ -77,12 +77,12 @@
         that:
         - result is failed
 
-    # Test startslave doesn't fail if fail_on_error: no
-    - name: Start slave and fail without propagating it to ansible as we were asked not to
+    # Test startreplica doesn't fail if fail_on_error: no
+    - name: Start replica and fail without propagating it to ansible as we were asked not to
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: startslave
+        mode: startreplica
         fail_on_error: no
       register: result
 
@@ -90,13 +90,13 @@
         that:
         - result is not failed
 
-    # Test startslave doesn't fail if there is no fail_on_error.
+    # Test startreplica doesn't fail if there is no fail_on_error.
     # This is suboptimal because nothing happens, but it's the old behavior.
-    - name: Start slave and fail without propagating it to ansible as previous versions did not fail on error
+    - name: Start replica and fail without propagating it to ansible as previous versions did not fail on error
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: startslave
+        mode: startreplica
       register: result
 
     - assert:
@@ -125,12 +125,12 @@
         - result is changed
         - result.queries == ["CHANGE MASTER TO MASTER_HOST='{{ mysql_host }}',MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='********',MASTER_PORT={{ mysql_primary_port }},MASTER_LOG_FILE='{{ mysql_primary_status.File }}',MASTER_LOG_POS={{ mysql_primary_status.Position }},MASTER_SSL_CA=''"]
 
-    # Test startslave mode:
-    - name: Start slave
+    # Test startreplica mode:
+    - name: Start replica
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: startslave
+        mode: startreplica
       register: result
 
     - assert:
@@ -138,34 +138,34 @@
         - result is changed
         - result.queries == ["START SLAVE"] or result.queries == ["START REPLICA"]
 
-    # Test getslave mode:
-    - name: Get standby status
+    # Test getreplica mode:
+    - name: Get replica status using deprecated getslave choice
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
         mode: getslave
-      register: slave_status
+      register: replica_status
 
     - assert:
         that:
-        - slave_status.Is_Slave == true
-        - slave_status.Master_Host == '{{ mysql_host }}'
-        - slave_status.Exec_Master_Log_Pos == mysql_primary_status.Position
-        - slave_status.Master_Port == {{ mysql_primary_port }}
-        - slave_status.Last_IO_Errno == 0
-        - slave_status.Last_IO_Error == ''
-        - slave_status is not changed
+        - replica_status.Is_Slave == true
+        - replica_status.Master_Host == '{{ mysql_host }}'
+        - replica_status.Exec_Master_Log_Pos == mysql_primary_status.Position
+        - replica_status.Master_Port == {{ mysql_primary_port }}
+        - replica_status.Last_IO_Errno == 0
+        - replica_status.Last_IO_Error == ''
+        - replica_status is not changed
       when: mysql8022_and_higher == false
 
     - assert:
         that:
-        - slave_status.Is_Slave == true
-        - slave_status.Source_Host == '{{ mysql_host }}'
-        - slave_status.Exec_Source_Log_Pos == mysql_primary_status.Position
-        - slave_status.Source_Port == {{ mysql_primary_port }}
-        - slave_status.Last_IO_Errno == 0
-        - slave_status.Last_IO_Error == ''
-        - slave_status is not changed
+        - replica_status.Is_Slave == true
+        - replica_status.Source_Host == '{{ mysql_host }}'
+        - replica_status.Exec_Source_Log_Pos == mysql_primary_status.Position
+        - replica_status.Source_Port == {{ mysql_primary_port }}
+        - replica_status.Last_IO_Errno == 0
+        - replica_status.Last_IO_Error == ''
+        - replica_status is not changed
       when: mysql8022_and_higher == true
 
     # Create test table and add data to it:
@@ -175,38 +175,38 @@
     - name: Insert data
       shell: "echo \"INSERT INTO {{ test_table }} (id) VALUES (1), (2), (3); FLUSH LOGS;\" | {{ mysql_command }} -P{{ mysql_primary_port }} {{ test_db }}"
 
-    - name: Small pause to be sure the bin log, which was flushed previously, reached the slave
+    - name: Small pause to be sure the bin log, which was flushed previously, reached the replica
       pause:
         seconds: 2
 
     # Test master log pos has been changed:
-    - name: Get standby status
+    - name: Get replica status
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: getslave
-      register: slave_status
+        mode: getreplica
+      register: replica_status
 
     # mysql_primary_status.Position is not actual and it has been changed by the prev step,
-    # so slave_status.Exec_Master_Log_Pos must be different:
+    # so replica_status.Exec_Master_Log_Pos must be different:
     - assert:
         that:
-        - slave_status.Exec_Master_Log_Pos != mysql_primary_status.Position
+        - replica_status.Exec_Master_Log_Pos != mysql_primary_status.Position
       when: mysql8022_and_higher == false
 
     - assert:
         that:
-        - slave_status.Exec_Source_Log_Pos != mysql_primary_status.Position
+        - replica_status.Exec_Source_Log_Pos != mysql_primary_status.Position
       when: mysql8022_and_higher == true
 
     - shell: pip show pymysql | awk '/Version/ {print $2}'
       register: pymysql_version
 
-    - name: Start slave that is already running
+    - name: Start replica that is already running
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: startslave
+        mode: startreplica
         fail_on_error: true
       register: result
 
@@ -215,8 +215,8 @@
         - result is not changed
       when: (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '<=')
 
-    # Test stopslave mode:
-    - name: Stop slave
+    # Test stopreplica mode:
+    - name: Stop replica using deprecated stopslave choice
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
@@ -228,12 +228,12 @@
         - result is changed
         - result.queries == ["STOP SLAVE"] or result.queries == ["STOP REPLICA"]
 
-    # Test stopslave mode:
-    - name: Stop slave that is no longer running
+    # Test stopreplica mode:
+    - name: Stop replica that is no longer running
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: stopslave
+        mode: stopreplica
         fail_on_error: true
       register: result
 

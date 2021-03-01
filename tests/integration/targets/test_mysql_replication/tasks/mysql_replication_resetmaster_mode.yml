@@ -10,17 +10,17 @@
   block:
 
     # Needs for further tests:
-    - name: Stop slave
+    - name: Stop replica
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: stopslave
+        mode: stopreplica
 
-    - name: Reset slave all
+    - name: Reset replica all
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: resetslaveall
+        mode: resetreplicaall
 
     # Get master initial status:
     - name: Get master status

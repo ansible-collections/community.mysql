@@ -1,0 +1,2 @@
+bugfixes:
+- mysql_user - the module is not idempotent when SELECT on columns granted (https://github.com/ansible-collections/community.mysql/issues/99).

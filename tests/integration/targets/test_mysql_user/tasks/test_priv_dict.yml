@@ -16,6 +16,7 @@
       loop:
       - data1
       - data2
+      - data3
 
     - name: Create user with privileges
       mysql_user:
@@ -37,6 +38,61 @@
           - "'GRANT SELECT ON `data1`.*' in result.stdout"
           - "'GRANT SELECT ON `data2`.*' in result.stdout"
 
+    # Issue https://github.com/ansible-collections/community.mysql/issues/99
+    - name: Create test table test_table_issue99
+      mysql_query:
+        <<: *mysql_params
+        query: "CREATE TABLE IF NOT EXISTS data3.test_table_issue99 (a INT, b INT, c INT)"
+
+    - name: Grant select on a column
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_3 }}'
+        priv:
+          'data3.test_table_issue99': 'SELECT (a)'
+      register: result
+
+    - assert:
+        that:
+        - result is changed
+
+    - name: Grant select on the column again
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_3 }}'
+        priv:
+          'data3.test_table_issue99': 'SELECT (a)'
+      register: result
+
+    - assert:
+        that:
+        - result is not changed
+
+
+    - name: Grant select on columns
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_3 }}'
+        priv:
+          'data3.test_table_issue99': 'SELECT (a, b),INSERT'
+      register: result
+
+    - assert:
+        that:
+        - result is changed
+
+    - name: Grant select on columns again
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_3 }}'
+        priv:
+          'data3.test_table_issue99': 'SELECT (a, b),INSERT'
+      register: result
+
+    - assert:
+        that:
+        - result is not changed
+
     ##########
     # Clean up
     - name: Drop test databases
@@ -47,6 +103,7 @@
       loop:
       - data1
       - data2
+      - data3
 
     - name: Drop test user
       mysql_user:

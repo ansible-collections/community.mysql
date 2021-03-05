@@ -1,0 +1,2 @@
+bugfixes:
+- mysql_user - fix handling of INSERT, UPDATE, REFERENCES on columns (https://github.com/ansible-collections/community.mysql/issues/106).

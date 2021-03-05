@@ -124,7 +124,7 @@
     - name: Assert user has giving privileges
       assert:
         that:
-          - "'GRANT SELECT (`A`, `B`), INSERT (`A`, `B`), UPDATE' in result.stdout"
+          - "'GRANT SELECT (`A`, `B`), INSERT (`A`, `B`), UPDATE' in result.stdout" or "'GRANT SELECT (A, B), INSERT (A, B), UPDATE' in result.stdout"
 
     ##########
     # Clean up

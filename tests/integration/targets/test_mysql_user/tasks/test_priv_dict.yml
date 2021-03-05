@@ -131,7 +131,7 @@
       assert:
         that:
           - "'GRANT SELECT (A, B), INSERT (A, B), UPDATE' in result.stdout"
-      when: "'(A, B)' in result.stdout"
+      when: "'(`A`, `B`)' not in result.stdout"
 
     ##########
     # Clean up

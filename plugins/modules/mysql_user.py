@@ -769,15 +769,16 @@ def privileges_get(cursor, user, host):
         privileges = res.group(1).split(",")
         privileges = [pick(x.strip()) for x in privileges]
 
-        # Handle cases when there's GRANT SELECT (colA, ...) in privileges.
+        # Handle cases when there's privs like GRANT SELECT (colA, ...) in privs.
         # To this point, the privileges list can look like
         # ['SELECT (`A`', '`B`)', 'INSERT'] that is incorrect (SELECT statement is splitted).
         # Columns should also be sorted to compare it with desired privileges later.
         # Determine if there's a case similar to the above:
-        start, end = has_select_on_col(privileges)
-        # If not, either start and end will be None
-        if start is not None:
-            privileges = handle_select_on_col(privileges, start, end)
+        for grant in ('SELECT', 'UPDATE', 'INSERT', 'REFERENCES'):
+            start, end = has_grant_on_col(privileges, grant)
+            # If not, either start and end will be None
+            if start is not None:
+                privileges = handle_grant_on_col(privileges, start, end)
 
         if "WITH GRANT OPTION" in res.group(7):
             privileges.append('GRANT')
@@ -788,7 +789,7 @@ def privileges_get(cursor, user, host):
     return output
 
 
-def has_select_on_col(privileges):
+def has_grant_on_col(privileges, grant):
     """Check if there is a statement like SELECT (colA, colB)
     in the privilege list.
 
@@ -799,7 +800,7 @@ def has_select_on_col(privileges):
     start = None
     end = None
     for n, priv in enumerate(privileges):
-        if 'SELECT (' in priv:
+        if '%s (' % grant in priv:
             # We found the start element
             start = n
 
@@ -819,8 +820,8 @@ def has_select_on_col(privileges):
         return None, None
 
 
-def handle_select_on_col(privileges, start, end):
-    """Handle cases when the SELECT (colA, ...) is in the privileges list."""
+def handle_grant_on_col(privileges, start, end):
+    """Handle cases when the privs like SELECT (colA, ...) is in the privileges list."""
     # When the privileges list look like ['SELECT (colA,', 'colB)']
     # (Notice that the statement is splitted)
     if start != end:
@@ -844,7 +845,7 @@ def handle_select_on_col(privileges, start, end):
 
 
 def sort_column_order(statement):
-    """Sort column order in SELECT (colA, colB, ...) grants.
+    """Sort column order in grants like SELECT (colA, colB, ...).
 
     MySQL changes columns order like below:
     ---------------------------------------
@@ -870,8 +871,10 @@ def sort_column_order(statement):
     # 3. Sort
     # 4. Put between () and return
 
-    # "SELECT (colA, colB) => "colA, colB"
-    columns = statement.split('(')[1].rstrip(')')
+    # "SELECT/UPDATE/.. (colA, colB) => "colA, colB"
+    tmp = statement.split('(')
+    priv_name = tmp[0]
+    columns = tmp[1].rstrip(')')
 
     # "colA, colB" => ["colA", "colB"]
     columns = columns.split(',')
@@ -881,7 +884,7 @@ def sort_column_order(statement):
         columns[i] = col.strip('`')
 
     columns.sort()
-    return 'SELECT (%s)' % ', '.join(columns)
+    return '%s(%s)' % (priv_name, ', '.join(columns))
 
 
 def privileges_unpack(priv, mode):
@@ -927,10 +930,11 @@ def privileges_unpack(priv, mode):
             output[pieces[0]] = pieces[1].upper().split(',')
             privs = output[pieces[0]]
 
-        # Handle cases when there's GRANT SELECT (colA, ...) in privs.
-        start, end = has_select_on_col(output[pieces[0]])
-        if start is not None:
-            output[pieces[0]] = handle_select_on_col(output[pieces[0]], start, end)
+        # Handle cases when there's privs like GRANT SELECT (colA, ...) in privs.
+        for grant in ('SELECT', 'UPDATE', 'INSERT', 'REFERENCES'):
+            start, end = has_grant_on_col(output[pieces[0]], grant)
+            if start is not None:
+                output[pieces[0]] = handle_grant_on_col(output[pieces[0]], start, end)
 
         new_privs = frozenset(privs)
         if not new_privs.issubset(VALID_PRIVS):

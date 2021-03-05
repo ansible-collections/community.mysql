@@ -6,8 +6,8 @@ __metaclass__ = type
 import pytest
 
 from ansible_collections.community.mysql.plugins.modules.mysql_user import (
-    handle_select_on_col,
-    has_select_on_col,
+    handle_grant_on_col,
+    has_grant_on_col,
     sort_column_order,
     supports_identified_by_password,
 )
@@ -41,22 +41,28 @@ def test_supports_identified_by_password(function_return, cursor_output, cursor_
 
 
 @pytest.mark.parametrize(
-    'input_list,output_tuple',
+    'input_list,grant,output_tuple',
     [
-        (['INSERT', 'DELETE'], (None, None)),
-        (['SELECT', 'UPDATE'], (None, None)),
-        (['INSERT', 'UPDATE', 'INSERT', 'DELETE'], (None, None)),
-        (['just', 'a', 'random', 'text'], (None, None)),
-        (['SELECT (A, B, C)'], (0, 0)),
-        (['UPDATE', 'SELECT (A, B, C)'], (1, 1)),
-        (['INSERT', 'SELECT (A', 'B)'], (1, 2)),
-        (['SELECT (A', 'B)', 'UPDATE'], (0, 1)),
-        (['INSERT', 'SELECT (A', 'B)', 'UPDATE'], (1, 2)),
+        (['INSERT', 'DELETE'], 'INSERT', (None, None)),
+        (['SELECT', 'UPDATE'], 'SELECT', (None, None)),
+        (['INSERT', 'UPDATE', 'INSERT', 'DELETE'], 'DELETE', (None, None)),
+        (['just', 'a', 'random', 'text'], 'blabla', (None, None)),
+        (['SELECT (A, B, C)'], 'SELECT', (0, 0)),
+        (['UPDATE', 'SELECT (A, B, C)'], 'SELECT', (1, 1)),
+        (['UPDATE', 'REFERENCES (A, B, C)'], 'REFERENCES', (1, 1)),
+        (['SELECT', 'UPDATE (A, B, C)'], 'UPDATE', (1, 1)),
+        (['INSERT', 'SELECT (A', 'B)'], 'SELECT', (1, 2)),
+        (['SELECT (A', 'B)', 'UPDATE'], 'SELECT', (0, 1)),
+        (['INSERT', 'SELECT (A', 'B)', 'UPDATE'], 'SELECT', (1, 2)),
+        (['INSERT (A, B)', 'SELECT (A', 'B)', 'UPDATE'], 'INSERT', (0, 0)),
+        (['INSERT (A',  'B)', 'SELECT (A', 'B)', 'UPDATE'], 'INSERT', (0, 1)),
+        (['INSERT (A',  'B)', 'SELECT (A', 'B)', 'UPDATE'], 'SELECT', (2, 3)),
+        (['INSERT (A',  'B)', 'SELECT (A', 'C', 'B)', 'UPDATE'], 'SELECT', (2, 4)),
     ]
 )
-def test_has_select_on_col(input_list, output_tuple):
-    """Tests has_select_on_col function."""
-    assert has_select_on_col(input_list) == output_tuple
+def test_has_grant_on_col(input_list, grant, output_tuple):
+    """Tests has_grant_on_col function."""
+    assert has_grant_on_col(input_list, grant) == output_tuple
 
 
 @pytest.mark.parametrize(
@@ -64,9 +70,9 @@ def test_has_select_on_col(input_list, output_tuple):
     [
         ('SELECT (A)', 'SELECT (A)'),
         ('SELECT (`A`)', 'SELECT (A)'),
-        ('SELECT (A, B)', 'SELECT (A, B)'),
-        ('SELECT (`A`, `B`)', 'SELECT (A, B)'),
-        ('SELECT (B, A)', 'SELECT (A, B)'),
+        ('UPDATE (B, A)', 'UPDATE (A, B)'),
+        ('INSERT (`A`, `B`)', 'INSERT (A, B)'),
+        ('REFERENCES (B, A)', 'REFERENCES (A, B)'),
         ('SELECT (`B`, `A`)', 'SELECT (A, B)'),
         ('SELECT (`B`, `A`, C)', 'SELECT (A, B, C)'),
     ]
@@ -81,10 +87,14 @@ def test_sort_column_order(input_, output):
     [
         (['UPDATE', 'SELECT (C, B, A)'], 1, 1, ['UPDATE', 'SELECT (A, B, C)']),
         (['INSERT', 'SELECT (A', 'B)'], 1, 2, ['INSERT', 'SELECT (A, B)']),
-        (['SELECT (`A`', 'B)', 'UPDATE'], 0, 1, ['SELECT (A, B)', 'UPDATE']),
-        (['INSERT', 'SELECT (`B`', 'A', 'C)', 'UPDATE'], 1, 3, ['INSERT', 'SELECT (A, B, C)', 'UPDATE']),
+        (
+            ['SELECT (`A`', 'B)', 'UPDATE', 'REFERENCES (B, A)'], 0, 1,
+            ['SELECT (A, B)', 'UPDATE', 'REFERENCES (B, A)']),
+        (
+            ['INSERT', 'REFERENCES (`B`', 'A', 'C)', 'UPDATE (A', 'B)'], 1, 3,
+            ['INSERT', 'REFERENCES (A, B, C)', 'UPDATE (A', 'B)']),
     ]
 )
-def test_handle_select_on_col(privileges, start, end, output):
-    """Tests handle_select_on_col function."""
-    assert handle_select_on_col(privileges, start, end) == output
+def test_handle_grant_on_col(privileges, start, end, output):
+    """Tests handle_grant_on_col function."""
+    assert handle_grant_on_col(privileges, start, end) == output

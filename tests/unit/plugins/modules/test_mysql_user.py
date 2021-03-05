@@ -55,9 +55,9 @@ def test_supports_identified_by_password(function_return, cursor_output, cursor_
         (['SELECT (A', 'B)', 'UPDATE'], 'SELECT', (0, 1)),
         (['INSERT', 'SELECT (A', 'B)', 'UPDATE'], 'SELECT', (1, 2)),
         (['INSERT (A, B)', 'SELECT (A', 'B)', 'UPDATE'], 'INSERT', (0, 0)),
-        (['INSERT (A',  'B)', 'SELECT (A', 'B)', 'UPDATE'], 'INSERT', (0, 1)),
-        (['INSERT (A',  'B)', 'SELECT (A', 'B)', 'UPDATE'], 'SELECT', (2, 3)),
-        (['INSERT (A',  'B)', 'SELECT (A', 'C', 'B)', 'UPDATE'], 'SELECT', (2, 4)),
+        (['INSERT (A', 'B)', 'SELECT (A', 'B)', 'UPDATE'], 'INSERT', (0, 1)),
+        (['INSERT (A', 'B)', 'SELECT (A', 'B)', 'UPDATE'], 'SELECT', (2, 3)),
+        (['INSERT (A', 'B)', 'SELECT (A', 'C', 'B)', 'UPDATE'], 'SELECT', (2, 4)),
     ]
 )
 def test_has_grant_on_col(input_list, grant, output_tuple):

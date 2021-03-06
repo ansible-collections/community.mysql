@@ -8,6 +8,7 @@ import pytest
 from ansible_collections.community.mysql.plugins.modules.mysql_user import (
     handle_grant_on_col,
     has_grant_on_col,
+    normalize_col_grants,
     sort_column_order,
     supports_identified_by_password,
 )
@@ -98,3 +99,24 @@ def test_sort_column_order(input_, output):
 def test_handle_grant_on_col(privileges, start, end, output):
     """Tests handle_grant_on_col function."""
     assert handle_grant_on_col(privileges, start, end) == output
+
+
+@pytest.mark.parametrize(
+    'input_,expected',
+    [
+        (['SELECT'], ['SELECT']),
+        (['SELECT (A, B)'], ['SELECT (A, B)']),
+        (['SELECT (B, A)'], ['SELECT (A, B)']),
+        (['UPDATE', 'SELECT (C, B, A)'], ['UPDATE', 'SELECT (A, B, C)']),
+        (['INSERT', 'SELECT (A', 'B)'], ['INSERT', 'SELECT (A, B)']),
+        (
+            ['SELECT (`A`', 'B)', 'UPDATE', 'REFERENCES (B, A)'],
+            ['SELECT (A, B)', 'UPDATE', 'REFERENCES (A, B)']),
+        (
+            ['INSERT', 'REFERENCES (`B`', 'A', 'C)', 'UPDATE (B', 'A)', 'DELETE'],
+            ['INSERT', 'REFERENCES (A, B, C)', 'UPDATE (A, B)', 'DELETE']),
+    ]
+)
+def test_normalize_col_grants(input_, expected):
+    """Tests normalize_col_grants function."""
+    assert normalize_col_grants(input_) == expected

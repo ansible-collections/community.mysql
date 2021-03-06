@@ -774,11 +774,7 @@ def privileges_get(cursor, user, host):
         # ['SELECT (`A`', '`B`)', 'INSERT'] that is incorrect (SELECT statement is splitted).
         # Columns should also be sorted to compare it with desired privileges later.
         # Determine if there's a case similar to the above:
-        for grant in ('SELECT', 'UPDATE', 'INSERT', 'REFERENCES'):
-            start, end = has_grant_on_col(privileges, grant)
-            # If not, either start and end will be None
-            if start is not None:
-                privileges = handle_grant_on_col(privileges, start, end)
+        privileges = normalize_col_grants(privileges)
 
         if "WITH GRANT OPTION" in res.group(7):
             privileges.append('GRANT')
@@ -787,6 +783,22 @@ def privileges_get(cursor, user, host):
         db = res.group(2)
         output.setdefault(db, []).extend(privileges)
     return output
+
+
+def normalize_col_grants(privileges):
+    """Fix and sort grants on columns in privileges list
+
+    Make ['SELECT (A, B)', 'INSERT (A, B)', 'DETELE']
+    from ['SELECT (A', 'B)', 'INSERT (B', 'A)', 'DELETE'].
+    See unit tests in tests/unit/plugins/modules/test_mysql_user.py
+    """
+    for grant in ('SELECT', 'UPDATE', 'INSERT', 'REFERENCES'):
+        start, end = has_grant_on_col(privileges, grant)
+        # If not, either start and end will be None
+        if start is not None:
+            privileges = handle_grant_on_col(privileges, start, end)
+
+    return privileges
 
 
 def has_grant_on_col(privileges, grant):
@@ -931,10 +943,7 @@ def privileges_unpack(priv, mode):
             privs = output[pieces[0]]
 
         # Handle cases when there's privs like GRANT SELECT (colA, ...) in privs.
-        for grant in ('SELECT', 'UPDATE', 'INSERT', 'REFERENCES'):
-            start, end = has_grant_on_col(output[pieces[0]], grant)
-            if start is not None:
-                output[pieces[0]] = handle_grant_on_col(output[pieces[0]], start, end)
+        output[pieces[0]] = normalize_col_grants(output[pieces[0]])
 
         new_privs = frozenset(privs)
         if not new_privs.issubset(VALID_PRIVS):

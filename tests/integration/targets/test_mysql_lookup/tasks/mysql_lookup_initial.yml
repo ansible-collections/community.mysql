@@ -1,0 +1,64 @@
+# Test code for mysql lookup plugin
+# Copyright: (c) 2021, Andrew Klychkov (@Andersson007) <aaklychkov@mail.ru>
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+      login_port: '{{ mysql_primary_port }}'
+
+  block:
+
+  ######################
+  # Prepare DB for tests
+  ######################
+
+  - name: Create db {{ test_db }}
+    mysql_query:
+      <<: *mysql_params
+      query: 'CREATE DATABASE {{ test_db }}'
+
+  - name: Create {{ table1 }}
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ test_db }}'
+      query: 
+      - 'CREATE TABLE {{ table1 }} (id int)'
+      - 'CREATE TABLE {{ table2 }} (id int, story text)'
+      - 'CREATE TABLE {{ table3 }} (id int)'
+
+  - name: Insert test data
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ test_db }}'
+      query:
+      - 'INSERT INTO {{ table1 }} VALUES (1), (2)'
+      - "INSERT INTO {{ table2 }} (id, story) VALUES (3, 'first'), (4, 'second')"
+      - 'INSERT INTO {{ table3 }} VALUES (3)'
+
+  ###################################
+  # Run tests for mysql lookup plugin
+  ###################################
+
+  - name: Fetch data
+    set_fact:
+      fact1: "{{ lookup('community.mysql.mysql', 'test1', db='mysql_lookup_db', login_user='root', login_password='msandbox', login_host='127.0.0.1', login_port=3307) }}"
+      fact2: "{{ lookup('community.mysql.mysql', 'test3', db='mysql_lookup_db', login_user='root', login_password='msandbox', login_host='127.0.0.1', login_port=3307) }}"
+      fact3: "{{ lookup('community.mysql.mysql', 'test2', db='mysql_lookup_db', login_user='root', login_password='msandbox', login_host='127.0.01', login_port=3307) }}"
+      fact4: "{{ lookup('community.mysql.mysql', 'test2:id', db='mysql_lookup_db', login_user='root', login_password='msandbox', login_host='127.0.01', login_port=3307) }}"
+      fact5: "{{ lookup('community.mysql.mysql', 'test2:story', limit=1, db='mysql_lookup_db', login_user='root', login_password='msandbox', login_host='127.0.01', login_port=3307) }}"
+      fact6: "{{ lookup('community.mysql.mysql', 'test1', 'test2', db='mysql_lookup_db', login_user='root', login_password='msandbox', login_host='127.0.0.1', login_port=3307) }}"
+      fact7: "{{ lookup('community.mysql.mysql', 'test1', 'test2:id,story as s', db='mysql_lookup_db', login_user='root', login_password='msandbox', login_host='127.0.0.1', login_port=3307) }}"
+      fact8: "{{ lookup('community.mysql.mysql', 'test1', 'test2:story as s', db='mysql_lookup_db', login_user='root', login_password='msandbox', login_host='127.0.0.1', login_port=3307) }}"
+
+  - assert:
+      that:
+        - "fact1 == [{'id': 1}, {'id': 2}]"
+        - "fact2 == {'id': 3}"
+        - "fact3 == [{'id': 3, 'story': 'first'}, {'id': 4, 'story': 'second'}]"
+        - "fact4 == [{'id': 3}, {'id': 4}]"
+        - "fact5 == {'story': 'first'}"
+        - "fact6 == [{'id': 1}, {'id': 2}, {'id': 3, 'story': 'first'}, {'id': 4, 'story': 'second'}]"
+        - "fact7 == [{'id': 1}, {'id': 2}, {'id': 3, 's': 'first'}, {'id': 4, 's': 'second'}]"
+        - "fact8 == [{'id': 1}, {'id': 2}, {'s': 'first'}, {'s': 'second'}]"

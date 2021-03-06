@@ -1,0 +1,11 @@
+mysql_user: root
+mysql_password: msandbox
+mysql_primary_port: 3307
+
+test_db: mysql_lookup_db
+table1: test1
+table2: test2
+table3: test3
+
+user_name_1: 'db_user1'
+user_password_1: 'gadfFDSdtTU^Sdfuj'

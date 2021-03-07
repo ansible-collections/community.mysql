@@ -259,24 +259,6 @@ from distutils.version import LooseVersion
 executed_queries = []
 
 
-def uses_replica_terminology(cursor):
-    """Checks if REPLICA must be used instead of SLAVE"""
-    cursor.execute("SELECT VERSION() AS version")
-    result = cursor.fetchone()
-
-    if isinstance(result, dict):
-        version_str = result['version']
-    else:
-        version_str = result[0]
-
-    version = LooseVersion(version_str)
-
-    if 'mariadb' in version_str.lower():
-        return version >= LooseVersion('10.5.1')
-    else:
-        return version >= LooseVersion('8.0.22')
-
-
 def get_master_status(cursor):
     cursor.execute("SHOW MASTER STATUS")
     masterstatus = cursor.fetchone()
@@ -502,9 +484,15 @@ def main():
         else:
             module.fail_json(msg="unable to find %s. Exception message: %s" % (config_file, to_native(e)))
 
+    cursor.execute("SELECT VERSION()")
+    if 'mariadb' in cursor.fetchone()[0].lower():
+        from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import replication as impl
+    else:
+        from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql import replication as impl
+
     # Since MySQL 8.0.22 and MariaDB 10.5.1,
     # "REPLICA" must be used instead of "SLAVE"
-    if uses_replica_terminology(cursor):
+    if impl.uses_replica_terminology(cursor):
         replica_term = 'REPLICA'
         if master_use_gtid == 'slave_pos':
             module.deprecate('master_use_gtid "slave_pos" value is deprecated, use "replica_pos" instead.',

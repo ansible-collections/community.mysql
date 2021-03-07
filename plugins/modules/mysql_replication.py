@@ -485,7 +485,7 @@ def main():
             module.fail_json(msg="unable to find %s. Exception message: %s" % (config_file, to_native(e)))
 
     cursor.execute("SELECT VERSION()")
-    if 'mariadb' in cursor.fetchone()[0].lower():
+    if 'mariadb' in cursor.fetchone()["VERSION()"].lower():
         from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import replication as impl
     else:
         from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql import replication as impl

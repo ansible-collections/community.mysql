@@ -308,6 +308,8 @@ from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
 
 
+impl = None  # Global name for local conditinal import of server-specific implementations
+
 VALID_PRIVS = frozenset(('CREATE', 'DROP', 'GRANT', 'GRANT OPTION',
                          'LOCK TABLES', 'REFERENCES', 'EVENT', 'ALTER',
                          'DELETE', 'INDEX', 'INSERT', 'SELECT', 'UPDATE',

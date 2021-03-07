@@ -1192,9 +1192,11 @@ def main():
 
     cursor.execute("SELECT VERSION()")
     if 'mariadb' in cursor.fetchone()[0].lower():
-        from ansible_collections.community.mysql.plugins.implementations.mariadb import user as impl
+        global impl
+        from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import user as impl
     else:
-        from ansible_collections.community.mysql.plugins.implementations.mysql import user as impl
+        global impl
+        from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql import user as impl
 
     if priv is not None:
         try:

@@ -93,6 +93,46 @@
         that:
         - result is not changed
 
+    - name: Grant privs on columns
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_3 }}'
+        priv:
+          'data3.test_table_issue99': 'SELECT (a, b), INSERT (a, b), UPDATE'
+      register: result
+
+    - assert:
+        that:
+        - result is changed
+
+    - name: Grant same privs on columns again, note that the column order is different
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_3 }}'
+        priv:
+          'data3.test_table_issue99': 'SELECT (a, b), UPDATE, INSERT (b, a)'
+      register: result
+
+    - assert:
+        that:
+        - result is not changed
+
+    - name: Run command to show privileges for user (expect privileges in stdout)
+      command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_3 }}'@'localhost'\""
+      register: result
+
+    - name: Assert user has giving privileges
+      assert:
+        that:
+          - "'GRANT SELECT (`A`, `B`), INSERT (`A`, `B`), UPDATE' in result.stdout"
+      when: "'(`A`, `B`)' in result.stdout"
+
+    - name: Assert user has giving privileges
+      assert:
+        that:
+          - "'GRANT SELECT (A, B), INSERT (A, B), UPDATE' in result.stdout"
+      when: "'(`A`, `B`)' not in result.stdout"
+
     ##########
     # Clean up
     - name: Drop test databases

@@ -5,6 +5,33 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v1.3.0
+======
+
+Release Summary
+---------------
+
+This is the minor release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection
+that have been added after the release of ``community.mysql`` 1.2.0.
+
+Major Changes
+-------------
+
+- mysql_replication - the mode options values ``getslave``, ``startslave``, ``stopslave``, ``resetslave``, ``resetslaveall` and the master_use_gtid option ``slave_pos`` are deprecated (see the alternative values) and will be removed in ``community.mysql`` 3.0.0 (https://github.com/ansible-collections/community.mysql/pull/97).
+- mysql_replication - the word ``SLAVE`` in messages returned by the module will be changed to ``REPLICA`` in ``community.mysql`` 2.0.0 (https://github.com/ansible-collections/community.mysql/issues/98).
+
+Minor Changes
+-------------
+
+- mysql_replication - deprecate offending terminology, add alternative choices to the ``mode`` option (https://github.com/ansible-collections/community.mysql/issues/78).
+
+Bugfixes
+--------
+
+- mysql_user - fix handling of INSERT, UPDATE, REFERENCES on columns (https://github.com/ansible-collections/community.mysql/issues/106).
+- mysql_user - the module is not idempotent when SELECT on columns granted (https://github.com/ansible-collections/community.mysql/issues/99).
+
 v1.2.0
 ======
 

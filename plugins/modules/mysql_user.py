@@ -308,8 +308,6 @@ from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
 
 
-impl = None  # Global name for local conditinal import of server-specific implementations
-
 VALID_PRIVS = frozenset(('CREATE', 'DROP', 'GRANT', 'GRANT OPTION',
                          'LOCK TABLES', 'REFERENCES', 'EVENT', 'ALTER',
                          'DELETE', 'INDEX', 'INSERT', 'SELECT', 'UPDATE',
@@ -1191,13 +1189,14 @@ def main():
     if not sql_log_bin:
         cursor.execute("SET SQL_LOG_BIN=0;")
 
+    global impl
     cursor.execute("SELECT VERSION()")
     if 'mariadb' in cursor.fetchone()[0].lower():
-        global impl
-        from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import user as impl
+        impl = __import__("ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb.user",
+                          fromlist=("ansible_collections",))  # import user as impl
     else:
-        global impl
-        from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql import user as impl
+        impl = __import__("ansible_collections.community.mysql.plugins.module_utils.implementations.mysql.user",
+                          fromlist=("ansible_collections",))  # import user as impl
 
     if priv is not None:
         try:

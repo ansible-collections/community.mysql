@@ -1,0 +1,2 @@
+bugfixes:
+- mysql_user - add support for ``REPLICA MONITOR`` privilege (https://github.com/ansible-collections/community.mysql/issues/105).

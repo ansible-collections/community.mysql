@@ -73,7 +73,7 @@ git remote add upstream https://github.com/ansible-collections/community.mysql.g
 11. Update your local ``main`` branch:
 ```bash
 git fetch upstream
-git merge upstream/main
+git rebase upstream/main
 ```
 
 12. Create a branch for your changes:

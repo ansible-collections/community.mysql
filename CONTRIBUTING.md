@@ -22,7 +22,7 @@ First, see the paragraphs above.
 If you came up with a new feature, it is always worth creating an issue
 before starting to write code to discuss the idea with the community first.
 
-## Step-by-step guide how to get into development quickly.
+## Step-by-step guide how to get into development quickly
 
 We assume you use Linux as a work environment (you can use a virtual machine as well).
 
@@ -35,71 +35,66 @@ git clone https://github.com/ansible/ansible.git
 3. Go to the cloned repository and prepare the environment:
 ```bash
 cd ansible && source hacking/env-setup
+pip install -r requirements.txt
 cd ~
 ```
-
-4. Fork the ``community.mysql`` repository via the GitHub web interface.
-
-5. Clone the forked repository from your profile:
+4. Create the following directories in your home directory:
 ```bash
-git clone https://github.com/YOURACC/community.mysql.git
+mkdir -p ~/ansible_collections/community/mysql
 ```
 
-6. Create the following directories in your home directory:
+5. Fork the ``community.mysql`` repository via the GitHub web interface.
+
+6. Clone the forked repository from your profile to the created path:
 ```bash
-mkdir -p ~/ansible_collections/community
+git clone https://github.com/YOURACC/community.mysql.git ~/ansible_collections/community/mysql
 ```
 
-7. Move the cloned repository:
-```bash
-mv community.mysql ~/ansible_collections/community/mysql
-```
-
-8. Go there:
+7. Go there:
 ```bash
 cd ~/ansible_collections/community/mysql
 ```
 
-9. Be sure you are in the main branch:
+8. Be sure you are in the main branch:
 ```bash
 git status
 ```
 
-10. Show remotes. There should be the ``origin`` repository only:
+9. Show remotes. There should be the ``origin`` repository only:
 ```bash
 git remote -v
 ```
 
-11. Add the ``upstream`` repository:
+10. Add the ``upstream`` repository:
 ```bash
 git remote add upstream https://github.com/ansible-collections/community.mysql.git
 ```
 
-12. Update your local ``main`` branch:
+11. Update your local ``main`` branch:
 ```bash
 git fetch upstream
 git merge upstream/main
 ```
 
-13. Create a branch for your changes:
+12. Create a branch for your changes:
 ```bash
 git branch -b name_of_my_branch
 ```
 
-14. In any case, a good approach is to start from writing [integration tests](https://docs.ansible.com/ansible/latest/dev_guide/testing_integration.html).
+13. It can be a good approach is to start with writing integration tests if applicable.
 
-Briefly, all integration tests are just Ansible roles and are stored in ``tests/integration/targets`` subdirectories.
-Tasks in the test roles invoke a module or plugin and check the result using the ``assert`` statement.
+Note: If there are any difficulties with writing the tests or you are not sure if the case can be covered, feel free to skip this step.
+If needed, other contributors can help you with it later.
+
+All integration tests are stored in ``tests/integration/targets`` subdirectories.
 You are interested in a subdirectory containing a name of module you are going to change.
 For example, if you are fixing the ``mysql_user`` module, its tests are in ``tests/integration/targets/test_mysql_user/tasks``
 
-There is the ``main.yml`` file which includes other files.
+There is the ``main.yml`` file which includes other test files.
 Look for a suitable one to integrate your tests or create and include a dedicated one.
 You can use one of the existing as a draft.
 
 When fixing a bug, write a task which reproduces the bug from the issue.
-If there is no example in the bug report, ask a reporter to provide the problematic part.
-Also can be useful to ask the reporter to provide the traceback if not provided - they need to run the task with -vvv argument.
 
 Put the reported case in the tests, then run integration tests with the following command:
 ```bash
@@ -112,23 +107,23 @@ a) If the bug has not appeared and the tests have passed successfully, ask the r
 
 b) The bug has appeared and the tests has failed as expected showing the reported symptoms.
 
-15. Fix the bug.
+14. Fix the bug.
 
-16. Run ``flake8``:
+15. Run ``flake8``:
 ```bash
 flake8 /path/to/changed/file
 ```
 It is worth installing and running and ``flake8`` against the changed file(s) first.
 It shows unused imports, which is not shown by sanity tests, as well as other common issues.
 
-17. Run sanity tests:
+16. Run sanity tests:
 ```bash
 ansible-test sanity /path/to/changed/file --docker
 ```
 If they failed, look at the output carefully - it is usually very informative and helps to identify a problem line quickly.
 Sanity failings usually relate to wrong code and documentation formatting.
 
-18. Run integration tests:
+17. Run integration tests:
 ```bash
 ansible-test integration test_mysql_user --docker -vvv > ~/test.log
 ```
@@ -141,20 +136,20 @@ Repeat the cycle until the tests pass.
 
 b) They have passed. Remember they failed originally? Our congratulations! You has probably fixed the bug, though we hope not introducing a couple of new ones;)
 
-19. Commit your changes with an informative but short commit message:
+18. Commit your changes with an informative but short commit message:
 ```bash
 git add /path/to/changed/file
 git commit -m "mysql_user: fix crash when ..."
 ```
 
-20. Push the branch to the ``origin`` (your fork):
+19. Push the branch to the ``origin`` (your fork):
 ```bash
 git push origin name_of_my_branch
 ```
 
-21. Go to the ``upstream`` (http://github.com/ansible-collections/community.mysql.git
+20. Go to the ``upstream`` (http://github.com/ansible-collections/community.mysql).
 
-22. Go to ``Pull requests`` tab and create a pull request.
+21. Go to ``Pull requests`` tab and create a pull request.
 
 GitHub is tracking your fork, so it should see the new branch in it and automatically offer
 to create a pull request. Sometimes GitHub does not do it and you should click the ``New pull request`` button yourself.
@@ -165,16 +160,16 @@ Put "Fixes + link to the issue" in the pull request's description.
 Put "[WIP] + short description" in the pull request's title.
 Click ``Create pull request``.
 
-23. Add a [changelog fragment](https://docs.ansible.com/ansible/latest/community/development_process.html#changelogs). It will be published in release notes, so users will know about the fix.
+22. Add a [changelog fragment](https://docs.ansible.com/ansible/latest/community/development_process.html#changelogs). It will be published in release notes, so users will know about the fix.
 
-24. The CI tests will run automatically on Red Hat infrastructure after every commit.
+23. The CI tests will run automatically on Red Hat infrastructure after every commit.
 
 You will see their status in the bottom of your pull request.
 If they are green, remove "[WIP]" from the title. Mention the issue reporter in a comment and let contributors know that the pull request is "Ready for review".
 
-25. Wait for reviews.
+24. Wait for reviews.
 
-26. If the pull request looks good to the community, committers will merge it.
+25. If the pull request looks good to the community, committers will merge it.
 
 For details, refer to the [Ansible developer guide](https://docs.ansible.com/ansible/latest/dev_guide/index.html).
 

@@ -46,7 +46,7 @@ cd ~
 mkdir -p ~/ansible_collections/community/mysql
 ```
 
-5. Fork the ``community.mysql`` repository via the GitHub web interface.
+5. Fork the `community.mysql` repository via the GitHub web interface.
 
 6. Clone the forked repository from your profile to the created path:
 ```bash
@@ -69,17 +69,17 @@ cd ~/ansible_collections/community/mysql
 git status
 ```
 
-9. Show remotes. There should be the ``origin`` repository only:
+9. Show remotes. There should be the `origin` repository only:
 ```bash
 git remote -v
 ```
 
-10. Add the ``upstream`` repository:
+10. Add the `upstream` repository:
 ```bash
 git remote add upstream https://github.com/ansible-collections/community.mysql.git
 ```
 
-11. Update your local ``main`` branch:
+11. Update your local `main` branch:
 ```bash
 git fetch upstream
 git rebase upstream/main
@@ -95,11 +95,11 @@ git branch -b name_of_my_branch
 Note: If there are any difficulties with writing the tests or you are not sure if the case can be covered, feel free to skip this step.
 If needed, other contributors can help you with it later.
 
-All integration tests are stored in ``tests/integration/targets`` subdirectories.
+All integration tests are stored in `tests/integration/targets` subdirectories.
 You are interested in a subdirectory containing a name of module you are going to change.
-For example, if you are fixing the ``mysql_user`` module, its tests are in ``tests/integration/targets/test_mysql_user/tasks``
+For example, if you are fixing the `mysql_user` module, its tests are in `tests/integration/targets/test_mysql_user/tasks`
 
-There is the ``main.yml`` file which includes other test files.
+There is the `main.yml` file which includes other test files.
 Look for a suitable one to integrate your tests or create and include a dedicated one.
 You can use one of the existing as a draft.
 
@@ -118,12 +118,13 @@ b) The bug has appeared and the tests has failed as expected showing the reporte
 
 14. Fix the bug.
 
-15. Run ``flake8`` against a changed file. If it is ``plugins/modules/mysql_user.py``:
+15. Run `flake8` against a changed file. If it is `plugins/modules/mysql_user.py`:
 ```bash
 flake8 plugins/modules/mysql_user.py
 ```
-It is worth installing and running ``flake8`` against the changed file(s) first.
+It is worth installing and running `flake8` against the changed file(s) first.
 It shows unused imports, which is not shown by sanity tests (see the next step), as well as other common issues.
+Optionally, you can use the `--max-line-length=160` command-line argument.
 
 16. Run sanity tests:
 ```bash
@@ -134,11 +135,11 @@ Sanity failings usually relate to wrong code and documentation formatting.
 
 17. Run integration tests:
 ```bash
-ansible-test integration test_mysql_user --docker -vvv > ~/test.log
+ansible-test integration test_mysql_user --docker -vvv
 ```
 
 There are two possible outcomes:
-a) They have failed. Look into the ``test.log``.
+a) They have failed. Look into the `test.log`.
 Errors are usually at the end of the file.
 Fix the problem place in the code and run again.
 Repeat the cycle until the tests pass.
@@ -151,25 +152,25 @@ git add /path/to/changed/file
 git commit -m "mysql_user: fix crash when ..."
 ```
 
-19. Push the branch to the ``origin`` (your fork):
+19. Push the branch to the `origin` (your fork):
 ```bash
 git push origin name_of_my_branch
 ```
 
-20. Go to the ``upstream`` (http://github.com/ansible-collections/community.mysql).
+20. Go to the `upstream` (http://github.com/ansible-collections/community.mysql).
 
-21. Go to ``Pull requests`` tab and create a pull request.
+21. Go to `Pull requests` tab and create a pull request.
 
 GitHub is tracking your fork, so it should see the new branch in it and automatically offer
-to create a pull request. Sometimes GitHub does not do it and you should click the ``New pull request`` button yourself.
-Then choose ``compare across forks`` under the ``Compare changes`` title.
+to create a pull request. Sometimes GitHub does not do it and you should click the `New pull request` button yourself.
+Then choose `compare across forks` under the `Compare changes` title.
 Choose your repository and the new branch you pushed in the right drop-down list.
 Confirm. Fill out the pull request template with all information you want to mention.
 Put "Fixes + link to the issue" in the pull request's description.
 Put "[WIP] + short description" in the pull request's title.
-Click ``Create pull request``.
+Click `Create pull request`.
 
-22. Add a [changelog fragment](https://docs.ansible.com/ansible/devel/community/development_process.html#changelogs) to the ``changelog/fragments`` directory. It will be published in release notes, so users will know about the fix.
+22. Add a [changelog fragment](https://docs.ansible.com/ansible/devel/community/development_process.html#changelogs) to the `changelog/fragments` directory. It will be published in release notes, so users will know about the fix.
 
 23. The CI tests will run automatically on Red Hat infrastructure after every commit.
 

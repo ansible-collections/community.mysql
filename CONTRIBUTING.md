@@ -113,8 +113,8 @@ b) The bug has appeared and the tests has failed as expected showing the reporte
 ```bash
 flake8 /path/to/changed/file
 ```
-It is worth installing and running and ``flake8`` against the changed file(s) first.
-It shows unused imports, which is not shown by sanity tests, as well as other common issues.
+It is worth installing and running ``flake8`` against the changed file(s) first.
+It shows unused imports, which is not shown by sanity tests (see the next step), as well as other common issues.
 
 16. Run sanity tests:
 ```bash

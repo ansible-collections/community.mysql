@@ -107,7 +107,7 @@ When fixing a bug, write a task which reproduces the bug from the issue.
 
 Put the reported case in the tests, then run integration tests with the following command:
 ```bash
-ansible-test integration test_mysql_user --docker -vvv > ~/test.log
+ansible-test integration test_mysql_user --docker -vvv
 ```
 If the tests do not want to run, first, check you complete step 3 of this guide.
 

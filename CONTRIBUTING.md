@@ -139,8 +139,7 @@ ansible-test integration test_mysql_user --docker -vvv
 ```
 
 There are two possible outcomes:
-a) They have failed. Look into the `test.log`.
-Errors are usually at the end of the file.
+a) They have failed. Look at the output of the command.
 Fix the problem place in the code and run again.
 Repeat the cycle until the tests pass.
 

@@ -118,16 +118,16 @@ b) The bug has appeared and the tests has failed as expected showing the reporte
 
 14. Fix the bug.
 
-15. Run ``flake8``:
+15. Run ``flake8`` against a changed file. If it is ``plugins/modules/mysql_user.py``:
 ```bash
-flake8 /path/to/changed/file
+flake8 plugins/modules/mysql_user.py
 ```
 It is worth installing and running ``flake8`` against the changed file(s) first.
 It shows unused imports, which is not shown by sanity tests (see the next step), as well as other common issues.
 
 16. Run sanity tests:
 ```bash
-ansible-test sanity /path/to/changed/file --docker
+ansible-test sanity plugins/modules/mysql_user.py --docker
 ```
 If they failed, look at the output carefully - it is usually very informative and helps to identify a problem line quickly.
 Sanity failings usually relate to wrong code and documentation formatting.

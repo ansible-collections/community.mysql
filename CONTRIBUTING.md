@@ -32,6 +32,9 @@ We assume you use Linux as a work environment (you can use a virtual machine as 
 ```bash
 git clone https://github.com/ansible/ansible.git
 ```
+
+Instead of installing ansible-core from source, you can also work with an already existing installation of Ansible, ansible-base or ansible-core. Simply skip steps 2 and 3 in that case.
+
 3. Go to the cloned repository and prepare the environment:
 ```bash
 cd ansible && source hacking/env-setup

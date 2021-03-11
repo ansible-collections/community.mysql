@@ -53,6 +53,12 @@ mkdir -p ~/ansible_collections/community/mysql
 git clone https://github.com/YOURACC/community.mysql.git ~/ansible_collections/community/mysql
 ```
 
+If you prefer to use the SSH protocol:
+```bash
+git clone git@github.com:YOURACC/community.mysql.git ~/ansible_collections/community/mysql
+```
+
+
 7. Go there:
 ```bash
 cd ~/ansible_collections/community/mysql

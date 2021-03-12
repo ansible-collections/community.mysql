@@ -122,7 +122,7 @@ version:
   description: Database server version.
   returned: if not excluded by filter
   type: dict
-  sample: { "version": { "major": 5, "minor": 5, "release": 60, "suffix": "MariaDB", "full_version": "5.5.60-MariaDB" } }
+  sample: { "version": { "major": 5, "minor": 5, "release": 60, "suffix": "MariaDB", "full": "5.5.60-MariaDB" } }
   contains:
     major:
       description: Major server version.

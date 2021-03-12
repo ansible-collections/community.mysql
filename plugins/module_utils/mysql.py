@@ -79,7 +79,7 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
     if login_user is not None:
         config['user'] = login_user
     if login_password is not None:
-        config['passwd'] = login_password
+        config['password'] = login_password
     if ssl_cert is not None:
         config['ssl']['cert'] = ssl_cert
     if ssl_key is not None:

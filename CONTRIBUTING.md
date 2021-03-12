@@ -87,7 +87,7 @@ git rebase upstream/main
 
 12. Create a branch for your changes:
 ```bash
-git branch -b name_of_my_branch
+git checkout -b name_of_my_branch
 ```
 
 13. It can be a good approach is to start with writing integration tests if applicable.

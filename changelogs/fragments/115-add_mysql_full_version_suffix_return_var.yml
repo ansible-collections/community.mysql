@@ -1,2 +1,2 @@
 minor_changes:
-- mysql_info - add mysql_full_version and suffix return variable (https://github.com/ansible-collections/community.mysql/issues/114)
+- mysql_info - add `full_version` and `suffix` return values (https://github.com/ansible-collections/community.mysql/issues/114).

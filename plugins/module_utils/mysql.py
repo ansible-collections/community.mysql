@@ -104,7 +104,24 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
     if ssl_ca is not None:
         config['ssl']['ca'] = ssl_ca
     if db is not None:
-        config['db'] = db
+        if mysql_driver.__name__ == "pymysql":
+            # In case of PyMySQL driver:
+            version_tuple = (n for n in mysql_driver.__version__.split('.') if n != 'None')
+            if reduce(lambda x, y: int(x) * 100 + int(y), version_tuple) >= 607:
+                # pymysql >= 0.6.7
+                config['database'] = db
+            else:
+                # NOTE: This check SHOULD be removed as soon as the minimum support version of PyMySQL for this collection reaches pymysql v0.6.7
+                config['db'] = db
+        else:
+            # In case of MySQLdb driver
+            version_tuple = (n for n in mysql_driver.__version__.split('.') if n != 'None')
+            if reduce(lambda x, y: int(x) * 100 + int(y), version_tuple) >= 10308:
+                # mysqlclient >= 1.3.8
+                config['database'] = login_password
+            else:
+                # NOTE: This check SHOULD be removed as soon as the minimum support version of MySQLdb for this collection reaches mysqlclient v1.3.8
+                config['db'] = db
     if connect_timeout is not None:
         config['connect_timeout'] = connect_timeout
     if check_hostname is not None:

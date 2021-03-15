@@ -144,7 +144,7 @@ version:
       returned: if not excluded by filter
       type: str
       sample: "MariaDB"
-    full_version:
+    full:
       description: Full server version.
       returned: if not excluded by filter
       type: str
@@ -368,7 +368,7 @@ class MySQL_Info(object):
             version = self.info['settings']['version'].split('.')
 
             # full_version = "5.5.60-MariaDB"
-            full_version = self.info['settings']['version']
+            full = self.info['settings']['version']
 
             # release = "60"
             release = version[2].split('-')[0]
@@ -387,7 +387,7 @@ class MySQL_Info(object):
                 minor=int(version[1]),
                 release=int(release),
                 suffix=str(suffix),
-                full_version=str(full_version),
+                full=str(full),
             )
 
     def __get_global_status(self):

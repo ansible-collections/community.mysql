@@ -85,28 +85,43 @@ options:
     type: int
   master_ssl:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_SSL) mysql variable.
+    - When setting it to C(yes), the connection attempt only succeeds
+      if an encrypted connection can be established.
+    - For details, refer to
+      L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: bool
     default: false
   master_ssl_ca:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_SSL_CA) mysql variable.
+    - For details, refer to
+      L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
   master_ssl_capath:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_SSL_CAPATH) mysql variable.
+    - For details, refer to
+      L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
   master_ssl_cert:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_SSL_CERT) mysql variable.
+    - For details, refer to
+      L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
   master_ssl_key:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_SSL_KEY) mysql variable.
+    - For details, refer to
+      L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
   master_ssl_cipher:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_SSL_CIPHER) mysql variable.
+    - Specifies a colon-separated list of one or more ciphers permitted by the replica for the replication connection.
+    - For details, refer to
+      L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
   master_auto_position:
     description:
@@ -167,6 +182,9 @@ seealso:
 - name: MySQL replication reference
   description: Complete reference of the MySQL replication documentation.
   link: https://dev.mysql.com/doc/refman/8.0/en/replication.html
+- name: MySQL encrypted replication reference.
+  description: Setting up MySQL replication to use encrypted connection.
+  link: https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html
 - name: MariaDB replication reference
   description: Complete reference of the MariaDB replication documentation.
   link: https://mariadb.com/kb/en/library/setting-up-replication/

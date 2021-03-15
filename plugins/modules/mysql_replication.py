@@ -435,7 +435,7 @@ def main():
         master_ssl_ca=dict(type='str'),
         master_ssl_capath=dict(type='str'),
         master_ssl_cert=dict(type='str'),
-        master_ssl_key=dict(type='str'),
+        master_ssl_key=dict(type='str', no_log=False),
         master_ssl_cipher=dict(type='str'),
         master_use_gtid=dict(type='str', choices=[
             'current_pos', 'replica_pos', 'slave_pos', 'disabled']),

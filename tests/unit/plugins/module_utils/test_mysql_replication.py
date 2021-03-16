@@ -6,7 +6,7 @@ __metaclass__ = type
 
 import pytest
 
-from ansible_collections.community.mysql.plugins.modules.mysql_replication import uses_replica_terminology
+from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql.replication import uses_replica_terminology
 from ..utils import dummy_cursor_class
 
 
@@ -18,13 +18,9 @@ from ..utils import dummy_cursor_class
         (False, '8.0.0-mysql', 'list'),
         (False, '8.0.11-mysql', 'dict'),
         (False, '8.0.21-mysql', 'list'),
-        (False, '10.5.0-mariadb', 'dict'),
         (True, '8.0.22-mysql', 'list'),
         (True, '8.1.2-mysql', 'dict'),
         (True, '9.0.0-mysql', 'list'),
-        (True, '10.5.1-mariadb', 'dict'),
-        (True, '10.6.0-mariadb', 'dict'),
-        (True, '11.5.1-mariadb', 'dict'),
     ]
 )
 def test_uses_replica_terminology(f_output, c_output, c_ret_type):

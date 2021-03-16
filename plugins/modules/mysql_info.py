@@ -57,6 +57,7 @@ seealso:
 
 author:
 - Andrew Klychkov (@Andersson007)
+- Sebastian Gumprich (@rndmh3ro)
 
 extends_documentation_fragment:
 - community.mysql.mysql
@@ -121,7 +122,7 @@ version:
   description: Database server version.
   returned: if not excluded by filter
   type: dict
-  sample: { "version": { "major": 5, "minor": 5, "release": 60 } }
+  sample: { "version": { "major": 5, "minor": 5, "release": 60, "suffix": "MariaDB", "full": "5.5.60-MariaDB" } }
   contains:
     major:
       description: Major server version.
@@ -138,6 +139,16 @@ version:
       returned: if not excluded by filter
       type: int
       sample: 60
+    suffix:
+      description: Server suffix, for example MySQL, MariaDB, other or none.
+      returned: if not excluded by filter
+      type: str
+      sample: "MariaDB"
+    full:
+      description: Full server version.
+      returned: if not excluded by filter
+      type: str
+      sample: "5.5.60-MariaDB"
 databases:
   description: Information about databases.
   returned: if not excluded by filter
@@ -353,13 +364,30 @@ class MySQL_Info(object):
             for var in res:
                 self.info['settings'][var['Variable_name']] = self.__convert(var['Value'])
 
-            ver = self.info['settings']['version'].split('.')
-            release = ver[2].split('-')[0]
+            # version = ["5", "5," "60-MariaDB]
+            version = self.info['settings']['version'].split('.')
+
+            # full_version = "5.5.60-MariaDB"
+            full = self.info['settings']['version']
+
+            # release = "60"
+            release = version[2].split('-')[0]
+
+            # check if a suffix exists by counting the length
+            if len(version[2].split('-')) > 1:
+                # suffix = "MariaDB"
+                suffix = version[2].split('-', 1)[1]
+            else:
+                suffix = ""
 
             self.info['version'] = dict(
-                major=int(ver[0]),
-                minor=int(ver[1]),
+                # major = "5"
+                major=int(version[0]),
+                # minor = "5"
+                minor=int(version[1]),
                 release=int(release),
+                suffix=str(suffix),
+                full=str(full),
             )
 
     def __get_global_status(self):

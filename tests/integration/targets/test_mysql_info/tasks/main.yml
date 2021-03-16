@@ -48,7 +48,7 @@
     - assert:
         that:
         - result.changed == false
-        - result.version != {}
+        - "mysql_version in result.version.full"
         - result.settings != {}
         - result.global_status != {}
         - result.databases != {}

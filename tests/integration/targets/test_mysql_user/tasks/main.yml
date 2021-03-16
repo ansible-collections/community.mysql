@@ -36,6 +36,7 @@
       login_port: '{{ mysql_primary_port }}'
 
   block:
+    - include: issue-49.yml
 
     - include: issue-28.yml
 
@@ -79,7 +80,7 @@
     - name: assert output message mysql user was removed
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - include: assert_no_user.yml user_name={{user_name_1}}
 
@@ -236,6 +237,7 @@
     # Test plaintext and encrypted password scenarios.
     #
     - include: test_user_password.yml
+    - include: test_user_password_update.yml
 
     # ============================================================
     # Test plugin authentication scenarios.

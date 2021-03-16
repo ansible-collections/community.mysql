@@ -1,0 +1,275 @@
+---
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+      login_port: '{{ mysql_primary_port }}'
+
+  block:
+
+    # ============================================================
+    - name: find out the database version
+      mysql_info:
+        <<: *mysql_params
+        filter: version
+      register: db_version
+
+    - set_fact:
+        version_string: "{{[db_version.version.major, db_version.version.minor, db_version.version.release] | join('.')}}"
+
+    - name: Drop mysql user if exists
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        state: absent
+      ignore_errors: yes
+
+    - name: Create user with account locking in test mode
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        account_locking:
+          PASSWORD_LOCK_TIME: 3
+          FAILED_LOGIN_ATTEMPTS: 3
+      check_mode: True
+      register: result
+
+    - assert:
+        that:
+          - result is changed
+
+    - name: Create user with account locking with password lock time below range
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        account_locking:
+          PASSWORD_LOCK_TIME: -1
+          FAILED_LOGIN_ATTEMPTS: 3
+      register: result
+      ignore_errors: yes
+
+    - assert:
+        that:
+          - result is failed
+          - result.msg == "Account locking values are out of the valid range (0-32767)"
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - assert:
+       that:
+         - result is changed
+      when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
+
+    - name: Create user with account locking with password lock time above range
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        account_locking:
+          PASSWORD_LOCK_TIME: 32768
+          FAILED_LOGIN_ATTEMPTS: 3
+      register: result
+      ignore_errors: yes
+
+    - assert:
+        that:
+          - result is failed
+          - result.msg == "Account locking values are out of the valid range (0-32767)"
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - assert:
+       that:
+         - result is succeeded
+      when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
+
+    - name: Create user with account locking with failed login attempts below range
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        account_locking:
+          PASSWORD_LOCK_TIME: 2
+          FAILED_LOGIN_ATTEMPTS: -1
+      register: result
+      ignore_errors: yes
+
+    - assert:
+        that:
+          - result is failed
+          - result.msg == "Account locking values are out of the valid range (0-32767)"
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - assert:
+       that:
+         - result is succeeded
+      when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
+
+    - name: Create user with account locking with failed login attempts above range
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        account_locking:
+          PASSWORD_LOCK_TIME: 2
+          FAILED_LOGIN_ATTEMPTS: 32768
+      register: result
+      ignore_errors: yes
+
+    - assert:
+        that:
+          - result is failed
+          - result.msg == "Account locking values are out of the valid range (0-32767)"
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - assert:
+       that:
+         - result is succeeded
+      when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
+
+    - name: Create user with account locking with invalid password lock time
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        account_locking:
+          PASSWORD_LOCK_TIME: INVALID
+          FAILED_LOGIN_ATTEMPTS: 3
+      register: result
+      ignore_errors: yes
+
+    - assert:
+        that:
+          - result is failed
+          - result.msg == "PASSWORD_LOCK_TIME must be an integer between 0 and 32767 or 'UNBOUNDED'"
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - assert:
+       that:
+         - result is succeeded
+      when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
+
+    - include: assert_no_user.yml user_name={{ user_name_1 }}
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - name: Create user with account locking
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        account_locking:
+          PASSWORD_LOCK_TIME: 3
+          FAILED_LOGIN_ATTEMPTS: 3
+      register: result
+
+    - assert:
+       that:
+         - result is changed
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - assert:
+       that:
+         - result is succeeded
+      when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
+
+    - include: assert_user.yml user_name={{ user_name_1 }}
+
+    - block:
+      - name: retrieve create request
+        command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
+        register: result
+
+      - assert:
+          that:
+            - "{{ 'PASSWORD_LOCK_TIME 3' in result.stdout }}"
+            - "{{ 'FAILED_LOGIN_ATTEMPTS 3' in result.stdout }}"
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - name: Create existing user with account locking in test mode
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        account_locking:
+          PASSWORD_LOCK_TIME: 3
+          FAILED_LOGIN_ATTEMPTS: 3
+      check_mode: True
+      register: result
+
+    - assert:
+        that: result is not changed
+
+    - name: Create existing user with account locking
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        account_locking:
+          PASSWORD_LOCK_TIME: 3
+          FAILED_LOGIN_ATTEMPTS: 3
+      register: result
+
+    - assert:
+        that: result is not changed
+
+    - name: Update existing user with account locking in test mode
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        account_locking:
+          PASSWORD_LOCK_TIME: 3
+          FAILED_LOGIN_ATTEMPTS: 5
+      check_mode: True
+      register: result
+
+    - assert:
+        that: result is changed
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - assert:
+        that: result is not changed
+      when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
+
+    - block:
+      - name: retrieve create request
+        command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
+        register: result
+      - assert:
+          that:
+            - "{{ 'PASSWORD_LOCK_TIME 3' in result.stdout }}"
+            - "{{ 'FAILED_LOGIN_ATTEMPTS 3' in result.stdout }}"
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - name: Update existing user with account locking
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        account_locking:
+          PASSWORD_LOCK_TIME: 2
+          FAILED_LOGIN_ATTEMPTS: 5
+      register: result
+
+    - assert:
+        that: result is changed
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - assert:
+        that: result is not changed
+      when: version_string is version('8.0.19', '<') or version_string is version('10', '>=')
+
+    - block:
+      - name: retrieve create request
+        command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
+        register: result
+      - assert:
+          that:
+            - "{{ 'PASSWORD_LOCK_TIME 2' in result.stdout }}"
+            - "{{ 'FAILED_LOGIN_ATTEMPTS 5' in result.stdout }}"
+      when: version_string is version('8.0.19', '>=') and version_string is version('10', '<')
+
+    - include: remove_user.yml user_name={{user_name_1}} user_password={{ user_password_1 }}
+
+    - include: assert_no_user.yml user_name={{user_name_1}}

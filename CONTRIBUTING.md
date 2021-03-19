@@ -12,7 +12,7 @@ so you can cooperate to create a better solution together.
 ## Open pull requests
 
 Look through currently [open pull requests](https://github.com/ansible-collections/community.mysql/pulls).
-You can help by reviewing them. There can be good pull requests which are not merged only because there are a lack of reviews. Also there can be valuable, reviewed, but abandoned ones, which you could politely ask the original authors to complete yourself.
+You can help by reviewing them. Reviews help move pull requests to merge state. Some good pull requests cannot be merged only due to a lack of reviews. Also , consider taking up a valuable, reviewed, but abandoned pull request which you could politely ask the original authors to complete yourself.
 And it is always worth saying that good reviews are often more valuable than pull requests themselves.
 
 ## Looking for an idea to implement

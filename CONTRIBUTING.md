@@ -6,7 +6,7 @@ We follow [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/comm
 
 Whether you are looking for an opportunity to contribute or you found a bug and already know how to solve it, please go to the [issue tracker](https://github.com/ansible-collections/community.mysql/issues).
 There you can find feature ideas to implement, reports about bugs to solve, or submit an issue to discuss your idea before implementing it which can help choose a right direction initially and potentially save a lot of time and effort.
-Also somebody can already start discussing or working on implementing the same or similar idea,
+Also somebody may already have started discussing or working on implementing the same or a similar idea,
 so you can cooperate to create a better solution together.
 
 ## Open pull requests

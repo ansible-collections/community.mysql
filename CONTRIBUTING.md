@@ -90,7 +90,7 @@ git rebase upstream/main
 git checkout -b name_of_my_branch
 ```
 
-13. It can be a good approach is to start with writing integration tests if applicable.
+13. We recommend you start with writing integration tests if applicable.
 
 Note: If there are any difficulties with writing the tests or you are not sure if the case can be covered, feel free to skip this step.
 If needed, other contributors can help you with it later.

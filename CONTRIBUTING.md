@@ -180,7 +180,7 @@ git push origin name_of_my_branch
 
 23. The CI tests will run automatically on Red Hat infrastructure after every commit.
 
-You will see their status in the bottom of your pull request.
+You will see the CI status in the bottom of your pull request.
 If they are green, remove "[WIP]" from the title. Mention the issue reporter in a comment and let contributors know that the pull request is "Ready for review".
 
 24. Wait for reviews. You can also ask for review on IRC in #ansible-community channel.

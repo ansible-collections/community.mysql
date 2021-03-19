@@ -64,7 +64,7 @@ options:
     aliases: [ ssl_key ]
   check_hostname:
     description:
-      - Whether to validate the server host name when an SSL connection is required.
+      - Whether to validate the server host name when an SSL connection is required. Corresponds to MySQL CLIs C(--ssl) switch.
       - Setting this to C(false) disables hostname verification. Use with caution.
       - Requires pymysql >= 0.7.11.
       - This optoin has no effect on MySQLdb.

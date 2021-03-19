@@ -183,7 +183,7 @@ git push origin name_of_my_branch
 You will see the CI status in the bottom of your pull request.
 If they are green, remove "[WIP]" from the title. Mention the issue reporter in a comment and let contributors know that the pull request is "Ready for review".
 
-24. Wait for reviews. You can also ask for review on IRC in #ansible-community channel.
+24. Wait for reviews. You can also ask for review on IRC in the #ansible-community channel.
 
 25. If the pull request looks good to the community, committers will merge it.
 

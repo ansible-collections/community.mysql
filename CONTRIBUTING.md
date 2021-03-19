@@ -1,6 +1,6 @@
 # Contributing
 
-Contributing to this repository, we follow [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html) in all our interactions within the project.
+We follow [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html) in all our contributions and interactions within this repository.
 
 ## Issue tracker
 

@@ -143,7 +143,7 @@ a) They have failed. Look at the output of the command.
 Fix the problem place in the code and run again.
 Repeat the cycle until the tests pass.
 
-b) They have passed. Remember they failed originally? Our congratulations! You has probably fixed the bug, though we hope not introducing a couple of new ones;)
+b) They have passed. Remember they failed originally? Our congratulations! You have fixed the bug, 
 
 18. Commit your changes with an informative but short commit message:
 ```bash

@@ -46,7 +46,7 @@ cd ~
 mkdir -p ~/ansible_collections/community/mysql
 ```
 
-5. Fork the `community.mysql` repository via the GitHub web interface.
+5. Fork the `community.mysql` repository through the GitHub web interface.
 
 6. Clone the forked repository from your profile to the created path:
 ```bash

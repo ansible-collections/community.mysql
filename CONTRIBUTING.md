@@ -99,7 +99,7 @@ All integration tests are stored in `tests/integration/targets` subdirectories.
 Go to the subdirectory containing the name of module you are going to change.
 For example, if you are fixing the `mysql_user` module, its tests are in `tests/integration/targets/test_mysql_user/tasks`.
 
-There is the `main.yml` file which includes other test files.
+The `main.yml` file holds test tasks and includes other test files.
 Look for a suitable one to integrate your tests or create and include a dedicated one.
 You can use one of the existing test files as a draft.
 

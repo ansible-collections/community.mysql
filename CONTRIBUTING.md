@@ -171,6 +171,13 @@ Click `Create pull request`.
 
 22. Add a [changelog fragment](https://docs.ansible.com/ansible/devel/community/development_process.html#changelogs) to the `changelog/fragments` directory. It will be published in release notes, so users will know about the fix.
 
+Commit and push it:
+```bash
+git add changelog/fragments/myfragment.yml
+git commit -m "Add changelog fragment"
+git push origin name_of_my_branch
+```
+
 23. The CI tests will run automatically on Red Hat infrastructure after every commit.
 
 You will see their status in the bottom of your pull request.

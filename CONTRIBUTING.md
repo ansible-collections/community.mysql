@@ -59,7 +59,7 @@ git clone git@github.com:YOURACC/community.mysql.git ~/ansible_collections/commu
 ```
 
 
-7. Go there:
+7. Go to your new cloned repository.
 ```bash
 cd ~/ansible_collections/community/mysql
 ```

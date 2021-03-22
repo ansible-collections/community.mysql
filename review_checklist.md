@@ -8,7 +8,7 @@ When reviewing, keep in mind that we follow [Ansible Code of Conduct](https://do
 - When suggesting changes, try to use questions, not statements
 - When suggesting mandatory changes, do it as politely as possible providing documentation references
 - If your suggestion is optional or a matter of personal preferences, please say it explicitly
-- When asking for adding tests or for complex core refactoring, say that the author is welcome to ask for clarifications and help if they need
+- When asking for adding tests or for complex code refactoring, say that the author is welcome to ask for clarifications and help if they need
 - If somebody suggests a good idea, say about it or put a thumbs up
 - After merging, thank the author and reviewers for their time and effort
 

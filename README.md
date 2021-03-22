@@ -47,7 +47,7 @@ See [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_gui
 
 ## Contributing
 
-See the [contribution guide](CONTRIBUTING.md)
+See the [contribution guide](CONTRIBUTING.md).
 
 ## Licensing
 

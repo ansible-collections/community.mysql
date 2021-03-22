@@ -45,6 +45,10 @@ collections:
 
 See [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
 
+## Contributing
+
+See the [contribution guide](CONTRIBUTING.md)
+
 ## Licensing
 
 <!-- Include the appropriate license information here and a pointer to the full licensing details. If the collection contains modules migrated from the ansible/ansible repo, you must use the same license that existed in the ansible/ansible repo. See the GNU license example below. -->

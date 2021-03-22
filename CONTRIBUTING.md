@@ -15,6 +15,10 @@ Look through currently [open pull requests](https://github.com/ansible-collectio
 You can help by reviewing them. Reviews help move pull requests to merge state. Some good pull requests cannot be merged only due to a lack of reviews. Also, consider taking up a valuable, reviewed, but abandoned pull request which you could politely ask the original authors to complete yourself.
 And it is always worth saying that good reviews are often more valuable than pull requests themselves.
 
+## Discussions
+
+For open questions, broad suggestions and other comments that won't typically fit in the scope of an issue or pull request, [discussions](https://github.com/ansible-collections/community.mysql/discussions) are available. That section provides a place to have a more open and informal conversation about any and all things related to this collection, included but not limited to future development plans, functionality explanations and feature proposals that are not yet fleshed out enough for an issue of their own.
+
 ## Looking for an idea to implement
 
 First, see the paragraphs above.

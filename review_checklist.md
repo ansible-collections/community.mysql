@@ -2,7 +2,13 @@
 
 When reviewing, keep in mind that we follow [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html) in all our contributions and interactions within this repository.
 
-If your suggestion in a review comment is optional or a matter of personal preferences, please say it.
+**General tips**
+- Try create a culture of collaboration, when reviewing
+- Welcome the author, thank them and other reviewers for their time and effort
+- When suggesting changes, try to use questions, not statements
+- When suggesting mandatory changes, do it as politely as possible providing documentation references
+- If your suggestion is optional or a matter of personal preferences, please say it explicitly
+- When asking for adding tests or for complex core refactoring, say that the author is welcome to ask for clarifications and help if they need
 
 **Standards and documentation**
 - [ ] the pull request is not a documentation fix, it must include a [changelog fragment](https://docs.ansible.com/ansible/devel/community/development_process.html#creating-a-changelog-fragment). Please check the format carefully

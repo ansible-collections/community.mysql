@@ -32,4 +32,4 @@ When reviewing, keep in mind that we follow [Ansible Code of Conduct](https://do
 
 **Other**
 - [ ] the pull request does not contain merge commits (see GitHub warnings at the bottom of the pull request)
-- [ ] if the pull request contains breaking changes, ask the author if it is really needed and there is no way not to introduce them
+- [ ] if the pull request contains breaking changes, ask the author and the collection maintainers if it is really needed and there is no way not to introduce them

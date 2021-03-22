@@ -3,7 +3,7 @@
 When reviewing, keep in mind that we follow [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html) in all our contributions and interactions within this repository.
 
 **General tips**
-- Try create a culture of collaboration, when reviewing
+- Try to create a culture of collaboration when reviewing
 - Welcome the author and thank them for the pull request
 - When suggesting changes, try to use questions, not statements
 - When suggesting mandatory changes, do it as politely as possible providing documentation references

@@ -17,7 +17,7 @@ And it is always worth saying that good reviews are often more valuable than pul
 
 ## Discussions
 
-For open questions, broad suggestions and other comments that won't typically fit in the scope of an issue or pull request, [discussions](https://github.com/ansible-collections/community.mysql/discussions) are available. That section provides a place to have a more open and informal conversation about any and all things related to this collection, included but not limited to future development plans, functionality explanations and feature proposals that are not yet fleshed out enough for an issue of their own.
+For open questions, broad suggestions, and other comments that will not typically fit in the scope of an issue or pull request, [discussions](https://github.com/ansible-collections/community.mysql/discussions) are available. That section provides a place to have a more open and informal conversation about any and all things related to this collection, included but not limited to future development plans, functionality explanations and feature proposals that are not yet fleshed out enough for an issue of their own.
 
 ## Looking for an idea to implement
 

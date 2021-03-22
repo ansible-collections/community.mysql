@@ -19,7 +19,7 @@ When reviewing, keep in mind that we follow [Ansible Code of Conduct](https://do
 - [ ] follow [development conventions](https://docs.ansible.com/ansible/devel/dev_guide/developing_modules_best_practices.html)
 - [ ] if a new plugin is added, it is one of the [allowed plugin types](https://github.com/ansible-collections/overview/blob/main/collection_requirements.rst#id14)
 - [ ] documentation, examples, and return sections use FQCNs for `M(..)` when referencing to modules
-- [ ] modules (or plugins) from ansible-core use `ansible.builtin.` as a FQCN prefix
+- [ ] modules (or plugins) from ansible-core use `ansible.builtin.` as a FQCN prefix when mentioned
 - [ ] when a new option, module, plugin, or return value is added, the corresponding documentation or return sections use `version_added:` containing the *collection* version for which they were added
 - [ ] FQCNs is used for `extends_documentation_fragment:`, unless the author is referring to doc_fragments from ansible-base
 

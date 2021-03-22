@@ -17,7 +17,7 @@ When reviewing, keep in mind that we follow [Ansible Code of Conduct](https://do
 - [ ] if new files are added with the pull request, they follow the [licensing rules](https://github.com/ansible-collections/overview/blob/main/collection_requirements.rst#licensing)
 - [ ] the changes follow the [Ansible documentation standards](https://docs.ansible.com/ansible/devel/dev_guide/developing_modules_documenting.html) and the [style guide](https://docs.ansible.com/ansible/devel/dev_guide/style_guide/index.html#style-guide)
 - [ ] follow [development conventions](https://docs.ansible.com/ansible/devel/dev_guide/developing_modules_best_practices.html)
-- [ ] if a new plugin is added, it is one of the [allowed plugin types](https://github.com/ansible-collections/overview/blob/main/collection_requirements.rst#id14)
+- [ ] if a new plugin is added, it is one of the [allowed plugin types](https://github.com/ansible-collections/overview/blob/main/collection_requirements.rst#modules-plugins)
 - [ ] documentation, examples, and return sections use FQCNs for `M(..)` when referring to modules
 - [ ] modules (or plugins) from ansible-core use `ansible.builtin.` as a FQCN prefix when mentioned
 - [ ] when a new option, module, plugin, or return value is added, the corresponding documentation or return sections use `version_added:` containing the *collection* version for which they were added

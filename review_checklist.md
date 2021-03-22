@@ -13,7 +13,7 @@ When reviewing, keep in mind that we follow [Ansible Code of Conduct](https://do
 - After merging, thank the author and reviewers for their time and effort
 
 **Standards and documentation**
-- [ ] if the pull request is not a documentation fix, it must include a [changelog fragment](https://docs.ansible.com/ansible/devel/community/development_process.html#creating-a-changelog-fragment). Please check the format carefully
+- [ ] if the pull request is not a documentation fix, it must include a [changelog fragment](https://docs.ansible.com/ansible/devel/community/development_process.html#creating-a-changelog-fragment) - please check the format carefully
 - [ ] if new files are added with the pull request, they follow the [licensing rules](https://github.com/ansible-collections/overview/blob/main/collection_requirements.rst#licensing)
 - [ ] the changes follow the [Ansible documentation standards](https://docs.ansible.com/ansible/devel/dev_guide/developing_modules_documenting.html) and the [style guide](https://docs.ansible.com/ansible/devel/dev_guide/style_guide/index.html#style-guide)
 - [ ] follow [development conventions](https://docs.ansible.com/ansible/devel/dev_guide/developing_modules_best_practices.html)

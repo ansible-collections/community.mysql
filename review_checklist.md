@@ -27,7 +27,7 @@ When reviewing, keep in mind that we follow [Ansible Code of Conduct](https://do
 - [ ] the pull request has integration tests 
 - [ ] the pull request has unit tests
 - [ ] all changes are covered
-- [ ] integration tests also cover `check_mode`
+- [ ] integration tests also cover `check_mode` (if it is supported)
 - [ ] integration tests check an actual state of the system, not only what the module reports (for example, if the module change a file, check that the file was actually changed by using the `ansible.builtin.stat` module)
 
 **Other**

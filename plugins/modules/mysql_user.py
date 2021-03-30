@@ -1175,7 +1175,7 @@ def main():
     if priv and isinstance(priv, dict):
         priv = convert_priv_dict_to_str(priv)
 
-    if "REQUIRESSL" in priv:
+    if priv and "REQUIRESSL" in priv:
         priv, tls_requires = handle_requiressl_in_priv_string(module, priv, tls_requires)
 
     if mysql_driver is None:

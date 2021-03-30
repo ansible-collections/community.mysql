@@ -1,0 +1,110 @@
+---
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+      login_port: '{{ mysql_primary_port }}'
+
+  block:
+
+    # ============================================================
+    - shell: pip show pymysql | awk '/Version/ {print $2}'
+      register: pymysql_version
+
+    - name: get server certificate
+      copy:
+        content: "{{ lookup('pipe', \"openssl s_client -starttls mysql -connect localhost:3307 -showcerts 2>/dev/null </dev/null |  sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p'\") }}"
+        dest: /tmp/cert.pem
+      delegate_to: localhost
+
+    - name: Drop mysql user if exists
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ item }}'
+        state: absent
+      ignore_errors: yes
+      with_items:
+        - "{{ user_name_1 }}"
+        - "{{ user_name_2 }}"
+
+    - name: create user with REQUIRESSL privilege
+      mysql_user:
+        <<: *mysql_params
+        name: "{{ user_name_1 }}"
+        password: "{{ user_password_1 }}"
+        priv: '*.*:USAGE,REQUIRESSL,GRANT'
+
+    - name: attempt connection with newly created user not using TLS (expect access denied)
+      mysql_user:
+        name: "{{ user_name_2 }}"
+        password: "{{ user_password_2 }}"
+        host: 127.0.0.1
+        login_user: '{{ user_name_1 }}'
+        login_password: '{{ user_password_1 }}'
+        login_host: 127.0.0.1
+        login_port: '{{ mysql_primary_port }}'
+      ignore_errors: yes
+      register: result
+
+    - assert:
+        that:
+          - result is failed and 'Access denied for user' in result.msg
+
+    - name: create user with equivalent ssl requirement in tls_requires (expect unchanged)
+      mysql_user:
+        <<: *mysql_params
+        name: "{{ user_name_1 }}"
+        password: "{{ user_password_1 }}"
+        priv: '*.*:USAGE,GRANT'
+        tls_requires:
+          SSL:
+      register: result
+
+    - assert:
+        that:
+          - result is not changed
+
+    - name: create the same user again, with REQUIRESSL privilege once more
+      mysql_user:
+        <<: *mysql_params
+        name: "{{ user_name_1 }}"
+        password: "{{ user_password_1 }}"
+        priv: '*.*:USAGE,REQUIRESSL,GRANT'
+      register: result
+
+    - assert:
+        that:
+          - result is not changed
+
+    - name: create user with both REQUIRESSL privilege and an incompatible tls_requires option
+      mysql_user:
+        <<: *mysql_params
+        name: "{{ user_name_1 }}"
+        password: "{{ user_password_1 }}"
+        priv: '*.*:USAGE,REQUIRESSL,GRANT'
+        tls_requires:
+          X509:
+
+    - name: create same user again without REQUIRESSL privilege
+      mysql_user:
+        <<: *mysql_params
+        name: "{{ user_name_1 }}"
+        password: "{{ user_password_1 }}"
+        priv: '*.*:USAGE,GRANT'
+        tls_requires:
+          X509:
+      register: result
+
+    - assert:
+        that: result is not changed
+
+    - name: Drop mysql user
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ item }}'
+        host: 127.0.0.1
+        state: absent
+      with_items:
+        - "{{ user_name_1 }}"
+        - "{{ user_name_2 }}"

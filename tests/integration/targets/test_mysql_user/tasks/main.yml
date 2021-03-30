@@ -37,6 +37,8 @@
 
   block:
 
+    - include: issue-121.yml
+
     - include: issue-28.yml
 
     - include: create_user.yml user_name={{user_name_1}} user_password={{ user_password_1 }}

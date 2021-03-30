@@ -968,18 +968,18 @@ def convert_priv_dict_to_str(priv):
 
 
 def handle_requiressl_in_priv_string(module, priv, tls_requires):
-    if "REQUIRESSL" in priv:
-        module.deprecate('The "REQUIRESSL" privilege is deprecated, use the "tls_requires" option instead.', version='3.0.0', collection_name='community.mysql')
-        priv_groups = re.search(r"(.*?)(\*\.\*:)([^/]*)(.*)", priv)
-        if priv_groups.group(3) == "REQUIRESSL":
-            priv = priv_groups.group(1) + priv_groups.group(4) or None
-        else:
-            inner_priv_groups = re.search(r"(.*?),?REQUIRESSL,?(.*)", priv_groups.group(3))
-            priv = priv_groups.group(1) + priv_groups.group(2) + ','.join((inner_priv_groups.group(1), inner_priv_groups.group(3))) + priv_groups.group(4)
-        if not tls_requires:
-            tls_requires = {"SSL": None}
-        else:
-            module.warn('Ignoring "REQUIRESSL" privilege as "tls_requires" is defined and it takes precedence.')
+    module.deprecate('The "REQUIRESSL" privilege is deprecated, use the "tls_requires" option instead.',
+                     version='3.0.0', collection_name='community.mysql')
+    priv_groups = re.search(r"(.*?)(\*\.\*:)([^/]*)(.*)", priv)
+    if priv_groups.group(3) == "REQUIRESSL":
+        priv = priv_groups.group(1) + priv_groups.group(4) or None
+    else:
+        inner_priv_groups = re.search(r"(.*?),?REQUIRESSL,?(.*)", priv_groups.group(3))
+        priv = priv_groups.group(1) + priv_groups.group(2) + ','.join((inner_priv_groups.group(1), inner_priv_groups.group(3))) + priv_groups.group(4)
+    if not tls_requires:
+        tls_requires = {"SSL": None}
+    else:
+        module.warn('Ignoring "REQUIRESSL" privilege as "tls_requires" is defined and it takes precedence.')
     return priv, tls_requires
 
 
@@ -1174,6 +1174,9 @@ def main():
 
     if priv and isinstance(priv, dict):
         priv = convert_priv_dict_to_str(priv)
+
+    if "REQUIRESSL" in priv:
+        priv, tls_requires = handle_requiressl_in_priv_string(module, priv, tls_requires)
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)

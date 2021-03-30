@@ -975,9 +975,14 @@ def handle_requiressl_in_priv_string(module, priv, tls_requires):
         priv = priv_groups.group(1) + priv_groups.group(4) or None
     else:
         inner_priv_groups = re.search(r"(.*?),?REQUIRESSL,?(.*)", priv_groups.group(3))
-        priv = priv_groups.group(1) + priv_groups.group(2) + ','.join((inner_priv_groups.group(1), inner_priv_groups.group(3))) + priv_groups.group(4)
+        priv = '{0}{1}{2}{3}'.format(
+            priv_groups.group(1),
+            priv_groups.group(2),
+            ','.join(filter(None, (inner_priv_groups.group(1), inner_priv_groups.group(2)))),
+            priv_groups.group(4)
+        )
     if not tls_requires:
-        tls_requires = {"SSL": None}
+        tls_requires = "SSL"
     else:
         module.warn('Ignoring "REQUIRESSL" privilege as "tls_requires" is defined and it takes precedence.')
     return priv, tls_requires

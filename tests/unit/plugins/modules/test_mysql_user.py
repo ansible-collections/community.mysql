@@ -100,7 +100,7 @@ def test_handle_grant_on_col(privileges, start, end, output):
             'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
             'cipher': 'ECDHE-ECDSA-AES256-SHA384',
             'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-            })),
+        })),
         (('*.*:ALL,REQUIRESSL', {
             'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
             'cipher': 'ECDHE-ECDSA-AES256-SHA384',
@@ -109,7 +109,7 @@ def test_handle_grant_on_col(privileges, start, end, output):
             'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
             'cipher': 'ECDHE-ECDSA-AES256-SHA384',
             'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-            })),
+        })),
         (('*.*:REQUIRESSL,ALL', {
             'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
             'cipher': 'ECDHE-ECDSA-AES256-SHA384',
@@ -118,7 +118,7 @@ def test_handle_grant_on_col(privileges, start, end, output):
             'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
             'cipher': 'ECDHE-ECDSA-AES256-SHA384',
             'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-            })),
+        })),
         (('*.*:ALL,REQUIRESSL,GRANT', {
             'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
             'cipher': 'ECDHE-ECDSA-AES256-SHA384',
@@ -127,7 +127,7 @@ def test_handle_grant_on_col(privileges, start, end, output):
             'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
             'cipher': 'ECDHE-ECDSA-AES256-SHA384',
             'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-            })),
+        })),
         (('*.*:ALL,REQUIRESSL,GRANT/a.b:USAGE', {
             'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
             'cipher': 'ECDHE-ECDSA-AES256-SHA384',
@@ -136,7 +136,7 @@ def test_handle_grant_on_col(privileges, start, end, output):
             'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
             'cipher': 'ECDHE-ECDSA-AES256-SHA384',
             'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-            }))
+        }))
     ]
 )
 def test_handle_requiressl_in_priv_string(input_tuple, output_tuple):

@@ -189,7 +189,7 @@ EXAMPLES = r'''
       'db2.*': 'ALL,GRANT'
 
 # Note that REQUIRESSL is a special privilege that should only apply to *.* by itself.
-# Setting this privilege in this manner is supported for backwards compatibility only.
+# Setting this privilege in this manner is deprecated.
 # Use 'tls_requires' instead.
 - name: Modify user to require SSL connections
   community.mysql.mysql_user:
@@ -316,7 +316,8 @@ VALID_PRIVS = frozenset(('CREATE', 'DROP', 'GRANT', 'GRANT OPTION',
                          'EXECUTE', 'FILE', 'CREATE TABLESPACE', 'CREATE USER',
                          'PROCESS', 'PROXY', 'RELOAD', 'REPLICATION CLIENT',
                          'REPLICATION SLAVE', 'SHOW DATABASES', 'SHUTDOWN',
-                         'SUPER', 'ALL', 'ALL PRIVILEGES', 'USAGE', 'REQUIRESSL',
+                         'SUPER', 'ALL', 'ALL PRIVILEGES', 'USAGE',
+                         'REQUIRESSL',  # Deprecated, to be removed in version 3.0.0
                          'CREATE ROLE', 'DROP ROLE', 'APPLICATION_PASSWORD_ADMIN',
                          'AUDIT_ADMIN', 'BACKUP_ADMIN', 'BINLOG_ADMIN',
                          'BINLOG_ENCRYPTION_ADMIN', 'CLONE_ADMIN', 'CONNECTION_ADMIN',
@@ -745,8 +746,6 @@ def privileges_get(cursor, user, host):
 
         if "WITH GRANT OPTION" in res.group(7):
             privileges.append('GRANT')
-        if 'REQUIRE SSL' in res.group(7):
-            privileges.append('REQUIRESSL')
         db = res.group(2)
         output.setdefault(db, []).extend(privileges)
     return output
@@ -919,11 +918,6 @@ def privileges_unpack(priv, mode):
     if '*.*' not in output:
         output['*.*'] = ['USAGE']
 
-    # if we are only specifying something like REQUIRESSL and/or GRANT (=WITH GRANT OPTION) in *.*
-    # we still need to add USAGE as a privilege to avoid syntax errors
-    if 'REQUIRESSL' in priv and not set(output['*.*']).difference(set(['GRANT', 'REQUIRESSL'])):
-        output['*.*'].append('USAGE')
-
     return output
 
 
@@ -935,7 +929,7 @@ def privileges_revoke(cursor, user, host, db_table, priv, grant_option):
         query.append("FROM %s@%s")
         query = ' '.join(query)
         cursor.execute(query, (user, host))
-    priv_string = ",".join([p for p in priv if p not in ('GRANT', 'REQUIRESSL')])
+    priv_string = ",".join([p for p in priv if p not in ('GRANT', )])
     query = ["REVOKE %s ON %s" % (priv_string, db_table)]
     query.append("FROM %s@%s")
     query = ' '.join(query)
@@ -946,15 +940,13 @@ def privileges_grant(cursor, user, host, db_table, priv, tls_requires):
     # Escape '%' since mysql db.execute uses a format string and the
     # specification of db and table often use a % (SQL wildcard)
     db_table = db_table.replace('%', '%%')
-    priv_string = ",".join([p for p in priv if p not in ('GRANT', 'REQUIRESSL')])
+    priv_string = ",".join([p for p in priv if p not in ('GRANT', )])
     query = ["GRANT %s ON %s" % (priv_string, db_table)]
     query.append("TO %s@%s")
     params = (user, host)
     if tls_requires and impl.use_old_user_mgmt(cursor):
         query, params = mogrify_requires(" ".join(query), params, tls_requires)
         query = [query]
-    if 'REQUIRESSL' in priv and not tls_requires:
-        query.append("REQUIRE SSL")
     if 'GRANT' in priv:
         query.append("WITH GRANT OPTION")
     query = ' '.join(query)
@@ -973,6 +965,22 @@ def convert_priv_dict_to_str(priv):
     priv_list = ['%s:%s' % (key, val) for key, val in iteritems(priv)]
 
     return '/'.join(priv_list)
+
+
+def handle_requiressl_in_priv_string(module, priv, tls_requires):
+    if "REQUIRESSL" in priv:
+        module.deprecate('The "REQUIRESSL" privilege is deprecated, use the "tls_requires" option instead.', version='3.0.0', collection_name='community.mysql')
+        priv_groups = re.search(r"(.*?)(\*\.\*:)([^/]*)(.*)", priv)
+        if priv_groups.group(3) == "REQUIRESSL":
+            priv = priv_groups.group(1)+priv_groups.group(4) or None
+        else:
+            inner_priv_groups = re.search(r"(.*?),?REQUIRESSL,?(.*)", priv_groups.group(3))
+            priv = priv_groups.group(1)+priv_groups.group(2)+','.join((inner_priv_groups.group(1), inner_priv_groups.group(3)))+priv_groups.group(4)
+        if not tls_requires:
+            tls_requires = {"SSL": None}
+        else:
+            module.warn('Ignoring "REQUIRESSL" privilege as "tls_requires" is defined and it takes precedence.')
+    return priv, tls_requires
 
 
 # Alter user is supported since MySQL 5.6 and MariaDB 10.2.0

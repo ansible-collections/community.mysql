@@ -33,7 +33,7 @@
         <<: *mysql_params
         name: "{{ user_name_1 }}"
         password: "{{ user_password_1 }}"
-        priv: '*.*:USAGE,REQUIRESSL,GRANT'
+        priv: '*.*:SELECT,CREATE USER,REQUIRESSL,GRANT'
 
     - name: attempt connection with newly created user not using TLS (expect access denied)
       mysql_user:
@@ -49,14 +49,14 @@
 
     - assert:
         that:
-          - result is failed and ('Access denied for user' in result.msg or 'command denied to user' in result.msg)
+          - result is failed and 'Access denied for user' in result.msg
 
     - name: create user with equivalent ssl requirement in tls_requires (expect unchanged)
       mysql_user:
         <<: *mysql_params
         name: "{{ user_name_1 }}"
         password: "{{ user_password_1 }}"
-        priv: '*.*:USAGE,GRANT'
+        priv: '*.*:SELECT,CREATE USER,GRANT'
         tls_requires:
           SSL:
       register: result
@@ -70,7 +70,7 @@
         <<: *mysql_params
         name: "{{ user_name_1 }}"
         password: "{{ user_password_1 }}"
-        priv: '*.*:USAGE,REQUIRESSL,GRANT'
+        priv: '*.*:SELECT,CREATE USER,REQUIRESSL,GRANT'
       register: result
 
     - assert:
@@ -82,7 +82,7 @@
         <<: *mysql_params
         name: "{{ user_name_1 }}"
         password: "{{ user_password_1 }}"
-        priv: '*.*:USAGE,REQUIRESSL,GRANT'
+        priv: '*.*:SELECT,CREATE USER,REQUIRESSL,GRANT'
         tls_requires:
           X509:
 
@@ -91,7 +91,7 @@
         <<: *mysql_params
         name: "{{ user_name_1 }}"
         password: "{{ user_password_1 }}"
-        priv: '*.*:USAGE,GRANT'
+        priv: '*.*:SELECT,CREATE USER,GRANT'
         tls_requires:
           X509:
       register: result

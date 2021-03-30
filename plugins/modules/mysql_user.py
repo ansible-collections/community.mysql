@@ -972,10 +972,10 @@ def handle_requiressl_in_priv_string(module, priv, tls_requires):
         module.deprecate('The "REQUIRESSL" privilege is deprecated, use the "tls_requires" option instead.', version='3.0.0', collection_name='community.mysql')
         priv_groups = re.search(r"(.*?)(\*\.\*:)([^/]*)(.*)", priv)
         if priv_groups.group(3) == "REQUIRESSL":
-            priv = priv_groups.group(1)+priv_groups.group(4) or None
+            priv = priv_groups.group(1) + priv_groups.group(4) or None
         else:
             inner_priv_groups = re.search(r"(.*?),?REQUIRESSL,?(.*)", priv_groups.group(3))
-            priv = priv_groups.group(1)+priv_groups.group(2)+','.join((inner_priv_groups.group(1), inner_priv_groups.group(3)))+priv_groups.group(4)
+            priv = priv_groups.group(1) + priv_groups.group(2) + ','.join((inner_priv_groups.group(1), inner_priv_groups.group(3))) + priv_groups.group(4)
         if not tls_requires:
             tls_requires = {"SSL": None}
         else:

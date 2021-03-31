@@ -50,6 +50,7 @@
     - assert:
         that:
           - result is failed and 'Access denied for user' in result.msg
+      when: pymysql_version.stdout != ""  # MySQLdb always uses SSL if possible
 
     - name: create user with equivalent ssl requirement in tls_requires (expect unchanged)
       mysql_user:

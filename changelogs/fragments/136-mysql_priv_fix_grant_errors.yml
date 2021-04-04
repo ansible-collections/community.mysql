@@ -1,0 +1,2 @@
+bugfixes:
+- mysql_user - in `privileges_unpack()`, reinitialize the `privs` list on each iteration to prevent syntax errors in `GRANT` statements (https://github.com/ansible-collections/community.mysql/issues/136).

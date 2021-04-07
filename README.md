@@ -15,6 +15,7 @@
 
 - 2.9
 - 2.10
+- 2.11
 - devel
 
 ## External requirements

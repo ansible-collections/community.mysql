@@ -18,6 +18,15 @@
         dest: /tmp/cert.pem
       delegate_to: localhost
 
+    - name: get server version
+      mysql_info:
+        <<: *mysql_params
+        filter: version
+      register: db_version
+
+    - set_fact:
+        old_user_mgmt: "{{ db_version.version.major <= 5 and db_version.version.minor <= 6 or db_version.version.major == 10 and db_version.version.minor < 2 | bool }}"
+
     - name: Drop mysql user if exists
       mysql_user:
         <<: *mysql_params
@@ -35,22 +44,17 @@
         password: "{{ user_password_1 }}"
         priv: '*.*:SELECT,CREATE USER,REQUIRESSL,GRANT'
 
-    - name: attempt connection with newly created user not using TLS (expect access denied)
-      mysql_user:
-        name: "{{ user_name_2 }}"
-        password: "{{ user_password_2 }}"
-        host: 127.0.0.1
-        login_user: '{{ user_name_1 }}'
-        login_password: '{{ user_password_1 }}'
-        login_host: 127.0.0.1
-        login_port: '{{ mysql_primary_port }}'
-      ignore_errors: yes
+    - name: verify REQUIRESSL is assigned to the user
+      mysql_query:
+        <<: *mysql_params
+        query: "SHOW {{ what }} '{{ user_name_1}}'@'localhost'"
       register: result
+      vars:
+        what: "{{ 'GRANTS FOR' if old_user_mgmt else 'CREATE USER' }}"
 
     - assert:
         that:
-          - result is failed and 'Access denied for user' in result.msg
-      when: pymysql_version.stdout != ""  # MySQLdb always uses SSL if possible
+          - result is succeeded and 'REQUIRE SSL' in (result.query_result | string)
 
     - name: create user with equivalent ssl requirement in tls_requires (expect unchanged)
       mysql_user:

@@ -100,6 +100,8 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
     if charset is not None:
         config['charset'] = charset
 
+    module.warn('%s' % config)
+
     if _mysql_cursor_param == 'cursor':
         # In case of PyMySQL driver:
         db_connection = mysql_driver.connect(autocommit=autocommit, **config)
@@ -134,7 +136,7 @@ def mysql_common_argument_spec():
         client_key=dict(type='path', aliases=['ssl_key']),
         ca_cert=dict(type='path', aliases=['ssl_ca']),
         check_hostname=dict(type='bool', default=None),
-        charset=dict(type='str'),
+        charset=dict(type='str', default=None),
     )
 
 

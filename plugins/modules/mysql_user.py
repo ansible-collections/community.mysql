@@ -1161,6 +1161,8 @@ def main():
     plugin_hash_string = module.params["plugin_hash_string"]
     plugin_auth_string = module.params["plugin_auth_string"]
     resource_limits = module.params["resource_limits"]
+    charset = module.params["charset"]
+
     if priv and not isinstance(priv, (str, dict)):
         module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
 
@@ -1175,7 +1177,7 @@ def main():
         if check_implicit_admin:
             try:
                 cursor, db_conn = mysql_connect(module, "root", "", config_file, ssl_cert, ssl_key, ssl_ca, db,
-                                                connect_timeout=connect_timeout, check_hostname=check_hostname)
+                                                connect_timeout=connect_timeout, check_hostname=check_hostname, charset=charset)
             except Exception:
                 pass
 

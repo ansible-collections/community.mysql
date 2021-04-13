@@ -43,7 +43,7 @@ def parse_from_mysql_config_file(cnf):
 
 def mysql_connect(module, login_user=None, login_password=None, config_file='', ssl_cert=None,
                   ssl_key=None, ssl_ca=None, db=None, cursor_class=None, connect_timeout=30,
-                  autocommit=False, config_overrides_defaults=False, check_hostname=None):
+                  autocommit=False, config_overrides_defaults=False, check_hostname=None, charset=None):
     config = {}
 
     if config_file and os.path.exists(config_file):
@@ -97,6 +97,8 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
                 config['ssl']['check_hostname'] = check_hostname
             else:
                 module.fail_json(msg='To use check_hostname, pymysql >= 0.7.11 is required on the target host')
+    if charset is not None:
+        config['charset'] = charset
 
     if _mysql_cursor_param == 'cursor':
         # In case of PyMySQL driver:
@@ -132,6 +134,7 @@ def mysql_common_argument_spec():
         client_key=dict(type='path', aliases=['ssl_key']),
         ca_cert=dict(type='path', aliases=['ssl_ca']),
         check_hostname=dict(type='bool', default=None),
+        charset=dict(type='str'),
     )
 
 

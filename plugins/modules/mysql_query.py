@@ -148,6 +148,7 @@ def main():
     check_hostname = module.params['check_hostname']
     config_file = module.params['config_file']
     query = module.params["query"]
+    charset = module.params["charset"]
 
     if not isinstance(query, (str, list)):
         module.fail_json(msg="the query option value must be a string or list, passed %s" % type(query))
@@ -180,7 +181,8 @@ def main():
                                               config_file, ssl_cert, ssl_key, ssl_ca, db,
                                               check_hostname=check_hostname,
                                               connect_timeout=connect_timeout,
-                                              cursor_class='DictCursor', autocommit=autocommit)
+                                              cursor_class='DictCursor', autocommit=autocommit,
+                                              charset=charset)
     except Exception as e:
         module.fail_json(msg="unable to connect to database, check login_user and "
                              "login_password are correct or %s has the credentials. "

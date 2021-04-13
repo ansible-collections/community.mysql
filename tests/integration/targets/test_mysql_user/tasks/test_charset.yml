@@ -1,0 +1,97 @@
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+      login_port: '{{ mysql_primary_port }}'
+
+  block:
+
+    #- name: Change database charset
+    #  mysql_query:
+    #    <<: *mysql_params
+    #    query: ALTER DATABASE mysql CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci
+
+    #- name: Change user table charset
+    #  mysql_query:
+    #    <<: *mysql_params
+    #    query: ALTER TABLE mysql.user CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+
+    - name: Show charset settings
+      mysql_query:
+        <<: *mysql_params
+        query: "SHOW SESSION VARIABLES LIKE 'character_set_%'"
+      register: result
+    - assert:
+        that:
+        - result is succeeded
+
+    - name: Show collation settings
+      mysql_query:
+        <<: *mysql_params
+        query: "SHOW SESSION VARIABLES LIKE 'collation_connection%'"
+      register: result
+    - assert:
+        that:
+        - result is succeeded
+
+    - name: Show charset settings
+      mysql_query:
+        <<: *mysql_params
+        query: "SELECT @@character_set_client"
+      register: result
+    - assert:
+        that:
+        - result is succeeded
+
+    - name: Create user with default charset
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_5 }}'
+        password: '{{ user_password_5 }}'
+        state: present
+
+    - name: Try to get connect and get info, must fail
+      mysql_query:
+        login_host: 127.0.0.1
+        login_port: '{{ mysql_primary_port }}'
+        login_user: '{{ user_name_5 }}'
+        login_password: '{{ user_password_5 }}'
+        query: 'SHOW DATABASES'
+      register: result
+      ignore_errors: yes
+
+    - name: Assert that the previous task failed
+      assert:
+        that:
+        - result is failed
+
+    - name: Drop user
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_5 }}'
+        password: '{{ user_password_5 }}'
+        state: absent
+
+    - name: Create user with utf8mb4 charset
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_5 }}'
+        password: '{{ user_password_5 }}'
+        state: present
+        charset: utf8mb4
+
+    - name: Try to get connect and get info, must succeed
+      mysql_query:
+        login_host: 127.0.0.1
+        login_port: '{{ mysql_primary_port }}'
+        login_user: '{{ user_name_5 }}'
+        login_password: '{{ user_password_5 }}'
+        query: 'SHOW DATABASES'
+        charset: utf8mb4
+      register: result
+
+    - name: Assert that the previous task failed
+      assert:
+        that:
+        - result is succeeded

@@ -1,2 +1,0 @@
-minor_changes:
-- mysql_info - add `version.full` and `version.suffix` return values (https://github.com/ansible-collections/community.mysql/issues/114).

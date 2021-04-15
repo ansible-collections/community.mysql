@@ -1,2 +1,0 @@
-minor_changes:
-- mysql_collection - introduce codebabse split to handle divergences between MySQL and MariaDB (https://github.com/ansible-collections/community.mysql/pull/103).

@@ -1,0 +1,5 @@
+major_changes:
+- mysql_replication - add deprecation warning that the ``Is_Slave`` and ``Is_Master`` return values will be replaced with ``Is_Primary`` and ``Is_Replica`` in ``community.mysql`` 3.0.0 (https://github.com/ansible-collections/community.mysql/pull/147).
+
+minor_changes:
+- mysql_replication - add the ``Is_Primary`` and ``Is_Replica`` alternatives to the ``Is_Slave`` and ``Is_Master`` return values as a preparation for replacement in ``community.mysql`` 3.0.0 (https://github.com/ansible-collections/community.mysql/pull/147).

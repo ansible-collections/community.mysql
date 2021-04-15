@@ -314,7 +314,7 @@ def stop_replica(module, cursor, connection_name='', channel='', fail_on_error=F
         stopped = False
     except Exception as e:
         if fail_on_error:
-            module.fail_json(msg="STOP SLAVE failed: %s" % to_native(e))
+            module.fail_json(msg="STOP REPLICA failed: %s" % to_native(e))
         stopped = False
     return stopped
 
@@ -336,7 +336,7 @@ def reset_replica(module, cursor, connection_name='', channel='', fail_on_error=
         reset = False
     except Exception as e:
         if fail_on_error:
-            module.fail_json(msg="RESET SLAVE failed: %s" % to_native(e))
+            module.fail_json(msg="RESET REPLICA failed: %s" % to_native(e))
         reset = False
     return reset
 
@@ -358,7 +358,7 @@ def reset_replica_all(module, cursor, connection_name='', channel='', fail_on_er
         reset = False
     except Exception as e:
         if fail_on_error:
-            module.fail_json(msg="RESET SLAVE ALL failed: %s" % to_native(e))
+            module.fail_json(msg="RESET REPLICA ALL failed: %s" % to_native(e))
         reset = False
     return reset
 
@@ -395,7 +395,7 @@ def start_replica(module, cursor, connection_name='', channel='', fail_on_error=
         started = False
     except Exception as e:
         if fail_on_error:
-            module.fail_json(msg="START SLAVE failed: %s" % to_native(e))
+            module.fail_json(msg="START REPLICA failed: %s" % to_native(e))
         started = False
     return started
 
@@ -536,8 +536,12 @@ def main():
 
         status = get_replica_status(cursor, connection_name, channel, replica_term)
         if not isinstance(status, dict):
-            status = dict(Is_Slave=False, msg="Server is not configured as mysql slave")
+            # TODO: announce it and replace with Replica
+            # in the next major release. Maybe a warning?
+            status = dict(Is_Slave=False, msg="Server is not configured as mysql replica")
         else:
+            # TODO: announce it and replace with Replica
+            # in the next major release. Maybe a warning?
             status['Is_Slave'] = True
         module.exit_json(queries=executed_queries, **status)
 
@@ -595,9 +599,9 @@ def main():
 
         started = start_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if started is True:
-            module.exit_json(msg="Slave started ", changed=True, queries=executed_queries)
+            module.exit_json(msg="Replica started ", changed=True, queries=executed_queries)
         else:
-            module.exit_json(msg="Slave already started (Or cannot be started)", changed=False, queries=executed_queries)
+            module.exit_json(msg="Replica already started (Or cannot be started)", changed=False, queries=executed_queries)
     elif mode in ("stopreplica", "stopslave"):
         if mode == "stopslave":
             module.deprecate('"stopslave" option is deprecated, use "stopreplica" instead.',
@@ -605,9 +609,9 @@ def main():
 
         stopped = stop_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if stopped is True:
-            module.exit_json(msg="Slave stopped", changed=True, queries=executed_queries)
+            module.exit_json(msg="Replica stopped", changed=True, queries=executed_queries)
         else:
-            module.exit_json(msg="Slave already stopped", changed=False, queries=executed_queries)
+            module.exit_json(msg="Replica already stopped", changed=False, queries=executed_queries)
     elif mode in "resetmaster":
         reset = reset_master(module, cursor, fail_on_error)
         if reset is True:
@@ -621,9 +625,9 @@ def main():
 
         reset = reset_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if reset is True:
-            module.exit_json(msg="Slave reset", changed=True, queries=executed_queries)
+            module.exit_json(msg="Replica reset", changed=True, queries=executed_queries)
         else:
-            module.exit_json(msg="Slave already reset", changed=False, queries=executed_queries)
+            module.exit_json(msg="Replica already reset", changed=False, queries=executed_queries)
     elif mode in ("resetreplicaall", "resetslaveall"):
         if mode == "resetslaveall":
             module.deprecate('"resetslaveall" option is deprecated, use "resetreplicaall" instead.',
@@ -631,9 +635,9 @@ def main():
 
         reset = reset_replica_all(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if reset is True:
-            module.exit_json(msg="Slave reset", changed=True, queries=executed_queries)
+            module.exit_json(msg="Replica reset", changed=True, queries=executed_queries)
         else:
-            module.exit_json(msg="Slave already reset", changed=False, queries=executed_queries)
+            module.exit_json(msg="Replica already reset", changed=False, queries=executed_queries)
 
     warnings.simplefilter("ignore")
 

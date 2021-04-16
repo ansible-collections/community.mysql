@@ -59,7 +59,7 @@
 
     - assert:
         that:
-        - mysql_primary_status.Is_Master == true
+        - mysql_primary_status.Is_Primary == true
         - mysql_primary_status.Position != 0
         - mysql_primary_status is not changed
 
@@ -148,7 +148,7 @@
 
     - assert:
         that:
-        - replica_status.Is_Slave == true
+        - replica_status.Is_Replica == true
         - replica_status.Master_Host == '{{ mysql_host }}'
         - replica_status.Exec_Master_Log_Pos == mysql_primary_status.Position
         - replica_status.Master_Port == {{ mysql_primary_port }}

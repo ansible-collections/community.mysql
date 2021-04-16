@@ -524,9 +524,17 @@ def main():
     if mode in "getmaster":
         status = get_master_status(cursor)
         if not isinstance(status, dict):
-            status = dict(Is_Master=False, msg="Server is not configured as mysql master")
+            status = dict(Is_Master=False, Is_Primary=False,
+                          msg="Server is not configured as mysql master")
         else:
             status['Is_Master'] = True
+            status['Is_Primary'] = True
+
+        module.deprecate('"Is_Master" and "Is_Slave" return values are deprecated '
+                         'and will be replaced with "Is_Primary" and "Is_Replica" '
+                         'in the next major release. Use "Is_Primary" and "Is_Replica" instead.',
+                         version='3.0.0', collection_name='community.mysql')
+
         module.exit_json(queries=executed_queries, **status)
 
     elif mode in ("getreplica", "getslave"):
@@ -536,13 +544,16 @@ def main():
 
         status = get_replica_status(cursor, connection_name, channel, replica_term)
         if not isinstance(status, dict):
-            # TODO: announce it and replace with Replica
-            # in the next major release. Maybe a warning?
-            status = dict(Is_Slave=False, msg="Server is not configured as mysql replica")
+            status = dict(Is_Slave=False, Is_Replica=False, msg="Server is not configured as mysql replica")
         else:
-            # TODO: announce it and replace with Replica
-            # in the next major release. Maybe a warning?
             status['Is_Slave'] = True
+            status['Is_Replica'] = True
+
+        module.deprecate('"Is_Master" and "Is_Slave" return values are deprecated '
+                         'and will be replaced with "Is_Primary" and "Is_Replica" '
+                         'in the next major release. Use "Is_Primary" and "Is_Replica" instead.',
+                         version='3.0.0', collection_name='community.mysql')
+
         module.exit_json(queries=executed_queries, **status)
 
     elif mode in "changemaster":

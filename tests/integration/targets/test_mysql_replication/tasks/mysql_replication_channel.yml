@@ -8,26 +8,26 @@
       login_host: 127.0.0.1
 
   block:
-    # Get master log file and log pos:
-    - name: Get master status
+    # Get primary log file and log pos:
+    - name: Get primary status
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_primary_port }}'
-        mode: getmaster
+        mode: getprimary
       register: mysql_primary_status
 
-    # Test changemaster mode:
+    # Test changeprimary mode:
     - name: Run replication with channel
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica2_port }}'
-        mode: changemaster
-        master_host: '{{ mysql_host }}'
-        master_port: '{{ mysql_primary_port }}'
-        master_user: '{{ replication_user }}'
-        master_password: '{{ replication_pass }}'
-        master_log_file: '{{ mysql_primary_status.File }}'
-        master_log_pos: '{{ mysql_primary_status.Position }}'
+        mode: changeprimary
+        primary_host: '{{ mysql_host }}'
+        primary_port: '{{ mysql_primary_port }}'
+        primary_user: '{{ replication_user }}'
+        primary_password: '{{ replication_pass }}'
+        primary_log_file: '{{ mysql_primary_status.File }}'
+        primary_log_pos: '{{ mysql_primary_status.Position }}'
         channel: '{{ test_channel }}'
       register: result
 

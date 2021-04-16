@@ -1,0 +1,6 @@
+minor_changes:
+- mysql_replication - change ``master_`` options to ``primary_`` options to keep compatibility (https://github.com/ansible-collections/community.mysql/pull/150).
+- mysql_replication - add alternative (``primary``) choices to the ``state`` option choices containing ``master`` (https://github.com/ansible-collections/community.mysql/pull/150).
+
+major_changes:
+- mysql_replication - the choices of the ``state`` option containing ``master`` will be finally replaced with the alternative ``primary`` choices in ``community.mysql`` 3.0.0, add deprecation warnings (https://github.com/ansible-collections/community.mysql/pull/150).

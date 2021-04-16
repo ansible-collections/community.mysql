@@ -15,7 +15,7 @@ DOCUMENTATION = r'''
 module: mysql_replication
 short_description: Manage MySQL replication
 description:
-- Manages MySQL server replication, replica, master status, get and change master host.
+- Manages MySQL server replication, replica, primary status, get and change primary host.
 author:
 - Balazs Pocze (@banyek)
 - Andrew Klychkov (@Andersson007)
@@ -23,17 +23,19 @@ options:
   mode:
     description:
     - Module operating mode. Could be
-      C(changemaster) (CHANGE MASTER TO),
-      C(getmaster) (SHOW MASTER STATUS),
+      C(changeprimary | changemaster) (CHANGE PRIMARY | MASTER TO),
+      C(getprimary | getmaster) (SHOW PRIMARY | MASTER STATUS),
       C(getreplica | getslave) (SHOW REPLICA | SLAVE STATUS),
       C(startreplica | startslave) (START REPLICA | SLAVE),
       C(stopreplica | stopslave) (STOP REPLICA | SLAVE),
-      C(resetmaster) (RESET MASTER) - supported since community.mysql 0.1.0,
+      C(resetprimary | resetmaster) (RESET PRIMARY | MASTER) - supported since community.mysql 0.1.0,
       C(resetreplica, resetslave) (RESET REPLICA | SLAVE),
       C(resetreplicaall, resetslave) (RESET REPLICA | SLAVE ALL).
     type: str
     choices:
+    - changeprimary
     - changemaster
+    - getprimary
     - getmaster
     - getreplica
     - getslave
@@ -41,40 +43,48 @@ options:
     - startslave
     - stopreplica
     - stopslave
+    - resetprimary
     - resetmaster
     - resetreplica
     - resetslave
     - resetreplicaall
     - resetslaveall
     default: getreplica
-  master_host:
+  primary_host:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_HOST) mysql variable.
     type: str
-  master_user:
+    aliases: [master_host]
+  primary_user:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_USER) mysql variable.
     type: str
-  master_password:
+    aliases: [master_user]
+  primary_password:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_PASSWORD) mysql variable.
     type: str
-  master_port:
+    aliases: [master_password]
+  primary_port:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_PORT) mysql variable.
     type: int
-  master_connect_retry:
+    aliases: [master_port]
+  primary_connect_retry:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_CONNECT_RETRY) mysql variable.
     type: int
-  master_log_file:
+    aliases: [master_connect_retry]
+  primary_log_file:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_LOG_FILE) mysql variable.
     type: str
-  master_log_pos:
+    aliases: [master_log_file]
+  primary_log_pos:
     description:
-    - Same as mysql variable.
+    - Same as the C(MASTER_LOG_POS) mysql variable.
     type: int
+    aliases: [master_log_pos]
   relay_log_file:
     description:
     - Same as mysql variable.
@@ -83,7 +93,7 @@ options:
     description:
     - Same as mysql variable.
     type: int
-  master_ssl:
+  primary_ssl:
     description:
     - Same as the C(MASTER_SSL) mysql variable.
     - When setting it to C(yes), the connection attempt only succeeds
@@ -92,43 +102,51 @@ options:
       L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: bool
     default: false
-  master_ssl_ca:
+    aliases: [master_ssl]
+  primary_ssl_ca:
     description:
     - Same as the C(MASTER_SSL_CA) mysql variable.
     - For details, refer to
       L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
-  master_ssl_capath:
+    aliases: [master_ssl_ca]
+  primary_ssl_capath:
     description:
     - Same as the C(MASTER_SSL_CAPATH) mysql variable.
     - For details, refer to
       L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
-  master_ssl_cert:
+    aliases: [master_ssl_capath]
+  primary_ssl_cert:
     description:
     - Same as the C(MASTER_SSL_CERT) mysql variable.
     - For details, refer to
       L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
-  master_ssl_key:
+    aliases: [master_ssl_cert]
+  primary_ssl_key:
     description:
     - Same as the C(MASTER_SSL_KEY) mysql variable.
     - For details, refer to
       L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
-  master_ssl_cipher:
+    aliases: [master_ssl_key]
+  primary_ssl_cipher:
     description:
     - Same as the C(MASTER_SSL_CIPHER) mysql variable.
     - Specifies a colon-separated list of one or more ciphers permitted by the replica for the replication connection.
     - For details, refer to
       L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
-  master_auto_position:
+    aliases: [master_ssl_cipher]
+  primary_auto_position:
     description:
     - Whether the host uses GTID based replication or not.
+    - Same as the MASTER_AUTO_POSITION mysql variable.
     type: bool
     default: false
-  master_use_gtid:
+    aliases: [master_auto_position]
+  primary_use_gtid:
     description:
     - Configures the replica to use the MariaDB Global Transaction ID.
     - C(disabled) equals MASTER_USE_GTID=no command.
@@ -140,16 +158,19 @@ options:
     choices: [current_pos, replica_pos, slave_pos, disabled]
     type: str
     version_added: '0.1.0'
-  master_delay:
+    aliases: [master_use_gtid]
+  primary_delay:
     description:
-    - Time lag behind the master's state (in seconds).
+    - Time lag behind the primary's state (in seconds).
+    - Same as the MASTER_DELAY mysql variable.
     - Available from MySQL 5.6.
     - For more information see U(https://dev.mysql.com/doc/refman/8.0/en/replication-delayed.html).
     type: int
     version_added: '0.1.0'
+    aliases: [master_delay]
   connection_name:
     description:
-    - Name of the master connection.
+    - Name of the primary connection.
     - Supported from MariaDB 10.0.1.
     - Mutually exclusive with I(channel).
     - For more information see U(https://mariadb.com/kb/en/library/multi-source-replication/).
@@ -195,16 +216,16 @@ EXAMPLES = r'''
   community.mysql.mysql_replication:
     mode: stopreplica
 
-- name: Get master binlog file name and binlog position
+- name: Get primary binlog file name and binlog position
   community.mysql.mysql_replication:
-    mode: getmaster
+    mode: getprimary
 
-- name: Change master to master server 192.0.2.1 and use binary log 'mysql-bin.000009' with position 4578
+- name: Change primary to primary server 192.0.2.1 and use binary log 'mysql-bin.000009' with position 4578
   community.mysql.mysql_replication:
-    mode: changemaster
-    master_host: 192.0.2.1
-    master_log_file: mysql-bin.000009
-    master_log_pos: 4578
+    mode: changeprimary
+    primary_host: 192.0.2.1
+    primary_log_file: mysql-bin.000009
+    primary_log_pos: 4578
 
 - name: Check replica status using port 3308
   community.mysql.mysql_replication:
@@ -212,42 +233,42 @@ EXAMPLES = r'''
     login_host: ansible.example.com
     login_port: 3308
 
-- name: On MariaDB change master to use GTID current_pos
+- name: On MariaDB change primary to use GTID current_pos
   community.mysql.mysql_replication:
-    mode: changemaster
-    master_use_gtid: current_pos
+    mode: changeprimary
+    primary_use_gtid: current_pos
 
-- name: Change master to use replication delay 3600 seconds
+- name: Change primary to use replication delay 3600 seconds
   community.mysql.mysql_replication:
-    mode: changemaster
-    master_host: 192.0.2.1
-    master_delay: 3600
+    mode: changeprimary
+    primary_host: 192.0.2.1
+    primary_delay: 3600
 
-- name: Start MariaDB replica with connection name master-1
+- name: Start MariaDB replica with connection name primary-1
   community.mysql.mysql_replication:
     mode: startreplica
-    connection_name: master-1
+    connection_name: primary-1
 
-- name: Stop replication in channel master-1
+- name: Stop replication in channel primary-1
   community.mysql.mysql_replication:
     mode: stopreplica
-    channel: master-1
+    channel: primary-1
 
 - name: >
     Run RESET MASTER command which will delete all existing binary log files
-    and reset the binary log index file on the master
+    and reset the binary log index file on the primary
   community.mysql.mysql_replication:
-    mode: resetmaster
+    mode: resetprimary
 
 - name: Run start replica and fail the task on errors
   community.mysql.mysql_replication:
     mode: startreplica
-    connection_name: master-1
+    connection_name: primary-1
     fail_on_error: yes
 
-- name: Change master and fail on error (like when replica thread is running)
+- name: Change primary and fail on error (like when replica thread is running)
   community.mysql.mysql_replication:
-    mode: changemaster
+    mode: changeprimary
     fail_on_error: yes
 
 '''
@@ -257,7 +278,7 @@ queries:
   description: List of executed queries which modified DB's state.
   returned: always
   type: list
-  sample: ["CHANGE MASTER TO MASTER_HOST='master2.example.com',MASTER_PORT=3306"]
+  sample: ["CHANGE MASTER TO MASTER_HOST='primary2.example.com',MASTER_PORT=3306"]
   version_added: '0.1.0'
 '''
 
@@ -277,10 +298,13 @@ from distutils.version import LooseVersion
 executed_queries = []
 
 
-def get_master_status(cursor):
+def get_primary_status(cursor):
+    # TODO: when it's available to change on MySQL's side,
+    # change MASTER to PRIMARY using the approach from
+    # get_replica_status() function. Same for other functions.
     cursor.execute("SHOW MASTER STATUS")
-    masterstatus = cursor.fetchone()
-    return masterstatus
+    primarystatus = cursor.fetchone()
+    return primarystatus
 
 
 def get_replica_status(cursor, connection_name='', channel='', term='REPLICA'):
@@ -363,7 +387,7 @@ def reset_replica_all(module, cursor, connection_name='', channel='', fail_on_er
     return reset
 
 
-def reset_master(module, cursor, fail_on_error=False):
+def reset_primary(module, cursor, fail_on_error=False):
     query = 'RESET MASTER'
     try:
         executed_queries.append(query)
@@ -400,7 +424,7 @@ def start_replica(module, cursor, connection_name='', channel='', fail_on_error=
     return started
 
 
-def changemaster(cursor, chm, connection_name='', channel=''):
+def changeprimary(cursor, chm, connection_name='', channel=''):
     if connection_name:
         query = "CHANGE MASTER '%s' TO %s" % (connection_name, ','.join(chm))
     else:
@@ -417,29 +441,33 @@ def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
         mode=dict(type='str', default='getreplica', choices=[
-            'getmaster', 'getreplica', 'getslave', 'changemaster',
-            'stopreplica', 'stopslave', 'startreplica', 'startslave',
-            'resetmaster', 'resetreplica', 'resetslave',
+            'getprimary', 'getmaster',
+            'getreplica', 'getslave',
+            'changeprimary', 'changemaster',
+            'stopreplica', 'stopslave',
+            'startreplica', 'startslave',
+            'resetprimary', 'resetmaster',
+            'resetreplica', 'resetslave',
             'resetreplicaall', 'resetslaveall']),
-        master_auto_position=dict(type='bool', default=False),
-        master_host=dict(type='str'),
-        master_user=dict(type='str'),
-        master_password=dict(type='str', no_log=True),
-        master_port=dict(type='int'),
-        master_connect_retry=dict(type='int'),
-        master_log_file=dict(type='str'),
-        master_log_pos=dict(type='int'),
+        primary_auto_position=dict(type='bool', default=False, aliases=['master_auto_position']),
+        primary_host=dict(type='str', aliases=['master_host']),
+        primary_user=dict(type='str', aliases=['master_user']),
+        primary_password=dict(type='str', no_log=True, aliases=['master_password']),
+        primary_port=dict(type='int', aliases=['master_port']),
+        primary_connect_retry=dict(type='int', aliases=['master_connect_retry']),
+        primary_log_file=dict(type='str', aliases=['master_log_file']),
+        primary_log_pos=dict(type='int', aliases=['master_log_pos']),
         relay_log_file=dict(type='str'),
         relay_log_pos=dict(type='int'),
-        master_ssl=dict(type='bool', default=False),
-        master_ssl_ca=dict(type='str'),
-        master_ssl_capath=dict(type='str'),
-        master_ssl_cert=dict(type='str'),
-        master_ssl_key=dict(type='str', no_log=False),
-        master_ssl_cipher=dict(type='str'),
-        master_use_gtid=dict(type='str', choices=[
-            'current_pos', 'replica_pos', 'slave_pos', 'disabled']),
-        master_delay=dict(type='int'),
+        primary_ssl=dict(type='bool', default=False, aliases=['master_ssl']),
+        primary_ssl_ca=dict(type='str', aliases=['master_ssl_ca']),
+        primary_ssl_capath=dict(type='str', aliases=['master_ssl_capath']),
+        primary_ssl_cert=dict(type='str', aliases=['master_ssl_cert']),
+        primary_ssl_key=dict(type='str', no_log=False, aliases=['master_ssl_key']),
+        primary_ssl_cipher=dict(type='str', aliases=['master_ssl_cipher']),
+        primary_use_gtid=dict(type='str', choices=[
+            'current_pos', 'replica_pos', 'slave_pos', 'disabled'], aliases=['master_use_gtid']),
+        primary_delay=dict(type='int', aliases=['master_delay']),
         connection_name=dict(type='str'),
         channel=dict(type='str'),
         fail_on_error=dict(type='bool', default=False),
@@ -451,33 +479,33 @@ def main():
         ],
     )
     mode = module.params["mode"]
-    master_host = module.params["master_host"]
-    master_user = module.params["master_user"]
-    master_password = module.params["master_password"]
-    master_port = module.params["master_port"]
-    master_connect_retry = module.params["master_connect_retry"]
-    master_log_file = module.params["master_log_file"]
-    master_log_pos = module.params["master_log_pos"]
+    primary_host = module.params["primary_host"]
+    primary_user = module.params["primary_user"]
+    primary_password = module.params["primary_password"]
+    primary_port = module.params["primary_port"]
+    primary_connect_retry = module.params["primary_connect_retry"]
+    primary_log_file = module.params["primary_log_file"]
+    primary_log_pos = module.params["primary_log_pos"]
     relay_log_file = module.params["relay_log_file"]
     relay_log_pos = module.params["relay_log_pos"]
-    master_ssl = module.params["master_ssl"]
-    master_ssl_ca = module.params["master_ssl_ca"]
-    master_ssl_capath = module.params["master_ssl_capath"]
-    master_ssl_cert = module.params["master_ssl_cert"]
-    master_ssl_key = module.params["master_ssl_key"]
-    master_ssl_cipher = module.params["master_ssl_cipher"]
-    master_auto_position = module.params["master_auto_position"]
+    primary_ssl = module.params["primary_ssl"]
+    primary_ssl_ca = module.params["primary_ssl_ca"]
+    primary_ssl_capath = module.params["primary_ssl_capath"]
+    primary_ssl_cert = module.params["primary_ssl_cert"]
+    primary_ssl_key = module.params["primary_ssl_key"]
+    primary_ssl_cipher = module.params["primary_ssl_cipher"]
+    primary_auto_position = module.params["primary_auto_position"]
     ssl_cert = module.params["client_cert"]
     ssl_key = module.params["client_key"]
     ssl_ca = module.params["ca_cert"]
     check_hostname = module.params["check_hostname"]
     connect_timeout = module.params['connect_timeout']
     config_file = module.params['config_file']
-    master_delay = module.params['master_delay']
-    if module.params.get("master_use_gtid") == 'disabled':
-        master_use_gtid = 'no'
+    primary_delay = module.params['primary_delay']
+    if module.params.get("primary_use_gtid") == 'disabled':
+        primary_use_gtid = 'no'
     else:
-        master_use_gtid = module.params["master_use_gtid"]
+        primary_use_gtid = module.params["primary_use_gtid"]
     connection_name = module.params["connection_name"]
     channel = module.params['channel']
     fail_on_error = module.params['fail_on_error']
@@ -512,18 +540,24 @@ def main():
     # "REPLICA" must be used instead of "SLAVE"
     if impl.uses_replica_terminology(cursor):
         replica_term = 'REPLICA'
-        if master_use_gtid == 'slave_pos':
-            module.deprecate('master_use_gtid "slave_pos" value is deprecated, use "replica_pos" instead.',
+        if primary_use_gtid == 'slave_pos':
+            module.deprecate('primary_use_gtid | master_use_gtid "slave_pos" value is '
+                             'deprecated, use "replica_pos" instead.',
                              version='3.0.0', collection_name='community.mysql')
-            master_use_gtid = 'replica_pos'
+            primary_use_gtid = 'replica_pos'
     else:
         replica_term = 'SLAVE'
-        if master_use_gtid == 'replica_pos':
-            master_use_gtid = 'slave_pos'
+        if primary_use_gtid == 'replica_pos':
+            primary_use_gtid = 'slave_pos'
 
-    if mode in "getmaster":
-        status = get_master_status(cursor)
+    if mode in ('getprimary', 'getmaster'):
+        if mode == 'getmaster':
+            module.deprecate('"getmaster" option is deprecated, use "getprimary" instead.',
+                             version='3.0.0', collection_name='community.mysql')
+
+        status = get_primary_status(cursor)
         if not isinstance(status, dict):
+            # TODO: change the word master to primary in 3.0.0
             status = dict(Is_Master=False, Is_Primary=False,
                           msg="Server is not configured as mysql master")
         else:
@@ -556,47 +590,50 @@ def main():
 
         module.exit_json(queries=executed_queries, **status)
 
-    elif mode in "changemaster":
+    elif mode in ('changeprimary', 'changemaster'):
+        if mode == 'changemaster':
+            module.deprecate('"changemaster" option is deprecated, use "changeprimary" instead.',
+                             version='3.0.0', collection_name='community.mysql')
         chm = []
         result = {}
-        if master_host is not None:
-            chm.append("MASTER_HOST='%s'" % master_host)
-        if master_user is not None:
-            chm.append("MASTER_USER='%s'" % master_user)
-        if master_password is not None:
-            chm.append("MASTER_PASSWORD='%s'" % master_password)
-        if master_port is not None:
-            chm.append("MASTER_PORT=%s" % master_port)
-        if master_connect_retry is not None:
-            chm.append("MASTER_CONNECT_RETRY=%s" % master_connect_retry)
-        if master_log_file is not None:
-            chm.append("MASTER_LOG_FILE='%s'" % master_log_file)
-        if master_log_pos is not None:
-            chm.append("MASTER_LOG_POS=%s" % master_log_pos)
-        if master_delay is not None:
-            chm.append("MASTER_DELAY=%s" % master_delay)
+        if primary_host is not None:
+            chm.append("MASTER_HOST='%s'" % primary_host)
+        if primary_user is not None:
+            chm.append("MASTER_USER='%s'" % primary_user)
+        if primary_password is not None:
+            chm.append("MASTER_PASSWORD='%s'" % primary_password)
+        if primary_port is not None:
+            chm.append("MASTER_PORT=%s" % primary_port)
+        if primary_connect_retry is not None:
+            chm.append("MASTER_CONNECT_RETRY=%s" % primary_connect_retry)
+        if primary_log_file is not None:
+            chm.append("MASTER_LOG_FILE='%s'" % primary_log_file)
+        if primary_log_pos is not None:
+            chm.append("MASTER_LOG_POS=%s" % primary_log_pos)
+        if primary_delay is not None:
+            chm.append("MASTER_DELAY=%s" % primary_delay)
         if relay_log_file is not None:
             chm.append("RELAY_LOG_FILE='%s'" % relay_log_file)
         if relay_log_pos is not None:
             chm.append("RELAY_LOG_POS=%s" % relay_log_pos)
-        if master_ssl:
+        if primary_ssl:
             chm.append("MASTER_SSL=1")
-        if master_ssl_ca is not None:
-            chm.append("MASTER_SSL_CA='%s'" % master_ssl_ca)
-        if master_ssl_capath is not None:
-            chm.append("MASTER_SSL_CAPATH='%s'" % master_ssl_capath)
-        if master_ssl_cert is not None:
-            chm.append("MASTER_SSL_CERT='%s'" % master_ssl_cert)
-        if master_ssl_key is not None:
-            chm.append("MASTER_SSL_KEY='%s'" % master_ssl_key)
-        if master_ssl_cipher is not None:
-            chm.append("MASTER_SSL_CIPHER='%s'" % master_ssl_cipher)
-        if master_auto_position:
+        if primary_ssl_ca is not None:
+            chm.append("MASTER_SSL_CA='%s'" % primary_ssl_ca)
+        if primary_ssl_capath is not None:
+            chm.append("MASTER_SSL_CAPATH='%s'" % primary_ssl_capath)
+        if primary_ssl_cert is not None:
+            chm.append("MASTER_SSL_CERT='%s'" % primary_ssl_cert)
+        if primary_ssl_key is not None:
+            chm.append("MASTER_SSL_KEY='%s'" % primary_ssl_key)
+        if primary_ssl_cipher is not None:
+            chm.append("MASTER_SSL_CIPHER='%s'" % primary_ssl_cipher)
+        if primary_auto_position:
             chm.append("MASTER_AUTO_POSITION=1")
-        if master_use_gtid is not None:
-            chm.append("MASTER_USE_GTID=%s" % master_use_gtid)
+        if primary_use_gtid is not None:
+            chm.append("MASTER_USE_GTID=%s" % primary_use_gtid)
         try:
-            changemaster(cursor, chm, connection_name, channel)
+            changeprimary(cursor, chm, connection_name, channel)
         except mysql_driver.Warning as e:
             result['warning'] = to_native(e)
         except Exception as e:
@@ -623,11 +660,17 @@ def main():
             module.exit_json(msg="Replica stopped", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Replica already stopped", changed=False, queries=executed_queries)
-    elif mode in "resetmaster":
-        reset = reset_master(module, cursor, fail_on_error)
+    elif mode in ('resetprimary', 'resetmaster'):
+        if mode == 'resetmaster':
+            module.deprecate('"resetmaster" option is deprecated, use "resetprimary" instead.',
+                             version='3.0.0', collection_name='community.mysql')
+
+        reset = reset_primary(module, cursor, fail_on_error)
         if reset is True:
+            # TODO: Change "Master" to "Primary" in release 3.0.0
             module.exit_json(msg="Master reset", changed=True, queries=executed_queries)
         else:
+            # TODO: Change "Master" to "Primary" in release 3.0.0
             module.exit_json(msg="Master already reset", changed=False, queries=executed_queries)
     elif mode in ("resetreplica", "resetslave"):
         if mode == "resetslave":

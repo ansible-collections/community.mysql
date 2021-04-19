@@ -162,7 +162,7 @@ options:
   primary_delay:
     description:
     - Time lag behind the primary's state (in seconds).
-    - Same as the MASTER_DELAY mysql variable.
+    - Same as the C(MASTER_DELAY) mysql variable.
     - Available from MySQL 5.6.
     - For more information see U(https://dev.mysql.com/doc/refman/8.0/en/replication-delayed.html).
     type: int

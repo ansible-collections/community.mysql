@@ -142,7 +142,7 @@ options:
   primary_auto_position:
     description:
     - Whether the host uses GTID based replication or not.
-    - Same as the MASTER_AUTO_POSITION mysql variable.
+    - Same as the C(MASTER_AUTO_POSITION) mysql variable.
     type: bool
     default: false
     aliases: [master_auto_position]

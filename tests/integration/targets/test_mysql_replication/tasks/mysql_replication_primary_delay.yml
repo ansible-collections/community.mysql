@@ -9,13 +9,13 @@
 
   block:
 
-    # Test master_delay mode:
+    # Test primary_delay mode:
     - name: Run replication
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: changemaster
-        master_delay: '{{ test_master_delay }}'
+        mode: changeprimary
+        primary_delay: '{{ test_primary_delay }}'
       register: result
 
     - assert:
@@ -31,7 +31,7 @@
         mode: startreplica
       register: result
 
-    # Check master_delay:
+    # Check primary_delay:
     - name: Get standby status
       mysql_replication:
         <<: *mysql_params
@@ -41,5 +41,5 @@
 
     - assert:
         that:
-        - replica_status.SQL_Delay == {{ test_master_delay }}
+        - replica_status.SQL_Delay == {{ test_primary_delay }}
         - replica_status is not changed

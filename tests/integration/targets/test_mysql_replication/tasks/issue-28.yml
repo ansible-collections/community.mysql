@@ -36,7 +36,7 @@
 
     - name: attempt connection with newly created user (expect failure)
       mysql_replication:
-        mode: getmaster
+        mode: getprimary
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
         login_host: 127.0.0.1
@@ -57,7 +57,7 @@
 
     - name: attempt connection with newly created user ignoring hostname
       mysql_replication:
-        mode: getmaster
+        mode: getprimary
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
         login_host: 127.0.0.1

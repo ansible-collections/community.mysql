@@ -49,12 +49,12 @@
     - name: Restore the dump to replica2
       shell: '{{ mysql_command }} -P{{ mysql_replica2_port }} < {{ dump_path }}'
 
-    # Test getmaster mode:
-    - name: Get master status
+    # Test getprimary mode:
+    - name: Get primary status
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_primary_port }}'
-        mode: getmaster
+        mode: getprimary
       register: mysql_primary_status
 
     - assert:
@@ -63,8 +63,8 @@
         - mysql_primary_status.Position != 0
         - mysql_primary_status is not changed
 
-    # Test startreplica fails without changemaster first. This needs fail_on_error
-    - name: Start replica (using deprecated startslave choice) and fail because master is not specified; failing on error as requested
+    # Test startreplica fails without changeprimary first. This needs fail_on_error
+    - name: Start replica (using deprecated startslave choice) and fail because primary is not specified; failing on error as requested
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
@@ -103,21 +103,21 @@
         that:
         - result is not failed
 
-    # Test changemaster mode:
-    # master_ssl_ca will be set as '' to check the module's behaviour for #23976,
+    # Test changeprimary mode:
+    # primary_ssl_ca will be set as '' to check the module's behaviour for #23976,
     # must be converted to an empty string
     - name: Run replication
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: changemaster
-        master_host: '{{ mysql_host }}'
-        master_port: '{{ mysql_primary_port }}'
-        master_user: '{{ replication_user }}'
-        master_password: '{{ replication_pass }}'
-        master_log_file: '{{ mysql_primary_status.File }}'
-        master_log_pos: '{{ mysql_primary_status.Position }}'
-        master_ssl_ca: ''
+        mode: changeprimary
+        primary_host: '{{ mysql_host }}'
+        primary_port: '{{ mysql_primary_port }}'
+        primary_user: '{{ replication_user }}'
+        primary_password: '{{ replication_pass }}'
+        primary_log_file: '{{ mysql_primary_status.File }}'
+        primary_log_pos: '{{ mysql_primary_status.Position }}'
+        primary_ssl_ca: ''
       register: result
 
     - assert:
@@ -179,7 +179,7 @@
       pause:
         seconds: 2
 
-    # Test master log pos has been changed:
+    # Test primary log pos has been changed:
     - name: Get replica status
       mysql_replication:
         <<: *mysql_params

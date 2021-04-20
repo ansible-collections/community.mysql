@@ -9,13 +9,13 @@
 # Initial CI tests of mysql_replication module:
 - import_tasks: mysql_replication_initial.yml
 
-# Tests of master_delay parameter:
-- import_tasks: mysql_replication_master_delay.yml
+# Tests of primary_delay parameter:
+- import_tasks: mysql_replication_primary_delay.yml
 
 # Tests of channel parameter:
 - import_tasks: mysql_replication_channel.yml
 
-# Tests of resetmaster mode:
-- import_tasks: mysql_replication_resetmaster_mode.yml
+# Tests of resetprimary mode:
+- import_tasks: mysql_replication_resetprimary_mode.yml
 
 - include: issue-28.yml

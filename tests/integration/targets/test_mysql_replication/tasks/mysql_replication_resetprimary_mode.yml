@@ -22,20 +22,20 @@
         login_port: '{{ mysql_replica1_port }}'
         mode: resetreplicaall
 
-    # Get master initial status:
-    - name: Get master status
+    # Get primary initial status:
+    - name: Get primary status
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_primary_port }}'
-        mode: getmaster
+        mode: getprimary
       register: mysql_primary_initial_status
 
-    # Test resetmaster mode:
-    - name: Reset master
+    # Test resetprimary mode:
+    - name: Reset primary
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_primary_port }}'
-        mode: resetmaster
+        mode: resetprimary
       register: result
 
     - assert:
@@ -43,12 +43,12 @@
         - result is changed
         - result.queries == ["RESET MASTER"]
 
-    # Get master final status:
-    - name: Get master status
+    # Get primary final status:
+    - name: Get primary status
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_primary_port }}'
-        mode: getmaster
+        mode: getprimary
       register: mysql_primary_final_status
 
     - assert:

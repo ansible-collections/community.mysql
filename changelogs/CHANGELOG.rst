@@ -5,6 +5,34 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v2.1.0
+======
+
+Release Summary
+---------------
+
+This is the minor release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection
+that have been added after the release of ``community.mysql`` 2.0.0.
+
+Major Changes
+-------------
+
+- mysql_replication - add deprecation warning that the ``Is_Slave`` and ``Is_Master`` return values will be replaced with ``Is_Primary`` and ``Is_Replica`` in ``community.mysql`` 3.0.0 (https://github.com/ansible-collections/community.mysql/pull/147).
+- mysql_replication - the choices of the ``state`` option containing ``master`` will be finally replaced with the alternative ``primary`` choices in ``community.mysql`` 3.0.0, add deprecation warnings (https://github.com/ansible-collections/community.mysql/pull/150).
+
+Minor Changes
+-------------
+
+- mysql_replication - add alternative (``primary``) choices to the ``state`` option choices containing ``master`` (https://github.com/ansible-collections/community.mysql/pull/150).
+- mysql_replication - add the ``Is_Primary`` and ``Is_Replica`` alternatives to the ``Is_Slave`` and ``Is_Master`` return values as a preparation for replacement in ``community.mysql`` 3.0.0 (https://github.com/ansible-collections/community.mysql/pull/147).
+- mysql_replication - change ``master_`` options to ``primary_`` options, add aliases to keep compatibility (https://github.com/ansible-collections/community.mysql/pull/150).
+
+Bugfixes
+--------
+
+- mysql - revert changes of connector arguments made in pull request 116 causing the invalid keyword argument error (https://github.com/ansible-collections/community.mysql/pull/116).
+
 v2.0.0
 ======
 

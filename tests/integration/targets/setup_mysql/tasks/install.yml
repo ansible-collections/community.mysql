@@ -5,6 +5,11 @@
     id: 4D1BB29D63D98E422B2113B19334A25F8507EFA5
     state: present
 
+- name: Install Python3-apt
+  package:
+    name: python3-apt
+  ignore_errors: yes
+
 - name: "{{ role_name }} | install | add percona repositories"
   apt_repository:
     repo: "{{ item }}"

@@ -5,6 +5,10 @@
     id: 4D1BB29D63D98E422B2113B19334A25F8507EFA5
     state: present
 
+- name: Change the default interpreter
+  shell: "update-alternatives --install /usr/bin/python python /usr/bin/python3 1"
+  ignore_errors: yes
+
 - name: Install Python3-apt
   package:
     name: python3-apt

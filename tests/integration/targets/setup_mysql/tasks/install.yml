@@ -6,7 +6,7 @@
     state: present
 
 - name: Change the default interpreter
-  shell: "update-alternatives --install /usr/bin/python python /usr/bin/python3 1"
+  shell: "update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1"
   ignore_errors: yes
 
 - name: Install Python3-apt

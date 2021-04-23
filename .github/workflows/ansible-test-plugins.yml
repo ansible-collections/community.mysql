@@ -61,7 +61,7 @@ jobs:
           - stable-2.9
           - stable-2.10
           - stable-2.11
-          - devel
+          #- devel
         python:
           - 3.6
         connector:

@@ -5,6 +5,21 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v1.4.1
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection
+that have been added after the release of ``community.mysql`` 1.4.0.
+
+Bugfixes
+--------
+
+- mysql - revert changes of connector arguments made in pull request 116 causing the invalid keyword argument error (https://github.com/ansible-collections/community.mysql/pull/116).
+
 v1.4.0
 ======
 

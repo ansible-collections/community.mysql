@@ -263,3 +263,17 @@ releases:
     - 115-add_mysql_full_version_suffix_return_var.yml
     - 116-change_deprecated_connection_ parameters.yml
     release_date: '2021-04-16'
+  1.4.1:
+    changes:
+      bugfixes:
+      - mysql - revert changes of connector arguments made in pull request 116 causing
+        the invalid keyword argument error (https://github.com/ansible-collections/community.mysql/pull/116).
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection
+
+        that have been added after the release of ``community.mysql`` 1.4.0.'
+    fragments:
+    - 1.4.1.yml
+    - 153-mysql_revert_connector_changes.yml
+    release_date: '2021-04-23'

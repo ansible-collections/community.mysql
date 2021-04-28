@@ -881,8 +881,8 @@ def privileges_unpack(priv, mode):
     else:
         quote = '`'
     output = {}
-    privs = []
     for item in priv.strip().split('/'):
+        privs = []
         pieces = item.strip().rsplit(':', 1)
         dbpriv = pieces[0].rsplit(".", 1)
 

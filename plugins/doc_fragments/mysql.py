@@ -70,6 +70,11 @@ options:
       - This optoin has no effect on MySQLdb.
     type: bool
     version_added: '1.1.0'
+  charset:
+    description:
+      - Charset value of the same database driver option.
+    type: str
+    version_added: '2.0.0'
 requirements:
    - PyMySQL (Python 2.7 and Python 3.X), or
    - MySQLdb (Python 2.x)

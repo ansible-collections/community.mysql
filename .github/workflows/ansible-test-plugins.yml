@@ -61,19 +61,20 @@ jobs:
           - stable-2.9
           - stable-2.10
           - stable-2.11
-          - devel
+          # - devel
         python:
           - 3.6
-          - 3.8
+          # - 3.8
         connector:
           - pymysql==0.7.10
           - pymysql==0.9.3
           - mysqlclient==2.0.1
+        include:
+          - ansible: devel
+            python: 3.8
         exclude:
           - mysql: 8.0.22
             connector: pymysql==0.7.10
-          - ansible: devel
-            python: 3.6
     steps:
 
       - name: Check out code

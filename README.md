@@ -1,6 +1,24 @@
 # MySQL collection for Ansible
 [![Plugins CI](https://github.com/ansible-collections/community.mysql/workflows/Plugins%20CI/badge.svg?event=push)](https://github.com/ansible-collections/community.mysql/actions?query=workflow%3A"Plugins+CI") [![Roles CI](https://github.com/ansible-collections/community.mysql/workflows/Roles%20CI/badge.svg?event=push)](https://github.com/ansible-collections/community.mysql/actions?query=workflow%3A"Roles+CI") [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.mysql)](https://codecov.io/gh/ansible-collections/community.mysql)
 
+## Code of Conduct
+
+We follow [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html) in all our interactions within this project.
+
+## Contributing
+
+The content of this collection are made by [people](CONTRIBUTORS) like you.
+
+Every contribution is very welcomed!
+
+You don't know how to start? Refer to our [contribution guide](CONTRIBUTING.md)!
+
+## Governance
+
+The process of decision making in this collection is based on discussing and finding consensus among participants.
+
+Every voice is important, every idea is valuable. So if you have something on your mind, create an issue or dedicated discussion and let's discuss it!
+
 ## Included content
 
 - **Modules**:
@@ -20,7 +38,7 @@
 
 ## External requirements
 
-The MySQL modules rely on a MySQL connector.  The list of supported drivers is below:
+The MySQL modules rely on a MySQL connector. The list of supported drivers is below:
 
 - [PyMySQL](https://github.com/PyMySQL/PyMySQL)
 - [MySQLdb](https://github.com/PyMySQL/mysqlclient-python)
@@ -45,10 +63,6 @@ collections:
 ```
 
 See [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
-
-## Contributing
-
-See the [contribution guide](CONTRIBUTING.md).
 
 ## Licensing
 

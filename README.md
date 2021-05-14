@@ -17,7 +17,7 @@ You don't know how to start? Refer to our [contribution guide](CONTRIBUTING.md)!
 
 The process of decision making in this collection is based on discussing and finding consensus among participants.
 
-Every voice is important, every idea is valuable. So if you have something on your mind, create an issue or dedicated discussion and let's discuss it!
+Every voice is important and every idea is valuable. If you have something on your mind, create an issue or dedicated discussion and let's discuss it!
 
 ## Included content
 

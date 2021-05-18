@@ -53,6 +53,7 @@ options:
         the module will always report changes. It includes grouping columns
         by permission (C(SELECT(col1,col2)) instead of C(SELECT(col1),SELECT(col2))).
       - Can be passed as a dictionary (see the examples).
+      - Supports GRANTs for procedures and functions (see the examples).
     type: raw
   append_privs:
     description:
@@ -187,6 +188,15 @@ EXAMPLES = r'''
     priv:
       'db1.*': 'ALL,GRANT'
       'db2.*': 'ALL,GRANT'
+
+# Use 'PROCEDURE' instead of 'FUNCTION' to apply GRANTs for a MySQL procedure instead.
+- name: Grant a user the right to execute a function
+  community.mysql.mysql_user:
+    name: readonly
+    password: 12345
+    priv:
+      FUNCTION my_db.my_function: EXECUTE
+    state: present
 
 # Note that REQUIRESSL is a special privilege that should only apply to *.* by itself.
 # Setting this privilege in this manner is deprecated.

@@ -13,6 +13,8 @@ Every contribution is very welcomed!
 
 You don't know how to start? Refer to our [contribution guide](CONTRIBUTING.md)!
 
+The current maintainers are listed in the [MAINTAINERS](MAINTAINERS) file. Don't hesitate to reach them out mentioning in the proposals.
+
 ## Governance
 
 The process of decision making in this collection is based on discussing and finding consensus among participants.

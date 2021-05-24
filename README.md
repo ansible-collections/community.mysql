@@ -9,7 +9,7 @@ If you encounter abusive behavior violating the [Ansible Code of Conduct](https:
 
 ## Contributing
 
-The content of this collection are made by [people](CONTRIBUTORS) like you.
+The content of this collection is made by [people](CONTRIBUTORS) like you.
 
 Any kind of contribution is very welcome.
 

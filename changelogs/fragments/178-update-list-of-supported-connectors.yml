@@ -1,0 +1,2 @@
+minor_changes:
+- mysql modules - Update the list of supported connectors and check for minimum required version (https://github.com/ansible-collections/community.mysql/pull/178).

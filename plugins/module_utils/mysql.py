@@ -29,7 +29,7 @@ except ImportError:
     except ImportError:
         mysql_driver = None
 
-mysql_driver_fail_msg = 'The PyMySQL (Python 2.7 and Python 3.X) or MySQL-python (Python 2.X) module is required.'
+mysql_driver_fail_msg = 'The PyMySQL >= v0.7.10 (Python 2.7 and Python 3.X) or MySQLdb >= v1.2.5 (Python 2.X) python module is required.'
 
 
 def parse_from_mysql_config_file(cnf):
@@ -44,6 +44,16 @@ def parse_from_mysql_config_file(cnf):
 def mysql_connect(module, login_user=None, login_password=None, config_file='', ssl_cert=None,
                   ssl_key=None, ssl_ca=None, db=None, cursor_class=None, connect_timeout=30,
                   autocommit=False, config_overrides_defaults=False, check_hostname=None):
+    
+    if mysql_driver.__name__ == "pymysql":
+        version_tuple = (n for n in mysql_driver.__version__.split('.') if n != 'None')
+        if reduce(lambda x, y: int(x) * 100 + int(y), version_tuple) < 710:
+            module.fail_json(msg='PyMySQL >= v0.7.10 is required to use these MySQL modules')
+    else:
+        version_tuple = (n for n in mysql_driver.__version__.split('.') if n != 'None')
+        if reduce(lambda x, y: int(x) * 100 + int(y), version_tuple) < 10205:
+            module.fail_json(msg='MySQLdb >= v1.2.5 is required to use these MySQL modules')
+    
     config = {}
 
     if config_file and os.path.exists(config_file):

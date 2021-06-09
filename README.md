@@ -1,6 +1,33 @@
 # MySQL collection for Ansible
 [![Plugins CI](https://github.com/ansible-collections/community.mysql/workflows/Plugins%20CI/badge.svg?event=push)](https://github.com/ansible-collections/community.mysql/actions?query=workflow%3A"Plugins+CI") [![Roles CI](https://github.com/ansible-collections/community.mysql/workflows/Roles%20CI/badge.svg?event=push)](https://github.com/ansible-collections/community.mysql/actions?query=workflow%3A"Roles+CI") [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.mysql)](https://codecov.io/gh/ansible-collections/community.mysql)
 
+This collection is a part of Ansible package.
+
+## Code of Conduct
+
+We follow the [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html) in all our interactions within this project.
+
+If you encounter abusive behavior violating the [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html), please refer to the [policy violations](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html#policy-violations) section of the Code of Conduct for information on how to raise a complaint.
+
+## Contributing
+
+The content of this collection is made by [people](CONTRIBUTORS) like you.
+
+Any kind of contribution is very welcome.
+
+You don't know how to start? Refer to our [contribution guide](CONTRIBUTING.md)!
+
+The current maintainers are listed in the [MAINTAINERS](MAINTAINERS) file. Don't hesitate to reach them out mentioning in the proposals. To learn how to maintain / become a maintainer of this collection, refer to the [Maintainer guidelines](https://github.com/ansible/community-docs/blob/main/maintaining.rst).
+
+Join us on IRC in the ``ansible-community`` [irc.libera.chat](https://libera.chat/) channel.
+See the [Registration guide](https://libera.chat/guides/registration) to learn how to register.
+
+## Governance
+
+The process of decision making in this collection is based on discussing and finding consensus among participants.
+
+Every voice is important and every idea is valuable. If you have something on your mind, create an issue or dedicated discussion and let's discuss it!
+
 ## Included content
 
 - **Modules**:
@@ -20,7 +47,7 @@
 
 ## External requirements
 
-The MySQL modules rely on a MySQL connector.  The list of supported drivers is below:
+The MySQL modules rely on a MySQL connector. The list of supported drivers is below:
 
 - [PyMySQL](https://github.com/PyMySQL/PyMySQL)
 - [MySQLdb](https://github.com/PyMySQL/mysqlclient-python)
@@ -45,10 +72,6 @@ collections:
 ```
 
 See [Ansible Using collections](https://docs.ansible.com/ansible/latest/user_guide/collections_using.html) for more details.
-
-## Contributing
-
-See the [contribution guide](CONTRIBUTING.md).
 
 ## Licensing
 

@@ -1,7 +1,7 @@
 # MySQL collection for Ansible
 [![Plugins CI](https://github.com/ansible-collections/community.mysql/workflows/Plugins%20CI/badge.svg?event=push)](https://github.com/ansible-collections/community.mysql/actions?query=workflow%3A"Plugins+CI") [![Roles CI](https://github.com/ansible-collections/community.mysql/workflows/Roles%20CI/badge.svg?event=push)](https://github.com/ansible-collections/community.mysql/actions?query=workflow%3A"Roles+CI") [![Codecov](https://img.shields.io/codecov/c/github/ansible-collections/community.mysql)](https://codecov.io/gh/ansible-collections/community.mysql)
 
-This collection is a part of Ansible package.
+This collection is a part of the Ansible package.
 
 ## Code of Conduct
 
@@ -11,21 +11,21 @@ If you encounter abusive behavior violating the [Ansible Code of Conduct](https:
 
 ## Contributing
 
-The content of this collection is made by [people](CONTRIBUTORS) like you, a community of individuals collaborating on making the world better through developing automation software.
+The content of this collection is made by [people](https://github.com/ansible-collections/community.mysql/blob/main/CONTRIBUTORS) like you, a community of individuals collaborating on making the world better through developing automation software.
 
 Any kind of contribution is very welcome.
 
-You don't know how to start? Refer to our [contribution guide](CONTRIBUTING.md)!
+You don't know how to start? Refer to our [contribution guide](https://github.com/ansible-collections/community.mysql/blob/main/CONTRIBUTING.md)!
 
-The current maintainers are listed in the [MAINTAINERS](MAINTAINERS) file. Don't hesitate to reach them out mentioning in the proposals. To learn how to maintain / become a maintainer of this collection, refer to the [Maintainer guidelines](https://github.com/ansible/community-docs/blob/main/maintaining.rst).
+The current maintainers (contributors with `write` or higher access) are listed in the [MAINTAINERS](https://github.com/ansible-collections/community.mysql/blob/main/MAINTAINERS) file. Don't hesitate to reach them out mentioning in the proposals. To learn how to maintain / become a maintainer of this collection, refer to the [Maintainer guidelines](https://github.com/ansible/community-docs/blob/main/maintaining.rst).
 
 ## Communication
 
-We announce releases and important changes through the [Ansible Bullhorn newsletter](https://github.com/ansible/community/issues/546). Be sure you are subscribed.
+We announce releases and important changes through the [Ansible Bullhorn newsletter](http://eepurl.com/gZmiEP). Be sure you are subscribed.
 
 Join us in the ``#ansible-community`` [IRC channel](https://docs.ansible.com/ansible/devel/community/communication.html#irc-channels).
 
-We take part in the global quarterly [Ansible Contributor Summit](https://github.com/ansible/community/wiki/Contributor-Summit) virtually or in-person. Track the [Bullhorn newsletter](https://github.com/ansible/community/issues/546) and join us.
+We take part in the global quarterly [Ansible Contributor Summit](https://github.com/ansible/community/wiki/Contributor-Summit) virtually or in-person. Track the [Bullhorn newsletter](http://eepurl.com/gZmiEP) and join us.
 
 For more information about communication, refer to the [Ansible Communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
 
@@ -78,7 +78,7 @@ collections:
   - name: community.mysql
 ```
 
-Note that if you install the collection from Ansible Galaxy, it will not be upgraded automatically with upgrade of the Ansible package. To upgrade the collection to the latest available version, run the following command:
+Note that if you install the collection from Ansible Galaxy, it will not be upgraded automatically if you upgrade the Ansible package. To upgrade the collection to the latest available version, run the following command:
 
 ```bash
 ansible-galaxy collection install community.mysql --upgrade

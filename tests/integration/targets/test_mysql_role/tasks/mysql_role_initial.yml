@@ -12,6 +12,47 @@
 
   block:
 
+  - name: Get server version
+    mysql_info:
+      <<: *mysql_params
+    register: srv
+
+  - name: Try with unsupported versions
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: must_fail
+    ignore_errors: yes
+
+  - name: Must fail when meet unsupported version
+    assert:
+      that:
+      - result is failed
+      - result is search('Roles are not supported by the server')
+    when:
+    - srv['version']['suffix'] == ""
+    - srv['version']['major'] < 8
+
+  - name: Must fail when meet unsupported version
+    assert:
+      that:
+      - result is failed
+      - result is search('Roles are not supported by the server')
+    when:
+    - srv['version']['suffix'] == "MariaDB"
+    - srv['version']['major'] < 10
+
+  # Skip unsupported versions
+  - meta: end_play
+    when:
+    - srv['version']['suffix'] == 'MySQL'
+    - srv['version']['major'] < 8
+
+  - meta: end_play
+    when:
+    - srv['version']['suffix'] == 'MariaDB'
+    - srv['version']['major'] < 10
+
   #########
   # Prepare
   - name: Create db {{ test_db }}

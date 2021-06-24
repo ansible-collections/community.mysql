@@ -15,6 +15,7 @@ short_description: Adds, removes, or updates a MySQL role
 
 description:
    - Adds, removes, or updates a MySQL role.
+   - Roles are supported since MySQL 8.0.0 and MariaDB 10.0.5.
 
 options:
   name:
@@ -216,7 +217,7 @@ def server_supports_roles(cursor, impl):
 
     Returns: True if supports, False otherwise.
     """
-    return impl.supports_roles()
+    return impl.supports_roles(cursor)
 
 
 def role_exists():
@@ -265,27 +266,27 @@ def main():
         supports_check_mode=True,
     )
 
-    login_user = module.params["login_user"]
-    login_password = module.params["login_password"]
-    name = module.params["name"]
-    state = module.params["state"]
-    priv = module.params["priv"]
-    check_implicit_admin = module.params["check_implicit_admin"]
-    connect_timeout = module.params["connect_timeout"]
-    config_file = module.params["config_file"]
-    append_privs = module.params["append_privs"]
-    detach_privs = module.params["detach_privs"]
+    login_user = module.params['login_user']
+    login_password = module.params['login_password']
+    name = module.params['name']
+    state = module.params['state']
+    priv = module.params['priv']
+    check_implicit_admin = module.params['check_implicit_admin']
+    connect_timeout = module.params['connect_timeout']
+    config_file = module.params['config_file']
+    append_privs = module.params['append_privs']
+    detach_privs = module.params['detach_privs']
     members = module.params['members']
     add_members = module.params['add_members']
     remove_members = module.params['remove_members']
-    ssl_cert = module.params["client_cert"]
-    ssl_key = module.params["client_key"]
-    ssl_ca = module.params["ca_cert"]
-    check_hostname = module.params["check_hostname"]
+    ssl_cert = module.params['client_cert']
+    ssl_key = module.params['client_key']
+    ssl_ca = module.params['ca_cert']
+    check_hostname = module.params['check_hostname']
     db = ''
 
     if priv and not isinstance(priv, (str, dict)):
-        module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
+        module.fail_json(msg='priv parameter must be str or dict but %s was passed' % type(priv))
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
@@ -294,7 +295,7 @@ def main():
     try:
         if check_implicit_admin:
             try:
-                cursor, db_conn = mysql_connect(module, "root", "", config_file,
+                cursor, db_conn = mysql_connect(module, 'root', '', config_file,
                                                 ssl_cert, ssl_key, ssl_ca, db,
                                                 connect_timeout=connect_timeout,
                                                 check_hostname=check_hostname)
@@ -308,14 +309,20 @@ def main():
                                             check_hostname=check_hostname)
 
     except Exception as e:
-        module.fail_json(msg="unable to connect to database, check login_user and login_password "
-                             "are correct or %s has the credentials. "
-                             "Exception message: %s" % (config_file, to_native(e)))
+        module.fail_json(msg='unable to connect to database, check login_user and login_password '
+                             'are correct or %s has the credentials. '
+                             'Exception message: %s' % (config_file, to_native(e)))
 
     # Set defaults
     changed = False
 
     impl = get_implementation(cursor)
+
+    # Check if the server supports roles
+    if not server_supports_roles(cursor, impl):
+        msg = ('Roles are not supported by the server. '
+               'Minimal versions are MySQL 8.0.0 or MariaDB 10.0.5.')
+        module.fail_json(msg=msg)
 
     # Main job starts here
 

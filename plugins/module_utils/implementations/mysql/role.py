@@ -8,4 +8,4 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import get_s
 def supports_roles(cursor):
     version = get_server_version(cursor)
 
-    return LooseVersion(version) < LooseVersion("10.0.5")
+    return LooseVersion(version) > LooseVersion('8')

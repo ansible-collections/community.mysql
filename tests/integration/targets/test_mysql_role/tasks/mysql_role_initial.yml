@@ -1,0 +1,43 @@
+# Test code for mysql_role module
+
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+      login_port: '{{ mysql_primary_port }}'
+
+    task_parameters: &task_params
+      register: result
+
+  block:
+
+  #########
+  # Prepare
+  - name: Create db {{ test_db }}
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: 'CREATE DATABASE {{ test_db }}'
+    register: result
+
+  - name: Create {{ test_table }}
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ test_db }}'
+      query: 'CREATE TABLE {{ test_table }} (id int)'
+    register: result
+
+  ###########
+  # Run tests
+
+
+
+  always:
+  # Clean up
+  - name: Drop db {{ test_db }}
+    mysql_query:
+      <<: *mysql_params
+      query: 'DROP DATABASE {{ test_db }}'
+    register: result

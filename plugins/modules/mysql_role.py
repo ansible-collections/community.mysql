@@ -220,28 +220,42 @@ def server_supports_roles(cursor, impl):
     return impl.supports_roles(cursor)
 
 
-def role_exists():
-    pass
+class Role():
+    def __init__(self, module, cursor, name):
+        self.module = module
+        self.cursor = cursor
+        self.name = name
+        self.exists = self.role_exists()
+        self.members = set()
+        self.privs = {}
 
+        if self.exists:
+            self.members = self.get_members()
+            self.privs = self.get_privs()
 
-def role_add():
-    pass
+    def role_exists(self):
+        return False
 
+    def role_add(self):
+        pass
 
-def grant_priv():
-    pass
+    def get_privs(self):
+        return set()
 
+    def grant_priv(self):
+        pass
 
-def revoke_priv():
-    pass
+    def revoke_priv(self):
+        pass
 
+    def get_members(self):
+        return {}
 
-def add_member():
-    pass
+    def add_member(self):
+        pass
 
-
-def revoke_member():
-    pass
+    def revoke_member(self):
+        pass
 
 
 def get_hostnames():
@@ -325,6 +339,7 @@ def main():
         module.fail_json(msg=msg)
 
     # Main job starts here
+    role = Role(module, cursor, name)
 
     # It's time to exit
     db_conn.close()

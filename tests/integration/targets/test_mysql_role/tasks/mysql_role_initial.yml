@@ -62,13 +62,19 @@
       query: 'CREATE DATABASE {{ test_db }}'
     register: result
 
-  - name: Create {{ test_table }}
+  - name: Create table {{ test_table }}
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       login_db: '{{ test_db }}'
       query: 'CREATE TABLE {{ test_table }} (id int)'
     register: result
+
+  - name: Create user {{ user0 }}
+    <<: *task_params
+    mysql_user:
+      <<: *mysql_params
+      name: '{{ user0 }}'
 
   ###########
   # Run tests
@@ -78,13 +84,15 @@
       <<: *mysql_params
       name: '{{ role0 }}'
       state: present
+      members:
+      - '{{ user0 }}'
 
   - name: Check
     assert:
       that:
       - result is changed
 
-  - name: Create role {{ role0 }}
+  - name: Create role {{ role0 }} again
     <<: *task_params
     mysql_role:
       <<: *mysql_params

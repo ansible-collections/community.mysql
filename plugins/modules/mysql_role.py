@@ -208,15 +208,31 @@ def get_implementation(cursor):
     return impl
 
 
+def normalize_users(module, users):
+    normalized_users = []
+
+    for user in users:
+        tmp = user.split('@')
+
+        if tmp[0] == '':
+            module.fail_json(msg="Member's name cannot be empty")
+
+        if len(tmp) == 1:
+            normalized_users.append('`%s`@`localhost`' % tmp[0])
+
+        elif len(tmp) == 2:
+            normalized_users.append('`%s`@`%s`' % (tmp[0], tmp[1]))
+
+        else:
+            msg = ('Formatting error in member name: "%s". It must be in the '
+                   'format "username" or "username@hostname" ' % tmp[0])
+            module.fail_json(msg=msg)
+
+    return normalized_users
+
+
 # Roles supported since MySQL 8.0.0 and MariaDB 10.0.5
 def server_supports_roles(cursor, impl):
-    """Check if the server supports ALTER USER statement or doesn't.
-
-    Args:
-        cursor (cursor): DB driver cursor object.
-
-    Returns: True if supports, False otherwise.
-    """
     return impl.supports_roles(cursor)
 
 
@@ -244,7 +260,7 @@ class Role():
         if self.exists:
             self.members = self.__get_members()
             self.module.warn('%s' % self.members)
-        #    self.privs = self.get_privs()
+            # self.privs = self.get_privs()
 
     def __role_exists(self):
         query = ("SELECT count(*) FROM mysql.user "
@@ -255,8 +271,16 @@ class Role():
     def add(self):
         self.cursor.execute('CREATE ROLE %s', (self.name))
 
-    def update(self):
-        return False
+    def update(self, users):
+        changed = False
+
+        if users:
+            for user in users:
+                if user not in self.members:
+                    self.add_member(user)
+                    changed = True
+
+        return changed
 
     def get_privs(self):
         return {}
@@ -280,7 +304,7 @@ class Role():
             grants = get_grants(self.cursor, user, host)
 
             if self.__is_member(grants):
-                members.add("%s@`%s`" % (user, host))
+                members.add("`%s`@`%s`" % (user, host))
 
         return members
 
@@ -294,8 +318,8 @@ class Role():
 
         return False
 
-    def add_member(self):
-        pass
+    def add_member(self, user):
+        self.cursor.execute('GRANT %s TO %s', (self.full_name, user))
 
     def revoke_member(self):
         pass
@@ -381,6 +405,9 @@ def main():
                'Minimal versions are MySQL 8.0.0 or MariaDB 10.0.5.')
         module.fail_json(msg=msg)
 
+    if members:
+        members = normalize_users(module, members)
+
     # Main job starts here
     role = Role(module, cursor, name)
 
@@ -390,7 +417,7 @@ def main():
             changed = True
 
         else:
-            changed = role.update()
+            changed = role.update(members)
 
     # It's time to exit
     db_conn.close()

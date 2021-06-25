@@ -234,7 +234,10 @@ class Role():
             self.privs = self.get_privs()
 
     def role_exists(self):
-        return False
+        query = ("SELECT count(*) FROM mysql.user "
+                 "WHERE user = %s AND host = '%'")
+        cursor.execute(query, (user,))
+        return cursor.fetchone() > 0
 
     def role_add(self):
         pass

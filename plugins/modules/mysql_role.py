@@ -220,30 +220,42 @@ def server_supports_roles(cursor, impl):
     return impl.supports_roles(cursor)
 
 
+def get_users(cursor):
+    cursor.execute('SELECT User, Host FROM mysql.user')
+    return cursor.fetchall()
+
+
+def get_grants(cursor, user, host):
+    cursor.execute("SHOW GRANTS FOR %s@'%s'", (user, host))
+    return cursor.fetchall()
+
+
 class Role():
     def __init__(self, module, cursor, name):
         self.module = module
         self.cursor = cursor
         self.name = name
-        self.exists = self.role_exists()
+        self.exists = self.__role_exists()
         self.members = set()
         self.privs = {}
 
-        if self.exists:
-            self.members = self.get_members()
-            self.privs = self.get_privs()
+        self.__get_users = get_users
 
-    def role_exists(self):
+        # if self.exists:
+        #    self.members = self.get_members()
+        #    self.privs = self.get_privs()
+
+    def __role_exists(self):
         query = ("SELECT count(*) FROM mysql.user "
-                 "WHERE user = %s AND host = '%'")
-        cursor.execute(query, (user,))
-        return cursor.fetchone() > 0
+                 "WHERE user = %s AND host = '%s'")
+        self.cursor.execute(query, (self.name, '%'))
+        return self.cursor.fetchone()[0] > 0
 
-    def role_add(self):
-        pass
+    def add(self):
+        self.cursor.execute('CREATE ROLE %s', (self.name))
 
     def get_privs(self):
-        return set()
+        return {}
 
     def grant_priv(self):
         pass
@@ -252,7 +264,29 @@ class Role():
         pass
 
     def get_members(self):
-        return {}
+        all_users = self.__get_users(self.cursor)
+        self.module.warn(all_users)
+
+        members = set()
+
+        for user, host in all_users:
+            grants = get_grants(user, host)
+
+            if self.__is_member(grants):
+                members.add("%s@'%s'" % (user, host))
+
+        return members
+
+    def __is_member(self, grants):
+        # GRANT `readers`@`%` TO `test`@`%`
+
+        if not grants:
+            return False
+
+        # for grant in grants:
+        #
+
+        return False
 
     def add_member(self):
         pass
@@ -343,6 +377,11 @@ def main():
 
     # Main job starts here
     role = Role(module, cursor, name)
+
+    if state == 'present':
+        if not role.exists:
+            role.add()
+            changed = True
 
     # It's time to exit
     db_conn.close()

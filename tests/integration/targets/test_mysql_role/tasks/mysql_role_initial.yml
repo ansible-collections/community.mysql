@@ -72,8 +72,17 @@
 
   ###########
   # Run tests
+  - name: Create role {{ role0 }}
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
 
-
+  - name: Check
+    assert:
+      that:
+      - result is changed
 
   always:
   # Clean up

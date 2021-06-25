@@ -4,3 +4,5 @@ mysql_primary_port: 3307
 
 test_db: test_db
 test_table: test_table
+
+role0: role0

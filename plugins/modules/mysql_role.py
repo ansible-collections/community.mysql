@@ -226,7 +226,7 @@ def get_users(cursor):
 
 
 def get_grants(cursor, user, host):
-    cursor.execute("SHOW GRANTS FOR %s@'%s'", (user, host))
+    cursor.execute("SHOW GRANTS FOR %s@%s", (user, host))
     return cursor.fetchall()
 
 
@@ -235,24 +235,28 @@ class Role():
         self.module = module
         self.cursor = cursor
         self.name = name
+        self.host = '%s'
+        self.full_name = '`%s`@`%s`' % (self.name, self.host)
         self.exists = self.__role_exists()
         self.members = set()
         self.privs = {}
 
-        self.__get_users = get_users
-
         if self.exists:
             self.members = self.__get_members()
+            self.module.warn('%s' % self.members)
         #    self.privs = self.get_privs()
 
     def __role_exists(self):
         query = ("SELECT count(*) FROM mysql.user "
-                 "WHERE user = %s AND host = '%s'")
+                 "WHERE user = %s AND host = %s")
         self.cursor.execute(query, (self.name, '%'))
         return self.cursor.fetchone()[0] > 0
 
     def add(self):
         self.cursor.execute('CREATE ROLE %s', (self.name))
+
+    def update(self):
+        return False
 
     def get_privs(self):
         return {}
@@ -264,27 +268,29 @@ class Role():
         pass
 
     def __get_members(self):
-        all_users = self.__get_users(self.cursor)
-        self.module.warn(all_users)
+        all_users = get_users(self.cursor)
 
         members = set()
 
         for user, host in all_users:
-            grants = get_grants(user, host)
+            # Don't handle itself
+            if user == self.name and host == self.host:
+                continue
+
+            grants = get_grants(self.cursor, user, host)
 
             if self.__is_member(grants):
-                members.add("%s@'%s'" % (user, host))
+                members.add("%s@`%s`" % (user, host))
 
         return members
 
     def __is_member(self, grants):
-        # GRANT `readers`@`%` TO `test`@`%`
-
         if not grants:
             return False
 
-        # for grant in grants:
-        #
+        for grant in grants:
+            if self.full_name in grant:
+                return True
 
         return False
 
@@ -382,6 +388,9 @@ def main():
         if not role.exists:
             role.add()
             changed = True
+
+        else:
+            changed = role.update()
 
     # It's time to exit
     db_conn.close()

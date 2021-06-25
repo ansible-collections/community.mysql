@@ -84,6 +84,18 @@
       that:
       - result is changed
 
+  - name: Create role {{ role0 }}
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+
+  - name: Check
+    assert:
+      that:
+      - result is not changed
+
   always:
   # Clean up
   - name: Drop db {{ test_db }}

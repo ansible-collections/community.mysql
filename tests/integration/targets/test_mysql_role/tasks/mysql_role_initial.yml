@@ -30,28 +30,12 @@
       - result is failed
       - result is search('Roles are not supported by the server')
     when:
-    - srv['version']['suffix'] == ''
     - srv['version']['major'] < 8
-
-  - name: Must fail when meet unsupported version
-    assert:
-      that:
-      - result is failed
-      - result is search('Roles are not supported by the server')
-    when:
-    - srv['version']['suffix'] == 'MariaDB'
-    - srv['version']['major'] < 10
 
   # Skip unsupported versions
   - meta: end_play
     when:
-    - srv['version']['suffix'] == ''
     - srv['version']['major'] < 8
-
-  - meta: end_play
-    when:
-    - srv['version']['suffix'] == 'MariaDB'
-    - srv['version']['major'] < 10
 
   #########
   # Prepare

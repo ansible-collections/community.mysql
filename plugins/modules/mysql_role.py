@@ -241,8 +241,8 @@ class Role():
 
         self.__get_users = get_users
 
-        # if self.exists:
-        #    self.members = self.get_members()
+        if self.exists:
+            self.members = self.__get_members()
         #    self.privs = self.get_privs()
 
     def __role_exists(self):
@@ -263,7 +263,7 @@ class Role():
     def revoke_priv(self):
         pass
 
-    def get_members(self):
+    def __get_members(self):
         all_users = self.__get_users(self.cursor)
         self.module.warn(all_users)
 

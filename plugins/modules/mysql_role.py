@@ -259,6 +259,7 @@ class Role():
 
         if self.exists:
             self.members = self.__get_members()
+            # TODO: remove this debug
             self.module.warn('%s' % self.members)
             # self.privs = self.get_privs()
 
@@ -302,6 +303,9 @@ class Role():
                 continue
 
             grants = get_grants(self.cursor, user, host)
+            # TODO: remove this debug
+            # for grant in grants:
+            #    self.module.warn(grant[0])
 
             if self.__is_member(grants):
                 members.add("`%s`@`%s`" % (user, host))
@@ -313,7 +317,7 @@ class Role():
             return False
 
         for grant in grants:
-            if self.full_name in grant:
+            if self.full_name in grant[0]:
                 return True
 
         return False

@@ -269,7 +269,7 @@ class Role():
         return self.cursor.fetchone()[0] > 0
 
     def add(self):
-        self.cursor.execute('CREATE ROLE %s', (self.name))
+        self.cursor.execute('CREATE ROLE %s', (self.name,))
 
     def update(self, users):
         changed = False

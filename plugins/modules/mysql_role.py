@@ -298,10 +298,50 @@ class Role():
         return changed
 
     def get_privs(self):
-        res = get_grants(cursor, self.name, self.host)
+        """Get role's privileges."""
+        res = get_grants(self.cursor, self.name, self.host)
+
+        privs_set = set()
+
+        for line in res:
+            privs_set.add(self.__extract_grants(line[0]))
 
         # TODO Change it to dict later
-        return res
+        return privs_set
+
+    def __extract_grants(self, line):
+        # Can be:
+        # GRANT SELECT, INSERT, UPDATE ON *.* TO `test`@`%`
+        # GRANT INSERT ON `mysql`.* TO `test`@`%
+        # GRANT INSERT ON `mysql`.`user` TO `test`@`%`
+        # GRANT `readers`@`%` TO `test`@`%`
+        # ...
+        # TODO check cases when several roles granted
+
+        # Grant lines have format
+        # 'GRANT something [ON something] TO someone'
+        tmp = line.split()[1:-2]
+        # After we have
+        # ['something', 'ON', 'something']
+        # where 'ON' and 'something' are optional
+
+        # Say, we have the line argument passed as
+        # GRANT `readers`@`%` TO `test`@`%`
+        if 'ON' not in tmp:
+            # Means that a role is granted.
+            # Return the role
+            return tmp[0]
+
+        # Say, we have the line argument passed as
+        # GRANT SELECT, INSERT, UPDATE ON *.* TO `test`@`%`
+        scope = tmp[-1]
+
+        # Before ['SELECT', 'INSERT,', 'UPDATE', 'ON', '*.*']
+        tmp = tmp[:-2]
+        # After ['SELECT,', 'INSERT,', 'UPDATE']
+
+        # Make '*.*:SELECT,INSERT,UPDATE' and return
+        return '%s:%s' % (scope, ''.join(tmp))
 
     def grant_priv(self):
         pass

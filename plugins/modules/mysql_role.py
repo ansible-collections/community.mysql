@@ -245,7 +245,7 @@ def get_users(cursor):
 
 
 def get_grants(cursor, user, host):
-    cursor.execute("SHOW GRANTS FOR %s@%s", (user, host))
+    cursor.execute('SHOW GRANTS FOR %s@%s', (user, host))
     return cursor.fetchall()
 
 
@@ -264,7 +264,8 @@ class Role():
             self.members = self.__get_members()
             # TODO: remove this debug
             self.module.warn('%s' % self.members)
-            # self.privs = self.get_privs()
+            self.privs = self.get_privs()
+            self.module.warn('%s' % self.privs)
 
     def __role_exists(self):
         query = ("SELECT count(*) FROM mysql.user "
@@ -272,7 +273,7 @@ class Role():
         self.cursor.execute(query, (self.name, '%'))
         return self.cursor.fetchone()[0] > 0
 
-    def add(self, users):
+    def add(self, users, privs):
         self.cursor.execute('CREATE ROLE %s', (self.name,))
 
         if users:
@@ -285,7 +286,7 @@ class Role():
         for user in users:
             self.cursor.execute('GRANT %s TO %s' % (self.full_name, user))
 
-    def update(self, users):
+    def update(self, users, privs):
         changed = False
 
         if users:
@@ -297,7 +298,11 @@ class Role():
         return changed
 
     def get_privs(self):
-        return {}
+        self.cursor.execute('SHOW GRANTS FOR %s' % self.full_name)
+        res = self.cursor.fetchall()
+
+        # TODO Change it to dict later
+        return res
 
     def grant_priv(self):
         pass
@@ -316,9 +321,6 @@ class Role():
                 continue
 
             grants = get_grants(self.cursor, user, host)
-            # TODO: remove this debug
-            # for grant in grants:
-            #    self.module.warn(grant[0])
 
             if self.__is_member(grants):
                 members.add("`%s`@`%s`" % (user, host))
@@ -368,7 +370,7 @@ def main():
     login_password = module.params['login_password']
     name = module.params['name']
     state = module.params['state']
-    priv = module.params['priv']
+    privs = module.params['priv']
     check_implicit_admin = module.params['check_implicit_admin']
     connect_timeout = module.params['connect_timeout']
     config_file = module.params['config_file']
@@ -383,8 +385,8 @@ def main():
     check_hostname = module.params['check_hostname']
     db = ''
 
-    if priv and not isinstance(priv, (str, dict)):
-        msg = 'priv parameter must be str or dict but %s was passed' % type(priv)
+    if privs and not isinstance(privs, (str, dict)):
+        msg = 'priv parameter must be str or dict but %s was passed' % type(privs)
         module.fail_json(msg=msg)
 
     if mysql_driver is None:
@@ -432,11 +434,11 @@ def main():
 
     if state == 'present':
         if not role.exists:
-            role.add(members)
+            role.add(members, privs)
             changed = True
 
         else:
-            changed = role.update(members)
+            changed = role.update(members, privs)
 
     # It's time to exit
     db_conn.close()

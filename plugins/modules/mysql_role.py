@@ -298,8 +298,7 @@ class Role():
         return changed
 
     def get_privs(self):
-        self.cursor.execute('SHOW GRANTS FOR %s' % self.full_name)
-        res = self.cursor.fetchall()
+        res = get_grants(cursor, self.name, self.host)
 
         # TODO Change it to dict later
         return res

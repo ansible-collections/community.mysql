@@ -209,6 +209,9 @@ def get_implementation(cursor):
 
 
 def normalize_users(module, users):
+    # Example of transformation:
+    # ['user0'] => ['`user0`@`localhost`']
+    # ['user0@host0'] => ['`user0`@`host0`']
     normalized_users = []
 
     for user in users:
@@ -251,7 +254,7 @@ class Role():
         self.module = module
         self.cursor = cursor
         self.name = name
-        self.host = '%s'
+        self.host = '%'
         self.full_name = '`%s`@`%s`' % (self.name, self.host)
         self.exists = self.__role_exists()
         self.members = set()
@@ -269,8 +272,18 @@ class Role():
         self.cursor.execute(query, (self.name, '%'))
         return self.cursor.fetchone()[0] > 0
 
-    def add(self):
+    def add(self, users):
         self.cursor.execute('CREATE ROLE %s', (self.name,))
+
+        if users:
+            self.add_members(users)
+
+    def add_members(self, users):
+        if not users:
+            return
+
+        for user in users:
+            self.cursor.execute('GRANT %s TO %s' % (self.full_name, user))
 
     def update(self, users):
         changed = False
@@ -371,7 +384,8 @@ def main():
     db = ''
 
     if priv and not isinstance(priv, (str, dict)):
-        module.fail_json(msg='priv parameter must be str or dict but %s was passed' % type(priv))
+        msg = 'priv parameter must be str or dict but %s was passed' % type(priv)
+        module.fail_json(msg=msg)
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
@@ -388,13 +402,14 @@ def main():
                 pass
 
         if not cursor:
-            cursor, db_conn = mysql_connect(module, login_user, login_password, config_file,
-                                            ssl_cert, ssl_key, ssl_ca, db,
-                                            connect_timeout=connect_timeout,
+            cursor, db_conn = mysql_connect(module, login_user, login_password,
+                                            config_file, ssl_cert, ssl_key,
+                                            ssl_ca, db, connect_timeout=connect_timeout,
                                             check_hostname=check_hostname)
 
     except Exception as e:
-        module.fail_json(msg='unable to connect to database, check login_user and login_password '
+        module.fail_json(msg='unable to connect to database, '
+                             'check login_user and login_password '
                              'are correct or %s has the credentials. '
                              'Exception message: %s' % (config_file, to_native(e)))
 
@@ -417,7 +432,7 @@ def main():
 
     if state == 'present':
         if not role.exists:
-            role.add()
+            role.add(members)
             changed = True
 
         else:

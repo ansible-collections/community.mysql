@@ -234,6 +234,16 @@ def normalize_users(module, users):
     return normalized_users
 
 
+def normalize_privs(module, privs):
+    # The privs argument is a dict that will be transformed.
+    # Example:
+    # { '*.*': 'SELECT', 'db0.*': 'UPDATE', 'db1.t0': 'INSERT'} =>
+    # { 'global': {'SELECT'}, 'db': {'all': 'UPDATE', 'tables': {'t0': {'INSERT'}}} }
+    normalized_privs = []
+
+    return normalized_privs
+
+
 # Roles supported since MySQL 8.0.0 and MariaDB 10.0.5
 def server_supports_roles(cursor, impl):
     return impl.supports_roles(cursor)
@@ -258,14 +268,21 @@ class Role():
         self.full_name = '`%s`@`%s`' % (self.name, self.host)
         self.exists = self.__role_exists()
         self.members = set()
-        self.privs = {}
+
+        self.privs = {
+            'global': set(),
+            'db': {},
+        }
 
         if self.exists:
             self.members = self.__get_members()
             # TODO: remove this debug
             self.module.warn('%s' % self.members)
-            self.privs = self.get_privs()
-            self.module.warn('%s' % self.privs)
+
+            # Fetch and fill up self.global_privs and self.db_privs
+            self.get_privs()
+            self.module.warn('GLOBAL PRIVS: %s' % self.privs['global'])
+            self.module.warn('DB PRIVS: %s' % self.privs['db'])
 
     def __role_exists(self):
         query = ("SELECT count(*) FROM mysql.user "
@@ -301,13 +318,8 @@ class Role():
         """Get role's privileges."""
         res = get_grants(self.cursor, self.name, self.host)
 
-        privs_set = set()
-
         for line in res:
-            privs_set.add(self.__extract_grants(line[0]))
-
-        # TODO Change it to dict later
-        return privs_set
+            self.__extract_grants(line[0])
 
     def __extract_grants(self, line):
         # Can be:
@@ -341,8 +353,54 @@ class Role():
         tmp = tmp[:-2]
         # After ['SELECT,', 'INSERT,', 'UPDATE']
 
+        # When privs are relevant for all DBs,
+        # set self.global_privs
+        if scope == '*.*':
+            self.__set_global_privs(tmp)
+            return
+
+        # When privs are relevant for a particular DB,
+        # fill up the self.db_privs dict
+        self.__set_db_privs(scope, tmp)
+
         # Make '*.*:SELECT,INSERT,UPDATE' and return
         return '%s:%s' % (scope, ''.join(tmp))
+
+    def __set_global_privs(self, privs):
+        for p in privs:
+            self.privs['global'].add(p.rstrip(','))
+
+    def __set_db_scope(self, scope, privs):
+        # For cases such as 'dbname.*' or 'dbname.tblname'.
+        # We have the self.db_privs dict which has two keys
+        # 1) 'all' (is a set containing privs for all the tables) and
+        # 2) 'tables' (is a dict containing table names which are, in tern, sets.
+        tmp = scope.split('.')
+        db = tmp[0]
+        table = tmp[1]
+
+        if db not in self.privs['db']:
+            self.privs['db'][db] = {}
+            self.privs['db'][db]['all'] = set()
+            self.privs['db'][db]['tables'] = {}
+
+        # When the scope is all the tables,
+        # put the privs in the corresponding set
+        if table == '*':
+            for p in privs:
+                p = p.rstrip(',')
+                self.privs['db'][db]['all'].add(p)
+
+            return
+
+        if table not in self.privs['db'][db]['tables']:
+            self.privs['db'][db]['tables'][table] = set()
+
+        # When the scope is a table,
+        # put the privs in the corresponding table set
+        for p in privs:
+            p = p.rstrip(',')
+            self.privs['db'][db]['tables'][table].add(p)
 
     def grant_priv(self):
         pass
@@ -468,6 +526,9 @@ def main():
 
     if members:
         members = normalize_users(module, members)
+
+    if privs:
+        privs = normalize_privs(module, privs)
 
     # Main job starts here
     role = Role(module, cursor, name)

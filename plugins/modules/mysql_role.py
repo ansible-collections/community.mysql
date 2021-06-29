@@ -195,6 +195,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_common_argument_spec
 )
 from ansible.module_utils._text import to_native
+from ansible.module_utils.six import iteritems
 
 
 def get_implementation(cursor):
@@ -235,13 +236,72 @@ def normalize_users(module, users):
 
 
 def normalize_privs(module, privs):
+    # TODO move shared code from this function and Role.__set_db_scope() method
+    # to a separate function
+
     # The privs argument is a dict that will be transformed.
     # Example:
     # { '*.*': 'SELECT', 'db0.*': 'UPDATE', 'db1.t0': 'INSERT'} =>
     # { 'global': {'SELECT'}, 'db': {'all': 'UPDATE', 'tables': {'t0': {'INSERT'}}} }
-    normalized_privs = []
+    norm_privs = {
+        'global': set(),
+        'db': {}
+    }
 
-    return normalized_privs
+    for scope, priv_str in iteritems(privs):
+        privs = priv_str.split(',')
+        if scope == '*.*':
+            for p in privs:
+                norm_privs['global'].add(p)
+            continue
+
+        tmp = scope.split('.')
+        db = tmp[0]
+        table = tmp[1]
+
+        if db not in norm_privs['db']:
+            norm_privs['db'][db] = {}
+            norm_privs['db'][db]['all'] = set()
+            norm_privs['db'][db]['tables'] = {}
+
+        # When the scope is all the tables,
+        # put the privs in the corresponding set
+        if table == '*':
+            for p in privs:
+                p = p.rstrip(',')
+                norm_privs['db'][db]['all'].add(p)
+
+            continue
+
+        if table not in norm_privs['db'][db]['tables']:
+            norm_privs['db'][db]['tables'][table] = set()
+
+        # When the scope is a table,
+        # put the privs in the corresponding table set
+        for p in privs:
+            p = p.rstrip(',')
+            norm_privs['db'][db]['tables'][table].add(p)
+
+    return norm_privs
+
+
+def get_grant_query(to_whom, privs, glob=False, db=None, table=None):
+    query = 'GRANT %s ' % ','.join(privs)
+
+    objs = None
+    if glob:
+        objs = 'ON *.* '
+
+    elif db:
+        if table:
+            objs = 'ON %s.%s ' % (db, table)
+        else:
+            objs = 'ON %s.* ' % db
+
+    query += objs
+    query += 'TO %' % to_whom
+
+    return query
 
 
 # Roles supported since MySQL 8.0.0 and MariaDB 10.0.5
@@ -290,11 +350,48 @@ class Role():
         self.cursor.execute(query, (self.name, '%'))
         return self.cursor.fetchone()[0] > 0
 
-    def add(self, users, privs):
+    def add(self, users, privs, check_mode=False):
+        if check_mode:
+            if not self.exists:
+                return True
+            return False
+
         self.cursor.execute('CREATE ROLE %s', (self.name,))
 
         if users:
             self.add_members(users)
+
+        if privs:
+            self.add_privs(privs)
+
+        return True
+
+    def add_privs(self, privs):
+        if privs['global']:
+            q1 = get_grant_query(self.full_name, list(privs['global']), glob=True)
+            self.module.warn(q1)
+
+        if privs['db']:
+            for db in privs['db']:
+                if privs['db'][db]['all']:
+                    q2 = get_grant_query(self.full_name, list(privs['db'][db]['all']), db=db)
+                    self.module.warn(q2)
+
+                if privs['db'][db]['tables']:
+                    for table in privs['db'][db]['tables']:
+                        q3 = get_grant_query(self.full_name, list(privs['db'][db]['tables'][table]),
+                                             db=db, table=table)
+                        self.module.warn(q3)
+
+    def drop(self, check_mode=False):
+        if not self.exists:
+            return False
+
+        if check_mode and self.exists:
+            return True
+
+        self.cursor.execute('DROP ROLE %s', (self.name,))
+        return True
 
     def add_members(self, users):
         if not users:
@@ -303,7 +400,11 @@ class Role():
         for user in users:
             self.cursor.execute('GRANT %s TO %s' % (self.full_name, user))
 
-    def update(self, users, privs):
+    def update(self, users, privs, check_mode=False):
+        if check_mode:
+            # TODO implementation
+            return True
+
         changed = False
 
         if users:
@@ -529,17 +630,22 @@ def main():
 
     if privs:
         privs = normalize_privs(module, privs)
+    # TODO remove this debug
+    module.warn('NORMALIZED PRIVS: %s' % privs)
 
     # Main job starts here
     role = Role(module, cursor, name)
 
     if state == 'present':
         if not role.exists:
-            role.add(members, privs)
-            changed = True
+            changed = role.add(members, privs, module.check_mode)
 
         else:
-            changed = role.update(members, privs)
+            # TODO check_mode implementation
+            changed = role.update(members, privs, module.check_mode)
+
+    elif state == 'absent':
+        changed = role.drop(module.check_mode)
 
     # It's time to exit
     db_conn.close()

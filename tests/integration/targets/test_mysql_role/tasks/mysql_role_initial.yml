@@ -115,6 +115,20 @@
       that:
       - result is not changed
 
+  # ==================
+
+  - name: Create role {{ role0 }}
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      members:
+      - '{{ user0 }}'
+      priv:
+        '*.*': 'SELECT,INSERT'
+        'mysql.*': 'UPDATE'
+
   always:
   # Clean up
   - name: Drop db {{ test_db }}

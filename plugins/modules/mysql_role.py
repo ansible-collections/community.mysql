@@ -317,6 +317,7 @@ class Role():
         # GRANT `readers`@`%` TO `test`@`%`
         # ...
         # TODO check cases when several roles granted
+        # TODO implement via sets
 
         # Grant lines have format
         # 'GRANT something [ON something] TO someone'

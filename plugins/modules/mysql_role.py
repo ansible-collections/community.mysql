@@ -337,17 +337,18 @@ class Role():
 
         if self.exists:
             self.members = self.__get_members()
-            # TODO: remove this debug
-            self.module.warn('%s' % self.members)
 
             # Fetch and fill up self.global_privs and self.db_privs
             self.get_privs()
+
+            # TODO: remove this debug
+            self.module.warn('%s' % self.members)
             self.module.warn('GLOBAL PRIVS: %s' % self.privs['global'])
             self.module.warn('DB PRIVS: %s' % self.privs['db'])
 
     def __role_exists(self):
-        query = ("SELECT count(*) FROM mysql.user "
-                 "WHERE user = %s AND host = %s")
+        query = ('SELECT count(*) FROM mysql.user '
+                 'WHERE user = %s AND host = %s')
         self.cursor.execute(query, (self.name, '%'))
         return self.cursor.fetchone()[0] > 0
 
@@ -399,12 +400,20 @@ class Role():
         self.cursor.execute('DROP ROLE %s', (self.name,))
         return True
 
-    def add_members(self, users):
+    def add_members(self, users, check_mode=False):
         if not users:
-            return
+            return False
 
+        changed = False
         for user in users:
-            self.cursor.execute('GRANT %s TO %s' % (self.full_name, user))
+            if user not in self.members:
+                if check_mode:
+                    return True
+
+                self.cursor.execute('GRANT %s TO %s' % (self.full_name, user))
+                changed = True
+
+        return changed
 
     def update(self, users, privs, check_mode=False,
                append_members=False, append_privs=False):
@@ -416,13 +425,7 @@ class Role():
         changed = False
 
         if users:
-            for user in users:
-                if user not in self.members:
-                    if check_mode:
-                        return True
-
-                    self.add_member(user)
-                    changed = True
+            changed = self.add_members(users, check_mode=check_mode)
 
         if privs:
             self.module.warn('CURRENT PRIVS: %s' % self.privs)
@@ -555,9 +558,6 @@ class Role():
 
         return False
 
-    def add_member(self, user):
-        self.cursor.execute('GRANT %s TO %s', (self.full_name, user))
-
     def revoke_member(self):
         pass
 
@@ -649,8 +649,6 @@ def main():
 
     if privs:
         privs = normalize_privs(module, privs)
-    # TODO remove this debug
-    module.warn('NORMALIZED PRIVS: %s' % privs)
 
     # Main job starts here
     role = Role(module, cursor, name)
@@ -660,7 +658,6 @@ def main():
             changed = role.add(members, privs, module.check_mode)
 
         else:
-            # TODO check_mode implementation
             changed = role.update(members, privs, module.check_mode)
 
     elif state == 'absent':

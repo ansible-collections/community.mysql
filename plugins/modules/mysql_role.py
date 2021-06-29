@@ -26,21 +26,23 @@ options:
 
   priv:
     description:
-      - "MySQL privileges dict of elements in the format C('db.table': 'priv1,priv2')."
-      - Refer to the examples section.
-    type: dict
+      - "MySQL privileges string in the format: C(db.table:priv1,priv2)."
+      - "Multiple privileges can be specified by separating each one using
+        a forward slash: C(db.table:priv/db.table:priv)."
+      - The format is based on MySQL C(GRANT) statement.
+      - Database and table names can be quoted, MySQL-style.
+      - If column privileges are used, the C(priv1,priv2) part must be
+        exactly as returned by a C(SHOW GRANT) statement. If not followed,
+        the module will always report changes. It includes grouping columns
+        by permission (C(SELECT(col1,col2)) instead of C(SELECT(col1),SELECT(col2))).
+      - Can be passed as a dictionary (see the examples).
+      - Supports GRANTs for procedures and functions (see the examples).
+    type: raw
 
   append_privs:
     description:
       - Append the privileges defined by I(priv) to the existing ones
         for this role instead of overwriting them.
-    type: bool
-    default: no
-
-  detach_privs:
-    description:
-      - Detach the privileges defined by I(priv) from the existing ones
-        for this role instead of overwriting existing ones.
     type: bool
     default: no
 
@@ -107,6 +109,9 @@ EXAMPLES = r'''
 #   'mydb.*': 'INSERT,UPDATE'
 #   'anotherdb.*': 'SELECT'
 #   'yetanotherdb.*': 'ALL'
+#
+# You can also use the string format like in mysql_user module, for example
+# mydb.*:INSERT,UPDATE/anotherdb.*:SELECT/yetanotherdb.*:ALL
 
 # Create a role developers with all database privileges
 # and add alice and bob as members
@@ -157,15 +162,6 @@ EXAMPLES = r'''
       'db1.*': 'SELECT,UPDATE'
       'db2.*': 'SELECT,UPDATE'
 
-- name: Revoke the 'UPDATE' privilege from the role foo in db1 and db2
-  community.mysql.mysql_role:
-    state: present
-    name: foo
-    detach_privs: yes
-    priv:
-      'db1.*': 'UPDATE'
-      'db2.*': 'UPDATE'
-
 - name: Remove joe from readers
   community.mysql.mysql_role:
     state: present
@@ -194,6 +190,14 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_driver_fail_msg,
     mysql_common_argument_spec
 )
+from ansible_collections.community.mysql.plugins.module_utils.user import (
+    convert_priv_dict_to_str,
+    get_impl,
+    get_mode,
+    user_mod,
+    privileges_grant,
+    privileges_unpack,
+)
 from ansible.module_utils._text import to_native
 from ansible.module_utils.six import iteritems
 
@@ -202,17 +206,17 @@ def get_implementation(cursor):
     cursor.execute("SELECT VERSION()")
 
     if 'mariadb' in cursor.fetchone()[0].lower():
-        import ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb.role as impl
+        import ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb.role as role_impl
     else:
-        import ansible_collections.community.mysql.plugins.module_utils.implementations.mysql.role as impl
+        import ansible_collections.community.mysql.plugins.module_utils.implementations.mysql.role as role_impl
 
-    return impl
+    return role_impl
 
 
 def normalize_users(module, users):
     # Example of transformation:
-    # ['user0'] => ['`user0`@`localhost`']
-    # ['user0@host0'] => ['`user0`@`host0`']
+    # ['user0'] => [('user0', 'localhost')]
+    # ['user0@host0'] => [('user0', 'host0')]
     normalized_users = []
 
     for user in users:
@@ -222,10 +226,10 @@ def normalize_users(module, users):
             module.fail_json(msg="Member's name cannot be empty")
 
         if len(tmp) == 1:
-            normalized_users.append('`%s`@`localhost`' % tmp[0])
+            normalized_users.append((tmp[0], 'localhost'))
 
         elif len(tmp) == 2:
-            normalized_users.append('`%s`@`%s`' % (tmp[0], tmp[1]))
+            normalized_users.append((tmp[0], tmp[1]))
 
         else:
             msg = ('Formatting error in member name: "%s". It must be in the '
@@ -235,79 +239,9 @@ def normalize_users(module, users):
     return normalized_users
 
 
-def normalize_privs(module, privs):
-    # TODO move shared code from this function and Role.__set_db_privs() method
-    # to a separate function
-
-    # The privs argument is a dict that will be transformed.
-    # Example:
-    # { '*.*': 'SELECT', 'db0.*': 'UPDATE', 'db1.t0': 'INSERT'} =>
-    # { 'global': {'SELECT'}, 'db': {'all': 'UPDATE', 'tables': {'t0': {'INSERT'}}} }
-    norm_privs = {
-        'global': set(),
-        'db': {}
-    }
-
-    for scope, priv_str in iteritems(privs):
-        privs = priv_str.split(',')
-        if scope == '*.*':
-            for p in privs:
-                norm_privs['global'].add(p)
-            continue
-
-        tmp = scope.split('.')
-        db = '`%s`' % tmp[0]
-        table = tmp[1]
-
-        if db not in norm_privs['db']:
-            norm_privs['db'][db] = {}
-            norm_privs['db'][db]['all'] = set()
-            norm_privs['db'][db]['tables'] = {}
-
-        # When the scope is all the tables,
-        # put the privs in the corresponding set
-        if table == '*':
-            for p in privs:
-                p = p.rstrip(',')
-                norm_privs['db'][db]['all'].add(p)
-
-            continue
-
-        table = '`%s`' % table
-        if table not in norm_privs['db'][db]['tables']:
-            norm_privs['db'][db]['tables'][table] = set()
-
-        # When the scope is a table,
-        # put the privs in the corresponding table set
-        for p in privs:
-            p = p.rstrip(',')
-            norm_privs['db'][db]['tables'][table].add(p)
-
-    return norm_privs
-
-
-def get_grant_query(to_whom, privs, glob=False, db=None, table=None):
-    query = 'GRANT %s ' % ','.join(privs)
-
-    objs = None
-    if glob:
-        objs = 'ON *.* '
-
-    elif db:
-        if table:
-            objs = 'ON %s.%s ' % (db, table)
-        else:
-            objs = 'ON %s.* ' % db
-
-    query += objs
-    query += 'TO %s' % to_whom
-
-    return query
-
-
 # Roles supported since MySQL 8.0.0 and MariaDB 10.0.5
-def server_supports_roles(cursor, impl):
-    return impl.supports_roles(cursor)
+def server_supports_roles(cursor, role_impl):
+    return role_impl.supports_roles(cursor)
 
 
 def get_users(cursor):
@@ -327,24 +261,15 @@ class Role():
         self.name = name
         self.host = '%'
         self.full_name = '`%s`@`%s`' % (self.name, self.host)
+
         self.exists = self.__role_exists()
         self.members = set()
-
-        self.privs = {
-            'global': set(),
-            'db': {},
-        }
 
         if self.exists:
             self.members = self.__get_members()
 
-            # Fetch and fill up self.global_privs and self.db_privs
-            self.get_privs()
-
             # TODO: remove this debug
             self.module.warn('%s' % self.members)
-            self.module.warn('GLOBAL PRIVS: %s' % self.privs['global'])
-            self.module.warn('DB PRIVS: %s' % self.privs['db'])
 
     def __role_exists(self):
         query = ('SELECT count(*) FROM mysql.user '
@@ -364,29 +289,9 @@ class Role():
             self.add_members(users)
 
         if privs:
-            self.grant_privs(privs)
-
-        return True
-
-    def grant_privs(self, privs):
-        if privs['global']:
-            q1 = get_grant_query(self.full_name, list(privs['global']), glob=True)
-            self.module.warn(q1)
-            self.cursor.execute(q1)
-
-        if privs['db']:
-            for db in privs['db']:
-                if privs['db'][db]['all']:
-                    q2 = get_grant_query(self.full_name, list(privs['db'][db]['all']), db=db)
-                    self.module.warn(q2)
-                    self.cursor.execute(q2)
-
-                if privs['db'][db]['tables']:
-                    for table in privs['db'][db]['tables']:
-                        q3 = get_grant_query(self.full_name, list(privs['db'][db]['tables'][table]),
-                                             db=db, table=table)
-                        self.module.warn(q3)
-                        self.cursor.execute(q3)
+            for db_table, priv in iteritems(privs):
+                privileges_grant(self.cursor, self.name, self.host,
+                                 db_table, priv, tls_requires=None)
 
         return True
 
@@ -410,126 +315,26 @@ class Role():
                 if check_mode:
                     return True
 
-                self.cursor.execute('GRANT %s TO %s' % (self.full_name, user))
+                self.cursor.execute('GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1]))
                 changed = True
 
         return changed
 
     def update(self, users, privs, check_mode=False,
                append_members=False, append_privs=False):
-        # TODO implement append_members and append_privs.
-        # 1) if append_members=False, if don't match,
-        # remove membership from all except required and add missed
-        # 2) if append_privs=False, if don't match,
-        # remove all grants except required and add missed
         changed = False
 
         if users:
             changed = self.add_members(users, check_mode=check_mode)
 
         if privs:
-            self.module.warn('CURRENT PRIVS: %s' % self.privs)
-            self.module.warn('REQUIRED PRIVS: %s' % privs)
-
-            if self.privs != privs:
-                if check_mode:
-                    return True
-
-                self.grant_privs(privs)
-                return True
+            # TODO: Fix me
+            changed, msg = user_mod(self.cursor, self.name, self.host,
+                                    None, None, None, None, None, None,
+                                    privs, append_privs, None,
+                                    self.module, role=True)
 
         return changed
-
-    def get_privs(self):
-        """Get role's privileges."""
-        res = get_grants(self.cursor, self.name, self.host)
-
-        for line in res:
-            self.__extract_grants(line[0])
-
-    def __extract_grants(self, line):
-        # Can be:
-        # GRANT SELECT, INSERT, UPDATE ON *.* TO `test`@`%`
-        # GRANT INSERT ON `mysql`.* TO `test`@`%
-        # GRANT INSERT ON `mysql`.`user` TO `test`@`%`
-        # GRANT `readers`@`%` TO `test`@`%`
-        # ...
-        # TODO check cases when several roles granted
-        # TODO implement via sets
-
-        # Grant lines have format
-        # 'GRANT something [ON something] TO someone'
-        tmp = line.split()[1:-2]
-        # After we have
-        # ['something', 'ON', 'something']
-        # where 'ON' and 'something' are optional
-
-        # Say, we have the line argument passed as
-        # GRANT `readers`@`%` TO `test`@`%`
-        if 'ON' not in tmp:
-            # Means that a role is granted.
-            # Return the role
-            return tmp[0]
-
-        # Say, we have the line argument passed as
-        # GRANT SELECT, INSERT, UPDATE ON *.* TO `test`@`%`
-        scope = tmp[-1]
-
-        # Before ['SELECT', 'INSERT,', 'UPDATE', 'ON', '*.*']
-        tmp = tmp[:-2]
-        # After ['SELECT,', 'INSERT,', 'UPDATE']
-
-        # When privs are relevant for all DBs,
-        # set self.global_privs
-        if scope == '*.*':
-            self.__set_global_privs(tmp)
-            return
-
-        # When privs are relevant for a particular DB,
-        # fill up the self.db_privs dict
-        self.__set_db_privs(scope, tmp)
-
-    def __set_global_privs(self, privs):
-        for p in privs:
-            self.privs['global'].add(p.rstrip(','))
-
-    def __set_db_privs(self, scope, privs):
-        # For cases such as 'dbname.*' or 'dbname.tblname'.
-        # We have the self.db_privs dict which has two keys
-        # 1) 'all' (is a set containing privs for all the tables) and
-        # 2) 'tables' (is a dict containing table names which are, in tern, sets.
-        tmp = scope.split('.')
-        db = tmp[0]
-        table = tmp[1]
-
-        if db not in self.privs['db']:
-            self.privs['db'][db] = {}
-            self.privs['db'][db]['all'] = set()
-            self.privs['db'][db]['tables'] = {}
-
-        # When the scope is all the tables,
-        # put the privs in the corresponding set
-        if table == '*':
-            for p in privs:
-                p = p.rstrip(',')
-                self.privs['db'][db]['all'].add(p)
-
-            return
-
-        if table not in self.privs['db'][db]['tables']:
-            self.privs['db'][db]['tables'][table] = set()
-
-        # When the scope is a table,
-        # put the privs in the corresponding table set
-        for p in privs:
-            p = p.rstrip(',')
-            self.privs['db'][db]['tables'][table].add(p)
-
-    def grant_priv(self):
-        pass
-
-    def revoke_priv(self):
-        pass
 
     def __get_members(self):
         all_users = get_users(self.cursor)
@@ -544,7 +349,7 @@ class Role():
             grants = get_grants(self.cursor, user, host)
 
             if self.__is_member(grants):
-                members.add("`%s`@`%s`" % (user, host))
+                members.add((user, host))
 
         return members
 
@@ -562,18 +367,13 @@ class Role():
         pass
 
 
-def get_hostnames():
-    pass
-
-
 def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
         name=dict(type='str', required=True),
         state=dict(type='str', default='present', choices=['absent', 'present']),
-        priv=dict(type='dict'),
+        priv=dict(type='raw'),
         append_privs=dict(type='bool', default=False),
-        detach_privs=dict(type='bool', default=False),
         members=dict(type='list', elements='str'),
         add_members=dict(type='bool', default=False),
         remove_members=dict(type='bool', default=False),
@@ -588,12 +388,11 @@ def main():
     login_password = module.params['login_password']
     name = module.params['name']
     state = module.params['state']
-    privs = module.params['priv']
+    priv = module.params['priv']
     check_implicit_admin = module.params['check_implicit_admin']
     connect_timeout = module.params['connect_timeout']
     config_file = module.params['config_file']
     append_privs = module.params['append_privs']
-    detach_privs = module.params['detach_privs']
     members = module.params['members']
     add_members = module.params['add_members']
     remove_members = module.params['remove_members']
@@ -603,9 +402,11 @@ def main():
     check_hostname = module.params['check_hostname']
     db = ''
 
-    if privs and not isinstance(privs, (str, dict)):
-        msg = 'priv parameter must be str or dict but %s was passed' % type(privs)
-        module.fail_json(msg=msg)
+    if priv and not isinstance(priv, (str, dict)):
+        module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
+
+    if priv and isinstance(priv, dict):
+        priv = convert_priv_dict_to_str(priv)
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
@@ -636,10 +437,23 @@ def main():
     # Set defaults
     changed = False
 
-    impl = get_implementation(cursor)
+    get_impl(cursor)
+
+    if priv is not None:
+        try:
+            mode = get_mode(cursor)
+        except Exception as e:
+            module.fail_json(msg=to_native(e))
+
+        try:
+            priv = privileges_unpack(priv, mode)
+        except Exception as e:
+            module.fail_json(msg='Invalid privileges string: %s' % to_native(e))
+
+    role_impl = get_implementation(cursor)
 
     # Check if the server supports roles
-    if not server_supports_roles(cursor, impl):
+    if not server_supports_roles(cursor, role_impl):
         msg = ('Roles are not supported by the server. '
                'Minimal versions are MySQL 8.0.0 or MariaDB 10.0.5.')
         module.fail_json(msg=msg)
@@ -647,18 +461,15 @@ def main():
     if members:
         members = normalize_users(module, members)
 
-    if privs:
-        privs = normalize_privs(module, privs)
-
     # Main job starts here
     role = Role(module, cursor, name)
 
     if state == 'present':
         if not role.exists:
-            changed = role.add(members, privs, module.check_mode)
+            changed = role.add(members, priv, module.check_mode)
 
         else:
-            changed = role.update(members, privs, module.check_mode)
+            changed = role.update(members, priv, module.check_mode)
 
     elif state == 'absent':
         changed = role.drop(module.check_mode)

@@ -236,7 +236,7 @@ def normalize_users(module, users):
 
 
 def normalize_privs(module, privs):
-    # TODO move shared code from this function and Role.__set_db_scope() method
+    # TODO move shared code from this function and Role.__set_db_privs() method
     # to a separate function
 
     # The privs argument is a dict that will be transformed.
@@ -256,7 +256,7 @@ def normalize_privs(module, privs):
             continue
 
         tmp = scope.split('.')
-        db = tmp[0]
+        db = '`%s`' % tmp[0]
         table = tmp[1]
 
         if db not in norm_privs['db']:
@@ -273,6 +273,7 @@ def normalize_privs(module, privs):
 
             continue
 
+        table = '`%s`' % table
         if table not in norm_privs['db'][db]['tables']:
             norm_privs['db'][db]['tables'][table] = set()
 
@@ -299,7 +300,7 @@ def get_grant_query(to_whom, privs, glob=False, db=None, table=None):
             objs = 'ON %s.* ' % db
 
     query += objs
-    query += 'TO %' % to_whom
+    query += 'TO %s' % to_whom
 
     return query
 
@@ -362,26 +363,31 @@ class Role():
             self.add_members(users)
 
         if privs:
-            self.add_privs(privs)
+            self.grant_privs(privs)
 
         return True
 
-    def add_privs(self, privs):
+    def grant_privs(self, privs):
         if privs['global']:
             q1 = get_grant_query(self.full_name, list(privs['global']), glob=True)
             self.module.warn(q1)
+            self.cursor.execute(q1)
 
         if privs['db']:
             for db in privs['db']:
                 if privs['db'][db]['all']:
                     q2 = get_grant_query(self.full_name, list(privs['db'][db]['all']), db=db)
                     self.module.warn(q2)
+                    self.cursor.execute(q2)
 
                 if privs['db'][db]['tables']:
                     for table in privs['db'][db]['tables']:
                         q3 = get_grant_query(self.full_name, list(privs['db'][db]['tables'][table]),
                                              db=db, table=table)
                         self.module.warn(q3)
+                        self.cursor.execute(q3)
+
+        return True
 
     def drop(self, check_mode=False):
         if not self.exists:
@@ -400,18 +406,34 @@ class Role():
         for user in users:
             self.cursor.execute('GRANT %s TO %s' % (self.full_name, user))
 
-    def update(self, users, privs, check_mode=False):
-        if check_mode:
-            # TODO implementation
-            return True
-
+    def update(self, users, privs, check_mode=False,
+               append_members=False, append_privs=False):
+        # TODO implement append_members and append_privs.
+        # 1) if append_members=False, if don't match,
+        # remove membership from all except required and add missed
+        # 2) if append_privs=False, if don't match,
+        # remove all grants except required and add missed
         changed = False
 
         if users:
             for user in users:
                 if user not in self.members:
+                    if check_mode:
+                        return True
+
                     self.add_member(user)
                     changed = True
+
+        if privs:
+            self.module.warn('CURRENT PRIVS: %s' % self.privs)
+            self.module.warn('REQUIRED PRIVS: %s' % privs)
+
+            if self.privs != privs:
+                if check_mode:
+                    return True
+
+                self.grant_privs(privs)
+                return True
 
         return changed
 
@@ -464,14 +486,11 @@ class Role():
         # fill up the self.db_privs dict
         self.__set_db_privs(scope, tmp)
 
-        # Make '*.*:SELECT,INSERT,UPDATE' and return
-        return '%s:%s' % (scope, ''.join(tmp))
-
     def __set_global_privs(self, privs):
         for p in privs:
             self.privs['global'].add(p.rstrip(','))
 
-    def __set_db_scope(self, scope, privs):
+    def __set_db_privs(self, scope, privs):
         # For cases such as 'dbname.*' or 'dbname.tblname'.
         # We have the self.db_privs dict which has two keys
         # 1) 'all' (is a set containing privs for all the tables) and

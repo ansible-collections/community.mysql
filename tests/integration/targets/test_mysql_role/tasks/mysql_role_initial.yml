@@ -547,6 +547,69 @@
       that:
       - result is changed
 
+  # #################
+  # Test admin option
+  # #################
+
+  - name: Drop role
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: absent
+
+  - name: Create role with admin
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      admin: '{{ user0 }}'
+    ignore_errors: yes
+
+  - name: Check with MySQL
+    assert:
+      that:
+      - result is failed
+      - result.msg is search('option can be used only with MariaDB')
+    when:
+    # Semantically, when there's MySQL
+    - srv['version']['major'] < 10
+
+  - name: Check with MariaDB
+    assert:
+      that:
+      - result is changed
+    when:
+    # Semantically, when there's MariaDB
+    - srv['version']['major'] >= 10
+
+  - name: Create role with admin again
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      admin: '{{ user0 }}'
+    ignore_errors: yes
+
+  - name: Check with MySQL
+    assert:
+      that:
+      - result is failed
+      - result.msg is search('option can be used only with MariaDB')
+    when:
+    # Semantically, when there's MySQL
+    - srv['version']['major'] < 10
+
+  - name: Check with MariaDB
+    assert:
+      that:
+      - result is not changed
+    # Semantically, when there's MariaDB
+    when:
+    - srv['version']['major'] >= 10
+
   always:
   # Clean up
   - name: Drop DBs

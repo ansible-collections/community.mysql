@@ -9,3 +9,7 @@ def supports_roles(cursor):
     version = get_server_version(cursor)
 
     return LooseVersion(version) >= LooseVersion('10.0.5')
+
+
+def is_mariadb():
+    return True

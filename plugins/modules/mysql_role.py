@@ -24,6 +24,12 @@ options:
     type: str
     required: true
 
+  admin:
+    description:
+      - Supported by B(MariaDB).
+      - Name of the admin user of the role (the I(login_user), by default).
+    type: str
+
   priv:
     description:
       - "MySQL privileges string in the format: C(db.table:priv1,priv2)."
@@ -180,6 +186,14 @@ EXAMPLES = r'''
     name: readers
     state: present
     login_unix_socket: /var/run/mysqld/mysqld.sock
+
+# Pay attention that the admin cannot be changed later
+# and will be ignored if a role currently exists
+- name: Create the role readers with alice as its admin
+  community.mysql.mysql_role:
+    state: present
+    name: readers
+    admin: alice
 '''
 
 RETURN = '''#'''
@@ -278,13 +292,19 @@ class Role():
         self.cursor.execute(query, (self.name, '%'))
         return self.cursor.fetchone()[0] > 0
 
-    def add(self, users, privs, check_mode=False):
+    def add(self, users, privs, check_mode=False, admin=False):
         if check_mode:
             if not self.exists:
                 return True
             return False
 
-        self.cursor.execute('CREATE ROLE %s', (self.name,))
+        if not admin:
+            self.cursor.execute('CREATE ROLE %s', (self.name,))
+        else:
+            query = 'CREATE ROLE %s WITH ADMIN %s@%s'
+            admin_user = admin[0]
+            admin_host = admin[1]
+            self.cursor.execute(query, (self.name, admin_user, admin_host))
 
         if users:
             self.add_members(users)
@@ -349,7 +369,7 @@ class Role():
 
     def update(self, users, privs, check_mode=False,
                append_privs=False, append_members=False,
-               detach_members=False):
+               detach_members=False, admin=False):
         changed = False
 
         if users:
@@ -365,6 +385,21 @@ class Role():
                                     None, None, None, None, None, None,
                                     privs, append_privs, None,
                                     self.module, role=True)
+
+        # TODO Implement changing when ALTER ROLE statement to
+        # change role's admin gets supported
+        if admin:
+            admin_user = admin[0]
+            admin_host = admin[1]
+            current_admin = self.get_admin()
+
+            # current_admin is a tuple (user, host)
+            if (admin_user, admin_host) != current_admin:
+                msg = ('The "admin" option value and the current '
+                       'roles admin (%s@%s) don not match. Ignored. '
+                       'To change the admin, you need to drop and create the '
+                       'role again.' % (current_admin[0], current_admin[1]))
+                self.module.warn(msg)
 
         return changed
 
@@ -395,12 +430,20 @@ class Role():
 
         return False
 
+    def get_admin(self):
+        query = ("SELECT User, Host FROM mysql.roles_mapping "
+                 "WHERE Role = %s and Admin_option = 'Y'")
+
+        self.cursor.execute(query, (self.name,))
+        return self.cursor.fetchone()
+
 
 def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
         name=dict(type='str', required=True),
         state=dict(type='str', default='present', choices=['absent', 'present']),
+        admin=dict(type='str'),
         priv=dict(type='raw'),
         append_privs=dict(type='bool', default=False),
         members=dict(type='list', elements='str'),
@@ -420,6 +463,7 @@ def main():
     login_password = module.params['login_password']
     name = module.params['name']
     state = module.params['state']
+    admin = module.params['admin']
     priv = module.params['priv']
     check_implicit_admin = module.params['check_implicit_admin']
     connect_timeout = module.params['connect_timeout']
@@ -435,7 +479,9 @@ def main():
     db = ''
 
     if priv and not isinstance(priv, (str, dict)):
-        module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
+        msg = ('The "priv" parameter must be str or dict '
+               'but %s was passed' % type(priv))
+        module.fail_json(msg=msg)
 
     if priv and isinstance(priv, dict):
         priv = convert_priv_dict_to_str(priv)
@@ -490,6 +536,12 @@ def main():
                'Minimal versions are MySQL 8.0.0 or MariaDB 10.0.5.')
         module.fail_json(msg=msg)
 
+    if admin:
+        if not role_impl.is_mariadb():
+            module.fail_json(msg='The "admin" option can be used only with MariaDB.')
+
+        admin = normalize_users(module, [admin])[0]
+
     if members:
         members = normalize_users(module, members)
 
@@ -498,11 +550,11 @@ def main():
 
     if state == 'present':
         if not role.exists:
-            changed = role.add(members, priv, module.check_mode)
+            changed = role.add(members, priv, module.check_mode, admin)
 
         else:
             changed = role.update(members, priv, module.check_mode, append_privs,
-                                  append_members, detach_members)
+                                  append_members, detach_members, admin)
 
     elif state == 'absent':
         changed = role.drop(module.check_mode)

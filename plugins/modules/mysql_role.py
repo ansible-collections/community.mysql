@@ -52,17 +52,18 @@ options:
     type: list
     elements: str
 
-  add_members:
+  append_members:
     description:
       - Add members defined by I(members) to the existing ones
         for this role instead of overwriting them.
+      - Mutually exclusive with I(detach_members).
     type: bool
     default: no
 
-  remove_members:
+  detach_members:
     description:
-      - Remove members defined by I(members) from the existing ones
-        for this role instead of overwriting them.
+      - Detaches members defined by I(members) from the role instead of overwriting them.
+      - Mutually exclusive with I(append_members).
     type: bool
     default: no
 
@@ -305,7 +306,7 @@ class Role():
         self.cursor.execute('DROP ROLE %s', (self.name,))
         return True
 
-    def add_members(self, users, check_mode=False):
+    def add_members(self, users, check_mode=False, append_members=False):
         if not users:
             return False
 
@@ -318,17 +319,48 @@ class Role():
                 self.cursor.execute('GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1]))
                 changed = True
 
+        if append_members:
+            return changed
+
+        for user in self.members:
+            if user not in users:
+                if check_mode:
+                    return True
+
+                self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
+                changed = True
+
+        return changed
+
+    def remove_members(self, users, check_mode=False):
+        if not users:
+            return False
+
+        changed = False
+        for user in users:
+            if user in self.members:
+                if check_mode:
+                    return True
+
+                self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
+                changed = True
+
         return changed
 
     def update(self, users, privs, check_mode=False,
-               append_members=False, append_privs=False):
+               append_privs=False, append_members=False,
+               detach_members=False):
         changed = False
 
         if users:
-            changed = self.add_members(users, check_mode=check_mode)
+            if detach_members:
+                changed = self.remove_members(users, check_mode=check_mode)
+
+            else:
+                changed = self.add_members(users, check_mode=check_mode,
+                                           append_members=append_members)
 
         if privs:
-            # TODO: Fix me
             changed, msg = user_mod(self.cursor, self.name, self.host,
                                     None, None, None, None, None, None,
                                     privs, append_privs, None,
@@ -363,9 +395,6 @@ class Role():
 
         return False
 
-    def revoke_member(self):
-        pass
-
 
 def main():
     argument_spec = mysql_common_argument_spec()
@@ -375,13 +404,16 @@ def main():
         priv=dict(type='raw'),
         append_privs=dict(type='bool', default=False),
         members=dict(type='list', elements='str'),
-        add_members=dict(type='bool', default=False),
-        remove_members=dict(type='bool', default=False),
+        append_members=dict(type='bool', default=False),
+        detach_members=dict(type='bool', default=False),
         check_implicit_admin=dict(type='bool', default=False),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
         supports_check_mode=True,
+        mutually_exclusive=(
+            ('append_members', 'detach_members'),
+        ),
     )
 
     login_user = module.params['login_user']
@@ -394,8 +426,8 @@ def main():
     config_file = module.params['config_file']
     append_privs = module.params['append_privs']
     members = module.params['members']
-    add_members = module.params['add_members']
-    remove_members = module.params['remove_members']
+    append_members = module.params['append_members']
+    detach_members = module.params['detach_members']
     ssl_cert = module.params['client_cert']
     ssl_key = module.params['client_key']
     ssl_ca = module.params['ca_cert']
@@ -469,12 +501,13 @@ def main():
             changed = role.add(members, priv, module.check_mode)
 
         else:
-            changed = role.update(members, priv, module.check_mode)
+            changed = role.update(members, priv, module.check_mode, append_privs,
+                                  append_members, detach_members)
 
     elif state == 'absent':
         changed = role.drop(module.check_mode)
 
-    # It's time to exit
+    # Exit
     db_conn.close()
     module.exit_json(changed=changed)
 

@@ -44,7 +44,6 @@
     mysql_query:
       <<: *mysql_params
       query: 'CREATE DATABASE {{ test_db }}'
-    register: result
 
   - name: Create table {{ test_table }}
     <<: *task_params
@@ -52,19 +51,37 @@
       <<: *mysql_params
       login_db: '{{ test_db }}'
       query: 'CREATE TABLE {{ test_table }} (id int)'
-    register: result
 
-  - name: Create user {{ user0 }}
+  - name: Create users
     <<: *task_params
     mysql_user:
       <<: *mysql_params
-      name: '{{ user0 }}'
+      name: '{{ item }}'
+    loop:
+    - '{{ user0 }}'
+    - '{{ user1 }}'
+    - '{{ user2 }}'
 
   ###########
   # Run tests
 
   # TODO After every step add a check of actual state
   # with mysql_query and assert
+  - name: Create role {{ role0 }} in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      members:
+      - '{{ user0 }}'
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
   - name: Create role {{ role0 }}
     <<: *task_params
     mysql_role:
@@ -79,6 +96,19 @@
       that:
       - result is changed
 
+  - name: Create role {{ role0 }} again in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is not changed
+
   - name: Create role {{ role0 }} again
     <<: *task_params
     mysql_role:
@@ -91,6 +121,19 @@
       that:
       - result is not changed
 
+  - name: Drop role {{ role0 }} in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: absent
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
   - name: Drop role {{ role0 }}
     <<: *task_params
     mysql_role:
@@ -102,6 +145,19 @@
     assert:
       that:
       - result is changed
+
+  - name: Drop role {{ role0 }} again in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: absent
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is not changed
 
   - name: Drop role {{ role0 }} again
     <<: *task_params
@@ -116,6 +172,23 @@
       - result is not changed
 
   # ==================
+  - name: Create role {{ role0 }} in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      members:
+      - '{{ user0 }}'
+      priv:
+        '*.*': 'SELECT,INSERT'
+        'mysql.*': 'UPDATE'
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
 
   - name: Create role {{ role0 }}
     <<: *task_params
@@ -134,6 +207,24 @@
       that:
       - result is changed
 
+  - name: Create role {{ role0 }} in check_mode again
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      members:
+      - '{{ user0 }}'
+      priv:
+        '*.*': 'SELECT,INSERT'
+        'mysql.*': 'UPDATE'
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is not changed
+
   - name: Create role {{ role0 }} again
     <<: *task_params
     mysql_role:
@@ -151,10 +242,322 @@
       that:
       - result is not changed
 
-  always:
-  # Clean up
-  - name: Drop db {{ test_db }}
+  # ##############################################
+  # Test rewriting / appending / detaching members
+  # ##############################################
+
+  # Rewriting members
+  - name: Rewrite members in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      members:
+      - '{{ user1 }}'
+      - '{{ user2 }}'
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
+  - name: Rewrite members
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      members:
+      - '{{ user1 }}'
+      - '{{ user2 }}'
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
+  - name: Rewrite members again in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      members:
+      - '{{ user1 }}'
+      - '{{ user2 }}'
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is not changed
+
+  - name: Rewrite members again
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      members:
+      - '{{ user1 }}'
+      - '{{ user2 }}'
+
+  - name: Check
+    assert:
+      that:
+      - result is not changed
+
+  # Append members
+  - name: Append a member in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      append_members: yes
+      members:
+      - '{{ user0 }}'
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
+  - name: Append a member
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      append_members: yes
+      members:
+      - '{{ user0 }}'
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
+  - name: Append a member again in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      append_members: yes
+      members:
+      - '{{ user0 }}'
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is not changed
+
+  - name: Append a member again
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      append_members: yes
+      members:
+      - '{{ user0 }}'
+
+  - name: Check
+    assert:
+      that:
+      - result is not changed
+
+  # Detach users
+  - name: Detach users in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      detach_members: yes
+      members:
+      - '{{ user1 }}'
+      - '{{ user2 }}'
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
+  - name: Detach users
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      detach_members: yes
+      members:
+      - '{{ user1 }}'
+      - '{{ user2 }}'
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
+  - name: Detach users in check_mode again
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      detach_members: yes
+      members:
+      - '{{ user1 }}'
+      - '{{ user2 }}'
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is not changed
+
+  - name: Detach users again
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      detach_members: yes
+      members:
+      - '{{ user1 }}'
+      - '{{ user2 }}'
+
+  - name: Check
+    assert:
+      that:
+      - result is not changed
+
+  # ##########
+  # Test privs
+  # ##########
+
+  - name: Create test DBs
+    <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: 'DROP DATABASE {{ test_db }}'
-    register: result
+      query: 'CREATE DATABASE {{ item }}'
+    loop:
+    - '{{ test_db1 }}'
+    - '{{ test_db2 }}'
+
+  - name: Create table {{ test_table }}
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ item }}'
+      query: 'CREATE TABLE {{ test_table }} (id int)'
+    loop:
+    - '{{ test_db1 }}'
+    - '{{ test_db2 }}'
+
+  - name: Append privs in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      priv: '{{ test_db1 }}.{{ test_table }}:SELECT,INSERT/{{ test_db2 }}.{{ test_table }}:DELETE'
+      append_privs: yes
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
+  - name: Append privs
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      priv: '{{ test_db1 }}.{{ test_table }}:SELECT,INSERT/{{ test_db2 }}.{{ test_table }}:DELETE'
+      append_privs: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
+  - name: Append privs again in check_mode
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      priv: '{{ test_db1 }}.{{ test_table }}:SELECT,INSERT/{{ test_db2 }}.{{ test_table }}:DELETE'
+      append_privs: yes
+    check_mode: yes
+
+  # TODO it must be changed. The module uses user_mod function
+  # taken from mysql_user module. It's a bug / expected behavior
+  # because I added a similar tasks to mysql_user tests
+  # https://github.com/ansible-collections/community.mysql/issues/50#issuecomment-871216825
+  # and it's also failed. Create an issue after the module is merged to avoid conflicts.
+  # TODO Fix this after user_mod is fixed.
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
+  - name: Append privs again
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      priv: '{{ test_db1 }}.{{ test_table }}:SELECT,INSERT/{{ test_db2 }}.{{ test_table }}:DELETE'
+      append_privs: yes
+
+  # TODO it must be changed. The module uses user_mod function
+  # taken from mysql_user module. It's a bug / expected behavior
+  # because I added a similar tasks to mysql_user tests
+  # https://github.com/ansible-collections/community.mysql/issues/50#issuecomment-871216825
+  # and it's also failed. Create an issue after the module is merged to avoid conflicts.
+  # TODO Fix this after user_mod is fixed.
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
+  - name: Rewrite privs
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      priv:
+        '*.*': 'SELECT'
+    check_mode: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is changed
+
+  # ##################
+  # Adding other roles
+  # ##################
+
+  always:
+  # Clean up
+  - name: Drop DBs
+    mysql_query:
+      <<: *mysql_params
+      query: 'DROP DATABASE {{ item }}'
+    loop:
+    - '{{ test_db }}'
+    - '{{ test_db1 }}'
+    - '{{ test_db2 }}'

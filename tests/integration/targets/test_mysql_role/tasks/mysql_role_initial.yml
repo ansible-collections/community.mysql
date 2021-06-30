@@ -547,10 +547,6 @@
       that:
       - result is changed
 
-  # ##################
-  # Adding other roles
-  # ##################
-
   always:
   # Clean up
   - name: Drop DBs

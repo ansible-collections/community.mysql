@@ -832,6 +832,19 @@
     - '{{ test_db1 }}'
     - '{{ test_db2 }}'
 
+  - name: Check grants
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ role0 }}"
+
+  - name: Check
+    assert:
+      that:
+      - result.query_result.0.0["Grants for role0@%"] == "GRANT SELECT, INSERT ON *.* TO `role0`@`%`"
+      - result.query_result.0.1["Grants for role0@%"] == "GRANT UPDATE ON `mysql`.* TO `role0`@`%`"
+      - result.rowcount.0 == 2
+
   - name: Append privs in check_mode
     <<: *task_params
     mysql_role:
@@ -847,6 +860,19 @@
       that:
       - result is changed
 
+  - name: Check grants
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ role0 }}"
+
+  - name: Check
+    assert:
+      that:
+      - result.query_result.0.0["Grants for role0@%"] == "GRANT SELECT, INSERT ON *.* TO `role0`@`%`"
+      - result.query_result.0.1["Grants for role0@%"] == "GRANT UPDATE ON `mysql`.* TO `role0`@`%`"
+      - result.rowcount.0 == 2
+
   - name: Append privs
     <<: *task_params
     mysql_role:
@@ -860,6 +886,21 @@
     assert:
       that:
       - result is changed
+
+  - name: Check grants
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ role0 }}"
+
+  - name: Check
+    assert:
+      that:
+      - result.query_result.0.0["Grants for role0@%"] == "GRANT SELECT, INSERT ON *.* TO `role0`@`%`"
+      - result.query_result.0.1["Grants for role0@%"] == "GRANT UPDATE ON `mysql`.* TO `role0`@`%`"
+      - result.query_result.0.2["Grants for role0@%"] == "GRANT SELECT, INSERT ON `test_db1`.`test_table` TO `role0`@`%`"
+      - result.query_result.0.4["Grants for role0@%"] == "GRANT DELETE ON `test_db2`.`test_table` TO `role0`@`%`"
+      - result.rowcount.0 == 4
 
   - name: Append privs again in check_mode
     <<: *task_params
@@ -916,6 +957,18 @@
     assert:
       that:
       - result is changed
+
+  - name: Check grants
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ role0 }}"
+
+  - name: Check
+    assert:
+      that:
+      - result.query_result.0.0["Grants for role0@%"] == "GRANT SELECT ON *.* TO `role0`@`%`"
+      - result.rowcount.0 == 1
 
   # #################
   # Test admin option

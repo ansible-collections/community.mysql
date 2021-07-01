@@ -951,7 +951,6 @@
       state: present
       priv:
         '*.*': 'SELECT'
-    check_mode: yes
 
   - name: Check
     assert:

@@ -65,8 +65,6 @@
   ###########
   # Run tests
 
-  # TODO After every step add a check of actual state
-  # with mysql_query and assert
   - name: Create role {{ role0 }} in check_mode
     <<: *task_params
     mysql_role:
@@ -82,6 +80,32 @@
       that:
       - result is changed
 
+  - name: Check in DB
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+
+  - name: Check
+    assert:
+      that:
+      - result.rowcount.0 == 0
+
+  # It must fail because of check_mode
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+    ignore_errors: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is failed
+
+  #=====================
+
   - name: Create role {{ role0 }}
     <<: *task_params
     mysql_role:
@@ -96,6 +120,30 @@
       that:
       - result is changed
 
+  - name: Check in DB
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+
+  - name: Check
+    assert:
+      that:
+      - result.rowcount.0 == 1
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  #========================
+
   - name: Create role {{ role0 }} again in check_mode
     <<: *task_params
     mysql_role:
@@ -109,6 +157,30 @@
       that:
       - result is not changed
 
+  - name: Check in DB
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+
+  - name: Check
+    assert:
+      that:
+      - result.rowcount.0 == 1
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  #========================
+
   - name: Create role {{ role0 }} again
     <<: *task_params
     mysql_role:
@@ -120,6 +192,19 @@
     assert:
       that:
       - result is not changed
+
+  - name: Check in DB
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+
+  - name: Check
+    assert:
+      that:
+      - result.rowcount.0 == 1
+
+  #========================
 
   - name: Drop role {{ role0 }} in check_mode
     <<: *task_params
@@ -134,6 +219,31 @@
       that:
       - result is changed
 
+  - name: Check in DB
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+
+  - name: Check
+    assert:
+      that:
+      - result.rowcount.0 == 1
+
+  # Must pass because of check_mode
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  #========================
+
   - name: Drop role {{ role0 }}
     <<: *task_params
     mysql_role:
@@ -145,6 +255,31 @@
     assert:
       that:
       - result is changed
+
+  - name: Check in DB
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+
+  - name: Check
+    assert:
+      that:
+      - result.rowcount.0 == 0
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+    ignore_errors: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is failed
+
+  #========================
 
   - name: Drop role {{ role0 }} again in check_mode
     <<: *task_params
@@ -172,6 +307,7 @@
       - result is not changed
 
   # ==================
+
   - name: Create role {{ role0 }} in check_mode
     <<: *task_params
     mysql_role:
@@ -190,6 +326,19 @@
       that:
       - result is changed
 
+  - name: Check in DB
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+
+  - name: Check
+    assert:
+      that:
+      - result.rowcount.0 == 0
+
+  #========================
+
   - name: Create role {{ role0 }}
     <<: *task_params
     mysql_role:
@@ -206,6 +355,19 @@
     assert:
       that:
       - result is changed
+
+  - name: Check in DB
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+
+  - name: Check
+    assert:
+      that:
+      - result.rowcount.0 == 1
+
+  #========================
 
   - name: Create role {{ role0 }} in check_mode again
     <<: *task_params
@@ -224,6 +386,8 @@
     assert:
       that:
       - result is not changed
+
+  #========================
 
   - name: Create role {{ role0 }} again
     <<: *task_params
@@ -263,6 +427,45 @@
       that:
       - result is changed
 
+  # user0 is still a member because of check_mode
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  # user1 and user2 are not members because of check_mode
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
+    ignore_errors: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is failed
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
+    ignore_errors: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is failed
+
+  #========================
+
   - name: Rewrite members
     <<: *task_params
     mysql_role:
@@ -277,6 +480,43 @@
     assert:
       that:
       - result is changed
+
+  # user0 is not a member any more
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+    ignore_errors: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is failed
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  #==========================
 
   - name: Rewrite members again in check_mode
     <<: *task_params
@@ -294,6 +534,8 @@
       that:
       - result is not changed
 
+  #==========================
+
   - name: Rewrite members again
     <<: *task_params
     mysql_role:
@@ -308,6 +550,8 @@
     assert:
       that:
       - result is not changed
+
+  #==========================
 
   # Append members
   - name: Append a member in check_mode
@@ -326,6 +570,20 @@
       that:
       - result is changed
 
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+    ignore_errors: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is failed
+
+  #=====================
+
   - name: Append a member
     <<: *task_params
     mysql_role:
@@ -340,6 +598,42 @@
     assert:
       that:
       - result is changed
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  # user1 and user2 must still be in DB because we are appending
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  #========================
 
   - name: Append a member again in check_mode
     <<: *task_params
@@ -357,6 +651,8 @@
       that:
       - result is not changed
 
+  #========================
+
   - name: Append a member again
     <<: *task_params
     mysql_role:
@@ -372,6 +668,7 @@
       that:
       - result is not changed
 
+  ##############
   # Detach users
   - name: Detach users in check_mode
     <<: *task_params
@@ -390,6 +687,42 @@
       that:
       - result is changed
 
+  # They must be there because of check_mode
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  #========================
+
   - name: Detach users
     <<: *task_params
     mysql_role:
@@ -405,6 +738,43 @@
     assert:
       that:
       - result is changed
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
+    ignore_errors: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is failed
+
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
+    ignore_errors: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is failed
+
+  #=====================
 
   - name: Detach users in check_mode again
     <<: *task_params
@@ -580,6 +950,23 @@
     assert:
       that:
       - result is changed
+    when:
+    # Semantically, when there's MariaDB
+    - srv['version']['major'] >= 10
+
+  - name: Check in DB
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+    when:
+    # Semantically, when there's MariaDB
+    - srv['version']['major'] >= 10
+
+  - name: Check
+    assert:
+      that:
+      - result.rowcount.0 == 1
     when:
     # Semantically, when there's MariaDB
     - srv['version']['major'] >= 10

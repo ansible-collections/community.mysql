@@ -17,6 +17,8 @@ description:
    - Adds, removes, or updates a MySQL role.
    - Roles are supported since MySQL 8.0.0 and MariaDB 10.0.5.
 
+version_added: '2.2.0'
+
 options:
   name:
     description:
@@ -33,7 +35,7 @@ options:
   priv:
     description:
       - "MySQL privileges string in the format: C(db.table:priv1,priv2)."
-      - "Multiple privileges can be specified by separating each one using
+      - "You can specify multiple privileges by separating each one using
         a forward slash: C(db.table:priv/db.table:priv)."
       - The format is based on MySQL C(GRANT) statement.
       - Database and table names can be quoted, MySQL-style.
@@ -42,12 +44,13 @@ options:
         the module will always report changes. It includes grouping columns
         by permission (C(SELECT(col1,col2)) instead of C(SELECT(col1),SELECT(col2))).
       - Can be passed as a dictionary (see the examples).
-      - Supports GRANTs for procedures and functions (see the examples).
+      - Supports GRANTs for procedures and functions
+        (see the examples for the M(community.mysql.mysql_user) module).
     type: raw
 
   append_privs:
     description:
-      - Append the privileges defined by I(priv) to the existing ones
+      - Append the privileges defined by the I(priv) option to the existing ones
         for this role instead of overwriting them.
     type: bool
     default: no
@@ -60,9 +63,9 @@ options:
 
   append_members:
     description:
-      - Add members defined by I(members) to the existing ones
+      - Add members defined by the I(members) option to the existing ones
         for this role instead of overwriting them.
-      - Mutually exclusive with I(detach_members).
+      - Mutually exclusive with the I(detach_members) option.
     type: bool
     default: no
 
@@ -72,6 +75,13 @@ options:
       - Mutually exclusive with I(append_members).
     type: bool
     default: no
+
+  set_default_role_all:
+    description:
+      - If C(yes), runs B(SET DEFAULT ROLE ALL TO) each of the I(members) when changed.
+      - If you want to avoid this behavior, set this option to C(no) explicitly.
+    type: bool
+    default: yes
 
   state:
     description:
@@ -90,6 +100,9 @@ options:
     default: no
 
 notes:
+  - Pay attention that the module runs C(SET DEFAULT ROLE ALL TO)
+    all the I(members) passed by default when the state has changed.
+    If you want to avoid this behavior, set I(set_default_role_all) to C(no).
   - Supports (check_mode).
 
 seealso:
@@ -117,20 +130,32 @@ EXAMPLES = r'''
 #   'anotherdb.*': 'SELECT'
 #   'yetanotherdb.*': 'ALL'
 #
-# You can also use the string format like in mysql_user module, for example
+# You can also use the string format like in the community.mysql.mysql_user module, for example
 # mydb.*:INSERT,UPDATE/anotherdb.*:SELECT/yetanotherdb.*:ALL
+#
+# For more examples on how to specify privileges, refer to the community.mysql.mysql_user module
 
 # Create a role developers with all database privileges
-# and add alice and bob as members
+# and add alice and bob as members.
+# The statement 'SET DEFAULT ROLE ALL' to them will be run.
 - name: Create role developers, add members
   community.mysql.mysql_role:
     name: developers
     state: present
-    priv:
-      '*.*': 'ALL'
+    priv: '*.*:ALL'
     members:
     - alice
     - bob
+
+- name: Same as above but do not run SET DEFAULT ROLE ALL TO each member
+  community.mysql.mysql_role:
+    name: developers
+    state: present
+    priv: '*.*:ALL'
+    members:
+    - alice
+    - bob
+    set_default_role_all: no
 
 # Assuming that the role developers exists,
 # add john to the current members
@@ -148,8 +173,7 @@ EXAMPLES = r'''
   community.mysql.mysql_role:
     name: readers
     state: present
-    priv:
-      'fiction.*': 'SELECT'
+    priv: 'fiction.*:SELECT'
 
 # Assuming that the role readers exists,
 # add the UPDATE privilege to the role on all tables in the fiction database
@@ -157,8 +181,7 @@ EXAMPLES = r'''
   community.mysql.mysql_role:
     name: readers
     state: present
-    priv:
-      'fiction.*': 'UPDATE'
+    priv: 'fiction.*:UPDATE'
     append_privs: yes
 
 - name: Create role with the 'SELECT' and 'UPDATE' privileges in db1 and db2
@@ -218,6 +241,14 @@ from ansible.module_utils.six import iteritems
 
 
 def get_implementation(cursor):
+    """Get a current server implementation depending on its type.
+
+    Args:
+        cursor (cursor): Cursor object of a database Python connector.
+
+    Returns:
+        library: Depending on a server type (MySQL or MariaDB).
+    """
     cursor.execute("SELECT VERSION()")
 
     if 'mariadb' in cursor.fetchone()[0].lower():
@@ -229,9 +260,20 @@ def get_implementation(cursor):
 
 
 def normalize_users(module, users):
-    # Example of transformation:
-    # ['user0'] => [('user0', 'localhost')]
-    # ['user0@host0'] => [('user0', 'host0')]
+    """Normalize passed user names.
+
+    Example of transformation:
+    ['user0'] => [('user0', 'localhost')]
+    ['user0@host0'] => [('user0', 'host0')]
+
+    Args:
+        module (AnsibleModule): Object of the AnsibleModule class.
+        cursor (cursor): Cursor object of a database Python connector.
+        users (list): List of user names.
+
+    Returns:
+        list: List of tuples like [('user0', 'localhost'), ('user0', 'host0')].
+    """
     normalized_users = []
 
     for user in users:
@@ -254,22 +296,66 @@ def normalize_users(module, users):
     return normalized_users
 
 
-# Roles supported since MySQL 8.0.0 and MariaDB 10.0.5
 def server_supports_roles(cursor, role_impl):
+    """Check if a server supports roles.
+
+    Roles supported since MySQL 8.0.0 and MariaDB 10.0.5
+
+    Args:
+        cursor (cursor): Cursor object of a database Python connector.
+        role_impl (library): A corresponding library depending on a server type (MySQL or MariaDB)
+            and version. Refer to the get_implementation function.
+
+    Returns:
+        bool: True if the server type supports roles, otherwise returns False
+    """
     return role_impl.supports_roles(cursor)
 
 
 def get_users(cursor):
+    """Get users.
+
+    Args:
+        cursor (cursor): Cursor object of a database Python connector.
+
+    Returns:
+        list: List of tuples (username, hostname).
+    """
     cursor.execute('SELECT User, Host FROM mysql.user')
     return cursor.fetchall()
 
 
 def get_grants(cursor, user, host):
+    """Get grants.
+
+    Args:
+        cursor (cursor): Cursor object of a database Python connector.
+        user (str): User name
+        host (str): Host name
+
+    Returns:
+        list: List of tuples like [(grant1,), (grant2,), ... ].
+    """
     cursor.execute('SHOW GRANTS FOR %s@%s', (user, host))
     return cursor.fetchall()
 
 
 class Role():
+    """Class to work with MySQL role objects.
+
+    Args:
+        module (AnsibleModule): Object of the AnsibleModule class.
+        cursor (cursor): Cursor object of a database Python connector.
+
+    Attributes:
+        module (AnsibleModule): Object of the AnsibleModule class.
+        cursor (cursor): Cursor object of a database Python connector.
+        name (str): Role's name.
+        host (str): Role's host.
+        full_name (str): Role's full name.
+        exists (bool): Indicates if a role exists or not.
+        members (set): Set of current role's members.
+    """
     def __init__(self, module, cursor, name):
         self.module = module
         self.cursor = cursor
@@ -284,12 +370,30 @@ class Role():
             self.members = self.__get_members()
 
     def __role_exists(self):
+        """Check if a role exists.
+
+        Returns:
+            bool: True if the role exists, False if it does not.
+        """
         query = ('SELECT count(*) FROM mysql.user '
                  'WHERE user = %s AND host = %s')
         self.cursor.execute(query, (self.name, '%'))
         return self.cursor.fetchone()[0] > 0
 
-    def add(self, users, privs, check_mode=False, admin=False):
+    def add(self, users, privs, check_mode=False, admin=False,
+            set_default_role_all=True):
+        """Add a role.
+
+        Args:
+            users (list): Role members.
+            privs (str): String containing privileges.
+            check_mode (bool): If True, just checks and does nothing.
+            admin (list): Role's admin. Contains (username, hostname).
+            set_default_role_all (bool): If True, runs SET DEFAULT ROLE ALL TO each member.
+
+        Returns:
+            bool: True if the state has changed, False if has not.
+        """
         if check_mode:
             if not self.exists:
                 return True
@@ -304,7 +408,7 @@ class Role():
             self.cursor.execute(query, (self.name, admin_user, admin_host))
 
         if users:
-            self.add_members(users)
+            self.add_members(users, set_default_role_all=set_default_role_all)
 
         if privs:
             for db_table, priv in iteritems(privs):
@@ -314,6 +418,14 @@ class Role():
         return True
 
     def drop(self, check_mode=False):
+        """Drop a role.
+
+        Args:
+            check_mode (bool): If True, just checks and does nothing.
+
+        Returns:
+            bool: True if the state has changed, False if has not.
+        """
         if not self.exists:
             return False
 
@@ -323,7 +435,20 @@ class Role():
         self.cursor.execute('DROP ROLE %s', (self.name,))
         return True
 
-    def add_members(self, users, check_mode=False, append_members=False):
+    def add_members(self, users, check_mode=False, append_members=False,
+                    set_default_role_all=True):
+        """Add users to a role.
+
+        Args:
+            users (list): Role members.
+            check_mode (bool): If True, just checks and does nothing.
+            append_members (bool): If True, adds new members passed through users
+                not touching current members.
+            set_default_role_all (bool): If True, runs SET DEFAULT ROLE ALL TO each member.
+
+        Returns:
+            bool: True if the state has changed, False if has not.
+        """
         if not users:
             return False
 
@@ -334,6 +459,10 @@ class Role():
                     return True
 
                 self.cursor.execute('GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1]))
+
+                if set_default_role_all:
+                    self.cursor.execute('SET DEFAULT ROLE ALL TO %s@%s', (user[0], user[1]))
+
                 changed = True
 
         if append_members:
@@ -350,6 +479,15 @@ class Role():
         return changed
 
     def remove_members(self, users, check_mode=False):
+        """Remove members from a role.
+
+        Args:
+            users (list): Role members.
+            check_mode (bool): If True, just checks and does nothing.
+
+        Returns:
+            bool: True if the state has changed, False if has not.
+        """
         if not users:
             return False
 
@@ -366,7 +504,30 @@ class Role():
 
     def update(self, users, privs, check_mode=False,
                append_privs=False, append_members=False,
-               detach_members=False, admin=False):
+               detach_members=False, admin=False,
+               set_default_role_all=True):
+        """Update a role.
+
+        Update a role if needed.
+
+        Todo: Implement changing of role's admin when ALTER ROLE statement
+            to do that gets supported.
+
+        Args:
+            users (list): Role members.
+            privs (str): String containing privileges.
+            check_mode (bool): If True, just checks and does nothing.
+            append_privs (bool): If True, adds new privileges passed through privs
+                not touching current privileges.
+            append_members (bool): If True, adds new members passed through users
+                not touching current members.
+            detach_members (bool): If True, removes members passed through users from a role.
+            admin (list): Role's admin. Contains (username, hostname).
+            set_default_role_all (bool): If True, runs SET DEFAULT ROLE ALL TO each member.
+
+        Returns:
+            bool: True if the state has changed, False if has not.
+        """
         changed = False
 
         if users:
@@ -375,7 +536,8 @@ class Role():
 
             else:
                 changed = self.add_members(users, check_mode=check_mode,
-                                           append_members=append_members)
+                                           append_members=append_members,
+                                           set_default_role_all=set_default_role_all)
 
         if privs:
             changed, msg = user_mod(self.cursor, self.name, self.host,
@@ -401,6 +563,11 @@ class Role():
         return changed
 
     def __get_members(self):
+        """Get current role's members.
+
+        Returns:
+            set: Members.
+        """
         all_users = get_users(self.cursor)
 
         members = set()
@@ -418,6 +585,27 @@ class Role():
         return members
 
     def __is_member(self, grants):
+        """Check if a user / role is a member of a role.
+
+        To check if a user is a member of a role,
+        we parse their grants looking for the role name in them.
+        In the following grants, we can see that test@% is a member of readers.
+        +---------------------------------------------------+
+        | Grants for test@%                                 |
+        +---------------------------------------------------+
+        | GRANT SELECT, INSERT, UPDATE ON *.* TO `test`@`%` |
+        | GRANT ALL PRIVILEGES ON `mysql`.* TO `test`@`%`   |
+        | GRANT INSERT ON `mysql`.`user` TO `test`@`%`      |
+        | GRANT `readers`@`%` TO `test`@`%`                 |
+        +---------------------------------------------------+
+
+        Args:
+            grants (list): Grants of a user to parse.
+
+        Returns:
+            bool: True if the self.full_name has been found in grants,
+                otherwise returns False.
+        """
         if not grants:
             return False
 
@@ -428,6 +616,11 @@ class Role():
         return False
 
     def get_admin(self):
+        """Get a current admin of a role.
+
+        Returns:
+            tuple: Of the form (username, hostname).
+        """
         query = ("SELECT User, Host FROM mysql.roles_mapping "
                  "WHERE Role = %s and Admin_option = 'Y'")
 
@@ -447,6 +640,7 @@ def main():
         append_members=dict(type='bool', default=False),
         detach_members=dict(type='bool', default=False),
         check_implicit_admin=dict(type='bool', default=False),
+        set_default_role_all=dict(type='bool', default=True),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -474,6 +668,7 @@ def main():
     ssl_ca = module.params['ca_cert']
     check_hostname = module.params['check_hostname']
     db = ''
+    set_default_role_all = module.params['set_default_role_all']
 
     if priv and not isinstance(priv, (str, dict)):
         msg = ('The "priv" parameter must be str or dict '
@@ -547,11 +742,13 @@ def main():
 
     if state == 'present':
         if not role.exists:
-            changed = role.add(members, priv, module.check_mode, admin)
+            changed = role.add(members, priv, module.check_mode, admin,
+                               set_default_role_all)
 
         else:
             changed = role.update(members, priv, module.check_mode, append_privs,
-                                  append_members, detach_members, admin)
+                                  append_members, detach_members, admin,
+                                  set_default_role_all)
 
     elif state == 'absent':
         changed = role.drop(module.check_mode)

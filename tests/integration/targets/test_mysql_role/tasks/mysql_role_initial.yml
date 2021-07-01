@@ -57,6 +57,7 @@
     mysql_user:
       <<: *mysql_params
       name: '{{ item }}'
+      password: '{{ mysql_password }}'
     loop:
     - '{{ user0 }}'
     - '{{ user1 }}'
@@ -106,6 +107,20 @@
 
   #=====================
 
+  - name: Check that the user have no active roles
+    <<: *task_params
+    mysql_query:
+      login_user: '{{ user0 }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+      login_port: '{{ mysql_primary_port }}'
+      query: 'SELECT current_role()'
+
+  - name: Check
+    assert:
+      that:
+      - result.query_result.0.0["current_role()"] == "NONE"
+
   - name: Create role {{ role0 }}
     <<: *task_params
     mysql_role:
@@ -131,6 +146,12 @@
       that:
       - result.rowcount.0 == 1
 
+  # - name: Check that the role is active
+  #  <<: *task_params
+  #  mysql_query:
+  #    <<: *mysql_params
+  #    query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
     mysql_query:
@@ -141,6 +162,20 @@
     assert:
       that:
       - result is succeeded
+
+  - name: Check that the role is active
+    <<: *task_params
+    mysql_query:
+      login_user: '{{ user0 }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+      login_port: '{{ mysql_primary_port }}'
+      query: 'SELECT current_role()'
+
+  - name: Check
+    assert:
+      that:
+      - result.query_result.0.0["current_role()"] == "`{{ role0 }}`@`%`"
 
   #========================
 

@@ -283,9 +283,6 @@ class Role():
         if self.exists:
             self.members = self.__get_members()
 
-            # TODO: remove this debug
-            self.module.warn('%s' % self.members)
-
     def __role_exists(self):
         query = ('SELECT count(*) FROM mysql.user '
                  'WHERE user = %s AND host = %s')

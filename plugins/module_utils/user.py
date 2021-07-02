@@ -334,7 +334,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                         msg = "Privileges updated"
                         if module.check_mode:
                             return (True, msg)
-                        privileges_revoke(cursor, user, host, db_table, priv, grant_option)
+                        privileges_revoke(cursor, user, host, db_table, priv, grant_option, maria_role)
                         changed = True
 
             # If the user doesn't currently have any privileges on a db.table, then
@@ -364,7 +364,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     if module.check_mode:
                         return (True, msg)
                     if not append_privs:
-                        privileges_revoke(cursor, user, host, db_table, curr_priv[db_table], grant_option)
+                        privileges_revoke(cursor, user, host, db_table, curr_priv[db_table], grant_option, maria_role)
                     privileges_grant(cursor, user, host, db_table, new_priv[db_table], tls_requires, maria_role)
                     changed = True
 
@@ -644,7 +644,11 @@ def privileges_revoke(cursor, user, host, db_table, priv, grant_option, maria_ro
     db_table = db_table.replace('%', '%%')
     if grant_option:
         query = ["REVOKE GRANT OPTION ON %s" % db_table]
-        query.append("FROM %s@%s")
+        if not maria_role:
+            query.append("FROM %s@%s")
+        else:
+            query.append("FROM %s")
+
         query = ' '.join(query)
         cursor.execute(query, (user, host))
     priv_string = ",".join([p for p in priv if p not in ('GRANT', )])

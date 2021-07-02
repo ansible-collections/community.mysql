@@ -461,8 +461,9 @@ def privileges_get(cursor, user, host, maria_role=False):
         # Determine if there's a case similar to the above:
         privileges = normalize_col_grants(privileges)
 
-        if "WITH GRANT OPTION" in res.group(7):
-            privileges.append('GRANT')
+        if not maria_role:
+            if "WITH GRANT OPTION" in res.group(7):
+                privileges.append('GRANT')
         db = res.group(2)
         output.setdefault(db, []).extend(privileges)
     return output

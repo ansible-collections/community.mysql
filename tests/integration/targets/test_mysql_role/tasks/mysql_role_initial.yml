@@ -146,12 +146,6 @@
       that:
       - result.rowcount.0 == 1
 
-  # - name: Check that the role is active
-  #  <<: *task_params
-  #  mysql_query:
-  #    <<: *mysql_params
-  #    query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
-
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
     mysql_query:

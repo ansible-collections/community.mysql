@@ -78,6 +78,7 @@ options:
 
   set_default_role_all:
     description:
+      - Is not supported by MariaDB.
       - If C(yes), runs B(SET DEFAULT ROLE ALL TO) each of the I(members) when changed.
       - If you want to avoid this behavior, set this option to C(no) explicitly.
     type: bool
@@ -346,24 +347,24 @@ class Role():
     Args:
         module (AnsibleModule): Object of the AnsibleModule class.
         cursor (cursor): Cursor object of a database Python connector.
-        srv_type (str): Server type. Can be "mysql" or "mariadb"
+        is_mariadb (bool): Is a server MariaDB?
 
     Attributes:
         module (AnsibleModule): Object of the AnsibleModule class.
         cursor (cursor): Cursor object of a database Python connector.
         name (str): Role's name.
-        srv_type (str): Server type. Can be "mysql" or "mariadb".
+        is_mariadb (bool): Is a server MariaDB?
         host (str): Role's host.
         full_name (str): Role's full name.
         exists (bool): Indicates if a role exists or not.
         members (set): Set of current role's members.
     """
-    def __init__(self, module, cursor, name, srv_type):
+    def __init__(self, module, cursor, name, is_mariadb):
         self.module = module
         self.cursor = cursor
         self.name = name
-        self.srv_type = srv_type
-        if srv_type == 'mysql':
+        self.is_mariadb = is_mariadb
+        if not self.is_mariadb:
             self.host = '%'
             self.full_name = '`%s`@`%s`' % (self.name, self.host)
         else:
@@ -382,7 +383,7 @@ class Role():
         Returns:
             bool: True if the role exists, False if it does not.
         """
-        if self.srv_type == 'mysql':
+        if not self.is_mariadb:
             query = 'SELECT count(*) FROM mysql.user WHERE user = %s AND host = %s', (self.name, self.host)
         else:
             query = "SELECT count(*) FROM mysql.user WHERE user = %s AND host = ''", (self.name)
@@ -422,7 +423,8 @@ class Role():
         if privs:
             for db_table, priv in iteritems(privs):
                 privileges_grant(self.cursor, self.name, self.host,
-                                 db_table, priv, tls_requires=None)
+                                 db_table, priv, tls_requires=None,
+                                 maria_role=self.is_mariadb)
 
         return True
 
@@ -467,10 +469,15 @@ class Role():
                 if check_mode:
                     return True
 
-                self.cursor.execute('GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1]))
+                if not self.is_mariadb:
+                    self.cursor.execute('GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1]))
+                else:
+                    self.cursor.execute('GRANT %s TO %s@%s', (self.name, user[0], user[1]))
 
-                if set_default_role_all:
+                if set_default_role_all and not self.is_mariadb:
                     self.cursor.execute('SET DEFAULT ROLE ALL TO %s@%s', (user[0], user[1]))
+                else:
+                    self.module.warn('"SET DEFAULT ROLE ALL" statement is not supported by MariaDB, ignored.')
 
                 changed = True
 
@@ -482,7 +489,10 @@ class Role():
                 if check_mode:
                     return True
 
-                self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
+                if not self.is_mariadb:
+                    self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
+                else:
+                    self.cursor.execute('REVOKE %s FROM %s@%s', (self.name, user[0], user[1]))
                 changed = True
 
         return changed
@@ -506,7 +516,10 @@ class Role():
                 if check_mode:
                     return True
 
-                self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
+                if not self.is_mariadb:
+                    self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
+                else:
+                    self.cursor.execute('REVOKE %s FROM %s@%s', (self.name, user[0], user[1]))
                 changed = True
 
         return changed
@@ -552,7 +565,7 @@ class Role():
             changed, msg = user_mod(self.cursor, self.name, self.host,
                                     None, None, None, None, None, None,
                                     privs, append_privs, None,
-                                    self.module, role=True)
+                                    self.module, role=True, maria_role=self.is_mariadb)
 
         # TODO Implement changing when ALTER ROLE statement to
         # change role's admin gets supported
@@ -746,13 +759,8 @@ def main():
     if members:
         members = normalize_users(module, members)
 
-    if role_impl.is_mariadb():
-        srv_type = 'mariadb'
-    else:
-        srv_type = 'mysql'
-
     # Main job starts here
-    role = Role(module, cursor, name, srv_type)
+    role = Role(module, cursor, name, role_impl.is_mariadb())
 
     if state == 'present':
         if not role.exists:

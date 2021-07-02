@@ -206,7 +206,7 @@ def is_hash(password):
 
 def user_mod(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             append_privs, tls_requires, module, role=False):
+             append_privs, tls_requires, module, role=False, maria_role=False):
     changed = False
     msg = "User unchanged"
     grant_option = False
@@ -344,7 +344,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     msg = "New privileges granted"
                     if module.check_mode:
                         return (True, msg)
-                    privileges_grant(cursor, user, host, db_table, priv, tls_requires)
+                    privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_role)
                     changed = True
 
             # If the db.table specification exists in both the user's current privileges
@@ -365,7 +365,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                         return (True, msg)
                     if not append_privs:
                         privileges_revoke(cursor, user, host, db_table, curr_priv[db_table], grant_option)
-                    privileges_grant(cursor, user, host, db_table, new_priv[db_table], tls_requires)
+                    privileges_grant(cursor, user, host, db_table, new_priv[db_table], tls_requires, maria_role)
                     changed = True
 
         if role:
@@ -632,7 +632,7 @@ def privileges_unpack(priv, mode):
     return output
 
 
-def privileges_revoke(cursor, user, host, db_table, priv, grant_option):
+def privileges_revoke(cursor, user, host, db_table, priv, grant_option, maria_role=False):
     # Escape '%' since mysql db.execute() uses a format string
     db_table = db_table.replace('%', '%%')
     if grant_option:
@@ -642,19 +642,32 @@ def privileges_revoke(cursor, user, host, db_table, priv, grant_option):
         cursor.execute(query, (user, host))
     priv_string = ",".join([p for p in priv if p not in ('GRANT', )])
     query = ["REVOKE %s ON %s" % (priv_string, db_table)]
-    query.append("FROM %s@%s")
+
+    if not maria_role:
+        query.append("FROM %s@%s")
+        params = (user, host)
+    else:
+        query.append("FROM %s")
+        params = (user)
+
     query = ' '.join(query)
-    cursor.execute(query, (user, host))
+    cursor.execute(query, params)
 
 
-def privileges_grant(cursor, user, host, db_table, priv, tls_requires):
+def privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_role=False):
     # Escape '%' since mysql db.execute uses a format string and the
     # specification of db and table often use a % (SQL wildcard)
     db_table = db_table.replace('%', '%%')
     priv_string = ",".join([p for p in priv if p not in ('GRANT', )])
     query = ["GRANT %s ON %s" % (priv_string, db_table)]
-    query.append("TO %s@%s")
-    params = (user, host)
+
+    if not maria_role:
+        query.append("TO %s@%s")
+        params = (user, host)
+    else:
+        query.append("TO %s")
+        params = (user)
+
     if tls_requires and impl.use_old_user_mgmt(cursor):
         query, params = mogrify_requires(" ".join(query), params, tls_requires)
         query = [query]

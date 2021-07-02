@@ -346,22 +346,29 @@ class Role():
     Args:
         module (AnsibleModule): Object of the AnsibleModule class.
         cursor (cursor): Cursor object of a database Python connector.
+        srv_type (str): Server type. Can be "mysql" or "mariadb"
 
     Attributes:
         module (AnsibleModule): Object of the AnsibleModule class.
         cursor (cursor): Cursor object of a database Python connector.
         name (str): Role's name.
+        srv_type (str): Server type. Can be "mysql" or "mariadb".
         host (str): Role's host.
         full_name (str): Role's full name.
         exists (bool): Indicates if a role exists or not.
         members (set): Set of current role's members.
     """
-    def __init__(self, module, cursor, name):
+    def __init__(self, module, cursor, name, srv_type):
         self.module = module
         self.cursor = cursor
         self.name = name
-        self.host = '%'
-        self.full_name = '`%s`@`%s`' % (self.name, self.host)
+        self.srv_type = srv_type
+        if srv_type == 'mysql':
+            self.host = '%'
+            self.full_name = '`%s`@`%s`' % (self.name, self.host)
+        else:
+            self.host = ''
+            self.full_name = '`%s`' % self.name
 
         self.exists = self.__role_exists()
         self.members = set()
@@ -375,9 +382,11 @@ class Role():
         Returns:
             bool: True if the role exists, False if it does not.
         """
-        query = ('SELECT count(*) FROM mysql.user '
-                 'WHERE user = %s AND host = %s')
-        self.cursor.execute(query, (self.name, '%'))
+        if self.srv_type == 'mysql':
+            query = 'SELECT count(*) FROM mysql.user WHERE user = %s AND host = %s', (self.name, self.host)
+        else:
+            query = "SELECT count(*) FROM mysql.user WHERE user = %s AND host = ''", (self.name)
+        self.cursor.execute(*query)
         return self.cursor.fetchone()[0] > 0
 
     def add(self, users, privs, check_mode=False, admin=False,
@@ -737,8 +746,13 @@ def main():
     if members:
         members = normalize_users(module, members)
 
+    if role_impl.is_mariadb():
+        srv_type = 'mariadb'
+    else:
+        srv_type = 'mysql'
+
     # Main job starts here
-    role = Role(module, cursor, name)
+    role = Role(module, cursor, name, srv_type)
 
     if state == 'present':
         if not role.exists:

@@ -445,7 +445,10 @@ def privileges_get(cursor, user, host, maria_role=False):
             return x
 
     for grant in grants:
-        res = re.match("""GRANT (.+) ON (.+) TO (['`"]).*\\3@(['`"]).*\\4( IDENTIFIED BY PASSWORD (['`"]).+\\6)? ?(.*)""", grant[0])
+        if not maria_role:
+            res = re.match("""GRANT (.+) ON (.+) TO (['`"]).*\\3@(['`"]).*\\4( IDENTIFIED BY PASSWORD (['`"]).+\\6)? ?(.*)""", grant[0])
+        else:
+            res = re.match("""GRANT (.+) ON (.+) TO (['`"]).*\\3""", grant[0])
         if res is None:
             raise InvalidPrivsError('unable to parse the MySQL grant string: %s' % grant[0])
         privileges = res.group(1).split(",")

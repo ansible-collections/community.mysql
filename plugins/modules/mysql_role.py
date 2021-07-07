@@ -398,7 +398,7 @@ class Role():
             users (list): Role members.
             privs (str): String containing privileges.
             check_mode (bool): If True, just checks and does nothing.
-            admin (list): Role's admin. Contains (username, hostname).
+            admin (tuple): Role's admin. Contains (username, hostname).
             set_default_role_all (bool): If True, runs SET DEFAULT ROLE ALL TO each member.
 
         Returns:
@@ -469,6 +469,8 @@ class Role():
                 if check_mode:
                     return True
 
+                self.module.warn('USER: %s, MEMBERS: %s' % (user, self.members))
+
                 if not self.is_mariadb:
                     self.cursor.execute('GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1]))
                 else:
@@ -485,7 +487,7 @@ class Role():
             return changed
 
         for user in self.members:
-            if user not in users:
+            if user not in users and user != ('root', 'localhost'):
                 if check_mode:
                     return True
 
@@ -544,7 +546,7 @@ class Role():
             append_members (bool): If True, adds new members passed through users
                 not touching current members.
             detach_members (bool): If True, removes members passed through users from a role.
-            admin (list): Role's admin. Contains (username, hostname).
+            admin (tuple): Role's admin. Contains (username, hostname).
             set_default_role_all (bool): If True, runs SET DEFAULT ROLE ALL TO each member.
 
         Returns:

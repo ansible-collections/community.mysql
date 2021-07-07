@@ -765,18 +765,22 @@ def main():
     # Main job starts here
     role = Role(module, cursor, name, role_impl.is_mariadb())
 
-    if state == 'present':
-        if not role.exists:
-            changed = role.add(members, priv, module.check_mode, admin,
-                               set_default_role_all)
+    try:
+        if state == 'present':
+            if not role.exists:
+                changed = role.add(members, priv, module.check_mode, admin,
+                                   set_default_role_all)
 
-        else:
-            changed = role.update(members, priv, module.check_mode, append_privs,
-                                  append_members, detach_members, admin,
-                                  set_default_role_all)
+            else:
+                changed = role.update(members, priv, module.check_mode, append_privs,
+                                      append_members, detach_members, admin,
+                                      set_default_role_all)
 
-    elif state == 'absent':
-        changed = role.drop(module.check_mode)
+        elif state == 'absent':
+            changed = role.drop(module.check_mode)
+
+    except Exception as e:
+        module.fail_json(msg=to_native(e))
 
     # Exit
     db_conn.close()

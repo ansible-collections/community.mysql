@@ -469,8 +469,6 @@ class Role():
                 if check_mode:
                     return True
 
-                self.module.warn('USER: %s, MEMBERS: %s' % (user, self.members))
-
                 if not self.is_mariadb:
                     self.cursor.execute('GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1]))
                 else:

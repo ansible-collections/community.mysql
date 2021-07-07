@@ -386,7 +386,7 @@ class Role():
         if not self.is_mariadb:
             query = 'SELECT count(*) FROM mysql.user WHERE user = %s AND host = %s', (self.name, self.host)
         else:
-            query = "SELECT count(*) FROM mysql.user WHERE user = %s AND host = ''", (self.name)
+            query = "SELECT count(*) FROM mysql.user WHERE user = %s AND is_role  = 'Y'", (self.name)
         self.cursor.execute(*query)
         return self.cursor.fetchone()[0] > 0
 
@@ -551,15 +551,16 @@ class Role():
             bool: True if the state has changed, False if has not.
         """
         changed = False
+        members_changed = False
 
         if users:
             if detach_members:
-                changed = self.remove_members(users, check_mode=check_mode)
+                members_changed = self.remove_members(users, check_mode=check_mode)
 
             else:
-                changed = self.add_members(users, check_mode=check_mode,
-                                           append_members=append_members,
-                                           set_default_role_all=set_default_role_all)
+                members_changed = self.add_members(users, check_mode=check_mode,
+                                                   append_members=append_members,
+                                                   set_default_role_all=set_default_role_all)
 
         if privs:
             changed, msg = user_mod(self.cursor, self.name, self.host,
@@ -581,6 +582,8 @@ class Role():
                        'To change the admin, you need to drop and create the '
                        'role again.' % (current_admin[0], current_admin[1]))
                 self.module.warn(msg)
+
+        changed = changed or members_changed
 
         return changed
 

@@ -50,7 +50,14 @@
     mysql_query:
       <<: *mysql_params
       login_db: '{{ test_db }}'
-      query: 'CREATE TABLE {{ test_table }} (id int)'
+      query: 'DROP TABLE IF EXISTS {{ test_table }}'
+
+  - name: Create table {{ test_table }}
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ test_db }}'
+      query: 'CREATE TABLE IF NOT EXISTS {{ test_table }} (id int)'
 
   - name: Create users
     <<: *task_params

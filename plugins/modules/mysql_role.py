@@ -301,9 +301,7 @@ def normalize_users(module, users, is_mariadb=False):
     return normalized_users
 
 
-def check_users_in_db(module, cursor, users):
-    users_in_db = get_users(cursor)
-
+def check_users_in_db(module, users, users_in_db):
     for user in users:
         if user not in users_in_db:
             msg = 'User / role `%s` with host `%s` does not exist' % (user[0], user[1])
@@ -853,15 +851,18 @@ def main():
                'Minimal versions are MySQL 8.0.0 or MariaDB 10.0.5.')
         module.fail_json(msg=msg)
 
+    users_in_db = set(get_users(cursor))
+
     if admin:
         if not is_mariadb:
             module.fail_json(msg='The "admin" option can be used only with MariaDB.')
 
         admin = normalize_users(module, [admin])[0]
+        check_users_in_db(module, [admin], users_in_db)
 
     if members:
         members = normalize_users(module, members, is_mariadb)
-        check_users_in_db(module, cursor, members)
+        check_users_in_db(module, members, users_in_db)
 
     # Main job starts here
     role = Role(module, cursor, name, is_mariadb)

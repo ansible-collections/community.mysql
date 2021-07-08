@@ -383,9 +383,12 @@ class MySQLQueryBuilder():
         else:
             return 'REVOKE %s@%s FROM %s', (self.name, self.host, user[0])
 
-    def role_create(self, admin):
+    def role_create(self, admin, string=False):
         # It is NOT supported by MySQL, so we ignore it
-        return 'CREATE ROLE %s', (self.name)
+        if not string:
+            return 'CREATE ROLE %s', (self.name)
+        else:
+            return 'CREATE ROLE %s' % self.name
 
 
 class MariaDBQueryBuilder():
@@ -414,7 +417,7 @@ class MariaDBQueryBuilder():
         else:
             return 'REVOKE %s FROM %s', (self.name, user[0])
 
-    def role_create(self, admin):
+    def role_create(self, admin, string=False):
         if not admin:
             return 'CREATE ROLE %s', (self.name)
 
@@ -558,7 +561,11 @@ class Role():
                 return True
             return False
 
-        self.cursor.execute(*self.q_builder.role_create(admin))
+        try:
+            self.cursor.execute(*self.q_builder.role_create(admin))
+        except Exception as e:
+            if 'not all arguments converted during bytes formatting' in to_native(e):
+                self.cursor.execute(self.q_builder.role_create(admin, string=True))
 
         if users:
             self.add_members(users, set_default_role_all=set_default_role_all)

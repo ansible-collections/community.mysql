@@ -349,6 +349,121 @@ def get_grants(cursor, user, host):
     return cursor.fetchall()
 
 
+class MySQLQueryBuilder():
+
+    def __init__(self, name, host):
+        self.name = name
+        self.host = host
+
+    def role_exists(self):
+        return 'SELECT count(*) FROM mysql.user WHERE user = %s AND host = %s', (self.name, self.host)
+
+    def role_grant(self, user):
+        if user[1]:
+            return 'GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1])
+        else:
+            return 'GRANT %s@%s TO %s', (self.name, self.host, user[0])
+
+    def role_revoke(self, user):
+        if user[1]:
+            return 'REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1])
+        else:
+            return 'REVOKE %s@%s FROM %s', (self.name, self.host, user[0])
+
+    def role_create(self, admin):
+        # It is NOT supported by MySQL, so we ignore it
+        return 'CREATE ROLE %s', (self.name)
+
+
+class MariaDBQueryBuilder():
+
+    def __init(self, name):
+        self.name = name
+
+    def role_exists(self):
+        return "SELECT count(*) FROM mysql.user WHERE user = %s AND is_role  = 'Y'", (self.name)
+
+    def role_grant(self, user):
+        if user[1]:
+            return 'GRANT %s TO %s@%s', (self.name, user[0], user[1])
+        else:
+            return 'GRANT %s TO %s', (self.name, user[0])
+
+    def role_revoke(self, user):
+        if user[1]:
+            return 'REVOKE %s FROM %s@%s', (self.name, user[0], user[1])
+        else:
+            return 'REVOKE %s FROM %s', (self.name, user[0])
+
+    def role_create(self, admin):
+        if not admin:
+            return 'CREATE ROLE %s', (self.name)
+
+        if admin[1]:
+            return 'CREATE ROLE %s WITH ADMIN %s@%s', (self.name, admin[0], admin[1])
+        else:
+            return 'CREATE ROLE %s WITH ADMIN %s', (self.name, admin[0])
+
+
+class MySQLRoleImpl():
+
+    def __init__(self, module, cursor, name, host):
+        self.module = module
+        self.cursor = cursor
+        self.name = name
+        self.host = host
+
+    def set_default_role_all(self, user):
+        if user[1]:
+            self.cursor.execute('SET DEFAULT ROLE ALL TO %s@%s', (user[0], user[1]))
+        else:
+            self.cursor.execute('SET DEFAULT ROLE ALL TO %s', (user[0]))
+
+    def get_admin(self, admin):
+        pass
+
+    def set_admin(self, admin):
+        pass
+
+
+class MariaDBRoleImpl():
+
+    def __init__(self, module, cursor, name):
+        self.module = module
+        self.cursor = cursor
+        self.name = name
+
+    def set_default_role_all(self, user):
+        self.module.warn('"SET DEFAULT ROLE ALL" statement is not supported by MariaDB, ignored.')
+
+    def get_admin(self):
+        """Get a current admin of a role.
+
+        Returns:
+            tuple: Of the form (username, hostname).
+        """
+        query = ("SELECT User, Host FROM mysql.roles_mapping "
+                 "WHERE Role = %s and Admin_option = 'Y'")
+
+        self.cursor.execute(query, (self.name,))
+        return self.cursor.fetchone()
+
+    def set_admin(self, admin):
+        admin_user = admin[0]
+        admin_host = admin[1]
+        current_admin = self.get_admin()
+
+        # current_admin is a tuple (user, host)
+        if (admin_user, admin_host) != current_admin:
+            # TODO Implement changing when ALTER ROLE statement to
+            # change role's admin gets supported
+            msg = ('The "admin" option value and the current '
+                   'roles admin (%s@%s) don not match. Ignored. '
+                   'To change the admin, you need to drop and create the '
+                   'role again.' % (current_admin[0], current_admin[1]))
+            self.module.warn(msg)
+
+
 class Role():
     """Class to work with MySQL role objects.
 
@@ -372,12 +487,17 @@ class Role():
         self.cursor = cursor
         self.name = name
         self.is_mariadb = is_mariadb
-        if not self.is_mariadb:
-            self.host = '%'
-            self.full_name = '`%s`@`%s`' % (self.name, self.host)
-        else:
-            self.host = ''
+
+        if self.is_mariadb:
+            self.q_builder = MariaDBQueryBuilder(self.name)
+            self.role_impl = MariaDBRoleImpl(self.module, self.cursor, self.name)
             self.full_name = '`%s`' % self.name
+            self.host = ''
+        else:
+            self.host = '%'
+            self.q_builder = MySQLQueryBuilder(self.name, self.host)
+            self.role_impl = MySQLRoleImpl(self.module, self.cursor, self.name, self.host)
+            self.full_name = '`%s`@`%s`' % (self.name, self.host)
 
         self.exists = self.__role_exists()
         self.members = set()
@@ -391,11 +511,7 @@ class Role():
         Returns:
             bool: True if the role exists, False if it does not.
         """
-        if not self.is_mariadb:
-            query = 'SELECT count(*) FROM mysql.user WHERE user = %s AND host = %s', (self.name, self.host)
-        else:
-            query = "SELECT count(*) FROM mysql.user WHERE user = %s AND is_role  = 'Y'", (self.name)
-        self.cursor.execute(*query)
+        self.cursor.execute(*self.q_builder.role_exists())
         return self.cursor.fetchone()[0] > 0
 
     def add(self, users, privs, check_mode=False, admin=False,
@@ -417,18 +533,7 @@ class Role():
                 return True
             return False
 
-        if not admin:
-            self.cursor.execute('CREATE ROLE %s', (self.name,))
-        else:
-            admin_user = admin[0]
-            admin_host = admin[1]
-
-            if admin_host:
-                query = 'CREATE ROLE %s WITH ADMIN %s@%s', (self.name, admin_user, admin_host)
-            else:
-                query = 'CREATE ROLE %s WITH ADMIN %s', (self.name, admin_user)
-
-            self.cursor.execute(*query)
+        self.cursor.execute(*self.q_builder.role_create(admin))
 
         if users:
             self.add_members(users, set_default_role_all=set_default_role_all)
@@ -482,24 +587,9 @@ class Role():
                 if check_mode:
                     return True
 
-                if not self.is_mariadb:
-                    if user[1]:
-                        self.cursor.execute('GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1]))
-                    else:
-                        self.cursor.execute('GRANT %s@%s TO %s', (self.name, self.host, user[0]))
-                else:
-                    if user[1]:
-                        self.cursor.execute('GRANT %s TO %s@%s', (self.name, user[0], user[1]))
-                    else:
-                        self.cursor.execute('GRANT %s TO %s', (self.name, user[0]))
+                self.cursor.execute(*self.q_builder.role_grant(user))
 
-                if set_default_role_all and not self.is_mariadb:
-                    if user[1]:
-                        self.cursor.execute('SET DEFAULT ROLE ALL TO %s@%s', (user[0], user[1]))
-                    else:
-                        self.cursor.execute('SET DEFAULT ROLE ALL TO %s', (user[0]))
-                else:
-                    self.module.warn('"SET DEFAULT ROLE ALL" statement is not supported by MariaDB, ignored.')
+                self.role_impl.set_default_role_all(user)
 
                 changed = True
 
@@ -511,16 +601,7 @@ class Role():
                 if check_mode:
                     return True
 
-                if not self.is_mariadb:
-                    if user[1]:
-                        self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
-                    else:
-                        self.cursor.execute('REVOKE %s@%s FROM %s', (self.name, self.host, user[0]))
-                else:
-                    if user[1]:
-                        self.cursor.execute('REVOKE %s FROM %s@%s', (self.name, user[0], user[1]))
-                    else:
-                        self.cursor.execute('REVOKE %s FROM %s', (self.name, user[0]))
+                self.cursor.execute(*self.q_builder.role_revoke(user))
 
                 changed = True
 
@@ -545,16 +626,8 @@ class Role():
                 if check_mode:
                     return True
 
-                if not self.is_mariadb:
-                    if user[1]:
-                        self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
-                    else:
-                        self.cursor.execute('REVOKE %s@%s FROM %s', (self.name, self.host, user[0]))
-                else:
-                    if user[1]:
-                        self.cursor.execute('REVOKE %s FROM %s@%s', (self.name, user[0], user[1]))
-                    else:
-                        self.cursor.execute('REVOKE %s FROM %s', (self.name, user[0]))
+                self.cursor.execute(*self.q_builder.role_revoke(user))
+
                 changed = True
 
         return changed
@@ -603,20 +676,8 @@ class Role():
                                     privs, append_privs, None,
                                     self.module, role=True, maria_role=self.is_mariadb)
 
-        # TODO Implement changing when ALTER ROLE statement to
-        # change role's admin gets supported
         if admin:
-            admin_user = admin[0]
-            admin_host = admin[1]
-            current_admin = self.get_admin()
-
-            # current_admin is a tuple (user, host)
-            if (admin_user, admin_host) != current_admin:
-                msg = ('The "admin" option value and the current '
-                       'roles admin (%s@%s) don not match. Ignored. '
-                       'To change the admin, you need to drop and create the '
-                       'role again.' % (current_admin[0], current_admin[1]))
-                self.module.warn(msg)
+            self.role_impl.set_admin(admin)
 
         changed = changed or members_changed
 
@@ -674,18 +735,6 @@ class Role():
                 return True
 
         return False
-
-    def get_admin(self):
-        """Get a current admin of a role.
-
-        Returns:
-            tuple: Of the form (username, hostname).
-        """
-        query = ("SELECT User, Host FROM mysql.roles_mapping "
-                 "WHERE Role = %s and Admin_option = 'Y'")
-
-        self.cursor.execute(query, (self.name,))
-        return self.cursor.fetchone()
 
 
 def main():

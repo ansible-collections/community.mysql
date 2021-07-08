@@ -377,7 +377,7 @@ class MySQLQueryBuilder():
 
 class MariaDBQueryBuilder():
 
-    def __init(self, name):
+    def __init__(self, name):
         self.name = name
 
     def role_exists(self):

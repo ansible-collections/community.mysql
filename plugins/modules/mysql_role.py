@@ -371,6 +371,12 @@ class MySQLQueryBuilder():
         else:
             return 'GRANT %s@%s TO %s', (self.name, self.host, user[0])
 
+    def role_grant_raw(self, user):
+        if user[1]:
+            return 'GRANT `%s`@`%s` TO `%s`@`%s`' % (self.name, self.host, user[0], user[1])
+        else:
+            return 'GRANT `%s`@`%s` TO `%s`' % (self.name, self.host, user[0])
+
     def role_revoke(self, user):
         if user[1]:
             return 'REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1])
@@ -395,6 +401,12 @@ class MariaDBQueryBuilder():
             return 'GRANT %s TO %s@%s', (self.name, user[0], user[1])
         else:
             return 'GRANT %s TO %s', (self.name, user[0])
+
+    def role_grant_raw(self, user):
+        if user[1]:
+            return 'GRANT `%s` TO `%s`@`%s`' % (self.name, user[0], user[1])
+        else:
+            return 'GRANT `%s` TO `%s`' % (self.name, user[0])
 
     def role_revoke(self, user):
         if user[1]:
@@ -600,7 +612,11 @@ class Role():
                 if check_mode:
                     return True
 
-                self.cursor.execute(*self.q_builder.role_grant(user))
+                try:
+                    self.cursor.execute(*self.q_builder.role_grant(user))
+                except Exception as e:
+                    if 'not all arguments converted during bytes formatting' in to_native(e):
+                        self.cursor.execute(self.q_builder.role_grant_raw(user))
 
                 self.role_impl.set_default_role_all(user)
 

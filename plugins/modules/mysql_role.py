@@ -260,20 +260,21 @@ def get_implementation(cursor):
     return role_impl
 
 
-def normalize_users(module, users):
+def normalize_users(module, users, is_mariadb=False):
     """Normalize passed user names.
 
     Example of transformation:
-    ['user0'] => [('user0', 'localhost')]
+    ['user0'] => [('user0', '')] / ['user0'] => [('user0', '%')]
     ['user0@host0'] => [('user0', 'host0')]
 
     Args:
         module (AnsibleModule): Object of the AnsibleModule class.
         cursor (cursor): Cursor object of a database Python connector.
         users (list): List of user names.
+        is_mariadb (bool): Flag indicating we are working with MariaDB
 
     Returns:
-        list: List of tuples like [('user0', 'localhost'), ('user0', 'host0')].
+        list: List of tuples like [('user0', ''), ('user0', 'host0')].
     """
     normalized_users = []
 
@@ -284,7 +285,10 @@ def normalize_users(module, users):
             module.fail_json(msg="Member's name cannot be empty")
 
         if len(tmp) == 1:
-            normalized_users.append((tmp[0], 'localhost'))
+            if not is_mariadb:
+                normalized_users.append((tmp[0], '%'))
+            else:
+                normalized_users.append((tmp[0], ''))
 
         elif len(tmp) == 2:
             normalized_users.append((tmp[0], tmp[1]))
@@ -337,7 +341,11 @@ def get_grants(cursor, user, host):
     Returns:
         list: List of tuples like [(grant1,), (grant2,), ... ].
     """
-    cursor.execute('SHOW GRANTS FOR %s@%s', (user, host))
+    if host:
+        cursor.execute('SHOW GRANTS FOR %s@%s', (user, host))
+    else:
+        cursor.execute('SHOW GRANTS FOR %s', (user))
+
     return cursor.fetchall()
 
 
@@ -412,10 +420,15 @@ class Role():
         if not admin:
             self.cursor.execute('CREATE ROLE %s', (self.name,))
         else:
-            query = 'CREATE ROLE %s WITH ADMIN %s@%s'
             admin_user = admin[0]
             admin_host = admin[1]
-            self.cursor.execute(query, (self.name, admin_user, admin_host))
+
+            if admin_host:
+                query = 'CREATE ROLE %s WITH ADMIN %s@%s', (self.name, admin_user, admin_host)
+            else:
+                query = 'CREATE ROLE %s WITH ADMIN %s', (self.name, admin_user)
+
+            self.cursor.execute(*query)
 
         if users:
             self.add_members(users, set_default_role_all=set_default_role_all)
@@ -470,12 +483,21 @@ class Role():
                     return True
 
                 if not self.is_mariadb:
-                    self.cursor.execute('GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1]))
+                    if user[1]:
+                        self.cursor.execute('GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1]))
+                    else:
+                        self.cursor.execute('GRANT %s@%s TO %s', (self.name, self.host, user[0]))
                 else:
-                    self.cursor.execute('GRANT %s TO %s@%s', (self.name, user[0], user[1]))
+                    if user[1]:
+                        self.cursor.execute('GRANT %s TO %s@%s', (self.name, user[0], user[1]))
+                    else:
+                        self.cursor.execute('GRANT %s TO %s', (self.name, user[0]))
 
                 if set_default_role_all and not self.is_mariadb:
-                    self.cursor.execute('SET DEFAULT ROLE ALL TO %s@%s', (user[0], user[1]))
+                    if user[1]:
+                        self.cursor.execute('SET DEFAULT ROLE ALL TO %s@%s', (user[0], user[1]))
+                    else:
+                        self.cursor.execute('SET DEFAULT ROLE ALL TO %s', (user[0]))
                 else:
                     self.module.warn('"SET DEFAULT ROLE ALL" statement is not supported by MariaDB, ignored.')
 
@@ -490,9 +512,16 @@ class Role():
                     return True
 
                 if not self.is_mariadb:
-                    self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
+                    if user[1]:
+                        self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
+                    else:
+                        self.cursor.execute('REVOKE %s@%s FROM %s', (self.name, self.host, user[0]))
                 else:
-                    self.cursor.execute('REVOKE %s FROM %s@%s', (self.name, user[0], user[1]))
+                    if user[1]:
+                        self.cursor.execute('REVOKE %s FROM %s@%s', (self.name, user[0], user[1]))
+                    else:
+                        self.cursor.execute('REVOKE %s FROM %s', (self.name, user[0]))
+
                 changed = True
 
         return changed
@@ -517,9 +546,15 @@ class Role():
                     return True
 
                 if not self.is_mariadb:
-                    self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
+                    if user[1]:
+                        self.cursor.execute('REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1]))
+                    else:
+                        self.cursor.execute('REVOKE %s@%s FROM %s', (self.name, self.host, user[0]))
                 else:
-                    self.cursor.execute('REVOKE %s FROM %s@%s', (self.name, user[0], user[1]))
+                    if user[1]:
+                        self.cursor.execute('REVOKE %s FROM %s@%s', (self.name, user[0], user[1]))
+                    else:
+                        self.cursor.execute('REVOKE %s FROM %s', (self.name, user[0]))
                 changed = True
 
         return changed
@@ -760,7 +795,7 @@ def main():
         admin = normalize_users(module, [admin])[0]
 
     if members:
-        members = normalize_users(module, members)
+        members = normalize_users(module, members, role_impl.is_mariadb())
 
     # Main job starts here
     role = Role(module, cursor, name, role_impl.is_mariadb())

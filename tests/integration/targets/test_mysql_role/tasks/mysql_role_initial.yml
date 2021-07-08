@@ -73,7 +73,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}'
+      - '{{ user0 }}@localhost'
     check_mode: yes
 
   - name: Check
@@ -128,7 +128,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}'
+      - '{{ user0 }}@localhost'
 
   - name: Check
     assert:
@@ -375,7 +375,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}'
+      - '{{ user0 }}@localhost'
       priv:
         '*.*': 'SELECT,INSERT'
         'mysql.*': 'UPDATE'
@@ -405,7 +405,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}'
+      - '{{ user0 }}@localhost'
       priv:
         '*.*': 'SELECT,INSERT'
         'mysql.*': 'UPDATE'
@@ -425,7 +425,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}'
+      - '{{ user0 }}@localhost'
       priv:
         '*.*': 'SELECT,INSERT'
         'mysql.*': 'UPDATE'
@@ -439,6 +439,13 @@
   # Test rewriting / appending / detaching members
   # ##############################################
 
+  - name: Create role {{ role1 }}
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role1 }}'
+      state: present
+
   # Rewriting members
   - name: Rewrite members in check_mode
     <<: *task_params
@@ -447,8 +454,9 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user1 }}'
-      - '{{ user2 }}'
+      - '{{ user1 }}@localhost'
+      - '{{ user2 }}@localhost'
+      - '{{ role1 }}'
     check_mode: yes
 
   - name: Check
@@ -468,7 +476,7 @@
       that:
       - result is succeeded
 
-  # user1 and user2 are not members because of check_mode
+  # user1, user2, and role1 are not members because of check_mode
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
     mysql_query:
@@ -493,6 +501,17 @@
       that:
       - result is failed
 
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ role1 }} USING '{{ role0 }}'"
+    ignore_errors: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is failed
   #========================
 
   - name: Rewrite members
@@ -502,8 +521,9 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user1 }}'
-      - '{{ user2 }}'
+      - '{{ user1 }}@localhost'
+      - '{{ user2 }}@localhost'
+      - '{{ role1 }}'
 
   - name: Check
     assert:
@@ -545,6 +565,18 @@
       that:
       - result is succeeded
 
+  - name: Check in DB, if not granted, the query will fail
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ role1 }} USING '{{ role0 }}'"
+    ignore_errors: yes
+
+  - name: Check
+    assert:
+      that:
+      - result is succeeded
+
   #==========================
 
   - name: Rewrite members again in check_mode
@@ -554,8 +586,9 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user1 }}'
-      - '{{ user2 }}'
+      - '{{ user1 }}@localhost'
+      - '{{ user2 }}@localhost'
+      - '{{ role1 }}'
     check_mode: yes
 
   - name: Check
@@ -572,8 +605,9 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user1 }}'
-      - '{{ user2 }}'
+      - '{{ user1 }}@localhost'
+      - '{{ user2 }}@localhost'
+      - '{{ role1 }}'
 
   - name: Check
     assert:
@@ -621,7 +655,7 @@
       state: present
       append_members: yes
       members:
-      - '{{ user0 }}'
+      - '{{ user0 }}@localhost'
 
   - name: Check
     assert:
@@ -672,7 +706,7 @@
       state: present
       append_members: yes
       members:
-      - '{{ user0 }}'
+      - '{{ user0 }}@localhost'
     check_mode: yes
 
   - name: Check
@@ -690,7 +724,7 @@
       state: present
       append_members: yes
       members:
-      - '{{ user0 }}'
+      - '{{ user0 }}@localhost'
 
   - name: Check
     assert:
@@ -707,8 +741,8 @@
       state: present
       detach_members: yes
       members:
-      - '{{ user1 }}'
-      - '{{ user2 }}'
+      - '{{ user1 }}@localhost'
+      - '{{ user2 }}@localhost'
     check_mode: yes
 
   - name: Check
@@ -760,8 +794,8 @@
       state: present
       detach_members: yes
       members:
-      - '{{ user1 }}'
-      - '{{ user2 }}'
+      - '{{ user1 }}@localhost'
+      - '{{ user2 }}@localhost'
 
   - name: Check
     assert:
@@ -813,8 +847,8 @@
       state: present
       detach_members: yes
       members:
-      - '{{ user1 }}'
-      - '{{ user2 }}'
+      - '{{ user1 }}@localhost'
+      - '{{ user2 }}@localhost'
     check_mode: yes
 
   - name: Check
@@ -830,8 +864,8 @@
       state: present
       detach_members: yes
       members:
-      - '{{ user1 }}'
-      - '{{ user2 }}'
+      - '{{ user1 }}@localhost'
+      - '{{ user2 }}@localhost'
 
   - name: Check
     assert:
@@ -1077,6 +1111,7 @@
     # Semantically, when there's MariaDB
     when:
     - srv['version']['major'] >= 10
+
 
   always:
   # Clean up

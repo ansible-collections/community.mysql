@@ -301,6 +301,15 @@ def normalize_users(module, users, is_mariadb=False):
     return normalized_users
 
 
+def check_users_in_db(module, cursor, users):
+    users_in_db = get_users(cursor)
+
+    for user in users:
+        if user not in users_in_db:
+            msg = 'User / role `%s` with host `%s` does not exist' % (user[0], user[1])
+            module.fail_json(msg=msg)
+
+
 def server_supports_roles(cursor, role_impl):
     """Check if a server supports roles.
 
@@ -593,15 +602,7 @@ class Role():
                 if check_mode:
                     return True
 
-                try:
-                    self.cursor.execute(*self.q_builder.role_grant(user))
-
-                except Exception as e:
-                    msg = to_native(e)
-                    if self.role_impl.get_missed_user_err_msg() in msg:
-                        msg = 'User / role `%s` with host `%s` does not exist' % (user[0], user[1])
-
-                    self.module.fail_json(msg=msg)
+                self.cursor.execute(*self.q_builder.role_grant(user))
 
                 self.role_impl.set_default_role_all(user)
 
@@ -860,6 +861,7 @@ def main():
 
     if members:
         members = normalize_users(module, members, is_mariadb)
+        check_users_in_db(module, cursor, members)
 
     # Main job starts here
     role = Role(module, cursor, name, is_mariadb)

@@ -344,7 +344,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}'
+      - '{{ user0 }}@localhost'
       priv:
         '*.*': 'SELECT,INSERT'
         'mysql.*': 'UPDATE'
@@ -625,7 +625,7 @@
       state: present
       append_members: yes
       members:
-      - '{{ user0 }}'
+      - '{{ user0 }}@localhost'
     check_mode: yes
 
   - name: Check

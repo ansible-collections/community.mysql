@@ -1112,6 +1112,25 @@
     when:
     - srv['version']['major'] >= 10
 
+  # Try to grant a role to a user who does not exist
+  - name: Create role with admin again
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role0 }}'
+      state: present
+      members:
+      - '{{ nonexistent }}@localhost'
+    ignore_errors: yes
+
+  - name: Check with MySQL
+    assert:
+      that:
+      - result is failed
+      - result.msg is search('does not exist')
+    when:
+    # Semantically, when there's MySQL
+    - srv['version']['major'] < 10
 
   always:
   # Clean up

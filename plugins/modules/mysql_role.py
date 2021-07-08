@@ -425,6 +425,9 @@ class MySQLRoleImpl():
     def set_admin(self, admin):
         pass
 
+    def get_missed_user_err_msg(self):
+        return "Unknown authorization ID"
+
 
 class MariaDBRoleImpl():
 
@@ -462,6 +465,9 @@ class MariaDBRoleImpl():
                    'To change the admin, you need to drop and create the '
                    'role again.' % (current_admin[0], current_admin[1]))
             self.module.warn(msg)
+
+    def get_missed_user_err_msg(self):
+        return "Can't find any matching row in the user table"
 
 
 class Role():
@@ -587,7 +593,15 @@ class Role():
                 if check_mode:
                     return True
 
-                self.cursor.execute(*self.q_builder.role_grant(user))
+                try:
+                    self.cursor.execute(*self.q_builder.role_grant(user))
+
+                except Exception as e:
+                    msg = to_native(e)
+                    if self.role_impl.get_missed_user_err_msg() in msg:
+                        msg = 'User / role `%s` with host `%s` does not exist' % (user[0], user[1])
+
+                    self.module.fail_json(msg=msg)
 
                 self.role_impl.set_default_role_all(user)
 

@@ -41,9 +41,9 @@
   # Prepare
   - name: Create db {{ test_db }}
     <<: *task_params
-    mysql_query:
+    mysql_db:
       <<: *mysql_params
-      query: 'CREATE DATABASE {{ test_db }}'
+      name: '{{ test_db }}'
 
   - name: Create table {{ test_table }}
     <<: *task_params

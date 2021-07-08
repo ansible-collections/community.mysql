@@ -351,7 +351,7 @@ def get_grants(cursor, user, host):
     if host:
         cursor.execute('SHOW GRANTS FOR %s@%s', (user, host))
     else:
-        cursor.execute('SHOW GRANTS FOR %s', (user))
+        cursor.execute('SHOW GRANTS FOR %s', (user,))
 
     return cursor.fetchall()
 
@@ -371,24 +371,15 @@ class MySQLQueryBuilder():
         else:
             return 'GRANT %s@%s TO %s', (self.name, self.host, user[0])
 
-    def role_grant_raw(self, user):
-        if user[1]:
-            return 'GRANT `%s`@`%s` TO `%s`@`%s`' % (self.name, self.host, user[0], user[1])
-        else:
-            return 'GRANT `%s`@`%s` TO `%s`' % (self.name, self.host, user[0])
-
     def role_revoke(self, user):
         if user[1]:
             return 'REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1])
         else:
             return 'REVOKE %s@%s FROM %s', (self.name, self.host, user[0])
 
-    def role_create(self, admin, string=False):
+    def role_create(self, admin):
         # It is NOT supported by MySQL, so we ignore it
-        if not string:
-            return 'CREATE ROLE %s', (self.name)
-        else:
-            return 'CREATE ROLE %s' % self.name
+        return 'CREATE ROLE %s', (self.name,)
 
 
 class MariaDBQueryBuilder():
@@ -405,21 +396,15 @@ class MariaDBQueryBuilder():
         else:
             return 'GRANT %s TO %s', (self.name, user[0])
 
-    def role_grant_raw(self, user):
-        if user[1]:
-            return 'GRANT `%s` TO `%s`@`%s`' % (self.name, user[0], user[1])
-        else:
-            return 'GRANT `%s` TO `%s`' % (self.name, user[0])
-
     def role_revoke(self, user):
         if user[1]:
             return 'REVOKE %s FROM %s@%s', (self.name, user[0], user[1])
         else:
             return 'REVOKE %s FROM %s', (self.name, user[0])
 
-    def role_create(self, admin, string=False):
+    def role_create(self, admin):
         if not admin:
-            return 'CREATE ROLE %s', (self.name)
+            return 'CREATE ROLE %s', (self.name,)
 
         if admin[1]:
             return 'CREATE ROLE %s WITH ADMIN %s@%s', (self.name, admin[0], admin[1])
@@ -439,7 +424,7 @@ class MySQLRoleImpl():
         if user[1]:
             self.cursor.execute('SET DEFAULT ROLE ALL TO %s@%s', (user[0], user[1]))
         else:
-            self.cursor.execute('SET DEFAULT ROLE ALL TO %s', (user[0]))
+            self.cursor.execute('SET DEFAULT ROLE ALL TO %s', (user[0],))
 
     def get_admin(self, admin):
         pass
@@ -561,11 +546,7 @@ class Role():
                 return True
             return False
 
-        try:
-            self.cursor.execute(*self.q_builder.role_create(admin))
-        except Exception as e:
-            if 'not all arguments converted during bytes formatting' in to_native(e):
-                self.cursor.execute(self.q_builder.role_create(admin, string=True))
+        self.cursor.execute(*self.q_builder.role_create(admin))
 
         if users:
             self.add_members(users, set_default_role_all=set_default_role_all)
@@ -619,11 +600,7 @@ class Role():
                 if check_mode:
                     return True
 
-                try:
-                    self.cursor.execute(*self.q_builder.role_grant(user))
-                except Exception as e:
-                    if 'not all arguments converted during bytes formatting' in to_native(e):
-                        self.cursor.execute(self.q_builder.role_grant_raw(user))
+                self.cursor.execute(*self.q_builder.role_grant(user))
 
                 self.role_impl.set_default_role_all(user)
 

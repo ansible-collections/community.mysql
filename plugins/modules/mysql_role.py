@@ -781,6 +781,7 @@ def main():
             module.fail_json(msg='Invalid privileges string: %s' % to_native(e))
 
     role_impl = get_implementation(cursor)
+    is_mariadb = role_impl.is_mariadb()
 
     # Check if the server supports roles
     if not server_supports_roles(cursor, role_impl):
@@ -789,16 +790,16 @@ def main():
         module.fail_json(msg=msg)
 
     if admin:
-        if not role_impl.is_mariadb():
+        if not is_mariadb:
             module.fail_json(msg='The "admin" option can be used only with MariaDB.')
 
         admin = normalize_users(module, [admin])[0]
 
     if members:
-        members = normalize_users(module, members, role_impl.is_mariadb())
+        members = normalize_users(module, members, is_mariadb)
 
     # Main job starts here
-    role = Role(module, cursor, name, role_impl.is_mariadb())
+    role = Role(module, cursor, name, is_mariadb)
 
     try:
         if state == 'present':

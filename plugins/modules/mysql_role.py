@@ -385,7 +385,7 @@ class MySQLQueryBuilder():
         self.host = host
 
     def role_exists(self):
-        """Returns a query to check if a role with self.name and self.host exists in a database.
+        """Return a query to check if a role with self.name and self.host exists in a database.
 
         Returns:
             tuple: (query_string, tuple_containing_parameters).
@@ -393,7 +393,7 @@ class MySQLQueryBuilder():
         return 'SELECT count(*) FROM mysql.user WHERE user = %s AND host = %s', (self.name, self.host)
 
     def role_grant(self, user):
-        """Returns a query to grant a role to a user or a role.
+        """Return a query to grant a role to a user or a role.
 
         Args:
             user (tuple): User / role to grant the role to in the form (username, hostname).
@@ -407,7 +407,7 @@ class MySQLQueryBuilder():
             return 'GRANT %s@%s TO %s', (self.name, self.host, user[0])
 
     def role_revoke(self, user):
-        """Returns a query to revoke a role from a user or role.
+        """Return a query to revoke a role from a user or role.
 
         Args:
             user (tuple): User / role to revoke the role from in the form (username, hostname).
@@ -421,7 +421,7 @@ class MySQLQueryBuilder():
             return 'REVOKE %s@%s FROM %s', (self.name, self.host, user[0])
 
     def role_create(self, admin):
-        """Returns a query to create a role.
+        """Return a query to create a role.
 
         Args:
             admin (tuple): Admin user in the form (username, hostname).
@@ -446,7 +446,7 @@ class MariaDBQueryBuilder():
         self.name = name
 
     def role_exists(self):
-        """Returns a query to check if a role with self.name exists in a database.
+        """Return a query to check if a role with self.name exists in a database.
 
         Returns:
             tuple: (query_string, tuple_containing_parameters).
@@ -454,7 +454,7 @@ class MariaDBQueryBuilder():
         return "SELECT count(*) FROM mysql.user WHERE user = %s AND is_role  = 'Y'", (self.name)
 
     def role_grant(self, user):
-        """Returns a query to grant a role to a user or role.
+        """Return a query to grant a role to a user or role.
 
         Args:
             user (tuple): User / role to grant the role to in the form (username, hostname).
@@ -468,7 +468,7 @@ class MariaDBQueryBuilder():
             return 'GRANT %s TO %s', (self.name, user[0])
 
     def role_revoke(self, user):
-        """Returns a query to revoke a role from a user or role.
+        """Return a query to revoke a role from a user or role.
 
         Args:
             user (tuple): User / role to revoke the role from in the form (username, hostname).
@@ -482,7 +482,7 @@ class MariaDBQueryBuilder():
             return 'REVOKE %s FROM %s', (self.name, user[0])
 
     def role_create(self, admin):
-        """Returns a query to create a role.
+        """Return a query to create a role.
 
         Args:
             admin (tuple): Admin user in the form (username, hostname).
@@ -521,7 +521,7 @@ class MySQLRoleImpl():
         self.host = host
 
     def set_default_role_all(self, user):
-        """Runs 'SET DEFAULT ROLE ALL TO' a user.
+        """Run 'SET DEFAULT ROLE ALL TO' a user.
 
         Args:
             user (tuple): User / role to run the command against in the form (username, hostname).
@@ -570,7 +570,7 @@ class MariaDBRoleImpl():
         self.name = name
 
     def set_default_role_all(self, user):
-        """Runs 'SET DEFAULT ROLE ALL TO' a user.
+        """Run 'SET DEFAULT ROLE ALL TO' a user.
 
         The command is not supported by MariaDB, ignored.
 

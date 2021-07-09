@@ -450,7 +450,7 @@ class MySQLQueryBuilder():
         else:
             return 'REVOKE %s@%s FROM %s', (self.name, self.host, user[0])
 
-    def role_create(self, admin):
+    def role_create(self, admin=None):
         """Return a query to create a role.
 
         Args:
@@ -511,7 +511,7 @@ class MariaDBQueryBuilder():
         else:
             return 'REVOKE %s FROM %s', (self.name, user[0])
 
-    def role_create(self, admin):
+    def role_create(self, admin=None):
         """Return a query to create a role.
 
         Args:

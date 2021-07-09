@@ -265,7 +265,6 @@ def normalize_users(module, users, is_mariadb=False):
 
     Args:
         module (AnsibleModule): Object of the AnsibleModule class.
-        cursor (cursor): Cursor object of a database Python connector.
         users (list): List of user names.
         is_mariadb (bool): Flag indicating we are working with MariaDB
 
@@ -275,23 +274,25 @@ def normalize_users(module, users, is_mariadb=False):
     normalized_users = []
 
     for user in users:
-        tmp = user.split('@')
+        try:
+            tmp = user.split('@')
 
-        if tmp[0] == '':
-            module.fail_json(msg="Member's name cannot be empty")
+            if tmp[0] == '':
+                module.fail_json(msg="Member's name cannot be empty.")
 
-        if len(tmp) == 1:
-            if not is_mariadb:
-                normalized_users.append((tmp[0], '%'))
-            else:
-                normalized_users.append((tmp[0], ''))
+            if len(tmp) == 1:
+                if not is_mariadb:
+                    normalized_users.append((tmp[0], '%'))
+                else:
+                    normalized_users.append((tmp[0], ''))
 
-        elif len(tmp) == 2:
-            normalized_users.append((tmp[0], tmp[1]))
+            elif len(tmp) == 2:
+                normalized_users.append((tmp[0], tmp[1]))
 
-        else:
-            msg = ('Formatting error in member name: "%s". It must be in the '
-                   'format "username" or "username@hostname" ' % tmp[0])
+        except Exception as e:
+            msg = ('Error occured while parsing the name "%s": %s. '
+                   'It must be in the format "username" or '
+                   '"username@hostname" ' % (tmp[0], to_native(e)))
             module.fail_json(msg=msg)
 
     return normalized_users

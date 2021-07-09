@@ -292,7 +292,7 @@ def normalize_users(module, users, is_mariadb=False):
         except Exception as e:
             msg = ('Error occured while parsing the name "%s": %s. '
                    'It must be in the format "username" or '
-                   '"username@hostname" ' % (tmp[0], to_native(e)))
+                   '"username@hostname" ' % (user, to_native(e)))
             module.fail_json(msg=msg)
 
     return normalized_users

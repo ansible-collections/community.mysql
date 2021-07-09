@@ -370,52 +370,126 @@ def get_grants(cursor, user, host):
 
 
 class MySQLQueryBuilder():
+    """Class to build and return queries specific to MySQL.
 
+    Args:
+        name (str): Role name.
+        host (str): Role host.
+
+    Attributes:
+        name (str): Role name.
+        host (str): Role host.
+    """
     def __init__(self, name, host):
         self.name = name
         self.host = host
 
     def role_exists(self):
+        """Returns a query to check if a role with self.name and self.host exists in a database.
+
+        Returns:
+            tuple: (query_string, tuple_containing_parameters).
+        """
         return 'SELECT count(*) FROM mysql.user WHERE user = %s AND host = %s', (self.name, self.host)
 
     def role_grant(self, user):
+        """Returns a query to grant a role to a user or a role.
+
+        Args:
+            user (tuple): User / role to grant the role to in the form (username, hostname).
+
+        Returns:
+            tuple: (query_string, tuple_containing_parameters).
+        """
         if user[1]:
             return 'GRANT %s@%s TO %s@%s', (self.name, self.host, user[0], user[1])
         else:
             return 'GRANT %s@%s TO %s', (self.name, self.host, user[0])
 
     def role_revoke(self, user):
+        """Returns a query to revoke a role from a user or role.
+
+        Args:
+            user (tuple): User / role to revoke the role from in the form (username, hostname).
+
+        Returns:
+            tuple: (query_string, tuple_containing_parameters).
+        """
         if user[1]:
             return 'REVOKE %s@%s FROM %s@%s', (self.name, self.host, user[0], user[1])
         else:
             return 'REVOKE %s@%s FROM %s', (self.name, self.host, user[0])
 
     def role_create(self, admin):
-        # It is NOT supported by MySQL, so we ignore it
+        """Returns a query to create a role.
+
+        Args:
+            admin (tuple): Admin user in the form (username, hostname).
+                Because it is not supported by MySQL, we ignore it.
+
+        Returns:
+            tuple: (query_string, tuple_containing_parameters).
+        """
         return 'CREATE ROLE %s', (self.name,)
 
 
 class MariaDBQueryBuilder():
+    """Class to build and return queries specific to MariaDB.
 
+    Args:
+        name (str): Role name.
+
+    Attributes:
+        name (str): Role name.
+    """
     def __init__(self, name):
         self.name = name
 
     def role_exists(self):
+        """Returns a query to check if a role with self.name exists in a database.
+
+        Returns:
+            tuple: (query_string, tuple_containing_parameters).
+        """
         return "SELECT count(*) FROM mysql.user WHERE user = %s AND is_role  = 'Y'", (self.name)
 
     def role_grant(self, user):
+        """Returns a query to grant a role to a user or role.
+
+        Args:
+            user (tuple): User / role to grant the role to in the form (username, hostname).
+
+        Returns:
+            tuple: (query_string, tuple_containing_parameters).
+        """
         if user[1]:
             return 'GRANT %s TO %s@%s', (self.name, user[0], user[1])
         else:
             return 'GRANT %s TO %s', (self.name, user[0])
 
     def role_revoke(self, user):
+        """Returns a query to revoke a role from a user or role.
+
+        Args:
+            user (tuple): User / role to revoke the role from in the form (username, hostname).
+
+        Returns:
+            tuple: (query_string, tuple_containing_parameters).
+        """
         if user[1]:
             return 'REVOKE %s FROM %s@%s', (self.name, user[0], user[1])
         else:
             return 'REVOKE %s FROM %s', (self.name, user[0])
 
     def role_create(self, admin):
+        """Returns a query to create a role.
+
+        Args:
+            admin (tuple): Admin user in the form (username, hostname).
+
+        Returns:
+            tuple: (query_string, tuple_containing_parameters).
+        """
         if not admin:
             return 'CREATE ROLE %s', (self.name,)
 
@@ -426,7 +500,20 @@ class MariaDBQueryBuilder():
 
 
 class MySQLRoleImpl():
+    """Class to work with MySQL role implementation.
 
+    Args:
+        module (AnsibleModule): Object of the AnsibleModule class.
+        cursor (cursor): Cursor object of a database Python connector.
+        name (str): Role name.
+        host (str): Role host.
+
+    Attributes:
+        module (AnsibleModule): Object of the AnsibleModule class.
+        cursor (cursor): Cursor object of a database Python connector.
+        name (str): Role name.
+        host (str): Role host.
+    """
     def __init__(self, module, cursor, name, host):
         self.module = module
         self.cursor = cursor
@@ -434,30 +521,62 @@ class MySQLRoleImpl():
         self.host = host
 
     def set_default_role_all(self, user):
+        """Runs 'SET DEFAULT ROLE ALL TO' a user.
+
+        Args:
+            user (tuple): User / role to run the command against in the form (username, hostname).
+        """
         if user[1]:
             self.cursor.execute('SET DEFAULT ROLE ALL TO %s@%s', (user[0], user[1]))
         else:
             self.cursor.execute('SET DEFAULT ROLE ALL TO %s', (user[0],))
 
-    def get_admin(self, admin):
+    def get_admin(self):
+        """Get a current admin of a role.
+
+        Not supported by MySQL, so ignored here.
+        """
         pass
 
     def set_admin(self, admin):
-        pass
+        """Set an admin of a role.
 
-    def get_missed_user_err_msg(self):
-        return "Unknown authorization ID"
+        Not supported by MySQL, so ignored here.
+
+        TODO: Implement the feature if this gets supported.
+
+        Args:
+            admin (tuple): Admin user of the role in the form (username, hostname).
+        """
+        pass
 
 
 class MariaDBRoleImpl():
+    """Class to work with MariaDB role implementation.
 
+    Args:
+        module (AnsibleModule): Object of the AnsibleModule class.
+        cursor (cursor): Cursor object of a database Python connector.
+        name (str): Role name.
+
+    Attributes:
+        module (AnsibleModule): Object of the AnsibleModule class.
+        cursor (cursor): Cursor object of a database Python connector.
+        name (str): Role name.
+    """
     def __init__(self, module, cursor, name):
         self.module = module
         self.cursor = cursor
         self.name = name
 
     def set_default_role_all(self, user):
-        # "SET DEFAULT ROLE ALL" statement is not supported by MariaDB, ignored.
+        """Runs 'SET DEFAULT ROLE ALL TO' a user.
+
+        The command is not supported by MariaDB, ignored.
+
+        Args:
+            user (tuple): User / role to run the command against in the form (username, hostname).
+        """
         pass
 
     def get_admin(self):
@@ -473,22 +592,24 @@ class MariaDBRoleImpl():
         return self.cursor.fetchone()
 
     def set_admin(self, admin):
+        """Set an admin of a role.
+
+        TODO: Implement changing when ALTER ROLE statement to
+            change role's admin gets supported.
+
+        Args:
+            admin (tuple): Admin user of the role in the form (username, hostname).
+        """
         admin_user = admin[0]
         admin_host = admin[1]
         current_admin = self.get_admin()
 
-        # current_admin is a tuple (user, host)
         if (admin_user, admin_host) != current_admin:
-            # TODO Implement changing when ALTER ROLE statement to
-            # change role's admin gets supported
             msg = ('The "admin" option value and the current '
                    'roles admin (%s@%s) don not match. Ignored. '
                    'To change the admin, you need to drop and create the '
                    'role again.' % (current_admin[0], current_admin[1]))
             self.module.warn(msg)
-
-    def get_missed_user_err_msg(self):
-        return "Can't find any matching row in the user table"
 
 
 class Role():
@@ -497,12 +618,13 @@ class Role():
     Args:
         module (AnsibleModule): Object of the AnsibleModule class.
         cursor (cursor): Cursor object of a database Python connector.
+        name (str): Role name.
         is_mariadb (bool): Is a server MariaDB?
 
     Attributes:
         module (AnsibleModule): Object of the AnsibleModule class.
         cursor (cursor): Cursor object of a database Python connector.
-        name (str): Role's name.
+        name (str): Role name.
         is_mariadb (bool): Is a server MariaDB?
         host (str): Role's host.
         full_name (str): Role's full name.

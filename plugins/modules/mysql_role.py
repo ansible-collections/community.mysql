@@ -59,7 +59,7 @@ options:
     description:
       - List of members of the role.
       - For users, use the format C(username@hostname).
-        In other words, always specify the hostname part explicitly.
+        Always specify the hostname part explicitly.
       - For roles, use the format C(rolename).
       - Mutually exclusive with I(admin).
     type: list
@@ -75,14 +75,15 @@ options:
 
   detach_members:
     description:
-      - Detaches members defined by the I(members) option from the role instead of overwriting them.
+      - Detaches members defined by the I(members) option from the role
+        instead of overwriting all the current members.
       - Mutually exclusive with the I(append_members) and I(admin) option.
     type: bool
     default: no
 
   set_default_role_all:
     description:
-      - Is not supported by MariaDB.
+      - Is not supported by MariaDB and is silently ignored when working with MariaDB.
       - If C(yes), runs B(SET DEFAULT ROLE ALL TO) each of the I(members) when changed.
       - If you want to avoid this behavior, set this option to C(no) explicitly.
     type: bool
@@ -108,7 +109,7 @@ notes:
   - Pay attention that the module runs C(SET DEFAULT ROLE ALL TO)
     all the I(members) passed by default when the state has changed.
     If you want to avoid this behavior, set I(set_default_role_all) to C(no).
-  - Supports (check_mode).
+  - Supports C(check_mode).
 
 seealso:
   - module: community.mysql.mysql_user
@@ -230,7 +231,8 @@ EXAMPLES = r'''
   community.mysql.mysql_role:
     state: present
     name: business
-    members: marketing
+    members:
+    - marketing
 '''
 
 RETURN = '''#'''
@@ -252,25 +254,6 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
 )
 from ansible.module_utils._text import to_native
 from ansible.module_utils.six import iteritems
-
-
-def get_implementation(cursor):
-    """Get a current server implementation depending on its type.
-
-    Args:
-        cursor (cursor): Cursor object of a database Python connector.
-
-    Returns:
-        library: Depending on a server type (MySQL or MariaDB).
-    """
-    cursor.execute("SELECT VERSION()")
-
-    if 'mariadb' in cursor.fetchone()[0].lower():
-        import ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb.role as role_impl
-    else:
-        import ansible_collections.community.mysql.plugins.module_utils.implementations.mysql.role as role_impl
-
-    return role_impl
 
 
 def normalize_users(module, users, is_mariadb=False):
@@ -314,59 +297,105 @@ def normalize_users(module, users, is_mariadb=False):
     return normalized_users
 
 
-def check_users_in_db(module, users, users_in_db):
-    for user in users:
-        if user not in users_in_db:
-            msg = 'User / role `%s` with host `%s` does not exist' % (user[0], user[1])
-            module.fail_json(msg=msg)
-
-
-def server_supports_roles(cursor, role_impl):
-    """Check if a server supports roles.
-
-    Roles supported since MySQL 8.0.0 and MariaDB 10.0.5
+class DbServer():
+    """Class to fetch information from a database.
 
     Args:
-        cursor (cursor): Cursor object of a database Python connector.
-        role_impl (library): A corresponding library depending on a server type (MySQL or MariaDB)
-            and version. Refer to the get_implementation function.
-
-    Returns:
-        bool: True if the server type supports roles, otherwise returns False
-    """
-    return role_impl.supports_roles(cursor)
-
-
-def get_users(cursor):
-    """Get users.
-
-    Args:
+        module (AnsibleModule): Object of the AnsibleModule class.
         cursor (cursor): Cursor object of a database Python connector.
 
-    Returns:
-        list: List of tuples (username, hostname).
-    """
-    cursor.execute('SELECT User, Host FROM mysql.user')
-    return cursor.fetchall()
-
-
-def get_grants(cursor, user, host):
-    """Get grants.
-
-    Args:
+    Attributes:
+        module (AnsibleModule): Object of the AnsibleModule class.
         cursor (cursor): Cursor object of a database Python connector.
-        user (str): User name
-        host (str): Host name
-
-    Returns:
-        list: List of tuples like [(grant1,), (grant2,), ... ].
+        role_impl (library): Corresponding library depending
+            on a server type (MariaDB or MySQL)
+        mariadb (bool): True if MariaDB, False otherwise.
+        roles_supported (bool): True if roles are supported, False otherwise.
+        users (set): Set of users existing in a DB in the form (username, hostname).
     """
-    if host:
-        cursor.execute('SHOW GRANTS FOR %s@%s', (user, host))
-    else:
-        cursor.execute('SHOW GRANTS FOR %s', (user,))
+    def __init__(self, module, cursor):
+        self.module = module
+        self.cursor = cursor
+        self.role_impl = self.get_implementation()
+        self.mariadb = self.role_impl.is_mariadb()
+        self.roles_supported = self.role_impl.supports_roles(self.cursor)
+        self.users = set(self.__get_users())
 
-    return cursor.fetchall()
+    def is_mariadb(self):
+        """Get info whether a DB server is a MariaDB instance.
+
+        Returns:
+            self.mariadb: Attribute value.
+        """
+        return self.mariadb
+
+    def supports_roles(self):
+        """Get info whether a DB server supports roles.
+
+        Returns:
+            self.roles_supported: Attribute value.
+        """
+        return self.roles_supported
+
+    def get_implementation(self):
+        """Get a current server implementation depending on its type.
+
+        Returns:
+            library: Depending on a server type (MySQL or MariaDB).
+        """
+        self.cursor.execute("SELECT VERSION()")
+
+        if 'mariadb' in self.cursor.fetchone()[0].lower():
+            import ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb.role as role_impl
+        else:
+            import ansible_collections.community.mysql.plugins.module_utils.implementations.mysql.role as role_impl
+
+        return role_impl
+
+    def check_users_in_db(self, users):
+        """Check if users exist in a database.
+
+        Args:
+            users (list): List of tuples (username, hostname) to check.
+        """
+        for user in users:
+            if user not in self.users:
+                msg = 'User / role `%s` with host `%s` does not exist' % (user[0], user[1])
+                self.module.fail_json(msg=msg)
+
+    def __get_users(self):
+        """Get users.
+
+        Returns:
+            list: List of tuples (username, hostname).
+        """
+        self.cursor.execute('SELECT User, Host FROM mysql.user')
+        return self.cursor.fetchall()
+
+    def get_users(self):
+        """Get set of tuples (username, hostname) existing in a DB.
+
+        Returns:
+            self.users: Attribute value.
+        """
+        return self.users
+
+    def get_grants(self, user, host):
+        """Get grants.
+
+        Args:
+            user (str): User name
+            host (str): Host name
+
+        Returns:
+            list: List of tuples like [(grant1,), (grant2,), ... ].
+        """
+        if host:
+            self.cursor.execute('SHOW GRANTS FOR %s@%s', (user, host))
+        else:
+            self.cursor.execute('SHOW GRANTS FOR %s', (user,))
+
+        return self.cursor.fetchall()
 
 
 class MySQLQueryBuilder():
@@ -619,23 +648,24 @@ class Role():
         module (AnsibleModule): Object of the AnsibleModule class.
         cursor (cursor): Cursor object of a database Python connector.
         name (str): Role name.
-        is_mariadb (bool): Is a server MariaDB?
+        server (DbServer): Object of the DbServer class.
 
     Attributes:
         module (AnsibleModule): Object of the AnsibleModule class.
         cursor (cursor): Cursor object of a database Python connector.
         name (str): Role name.
-        is_mariadb (bool): Is a server MariaDB?
+        server (DbServer): Object of the DbServer class.
         host (str): Role's host.
         full_name (str): Role's full name.
         exists (bool): Indicates if a role exists or not.
         members (set): Set of current role's members.
     """
-    def __init__(self, module, cursor, name, is_mariadb):
+    def __init__(self, module, cursor, name, server):
         self.module = module
         self.cursor = cursor
         self.name = name
-        self.is_mariadb = is_mariadb
+        self.server = server
+        self.is_mariadb = self.server.is_mariadb()
 
         if self.is_mariadb:
             self.q_builder = MariaDBQueryBuilder(self.name)
@@ -845,16 +875,14 @@ class Role():
         Returns:
             set: Members.
         """
-        all_users = get_users(self.cursor)
-
         members = set()
 
-        for user, host in all_users:
+        for user, host in self.server.get_users():
             # Don't handle itself
             if user == self.name and host == self.host:
                 continue
 
-            grants = get_grants(self.cursor, user, host)
+            grants = self.server.get_grants(user, host)
 
             if self.__is_member(grants):
                 members.add((user, host))
@@ -988,30 +1016,27 @@ def main():
         except Exception as e:
             module.fail_json(msg='Invalid privileges string: %s' % to_native(e))
 
-    role_impl = get_implementation(cursor)
-    is_mariadb = role_impl.is_mariadb()
+    server = DbServer(module, cursor)
 
     # Check if the server supports roles
-    if not server_supports_roles(cursor, role_impl):
+    if not server.supports_roles():
         msg = ('Roles are not supported by the server. '
                'Minimal versions are MySQL 8.0.0 or MariaDB 10.0.5.')
         module.fail_json(msg=msg)
 
-    users_in_db = set(get_users(cursor))
-
     if admin:
-        if not is_mariadb:
+        if not server.is_mariadb():
             module.fail_json(msg='The "admin" option can be used only with MariaDB.')
 
         admin = normalize_users(module, [admin])[0]
-        check_users_in_db(module, [admin], users_in_db)
+        server.check_users_in_db([admin])
 
     if members:
-        members = normalize_users(module, members, is_mariadb)
-        check_users_in_db(module, members, users_in_db)
+        members = normalize_users(module, members, server.is_mariadb())
+        server.check_users_in_db(members)
 
     # Main job starts here
-    role = Role(module, cursor, name, is_mariadb)
+    role = Role(module, cursor, name, server)
 
     try:
         if state == 'present':

@@ -58,6 +58,10 @@ options:
   members:
     description:
       - List of members of the role.
+      - For users, use the format C(username@hostname).
+        In other words, always specify the hostname part explicitly.
+      - For roles, use the format C(rolename).
+      - Mutually exclusive with I(admin).
     type: list
     elements: str
 
@@ -65,14 +69,14 @@ options:
     description:
       - Add members defined by the I(members) option to the existing ones
         for this role instead of overwriting them.
-      - Mutually exclusive with the I(detach_members) option.
+      - Mutually exclusive with the I(detach_members) and I(admin) option.
     type: bool
     default: no
 
   detach_members:
     description:
-      - Detaches members defined by I(members) from the role instead of overwriting them.
-      - Mutually exclusive with I(append_members).
+      - Detaches members defined by the I(members) option from the role instead of overwriting them.
+      - Mutually exclusive with the I(append_members) and I(admin) option.
     type: bool
     default: no
 
@@ -145,8 +149,8 @@ EXAMPLES = r'''
     state: present
     priv: '*.*:ALL'
     members:
-    - alice
-    - bob
+    - 'alice@%'
+    - 'bob@%'
 
 - name: Same as above but do not run SET DEFAULT ROLE ALL TO each member
   community.mysql.mysql_role:
@@ -154,8 +158,8 @@ EXAMPLES = r'''
     state: present
     priv: '*.*:ALL'
     members:
-    - alice
-    - bob
+    - 'alice@%'
+    - 'bob@%'
     set_default_role_all: no
 
 # Assuming that the role developers exists,
@@ -166,7 +170,7 @@ EXAMPLES = r'''
     state: present
     append_members: yes
     members:
-    - joe
+    - 'joe@localhost'
 
 # Create role readers with the SELECT privilege
 # on all tables in the fiction database
@@ -197,7 +201,8 @@ EXAMPLES = r'''
   community.mysql.mysql_role:
     state: present
     name: readers
-    members: joe
+    members:
+    - 'joe@localhost'
     detach_members: yes
 
 - name: Remove the role readers if exists
@@ -212,12 +217,20 @@ EXAMPLES = r'''
     login_unix_socket: /var/run/mysqld/mysqld.sock
 
 # Pay attention that the admin cannot be changed later
-# and will be ignored if a role currently exists
-- name: Create the role readers with alice as its admin
+# and will be ignored if a role currently exists.
+# To change members, you need to run a separate task using the admin
+# of the role as the login_user.
+- name: On MariaDB, create the role readers with alice as its admin
   community.mysql.mysql_role:
     state: present
     name: readers
-    admin: alice
+    admin: 'alice@%'
+
+- name: Create the role business, add the role marketing to members
+  community.mysql.mysql_role:
+    state: present
+    name: business
+    members: marketing
 '''
 
 RETURN = '''#'''
@@ -444,7 +457,8 @@ class MariaDBRoleImpl():
         self.name = name
 
     def set_default_role_all(self, user):
-        self.module.warn('"SET DEFAULT ROLE ALL" statement is not supported by MariaDB, ignored.')
+        # "SET DEFAULT ROLE ALL" statement is not supported by MariaDB, ignored.
+        pass
 
     def get_admin(self):
         """Get a current admin of a role.
@@ -769,6 +783,9 @@ def main():
         supports_check_mode=True,
         mutually_exclusive=(
             ('append_members', 'detach_members'),
+            ('admin', 'members'),
+            ('admin', 'append_members'),
+            ('admin', 'detach_members'),
         ),
     )
 

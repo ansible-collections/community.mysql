@@ -563,7 +563,7 @@ class Role():
         self.cursor.execute(*self.q_builder.role_create(admin))
 
         if users:
-            self.add_members(users, set_default_role_all=set_default_role_all)
+            self.update_members(users, set_default_role_all=set_default_role_all)
 
         if privs:
             for db_table, priv in iteritems(privs):
@@ -591,8 +591,8 @@ class Role():
         self.cursor.execute('DROP ROLE %s', (self.name,))
         return True
 
-    def add_members(self, users, check_mode=False, append_members=False,
-                    set_default_role_all=True):
+    def update_members(self, users, check_mode=False, append_members=False,
+                       set_default_role_all=True):
         """Add users to a role.
 
         Args:
@@ -625,12 +625,7 @@ class Role():
 
         for user in self.members:
             if user not in users and user != ('root', 'localhost'):
-                if check_mode:
-                    return True
-
-                self.cursor.execute(*self.q_builder.role_revoke(user))
-
-                changed = True
+                changed = self.__remove_member(user, check_mode)
 
         return changed
 
@@ -650,14 +645,26 @@ class Role():
         changed = False
         for user in users:
             if user in self.members:
-                if check_mode:
-                    return True
-
-                self.cursor.execute(*self.q_builder.role_revoke(user))
-
-                changed = True
+                changed = self.__remove_member(user, check_mode)
 
         return changed
+
+    def __remove_member(self, user, check_mode=False):
+        """Remove a member from a role.
+
+        Args:
+            user (str): Role member to remove.
+            check_mode (bool): If True, just returns True and does nothing.
+
+        Returns:
+            bool: True if the state has changed, False if has not.
+        """
+        if check_mode:
+            return True
+
+        self.cursor.execute(*self.q_builder.role_revoke(user))
+
+        return True
 
     def update(self, users, privs, check_mode=False,
                append_privs=False, append_members=False,
@@ -693,9 +700,9 @@ class Role():
                 members_changed = self.remove_members(users, check_mode=check_mode)
 
             else:
-                members_changed = self.add_members(users, check_mode=check_mode,
-                                                   append_members=append_members,
-                                                   set_default_role_all=set_default_role_all)
+                members_changed = self.update_members(users, check_mode=check_mode,
+                                                      append_members=append_members,
+                                                      set_default_role_all=set_default_role_all)
 
         if privs:
             changed, msg = user_mod(self.cursor, self.name, self.host,

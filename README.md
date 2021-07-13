@@ -13,7 +13,7 @@ If you encounter abusive behavior violating the [Ansible Code of Conduct](https:
 
 The content of this collection is made by [people](https://github.com/ansible-collections/community.mysql/blob/main/CONTRIBUTORS) just like you, a community of individuals collaborating on making the world better through developing automation software.
 
-We are activelly accepting new contributors.
+We are actively accepting new contributors.
 
 Any kind of contribution is very welcome.
 

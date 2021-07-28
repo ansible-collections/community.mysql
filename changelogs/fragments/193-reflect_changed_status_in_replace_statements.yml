@@ -1,0 +1,2 @@
+minor_changes:
+- mysql_query - correctly reflect changed status in replace statements (https://github.com/ansible-collections/community.mysql/pull/193).

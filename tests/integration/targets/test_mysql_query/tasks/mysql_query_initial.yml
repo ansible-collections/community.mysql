@@ -309,12 +309,12 @@
       - result.rowcount == [1]
 
   - name: Replace test data
-      mysql_query:
-        <<: *mysql_params
-        login_db: '{{ test_db }}'
-        query: "REPLACE INTO {{ test_table4 }} VALUES (1, 'one')"
-        single_transaction: yes
-      register: result
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ test_db }}'
+      query: "REPLACE INTO {{ test_table4 }} VALUES (1, 'one')"
+      single_transaction: yes
+    register: result
 
   - assert:
       that:

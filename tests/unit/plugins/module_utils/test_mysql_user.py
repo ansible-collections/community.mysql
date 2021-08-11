@@ -9,7 +9,7 @@ try:
 except ImportError:
     from mock import MagicMock
 
-from ansible_collections.community.mysql.plugins.modules.mysql_user import (
+from ansible_collections.community.mysql.plugins.module_utils.user import (
     handle_grant_on_col,
     has_grant_on_col,
     normalize_col_grants,

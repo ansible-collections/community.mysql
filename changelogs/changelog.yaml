@@ -298,3 +298,16 @@ releases:
     - 150-mysql_replication_master_related.yml
     - 153-mysql_revert_connector_changes.yml
     release_date: '2021-04-23'
+  2.1.1:
+    changes:
+      minor_changes:
+      - mysql_query - correctly reflect changed status in replace statements (https://github.com/ansible-collections/community.mysql/pull/193).
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection that
+
+        have been added after the release of ``community.mysql`` 2.1.0.'
+    fragments:
+    - 193-reflect_changed_status_in_replace_statements.yml
+    - 2.1.1.yml
+    release_date: '2021-08-11'

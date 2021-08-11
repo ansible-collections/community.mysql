@@ -5,6 +5,21 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v2.1.1
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection that
+have been added after the release of ``community.mysql`` 2.1.0.
+
+Minor Changes
+-------------
+
+- mysql_query - correctly reflect changed status in replace statements (https://github.com/ansible-collections/community.mysql/pull/193).
+
 v2.1.0
 ======
 

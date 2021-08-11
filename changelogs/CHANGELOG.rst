@@ -5,6 +5,21 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v2.2.0-a1
+=========
+
+Release Summary
+---------------
+
+This is the minor pre-release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection that
+have been added after the release of ``community.mysql`` 2.1.1
+
+New Modules
+-----------
+
+- mysql_role - Adds, removes, or updates a MySQL role
+
 v2.1.1
 ======
 

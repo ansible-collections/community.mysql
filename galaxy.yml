@@ -1,6 +1,6 @@
 namespace: community
 name: mysql
-version: 2.1.1
+version: 2.2.0-a1
 readme: README.md
 authors:
   - Ansible community

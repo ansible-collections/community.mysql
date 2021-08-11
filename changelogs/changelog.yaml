@@ -311,3 +311,17 @@ releases:
     - 193-reflect_changed_status_in_replace_statements.yml
     - 2.1.1.yml
     release_date: '2021-08-11'
+  2.2.0-a1:
+    changes:
+      release_summary: 'This is the minor pre-release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection that
+
+        have been added after the release of ``community.mysql`` 2.1.1'
+    fragments:
+    - 2.2.0-a1.yml
+    modules:
+    - description: Adds, removes, or updates a MySQL role
+      name: mysql_role
+      namespace: ''
+    release_date: '2021-08-11'

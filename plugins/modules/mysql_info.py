@@ -474,6 +474,9 @@ class MySQL_Info(object):
                 self.info['databases'][db['name']] = {}
 
                 if not exclude_fields or 'db_size' not in exclude_fields:
+                    if db['size'] is None:
+                        db['size'] = 0
+
                     self.info['databases'][db['name']]['size'] = int(db['size'])
 
         # If empty dbs are not needed in the returned dict, exit from the method

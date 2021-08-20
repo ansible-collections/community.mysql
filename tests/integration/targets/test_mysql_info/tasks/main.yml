@@ -191,3 +191,25 @@
         state: absent
 
     - include: issue-28.yml
+
+    # https://github.com/ansible-collections/community.mysql/issues/204
+    - name: Create database containing only views
+      mysql_db:
+        <<: *mysql_params
+        name: allviews
+
+    - name: Create view
+      mysql_query:
+        <<: *mysql_params
+        login_db: allviews
+        query: 'CREATE VIEW v_today (today) AS SELECT CURRENT_DATE'
+
+    - name: Fetch info
+      mysql_info:
+        <<: *mysql_params
+      register: result
+
+    - name: Check
+      assert:
+        that:
+          result.databases.allviews.size == 0

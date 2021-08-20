@@ -389,7 +389,7 @@ def sanitize_requires(tls_requires):
     if tls_requires:
         for key in tls_requires.keys():
             sanitized_requires[key.upper()] = tls_requires[key]
-        if any([key in ["CIPHER", "ISSUER", "SUBJECT"] for key in sanitized_requires.keys()]):
+        if any(key in ["CIPHER", "ISSUER", "SUBJECT"] for key in sanitized_requires.keys()):
             sanitized_requires.pop("SSL", None)
             sanitized_requires.pop("X509", None)
             return sanitized_requires

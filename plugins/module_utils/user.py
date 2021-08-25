@@ -859,8 +859,8 @@ def get_impl(cursor):
     global impl
     cursor.execute("SELECT VERSION()")
     if 'mariadb' in cursor.fetchone()[0].lower():
-        from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import user as mysqluser
-        impl = mysqluser
-    else:
-        from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql import user as mariauser
+        from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import user as mariauser
         impl = mariauser
+    else:
+        from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql import user as mysqluser
+        impl = mysqluser

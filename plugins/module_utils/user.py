@@ -19,6 +19,9 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
 )
 
 
+EXTRA_PRIVS = ['ALL', 'ALL PRIVILEGES', 'GRANT', 'REQUIRESSL']
+
+
 class InvalidPrivsError(Exception):
     pass
 
@@ -107,8 +110,7 @@ def get_tls_requires(cursor, user, host):
 def get_valid_privs(cursor):
     cursor.execute("SHOW PRIVILEGES")
     show_privs = [priv[0].upper() for priv in cursor.fetchall()]
-    other_privs = ['ALL', 'ALL PRIVILEGES', 'GRANT', 'REQUIRESSL']
-    all_privs = show_privs + other_privs
+    all_privs = show_privs + EXTRA_PRIVS
     return frozenset(all_privs)
 
 

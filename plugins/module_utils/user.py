@@ -19,41 +19,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
 )
 
 
-VALID_PRIVS = frozenset(('CREATE', 'DROP', 'GRANT', 'GRANT OPTION',
-                         'LOCK TABLES', 'REFERENCES', 'EVENT', 'ALTER',
-                         'DELETE', 'INDEX', 'INSERT', 'SELECT', 'UPDATE',
-                         'CREATE TEMPORARY TABLES', 'TRIGGER', 'CREATE VIEW',
-                         'SHOW VIEW', 'ALTER ROUTINE', 'CREATE ROUTINE',
-                         'EXECUTE', 'FILE', 'CREATE TABLESPACE', 'CREATE USER',
-                         'PROCESS', 'PROXY', 'RELOAD', 'REPLICATION CLIENT',
-                         'REPLICATION SLAVE', 'SHOW DATABASES', 'SHUTDOWN',
-                         'SUPER', 'ALL', 'ALL PRIVILEGES', 'USAGE',
-                         'REQUIRESSL',  # Deprecated, to be removed in version 3.0.0
-                         'CREATE ROLE', 'DROP ROLE', 'APPLICATION_PASSWORD_ADMIN',
-                         'AUDIT_ADMIN', 'BACKUP_ADMIN', 'BINLOG_ADMIN',
-                         'BINLOG_ENCRYPTION_ADMIN', 'CLONE_ADMIN', 'CONNECTION_ADMIN',
-                         'ENCRYPTION_KEY_ADMIN', 'FIREWALL_ADMIN', 'FIREWALL_USER',
-                         'GROUP_REPLICATION_ADMIN', 'INNODB_REDO_LOG_ARCHIVE',
-                         'NDB_STORED_USER', 'PERSIST_RO_VARIABLES_ADMIN',
-                         'REPLICATION_APPLIER', 'REPLICATION_SLAVE_ADMIN',
-                         'RESOURCE_GROUP_ADMIN', 'RESOURCE_GROUP_USER',
-                         'ROLE_ADMIN', 'SESSION_VARIABLES_ADMIN', 'SET_USER_ID',
-                         'SYSTEM_USER', 'SYSTEM_VARIABLES_ADMIN', 'SYSTEM_USER',
-                         'TABLE_ENCRYPTION_ADMIN', 'VERSION_TOKEN_ADMIN',
-                         'XA_RECOVER_ADMIN', 'LOAD FROM S3', 'SELECT INTO S3',
-                         'INVOKE LAMBDA',
-                         'ALTER ROUTINE',
-                         'BINLOG ADMIN',
-                         'BINLOG MONITOR',
-                         'BINLOG REPLAY',
-                         'CONNECTION ADMIN',
-                         'READ_ONLY ADMIN',
-                         'REPLICATION MASTER ADMIN',
-                         'REPLICATION SLAVE ADMIN',
-                         'SET USER',
-                         'SHOW_ROUTINE',
-                         'SLAVE MONITOR',
-                         'REPLICA MONITOR',))
+EXTRA_PRIVS = ['ALL', 'ALL PRIVILEGES', 'GRANT', 'REQUIRESSL']
 
 
 class InvalidPrivsError(Exception):
@@ -139,6 +105,13 @@ def get_tls_requires(cursor, user, host):
             items = iter(shlex.split(requires))
             requires = dict(zip(items, items))
         return requires or None
+
+
+def get_valid_privs(cursor):
+    cursor.execute("SHOW PRIVILEGES")
+    show_privs = [priv[0].upper() for priv in cursor.fetchall()]
+    all_privs = show_privs + EXTRA_PRIVS
+    return frozenset(all_privs)
 
 
 def get_grants(cursor, user, host):
@@ -583,7 +556,7 @@ def sort_column_order(statement):
     return '%s(%s)' % (priv_name, ', '.join(columns))
 
 
-def privileges_unpack(priv, mode):
+def privileges_unpack(priv, mode, valid_privs):
     """ Take a privileges string, typically passed as a parameter, and unserialize
     it into a dictionary, the same format as privileges_get() above. We have this
     custom format to avoid using YAML/JSON strings inside YAML playbooks. Example
@@ -630,8 +603,8 @@ def privileges_unpack(priv, mode):
         output[pieces[0]] = normalize_col_grants(output[pieces[0]])
 
         new_privs = frozenset(privs)
-        if not new_privs.issubset(VALID_PRIVS):
-            raise InvalidPrivsError('Invalid privileges specified: %s' % new_privs.difference(VALID_PRIVS))
+        if not new_privs.issubset(valid_privs):
+            raise InvalidPrivsError('Invalid privileges specified: %s' % new_privs.difference(valid_privs))
 
     if '*.*' not in output:
         output['*.*'] = ['USAGE']
@@ -859,8 +832,8 @@ def get_impl(cursor):
     global impl
     cursor.execute("SELECT VERSION()")
     if 'mariadb' in cursor.fetchone()[0].lower():
-        from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import user as mysqluser
-        impl = mysqluser
-    else:
-        from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql import user as mariauser
+        from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import user as mariauser
         impl = mariauser
+    else:
+        from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql import user as mysqluser
+        impl = mysqluser

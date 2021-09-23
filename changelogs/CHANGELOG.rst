@@ -5,13 +5,13 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
-v2.2.0-a1
-=========
+v2.2.0
+======
 
 Release Summary
 ---------------
 
-This is the minor pre-release of the ``community.mysql`` collection.
+This is the minor release of the ``community.mysql`` collection.
 This changelog contains all changes to the modules in this collection that
 have been added after the release of ``community.mysql`` 2.1.1
 

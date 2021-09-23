@@ -250,6 +250,7 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     get_mode,
     user_mod,
     privileges_grant,
+    get_valid_privs,
     privileges_unpack,
 )
 from ansible.module_utils._text import to_native
@@ -1013,7 +1014,8 @@ def main():
             module.fail_json(msg=to_native(e))
 
         try:
-            priv = privileges_unpack(priv, mode)
+            valid_privs = get_valid_privs(cursor)
+            priv = privileges_unpack(priv, mode, valid_privs)
         except Exception as e:
             module.fail_json(msg='Invalid privileges string: %s' % to_native(e))
 

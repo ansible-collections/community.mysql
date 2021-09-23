@@ -1,2 +1,0 @@
-minor_changes:
-  - mysql_user - replace VALID_PRIVS constant by get_valid_privs() function (https://github.com/ansible-collections/community.mysql/pull/217).

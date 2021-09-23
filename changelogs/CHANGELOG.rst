@@ -5,6 +5,21 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v1.4.3
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection that
+have been added after the release of ``community.mysql`` 1.4.2.
+
+Bugfixes
+--------
+
+- mysql_info - fix TypeError failure when there are databases that do not contain tables (https://github.com/ansible-collections/community.mysql/issues/204).
+
 v1.4.2
 ======
 

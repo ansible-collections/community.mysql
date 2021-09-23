@@ -290,3 +290,17 @@ releases:
     - 1.4.2.yml
     - 193-reflect_changed_status_in_replace_statements.yml
     release_date: '2021-08-11'
+  1.4.3:
+    changes:
+      bugfixes:
+      - mysql_info - fix TypeError failure when there are databases that do not contain
+        tables (https://github.com/ansible-collections/community.mysql/issues/204).
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection that
+
+        have been added after the release of ``community.mysql`` 1.4.2.'
+    fragments:
+    - 1.4.3.yml
+    - 205-mysql_info_fix_failure_when_no_tables_in_db.yml
+    release_date: '2021-09-23'

@@ -5,6 +5,26 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v2.3.0
+======
+
+Release Summary
+---------------
+
+This is the minor release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection that
+have been added after the release of ``community.mysql`` 2.2.0.
+
+Minor Changes
+-------------
+
+- mysql_user - replace VALID_PRIVS constant by get_valid_privs() function (https://github.com/ansible-collections/community.mysql/pull/217).
+
+Bugfixes
+--------
+
+- mysql_info - fix TypeError failure when there are databases that do not contain tables (https://github.com/ansible-collections/community.mysql/issues/204).
+
 v2.2.0
 ======
 

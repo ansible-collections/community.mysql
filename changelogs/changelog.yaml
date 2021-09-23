@@ -335,3 +335,20 @@ releases:
       name: mysql_role
       namespace: ''
     release_date: '2021-08-11'
+  2.3.0:
+    changes:
+      bugfixes:
+      - mysql_info - fix TypeError failure when there are databases that do not contain
+        tables (https://github.com/ansible-collections/community.mysql/issues/204).
+      minor_changes:
+      - mysql_user - replace VALID_PRIVS constant by get_valid_privs() function (https://github.com/ansible-collections/community.mysql/pull/217).
+      release_summary: 'This is the minor release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection that
+
+        have been added after the release of ``community.mysql`` 2.2.0.'
+    fragments:
+    - 2.3.0.yml
+    - 205-mysql_info_fix_failure_when_no_tables_in_db.yml
+    - 217-mysql-user-replace-get-valid-privs-from-show-privilegees.yml
+    release_date: '2021-09-23'

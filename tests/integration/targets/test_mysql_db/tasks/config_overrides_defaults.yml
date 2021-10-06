@@ -14,7 +14,7 @@
 - name: Add blank line
   shell: 'echo "" >> {{ config_file }}'
   when:
-  - connector.name.0 is search('pymysql') and connector_ver is version('0.9.3', '>=')
+  - (connector.name.0 is search('pymysql') and connector_ver is version('0.9.3', '>=')) or connector.name.0 is not search('pymysql')
 
 - name: Create include_dir
   file:
@@ -22,7 +22,7 @@
     state: directory
     mode: '0777'
   when:
-  - connector.name.0 is search('pymysql') and connector_ver is version('0.9.3', '>=')
+  - (connector.name.0 is search('pymysql') and connector_ver is version('0.9.3', '>=')) or connector.name.0 is not search('pymysql')
 
 - name: Add include_dir
   lineinfile:
@@ -30,7 +30,7 @@
     line: '!includedir {{ include_dir }}'
     insertafter: EOF
   when:
-  - connector.name.0 is search('pymysql') and connector_ver is version('0.9.3', '>=')
+  - (connector.name.0 is search('pymysql') and connector_ver is version('0.9.3', '>=')) or connector.name.0 is not search('pymysql')
 
 - name: Create database using fake port to connect to, must fail
   mysql_db:

@@ -28,6 +28,7 @@
 - name: "{{ role_name }} | install | install python packages"
   pip:
     name: "{{ python_packages }}"
+  register: connector
 
 - name: "{{ role_name }} | install | install packages required by mysql"
   apt:

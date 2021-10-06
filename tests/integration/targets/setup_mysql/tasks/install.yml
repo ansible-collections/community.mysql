@@ -30,6 +30,10 @@
     name: "{{ python_packages }}"
   register: connector
 
+- name: Debug connector var content
+  debug:
+    msg: '{{ connector }}'
+
 - name: "{{ role_name }} | install | install packages required by mysql"
   apt:
     name: "{{ install_prereqs }}"

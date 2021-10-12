@@ -30,10 +30,6 @@
     name: "{{ python_packages }}"
   register: connector
 
-- name: Debug connector var content
-  debug:
-    msg: '{{ connector }}'
-
 - name: Extract connector.name.0 content
   set_fact:
     connector_name: "{{ connector.name.0 }}"

@@ -9,9 +9,6 @@
   block:
 
     # ============================================================
-    - shell: pip show pymysql | awk '/Version/ {print $2}'
-      register: pymysql_version
-
     - name: get server certificate
       copy:
         content: "{{ lookup('pipe', \"openssl s_client -starttls mysql -connect localhost:3307 -showcerts 2>/dev/null </dev/null |  sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p'\") }}"
@@ -47,12 +44,12 @@
     - assert:
         that:
           - result is failed
-      when: pymysql_version.stdout != ""
+      when: connector.name.0 is search('pymysql')
 
     - assert:
         that:
           - result is succeeded
-      when: pymysql_version.stdout == ""
+      when: connector.name.0 is not search('pymysql')
 
     - name: attempt connection with newly created user ignoring hostname
       mysql_query:

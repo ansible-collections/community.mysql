@@ -21,6 +21,46 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
 
 EXTRA_PRIVS = ['ALL', 'ALL PRIVILEGES', 'GRANT', 'REQUIRESSL']
 
+# This list is kept for backwards compatibility after release 2.3.0,
+# see https://github.com/ansible-collections/community.mysql/issues/232 for details
+VALID_PRIVS = [
+    'CREATE', 'DROP', 'GRANT', 'GRANT OPTION',
+    'LOCK TABLES', 'REFERENCES', 'EVENT', 'ALTER',
+    'DELETE', 'INDEX', 'INSERT', 'SELECT', 'UPDATE',
+    'CREATE TEMPORARY TABLES', 'TRIGGER', 'CREATE VIEW',
+    'SHOW VIEW', 'ALTER ROUTINE', 'CREATE ROUTINE',
+    'EXECUTE', 'FILE', 'CREATE TABLESPACE', 'CREATE USER',
+    'PROCESS', 'PROXY', 'RELOAD', 'REPLICATION CLIENT',
+    'REPLICATION SLAVE', 'SHOW DATABASES', 'SHUTDOWN',
+    'SUPER', 'ALL', 'ALL PRIVILEGES', 'USAGE',
+    'REQUIRESSL',  # Deprecated, to be removed in version 3.0.0
+    'CREATE ROLE', 'DROP ROLE', 'APPLICATION_PASSWORD_ADMIN',
+    'AUDIT_ADMIN', 'BACKUP_ADMIN', 'BINLOG_ADMIN',
+    'BINLOG_ENCRYPTION_ADMIN', 'CLONE_ADMIN', 'CONNECTION_ADMIN',
+    'ENCRYPTION_KEY_ADMIN', 'FIREWALL_ADMIN', 'FIREWALL_USER',
+    'GROUP_REPLICATION_ADMIN', 'INNODB_REDO_LOG_ARCHIVE',
+    'NDB_STORED_USER', 'PERSIST_RO_VARIABLES_ADMIN',
+    'REPLICATION_APPLIER', 'REPLICATION_SLAVE_ADMIN',
+    'RESOURCE_GROUP_ADMIN', 'RESOURCE_GROUP_USER',
+    'ROLE_ADMIN', 'SESSION_VARIABLES_ADMIN', 'SET_USER_ID',
+    'SYSTEM_USER', 'SYSTEM_VARIABLES_ADMIN', 'SYSTEM_USER',
+    'TABLE_ENCRYPTION_ADMIN', 'VERSION_TOKEN_ADMIN',
+    'XA_RECOVER_ADMIN', 'LOAD FROM S3', 'SELECT INTO S3',
+    'INVOKE LAMBDA',
+    'ALTER ROUTINE',
+    'BINLOG ADMIN',
+    'BINLOG MONITOR',
+    'BINLOG REPLAY',
+    'CONNECTION ADMIN',
+    'READ_ONLY ADMIN',
+    'REPLICATION MASTER ADMIN',
+    'REPLICATION SLAVE ADMIN',
+    'SET USER',
+    'SHOW_ROUTINE',
+    'SLAVE MONITOR',
+    'REPLICA MONITOR',
+]
+
 
 class InvalidPrivsError(Exception):
     pass
@@ -110,7 +150,8 @@ def get_tls_requires(cursor, user, host):
 def get_valid_privs(cursor):
     cursor.execute("SHOW PRIVILEGES")
     show_privs = [priv[0].upper() for priv in cursor.fetchall()]
-    all_privs = show_privs + EXTRA_PRIVS
+    # See the comment above VALID_PRIVS declaration
+    all_privs = show_privs + EXTRA_PRIVS + VALID_PRIVS
     return frozenset(all_privs)
 
 

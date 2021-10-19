@@ -1,0 +1,2 @@
+bugfixes:
+  - mysql_user - Fix crash reporting ``Invalid privileges specified`` when passing privileges that became aliases (https://github.com/ansible-collections/community.mysql/issues/232).

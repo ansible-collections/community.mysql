@@ -1,0 +1,2 @@
+bugfixes:
+  - mysql_db - Fix mismatch when database name contains a ``%`` character (https://github.com/ansible-collections/community.mysql/pull/227).

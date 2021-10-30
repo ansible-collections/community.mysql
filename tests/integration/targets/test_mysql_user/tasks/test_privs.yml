@@ -178,6 +178,23 @@
         that:
           - "result.changed == false"
 
+    # ============================================================
+    - name: update user with invalid privileges
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_2 }}'
+        password: '{{ user_password_2 }}'
+        priv: '*.*:INVALID'
+        state: present
+      register: result
+      ignore_errors: yes
+
+    - name: Assert that priv did not change
+      assert:
+        that:
+          - "result.changed == false"
+          - "'Illegal privilege' in result.msg or 'You have an error in your SQL syntax;' in result.msg"
+
     - name: remove username
       mysql_user:
         <<: *mysql_params

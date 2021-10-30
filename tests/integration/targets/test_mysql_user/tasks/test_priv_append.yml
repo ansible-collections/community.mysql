@@ -96,6 +96,25 @@
           - "'GRANT SELECT, DELETE ON `data2`.*' in result.stdout"
       when: enable_check_mode == 'yes'
 
+    - name: Try to append invalid privileges
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_4 }}'
+        password: '{{ user_password_4 }}'
+        priv: 'data1.*:INVALID/data2.*:SELECT'
+        append_privs: yes
+        state: present
+      check_mode: '{{ enable_check_mode }}'
+      register: result
+      ignore_errors: true
+
+    - name: Assert that there wasn't a change in privileges if check_mode is set to 'no'
+      assert:
+        that:
+          - "result.changed == false"
+          - "'Illegal privilege' in result.msg or 'You have an error in your SQL syntax;' in result.msg"
+      when: enable_check_mode == 'no'
+
     ##########
     # Clean up
     - name: Drop test databases

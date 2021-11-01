@@ -193,7 +193,7 @@
       assert:
         that:
           - "result.changed == false"
-          - "'Illegal privilege' in result.msg or 'You have an error in your SQL syntax;' in result.msg"
+          - "'Error granting privileges' in result.msg"
 
     - name: remove username
       mysql_user:

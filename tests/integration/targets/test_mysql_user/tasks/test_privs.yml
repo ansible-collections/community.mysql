@@ -192,7 +192,7 @@
     - name: Assert that priv did not change
       assert:
         that:
-          - "result.changed == false"
+          - result is failed
           - "'Error granting privileges' in result.msg"
 
     - name: remove username

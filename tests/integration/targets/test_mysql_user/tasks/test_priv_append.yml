@@ -111,7 +111,7 @@
     - name: Assert that there wasn't a change in privileges if check_mode is set to 'no'
       assert:
         that:
-          - "result.changed == false"
+          - result is failed
           - "'Error granting privileges' in result.msg"
       when: enable_check_mode == 'no'
 

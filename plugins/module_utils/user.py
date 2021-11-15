@@ -19,7 +19,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
 )
 
 
-EXTRA_PRIVS = ['ALL', 'ALL PRIVILEGES', 'GRANT', 'REQUIRESSL']
+EXTRA_PRIVS = ['ALL', 'ALL PRIVILEGES', 'GRANT']
 
 # This list is kept for backwards compatibility after release 2.3.0,
 # see https://github.com/ansible-collections/community.mysql/issues/232 for details
@@ -33,7 +33,6 @@ VALID_PRIVS = [
     'PROCESS', 'PROXY', 'RELOAD', 'REPLICATION CLIENT',
     'REPLICATION SLAVE', 'SHOW DATABASES', 'SHUTDOWN',
     'SUPER', 'ALL', 'ALL PRIVILEGES', 'USAGE',
-    'REQUIRESSL',  # Deprecated, to be removed in version 3.0.0
     'CREATE ROLE', 'DROP ROLE', 'APPLICATION_PASSWORD_ADMIN',
     'AUDIT_ADMIN', 'BACKUP_ADMIN', 'BINLOG_ADMIN',
     'BINLOG_ENCRYPTION_ADMIN', 'CLONE_ADMIN', 'CONNECTION_ADMIN',
@@ -714,27 +713,6 @@ def convert_priv_dict_to_str(priv):
     priv_list = ['%s:%s' % (key, val) for key, val in iteritems(priv)]
 
     return '/'.join(priv_list)
-
-
-def handle_requiressl_in_priv_string(module, priv, tls_requires):
-    module.deprecate('The "REQUIRESSL" privilege is deprecated, use the "tls_requires" option instead.',
-                     version='3.0.0', collection_name='community.mysql')
-    priv_groups = re.search(r"(.*?)(\*\.\*:)([^/]*)(.*)", priv)
-    if priv_groups.group(3) == "REQUIRESSL":
-        priv = priv_groups.group(1) + priv_groups.group(4) or None
-    else:
-        inner_priv_groups = re.search(r"(.*?),?REQUIRESSL,?(.*)", priv_groups.group(3))
-        priv = '{0}{1}{2}{3}'.format(
-            priv_groups.group(1),
-            priv_groups.group(2),
-            ','.join(filter(None, (inner_priv_groups.group(1), inner_priv_groups.group(2)))),
-            priv_groups.group(4)
-        )
-    if not tls_requires:
-        tls_requires = "SSL"
-    else:
-        module.warn('Ignoring "REQUIRESSL" privilege as "tls_requires" is defined and it takes precedence.')
-    return priv, tls_requires
 
 
 # Alter user is supported since MySQL 5.6 and MariaDB 10.2.0

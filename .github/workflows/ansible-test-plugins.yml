@@ -110,7 +110,7 @@ jobs:
       - name: Set MariaDB version (${{ matrix.db_engine_version }})
         run: |
           export DB_VERSION=$(echo "${{ matrix.db_engine_version }}" | awk -F_ '{print $2}')
-          sed -i -e "s/^mariadb_version:.*/mariadb_version: $DB_VERSION/g" -e 's/^mariadb_install: false/mariadb_install: true/g' ${{ env.mariadb_version_file }}
+          sed -i -e "s/^mariadb_version:.*/mariadb_version: $DB_VERSION/g" -e 's/^mariadb_install: false/mariadb_install: true/g' ${{ env.mysql_version_file }}
         if: ${{ startsWith(matrix.db_engine_version, 'mariadb') }}
 
       - name: Set Connector version (${{ matrix.connector }})

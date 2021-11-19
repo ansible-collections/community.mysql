@@ -24,6 +24,12 @@
       login_port: '{{ mysql_primary_port }}'
 
   block:
+    - name: Drop mysql user if exists
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        state: absent
+      ignore_errors: yes
 
     # ============================================================
     - name: create mysql user {{user_name}}

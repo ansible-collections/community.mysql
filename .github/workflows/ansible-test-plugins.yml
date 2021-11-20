@@ -58,7 +58,8 @@ jobs:
         db_engine_version:
           - mysql_5.7.31
           - mysql_8.0.22
-          - mariadb_10.5.4
+          - mariadb_10.2.37
+          - mariadb_10.5.9
         ansible:
           - stable-2.9
           - stable-2.10
@@ -75,7 +76,7 @@ jobs:
         exclude:
           - db_engine_version: mysql_8.0.22
             connector: pymysql==0.7.10
-          - db_engine_version: mariadb_10.5.4
+          - db_engine_version: mariadb_10.5.9
             connector: pymysql==0.7.10
           - python: 3.8
             ansible: stable-2.9

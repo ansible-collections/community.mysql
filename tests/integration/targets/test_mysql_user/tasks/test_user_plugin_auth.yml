@@ -31,7 +31,7 @@
       register: result
 
     - name: Get user information
-      command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
+      command: "{{ mysql_command }} -e \"SELECT user, host, plugin FROM mysql.user WHERE user = '{{ test_user_name }}' and host = 'localhost'\""
       register: show_create_user
 
     - name: Check that the module made a change and that the expected plugin type is set
@@ -102,7 +102,7 @@
       register: result
 
     - name: Get user information
-      command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
+      command: "{{ mysql_command }} -e \"SELECT user, host, plugin FROM mysql.user WHERE user = '{{ test_user_name }}' and host = 'localhost'\""
       register: show_create_user
 
     - name: Check that the module made a change and that the expected plugin type is set

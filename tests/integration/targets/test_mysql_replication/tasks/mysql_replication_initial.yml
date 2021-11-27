@@ -30,8 +30,13 @@
         mysql_command: "mysql -u{{ mysql_user }} -p{{ mysql_password }} --protocol=tcp"
 
     # Preparation:
-    - name: Create user for replication
+    - name: Create user for mysql replication
       shell: "echo \"CREATE USER '{{ replication_user }}'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'localhost';\" | {{ mysql_command }} -P{{ mysql_primary_port }}"
+      when: install_type == 'mysql'
+
+    - name: Create user for mariadb replication
+      shell: "echo \"CREATE USER '{{ replication_user }}'@'localhost' IDENTIFIED BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'localhost';\" | {{ mysql_command }} -P{{ mysql_primary_port }}"
+      when: install_type == 'mariadb'
 
     - name: Create test database
       mysql_db:

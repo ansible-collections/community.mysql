@@ -59,19 +59,34 @@ Every voice is important and every idea is valuable. If you have something on yo
   - [mysql_user](https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_user_module.html)
   - [mysql_variables](https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_variables_module.html)
 
-## Tested with Ansible
+## Tested with
+### Ansible
 
 - 2.9
 - 2.10
 - 2.11
+- 2.12
 - devel
+
+### Databases
+
+- mysql 5.7.31
+- mysql 8.0.22
+- mariadb 10.2.37
+- mariadb 10.5.9
+
+### Database connectors
+
+- pymysql 0.7.10
+- pymysql 0.9.3
+- mysqlclient 2.0.1
 
 ## External requirements
 
 The MySQL modules rely on a MySQL connector. The list of supported drivers is below:
 
 - [PyMySQL](https://github.com/PyMySQL/PyMySQL)
-- [MySQLdb](https://github.com/PyMySQL/mysqlclient-python)
+- [mysqlclient](https://github.com/PyMySQL/mysqlclient)
 - Support for other Python MySQL connectors may be added in a future release.
 
 ## Using this collection

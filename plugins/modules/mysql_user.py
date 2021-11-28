@@ -307,7 +307,6 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     get_mode,
     InvalidPrivsError,
     limit_resources,
-    get_valid_privs,
     privileges_unpack,
     sanitize_requires,
     user_add,
@@ -407,11 +406,7 @@ def main():
             mode = get_mode(cursor)
         except Exception as e:
             module.fail_json(msg=to_native(e))
-        try:
-            valid_privs = get_valid_privs(cursor)
-            priv = privileges_unpack(priv, mode, valid_privs)
-        except Exception as e:
-            module.fail_json(msg="invalid privileges string: %s" % to_native(e))
+        priv = privileges_unpack(priv, mode)
 
     if state == "present":
         if user_exists(cursor, user, host, host_all):

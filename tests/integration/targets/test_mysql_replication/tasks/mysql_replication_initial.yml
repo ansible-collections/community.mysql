@@ -24,6 +24,7 @@
         mysql8022_and_higher: true
       when:
       - db.version.major > 8 or (db.version.major == 8 and db.version.minor > 0) or (db.version.major == 8 and db.version.minor == 0 and db.version.release >= 22)
+      - install_type == 'mysql'
 
     - name: alias mysql command to include default options
       set_fact:

@@ -5,6 +5,21 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v2.3.2
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection that
+have been added after the release of ``community.mysql`` 2.3.1.
+
+Bugfixes
+--------
+
+- mysql_db - Fix mismatch when database name contains a ``%`` character (https://github.com/ansible-collections/community.mysql/pull/227).
+
 v2.3.1
 ======
 

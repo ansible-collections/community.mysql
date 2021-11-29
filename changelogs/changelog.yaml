@@ -366,3 +366,16 @@ releases:
     - 2.3.1.yml
     - 233-mysql_user_return_valid_privs.yml
     release_date: '2021-10-19'
+  2.3.2:
+    changes:
+      bugfixes:
+      - mysql_db - Fix mismatch when database name contains a ``%`` character (https://github.com/ansible-collections/community.mysql/pull/227).
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection that
+
+        have been added after the release of ``community.mysql`` 2.3.1.'
+    fragments:
+    - 2.3.2.yml
+    - 227-db-create-special-name.yaml
+    release_date: '2021-11-29'

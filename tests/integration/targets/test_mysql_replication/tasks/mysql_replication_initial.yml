@@ -64,11 +64,11 @@
         - mysql_primary_status is not changed
 
     # Test startreplica fails without changeprimary first. This needs fail_on_error
-    - name: Start replica (using deprecated startslave choice) and fail because primary is not specified; failing on error as requested
+    - name: Start replica and fail because primary is not specified; failing on error as requested
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: startslave
+        mode: startreplica
         fail_on_error: yes
       register: result
       ignore_errors: yes
@@ -139,11 +139,11 @@
         - result.queries == ["START SLAVE"] or result.queries == ["START REPLICA"]
 
     # Test getreplica mode:
-    - name: Get replica status using deprecated getslave choice
+    - name: Get replica status
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: getslave
+        mode: getreplica
       register: replica_status
 
     - assert:
@@ -159,7 +159,7 @@
 
     - assert:
         that:
-        - replica_status.Is_Slave == true
+        - replica_status.Is_Replica == true
         - replica_status.Source_Host == '{{ mysql_host }}'
         - replica_status.Exec_Source_Log_Pos == mysql_primary_status.Position
         - replica_status.Source_Port == {{ mysql_primary_port }}
@@ -216,11 +216,11 @@
       when: (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '<=')
 
     # Test stopreplica mode:
-    - name: Stop replica using deprecated stopslave choice
+    - name: Stop replica
       mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
-        mode: stopslave
+        mode: stopreplica
       register: result
 
     - assert:

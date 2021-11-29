@@ -23,32 +23,24 @@ options:
   mode:
     description:
     - Module operating mode. Could be
-      C(changeprimary | changemaster) (CHANGE PRIMARY | MASTER TO),
-      C(getprimary | getmaster) (SHOW PRIMARY | MASTER STATUS),
-      C(getreplica | getslave) (SHOW REPLICA | SLAVE STATUS),
-      C(startreplica | startslave) (START REPLICA | SLAVE),
-      C(stopreplica | stopslave) (STOP REPLICA | SLAVE),
-      C(resetprimary | resetmaster) (RESET PRIMARY | MASTER) - supported since community.mysql 0.1.0,
-      C(resetreplica, resetslave) (RESET REPLICA | SLAVE),
-      C(resetreplicaall, resetslave) (RESET REPLICA | SLAVE ALL).
+      C(changeprimary) (CHANGE PRIMARY TO),
+      C(getprimary) (SHOW PRIMARY STATUS),
+      C(getreplica) (SHOW REPLICA),
+      C(startreplica) (START REPLICA),
+      C(stopreplica) (STOP REPLICA),
+      C(resetprimary) (RESET PRIMARY) - supported since community.mysql 0.1.0,
+      C(resetreplica) (RESET REPLICA),
+      C(resetreplicaall) (RESET REPLICA ALL).
     type: str
     choices:
     - changeprimary
-    - changemaster
     - getprimary
-    - getmaster
     - getreplica
-    - getslave
     - startreplica
-    - startslave
     - stopreplica
-    - stopslave
     - resetprimary
-    - resetmaster
     - resetreplica
-    - resetslave
     - resetreplicaall
-    - resetslaveall
     default: getreplica
   primary_host:
     description:
@@ -153,9 +145,7 @@ options:
     - To find information about available values see
       U(https://mariadb.com/kb/en/library/change-master-to/#master_use_gtid).
     - Available since MariaDB 10.0.2.
-    - C(replica_pos) has been introduced in MariaDB 10.5.1 and
-      it is an alias for C(slave_pos).
-    choices: [current_pos, replica_pos, slave_pos, disabled]
+    choices: [current_pos, replica_pos, disabled]
     type: str
     version_added: '0.1.0'
     aliases: [master_use_gtid]
@@ -441,14 +431,14 @@ def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
         mode=dict(type='str', default='getreplica', choices=[
-            'getprimary', 'getmaster',
-            'getreplica', 'getslave',
-            'changeprimary', 'changemaster',
-            'stopreplica', 'stopslave',
-            'startreplica', 'startslave',
-            'resetprimary', 'resetmaster',
-            'resetreplica', 'resetslave',
-            'resetreplicaall', 'resetslaveall']),
+            'getprimary',
+            'getreplica',
+            'changeprimary',
+            'stopreplica',
+            'startreplica',
+            'resetprimary',
+            'resetreplica',
+            'resetreplicaall']),
         primary_auto_position=dict(type='bool', default=False, aliases=['master_auto_position']),
         primary_host=dict(type='str', aliases=['master_host']),
         primary_user=dict(type='str', aliases=['master_user']),
@@ -466,7 +456,7 @@ def main():
         primary_ssl_key=dict(type='str', no_log=False, aliases=['master_ssl_key']),
         primary_ssl_cipher=dict(type='str', aliases=['master_ssl_cipher']),
         primary_use_gtid=dict(type='str', choices=[
-            'current_pos', 'replica_pos', 'slave_pos', 'disabled'], aliases=['master_use_gtid']),
+            'current_pos', 'replica_pos', 'disabled'], aliases=['master_use_gtid']),
         primary_delay=dict(type='int', aliases=['master_delay']),
         connection_name=dict(type='str'),
         channel=dict(type='str'),
@@ -540,60 +530,29 @@ def main():
     # "REPLICA" must be used instead of "SLAVE"
     if impl.uses_replica_terminology(cursor):
         replica_term = 'REPLICA'
-        if primary_use_gtid == 'slave_pos':
-            module.deprecate('primary_use_gtid | master_use_gtid "slave_pos" value is '
-                             'deprecated, use "replica_pos" instead.',
-                             version='3.0.0', collection_name='community.mysql')
-            primary_use_gtid = 'replica_pos'
     else:
         replica_term = 'SLAVE'
-        if primary_use_gtid == 'replica_pos':
-            primary_use_gtid = 'slave_pos'
 
-    if mode in ('getprimary', 'getmaster'):
-        if mode == 'getmaster':
-            module.deprecate('"getmaster" option is deprecated, use "getprimary" instead.',
-                             version='3.0.0', collection_name='community.mysql')
-
+    if mode == 'getprimary':
         status = get_primary_status(cursor)
         if not isinstance(status, dict):
-            # TODO: change the word master to primary in 3.0.0
-            status = dict(Is_Master=False, Is_Primary=False,
-                          msg="Server is not configured as mysql master")
+            status = dict(Is_Primary=False,
+                          msg="Server is not configured as mysql primary")
         else:
-            status['Is_Master'] = True
             status['Is_Primary'] = True
 
-        module.deprecate('"Is_Master" and "Is_Slave" return values are deprecated '
-                         'and will be replaced with "Is_Primary" and "Is_Replica" '
-                         'in the next major release. Use "Is_Primary" and "Is_Replica" instead.',
-                         version='3.0.0', collection_name='community.mysql')
-
         module.exit_json(queries=executed_queries, **status)
 
-    elif mode in ("getreplica", "getslave"):
-        if mode == "getslave":
-            module.deprecate('"getslave" option is deprecated, use "getreplica" instead.',
-                             version='3.0.0', collection_name='community.mysql')
-
+    elif mode == "getreplica":
         status = get_replica_status(cursor, connection_name, channel, replica_term)
         if not isinstance(status, dict):
-            status = dict(Is_Slave=False, Is_Replica=False, msg="Server is not configured as mysql replica")
+            status = dict(Is_Replica=False, msg="Server is not configured as mysql replica")
         else:
-            status['Is_Slave'] = True
             status['Is_Replica'] = True
-
-        module.deprecate('"Is_Master" and "Is_Slave" return values are deprecated '
-                         'and will be replaced with "Is_Primary" and "Is_Replica" '
-                         'in the next major release. Use "Is_Primary" and "Is_Replica" instead.',
-                         version='3.0.0', collection_name='community.mysql')
 
         module.exit_json(queries=executed_queries, **status)
 
-    elif mode in ('changeprimary', 'changemaster'):
-        if mode == 'changemaster':
-            module.deprecate('"changemaster" option is deprecated, use "changeprimary" instead.',
-                             version='3.0.0', collection_name='community.mysql')
+    elif mode == 'changeprimary':
         chm = []
         result = {}
         if primary_host is not None:
@@ -640,53 +599,31 @@ def main():
             module.fail_json(msg='%s. Query == CHANGE MASTER TO %s' % (to_native(e), chm))
         result['changed'] = True
         module.exit_json(queries=executed_queries, **result)
-    elif mode in ("startreplica", "startslave"):
-        if mode == "startslave":
-            module.deprecate('"startslave" option is deprecated, use "startreplica" instead.',
-                             version='3.0.0', collection_name='community.mysql')
-
+    elif mode == "startreplica":
         started = start_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if started is True:
             module.exit_json(msg="Replica started ", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Replica already started (Or cannot be started)", changed=False, queries=executed_queries)
-    elif mode in ("stopreplica", "stopslave"):
-        if mode == "stopslave":
-            module.deprecate('"stopslave" option is deprecated, use "stopreplica" instead.',
-                             version='3.0.0', collection_name='community.mysql')
-
+    elif mode == "stopreplica":
         stopped = stop_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if stopped is True:
             module.exit_json(msg="Replica stopped", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Replica already stopped", changed=False, queries=executed_queries)
-    elif mode in ('resetprimary', 'resetmaster'):
-        if mode == 'resetmaster':
-            module.deprecate('"resetmaster" option is deprecated, use "resetprimary" instead.',
-                             version='3.0.0', collection_name='community.mysql')
-
+    elif mode == 'resetprimary':
         reset = reset_primary(module, cursor, fail_on_error)
         if reset is True:
-            # TODO: Change "Master" to "Primary" in release 3.0.0
-            module.exit_json(msg="Master reset", changed=True, queries=executed_queries)
+            module.exit_json(msg="Primary reset", changed=True, queries=executed_queries)
         else:
-            # TODO: Change "Master" to "Primary" in release 3.0.0
-            module.exit_json(msg="Master already reset", changed=False, queries=executed_queries)
-    elif mode in ("resetreplica", "resetslave"):
-        if mode == "resetslave":
-            module.deprecate('"resetslave" option is deprecated, use "resetreplica" instead.',
-                             version='3.0.0', collection_name='community.mysql')
-
+            module.exit_json(msg="Primary already reset", changed=False, queries=executed_queries)
+    elif mode == "resetreplica":
         reset = reset_replica(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if reset is True:
             module.exit_json(msg="Replica reset", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Replica already reset", changed=False, queries=executed_queries)
-    elif mode in ("resetreplicaall", "resetslaveall"):
-        if mode == "resetslaveall":
-            module.deprecate('"resetslaveall" option is deprecated, use "resetreplicaall" instead.',
-                             version='3.0.0', collection_name='community.mysql')
-
+    elif mode == "resetreplicaall":
         reset = reset_replica_all(module, cursor, connection_name, channel, fail_on_error, replica_term)
         if reset is True:
             module.exit_json(msg="Replica reset", changed=True, queries=executed_queries)

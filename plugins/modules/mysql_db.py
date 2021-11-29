@@ -330,7 +330,7 @@ executed_commands = []
 def db_exists(cursor, db):
     res = 0
     for each_db in db:
-        res += cursor.execute("SHOW DATABASES LIKE %s", (each_db.replace("_", r"\_"),))
+        res += cursor.execute("SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s", (each_db,))
     return res == len(db)
 
 
@@ -519,7 +519,8 @@ def db_create(cursor, db, encoding, collation):
     query_params = dict(enc=encoding, collate=collation)
     res = 0
     for each_db in db:
-        query = ['CREATE DATABASE %s' % mysql_quote_identifier(each_db, 'database')]
+        # Escape '%' since mysql cursor.execute() uses a format string
+        query = ['CREATE DATABASE %s' % mysql_quote_identifier(each_db, 'database').replace('%', '%%')]
         if encoding:
             query.append("CHARACTER SET %(enc)s")
         if collation:

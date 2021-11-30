@@ -173,6 +173,14 @@
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+    when: install_type == 'mysql'
+
+  - name: Check in DB, if not granted, the query will fail (mariadb)
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT 1 FROM mysql.roles_mapping WHERE User = '{{ role0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+    when: install_type == 'mariadb'
 
   - name: Check
     assert:

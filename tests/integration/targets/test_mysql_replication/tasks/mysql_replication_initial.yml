@@ -241,3 +241,19 @@
         that:
         - result is not changed
       when: (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '<=')
+
+    # master / slave related choices were removed in 3.0.0
+    # https://github.com/ansible-collections/community.mysql/pull/252
+    - name: Test invoking the module with unsupported choice
+      mysql_replication:
+        <<: *mysql_params
+        login_port: '{{ mysql_replica1_port }}'
+        mode: stopslave
+        fail_on_error: true
+      register: result
+      ignore_errors: yes
+
+    - assert:
+        that:
+        - result.msg == "value of mode must be one of{{ ":" }} getprimary, getreplica, changeprimary, stopreplica, startreplica, resetprimary, resetreplica, resetreplicaall, got{{ ":" }} stopslave"
+        - result is failed

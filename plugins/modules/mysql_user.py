@@ -198,16 +198,6 @@ EXAMPLES = r'''
       FUNCTION my_db.my_function: EXECUTE
     state: present
 
-# Note that REQUIRESSL is a special privilege that should only apply to *.* by itself.
-# Setting this privilege in this manner is deprecated.
-# Use 'tls_requires' instead.
-- name: Modify user to require SSL connections
-  community.mysql.mysql_user:
-    name: bob
-    append_privs: yes
-    priv: '*.*:REQUIRESSL'
-    state: present
-
 - name: Modify user to require TLS connection with a valid client certificate
   community.mysql.mysql_user:
     name: bob
@@ -315,7 +305,6 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     convert_priv_dict_to_str,
     get_impl,
     get_mode,
-    handle_requiressl_in_priv_string,
     InvalidPrivsError,
     limit_resources,
     privileges_unpack,
@@ -387,9 +376,6 @@ def main():
 
     if priv and isinstance(priv, dict):
         priv = convert_priv_dict_to_str(priv)
-
-    if priv and "REQUIRESSL" in priv:
-        priv, tls_requires = handle_requiressl_in_priv_string(module, priv, tls_requires)
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)

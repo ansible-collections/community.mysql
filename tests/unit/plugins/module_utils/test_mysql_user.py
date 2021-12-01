@@ -13,8 +13,7 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     handle_grant_on_col,
     has_grant_on_col,
     normalize_col_grants,
-    sort_column_order,
-    handle_requiressl_in_priv_string
+    sort_column_order
 )
 from ..utils import dummy_cursor_class
 
@@ -77,71 +76,6 @@ def test_sort_column_order(input_, output):
 def test_handle_grant_on_col(privileges, start, end, output):
     """Tests handle_grant_on_col function."""
     assert handle_grant_on_col(privileges, start, end) == output
-
-
-@pytest.mark.parametrize(
-    'input_tuple,output_tuple',
-    [
-        (('*.*:REQUIRESSL', None), (None, 'SSL')),
-        (('*.*:ALL,REQUIRESSL', None), ('*.*:ALL', 'SSL')),
-        (('*.*:REQUIRESSL,ALL', None), ('*.*:ALL', 'SSL')),
-        (('*.*:ALL,REQUIRESSL,GRANT', None), ('*.*:ALL,GRANT', 'SSL')),
-        (('*.*:ALL,REQUIRESSL,GRANT/a.b:USAGE', None), ('*.*:ALL,GRANT/a.b:USAGE', 'SSL')),
-        (('*.*:REQUIRESSL', 'X509'), (None, 'X509')),
-        (('*.*:ALL,REQUIRESSL', 'X509'), ('*.*:ALL', 'X509')),
-        (('*.*:REQUIRESSL,ALL', 'X509'), ('*.*:ALL', 'X509')),
-        (('*.*:ALL,REQUIRESSL,GRANT', 'X509'), ('*.*:ALL,GRANT', 'X509')),
-        (('*.*:ALL,REQUIRESSL,GRANT/a.b:USAGE', 'X509'), ('*.*:ALL,GRANT/a.b:USAGE', 'X509')),
-        (('*.*:REQUIRESSL', {
-            'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
-            'cipher': 'ECDHE-ECDSA-AES256-SHA384',
-            'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-        }), (None, {
-            'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
-            'cipher': 'ECDHE-ECDSA-AES256-SHA384',
-            'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-        })),
-        (('*.*:ALL,REQUIRESSL', {
-            'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
-            'cipher': 'ECDHE-ECDSA-AES256-SHA384',
-            'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-        }), ('*.*:ALL', {
-            'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
-            'cipher': 'ECDHE-ECDSA-AES256-SHA384',
-            'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-        })),
-        (('*.*:REQUIRESSL,ALL', {
-            'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
-            'cipher': 'ECDHE-ECDSA-AES256-SHA384',
-            'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-        }), ('*.*:ALL', {
-            'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
-            'cipher': 'ECDHE-ECDSA-AES256-SHA384',
-            'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-        })),
-        (('*.*:ALL,REQUIRESSL,GRANT', {
-            'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
-            'cipher': 'ECDHE-ECDSA-AES256-SHA384',
-            'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-        }), ('*.*:ALL,GRANT', {
-            'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
-            'cipher': 'ECDHE-ECDSA-AES256-SHA384',
-            'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-        })),
-        (('*.*:ALL,REQUIRESSL,GRANT/a.b:USAGE', {
-            'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
-            'cipher': 'ECDHE-ECDSA-AES256-SHA384',
-            'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-        }), ('*.*:ALL,GRANT/a.b:USAGE', {
-            'subject': '/CN=alice/O=MyDom, Inc./C=US/ST=Oregon/L=Portland',
-            'cipher': 'ECDHE-ECDSA-AES256-SHA384',
-            'issuer': '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
-        }))
-    ]
-)
-def test_handle_requiressl_in_priv_string(input_tuple, output_tuple):
-    """Tests the handle_requiressl_in_priv_string funciton."""
-    assert handle_requiressl_in_priv_string(MagicMock(), *input_tuple) == output_tuple
 
 
 @pytest.mark.parametrize(

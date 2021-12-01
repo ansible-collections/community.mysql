@@ -1490,34 +1490,26 @@
       that:
       - result is failed
       - result.msg is search('option can be used only with MariaDB')
-    when:
-    # Semantically, when there's MySQL
-    - srv['version']['major'] < 10
+    when: install_type == 'mysql'
 
   - name: Check with MariaDB
     assert:
       that:
       - result is changed
-    when:
-    # Semantically, when there's MariaDB
-    - srv['version']['major'] >= 10
+    when: install_type == 'mariadb'
 
   - name: Check in DB
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
-    when:
-    # Semantically, when there's MariaDB
-    - srv['version']['major'] >= 10
+    when: install_type == 'mariadb'
 
   - name: Check
     assert:
       that:
       - result.rowcount.0 == 1
-    when:
-    # Semantically, when there's MariaDB
-    - srv['version']['major'] >= 10
+    when: install_type == 'mariadb'
 
   - name: Create role with admin again
     <<: *task_params
@@ -1533,17 +1525,13 @@
       that:
       - result is failed
       - result.msg is search('option can be used only with MariaDB')
-    when:
-    # Semantically, when there's MySQL
-    - srv['version']['major'] < 10
+    when: install_type == 'mysql'
 
   - name: Check with MariaDB
     assert:
       that:
       - result is not changed
-    # Semantically, when there's MariaDB
-    when:
-    - srv['version']['major'] >= 10
+    when: install_type == 'mariadb'
 
   # Try to grant a role to a user who does not exist
   - name: Create role with admin again
@@ -1561,9 +1549,7 @@
       that:
       - result is failed
       - result.msg is search('does not exist')
-    when:
-    # Semantically, when there's MySQL
-    - srv['version']['major'] < 10
+    when: install_type == 'mysql'
 
   always:
   # Clean up

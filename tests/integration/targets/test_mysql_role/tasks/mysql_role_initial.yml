@@ -1482,7 +1482,7 @@
       <<: *mysql_params
       name: '{{ role0 }}'
       state: present
-      admin: '{{ user0 }}'
+      admin: '{{ user0 }}@localhost'
     ignore_errors: yes
 
   - name: Check with MySQL
@@ -1502,7 +1502,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = ''"
     when: install_type == 'mariadb'
 
   - name: Check
@@ -1517,7 +1517,7 @@
       <<: *mysql_params
       name: '{{ role0 }}'
       state: present
-      admin: '{{ user0 }}'
+      admin: '{{ user0 }}@localhost'
     ignore_errors: yes
 
   - name: Check with MySQL

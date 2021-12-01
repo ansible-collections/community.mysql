@@ -199,7 +199,7 @@
   - name: Check
     assert:
       that:
-      - result.query_result.0.0["current_role()"] == "`{{ role0 }}`@`%`"
+      - "'{{ role0 }}' in result.query_result.0.0['current_role()']"
 
   #========================
 

@@ -34,11 +34,16 @@
       command: "{{ mysql_command }} -e \"SELECT user, host, plugin FROM mysql.user WHERE user = '{{ test_user_name }}' and host = 'localhost'\""
       register: show_create_user
 
-    - name: Check that the module made a change and that the expected plugin type is set
+    - name: Check that the module made a change
       assert:
         that:
           - "result.changed == true"
+
+    - name: Check that the expected plugin type is set
+      assert:
+        that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
+      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -105,11 +110,16 @@
       command: "{{ mysql_command }} -e \"SELECT user, host, plugin FROM mysql.user WHERE user = '{{ test_user_name }}' and host = 'localhost'\""
       register: show_create_user
 
-    - name: Check that the module made a change and that the expected plugin type is set
+    - name: Check that the module made a change
       assert:
         that:
           - "result.changed == true"
+
+    - name: Check that the expected plugin type is set
+      assert:
+        that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
+      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -190,11 +200,16 @@
       command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
       register: show_create_user
 
-    - name: Check that the module made a change and that the expected plugin type is set
+    - name: Check that the module made a change
       assert:
         that:
           - "result.changed == true"
+
+    - name: Check that the expected plugin type is set
+      assert:
+        that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
+      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -275,11 +290,16 @@
       command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
       register: show_create_user
 
-    - name: Check that the module made a change and that the expected plugin type is set
+    - name: Check that the module made a change
       assert:
         that:
           - "result.changed == true"
+
+    - name: Check that the expected plugin type is set
+      assert:
+        that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
+      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -354,11 +374,16 @@
         command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
         register: show_create_user
 
-      - name: Check that the module made a change and that the expected plugin type is set
+      - name: Check that the module made a change
         assert:
           that:
             - "result.changed == true"
+
+      - name: Check that the expected plugin type is set
+        assert:
+          that:
             - "'{{ test_plugin_type }}' in show_create_user.stdout"
+        when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
       - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -374,11 +399,16 @@
         command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
         register: show_create_user
 
-      - name: Check that the module made a change and that the expected plugin type is set
+      - name: Check that the module made a change
         assert:
           that:
             - "result.changed == true"
-            - "'sha256_password' in show_create_user.stdout"
+
+      - name: Check that the expected plugin type is set
+        assert:
+          that:
+              - "'sha256_password' in show_create_user.stdout"
+        when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
       - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 

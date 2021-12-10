@@ -1,0 +1,2 @@
+minor_changes:
+  - CI - add ci tests for mariadb (https://github.com/ansible-collections/community.mysql/issues/238 https://github.com/ansible-collections/community.mysql/pull/246).

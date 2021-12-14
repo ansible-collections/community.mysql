@@ -14,6 +14,18 @@
 #
 # ==========================================================================
 # Initial check - To confirm that database does not exist before executing check mode tasks
+- name: Drop databases before test
+  mysql_db:
+    login_user: '{{ mysql_user }}'
+    login_password: '{{ mysql_password }}'
+    login_host: 127.0.0.1
+    login_port: '{{ mysql_primary_port }}'
+    name:
+      - '{{ db1_name }}'
+      - '{{ db2_name }}'
+      - '{{ db3_name }}'
+    state: absent
+
 - name: run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
   register: mysql_result

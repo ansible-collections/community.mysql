@@ -7,12 +7,8 @@ dbdeployer_sandbox_download_dir: "{{ home_dir }}/downloads"
 dbdeployer_sandbox_binary_dir: "{{ home_dir }}/opt/mysql"
 dbdeployer_sandbox_home_dir: "{{ home_dir }}/sandboxes"
 
-percona_mysql_repos:
-  - deb http://repo.percona.com/apt {{ ansible_lsb.codename }} main
-  - deb-src http://repo.percona.com/apt {{ ansible_lsb.codename }} main
-
 percona_mysql_packages:
-  - percona-server-client-{{ percona_client_version }}
+  - "{{ percona_client_package }}"
 
 python_packages: [pymysql == 0.9.3]
 

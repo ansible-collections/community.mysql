@@ -365,7 +365,7 @@ def main():
     ssl_key = module.params["client_key"]
     ssl_ca = module.params["ca_cert"]
     check_hostname = module.params["check_hostname"]
-    db = ''
+    db = 'mysql'
     sql_log_bin = module.params["sql_log_bin"]
     plugin = module.params["plugin"]
     plugin_hash_string = module.params["plugin_hash_string"]

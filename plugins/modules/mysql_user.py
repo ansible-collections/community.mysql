@@ -80,6 +80,7 @@ options:
         binlog / replication filters in MySQL.
     type: bool
     default: no
+    version_added: '3.1.0'
   state:
     description:
       - Whether the user should exist.

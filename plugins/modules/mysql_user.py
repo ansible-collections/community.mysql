@@ -388,9 +388,6 @@ def main():
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
-    
-    if db_context:
-        db = 'mysql'
 
     cursor = None
     try:

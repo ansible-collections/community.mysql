@@ -74,6 +74,12 @@ options:
       - Whether binary logging should be enabled or disabled for the connection.
     type: bool
     default: yes
+  db_context:
+    description:
+      - Sets the mysql system database as context for the executed statements. Useful if you use 
+        binlog / replication filters in MySQL.
+    type: bool
+    default: no
   state:
     description:
       - Whether the user should exist.
@@ -341,6 +347,7 @@ def main():
         plugin_hash_string=dict(default=None, type='str'),
         plugin_auth_string=dict(default=None, type='str'),
         resource_limits=dict(type='dict'),
+        db_context=dict(type='bool', default=False),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -365,7 +372,8 @@ def main():
     ssl_key = module.params["client_key"]
     ssl_ca = module.params["ca_cert"]
     check_hostname = module.params["check_hostname"]
-    db = 'mysql'
+    db = ''
+    db_context = module.params["db_context"]
     sql_log_bin = module.params["sql_log_bin"]
     plugin = module.params["plugin"]
     plugin_hash_string = module.params["plugin_hash_string"]
@@ -379,6 +387,9 @@ def main():
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
+    
+    if db_context:
+        db = 'mysql'
 
     cursor = None
     try:

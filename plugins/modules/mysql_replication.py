@@ -283,7 +283,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_common_argument_spec,
 )
 from ansible.module_utils._text import to_native
-from distutils.version import LooseVersion
+from ansible_collections.community.mysql.plugins.module_utils.version import LooseVersion
 
 executed_queries = []
 

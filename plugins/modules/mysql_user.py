@@ -76,7 +76,7 @@ options:
     default: yes
   db_context:
     description:
-      - Sets the mysql system database as context for the executed statements. Useful if you use 
+      - Sets the С(mysql) system database as context for the executed statements (it will be used as a database to connect to). Useful if you use 
         binlog / replication filters in MySQL.
     type: bool
     default: no

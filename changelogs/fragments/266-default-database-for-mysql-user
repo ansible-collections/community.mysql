@@ -1,0 +1,2 @@
+bugfixes:
+- mysql_user - set default database context for the queries to be the "mysql" database. This way replication/binlog filters can catch the statements.

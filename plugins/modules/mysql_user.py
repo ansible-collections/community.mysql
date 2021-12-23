@@ -373,7 +373,8 @@ def main():
     ssl_ca = module.params["ca_cert"]
     check_hostname = module.params["check_hostname"]
     db = ''
-    db_context = module.params["db_context"]
+    if module.params["db_context"]:
+        db = 'mysql'
     sql_log_bin = module.params["sql_log_bin"]
     plugin = module.params["plugin"]
     plugin_hash_string = module.params["plugin_hash_string"]

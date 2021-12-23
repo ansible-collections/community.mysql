@@ -80,9 +80,9 @@ options:
         as a database to connect to). Useful if you use binlog / replication filters in MySQL as
         per default the statements can not be caught by a binlog / replication filter, they require
         a database to be set to work.
-      - see U(https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#option_mysqld_binlog-ignore-db)
+      - See U(https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#option_mysqld_binlog-ignore-db)
         for a description on how binlog filters work (filtering on the primary).
-      - see U(https://dev.mysql.com/doc/refman/8.0/en/replication-options-replica.html#option_mysqld_replicate-ignore-db)
+      - See U(https://dev.mysql.com/doc/refman/8.0/en/replication-options-replica.html#option_mysqld_replicate-ignore-db)
         for a description on how replication filters work (filtering on the replica).
     type: bool
     default: no

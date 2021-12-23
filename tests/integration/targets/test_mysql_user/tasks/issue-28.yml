@@ -26,6 +26,7 @@
         <<: *mysql_params
         name: '{{ user_name_1 }}'
         state: absent
+        force_context: yes
       ignore_errors: yes
 
     - name: create user with ssl requirement
@@ -34,6 +35,7 @@
         name: "{{ user_name_1 }}"
         password: "{{ user_password_1 }}"
         priv: '*.*:ALL,GRANT'
+        force_context: yes
         tls_requires:
           SSL:
 
@@ -84,6 +86,7 @@
         name: '{{ item }}'
         host: 127.0.0.1
         state: absent
+        force_context: yes
       with_items:
         - "{{ user_name_1 }}"
         - "{{ user_name_2 }}"

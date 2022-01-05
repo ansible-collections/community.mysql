@@ -91,8 +91,13 @@
           - result is changed
           - result.queries == ["STOP SLAVE"] or result.queries == ["STOP REPLICA"]
 
-    - name: Create replication filter
+    - name: Create replication filter MySQL
       shell: "echo \"CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = (mysql);\" | {{ mysql_command }} -P{{ mysql_replica1_port }}"
+      when: install_type == 'mysql'
+
+    - name: Create replication filter MariaDB
+      shell: "echo \"SET GLOBAL replicate_ignore_db = 'mysql';\" | {{ mysql_command }} -P{{ mysql_replica1_port }}"
+      when: install_type == 'mariadb'
 
     - name: Start replica
       mysql_replication:
@@ -151,5 +156,10 @@
           - result is changed
           - result.queries == ["STOP SLAVE"] or result.queries == ["STOP REPLICA"]
 
-    - name: Create replication filter
+    - name: Remove replication filter MySQL
       shell: "echo \"CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = ();\" | {{ mysql_command }} -P{{ mysql_replica1_port }}"
+      when: install_type == 'mysql'
+
+    - name: Remove replication filter MariaDB
+      shell: "echo \"SET GLOBAL replicate_ignore_db = '';\" | {{ mysql_command }} -P{{ mysql_replica1_port }}"
+      when: install_type == 'mariadb'

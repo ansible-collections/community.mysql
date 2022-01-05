@@ -30,16 +30,7 @@
         that:
           - "result.changed == true"
 
-- include: assert_user.yml user_name={{user_name_1}}
-
-- vars:
-    mysql_parameters: &mysql_params
-      login_user: '{{ mysql_user }}'
-      login_password: '{{ mysql_password }}'
-      login_host: 127.0.0.1
-      login_port: '{{ mysql_primary_port }}'
-
-  block:
+    - include: assert_user.yml user_name={{user_name_1}}
 
     # Test user removal
     - name: remove mysql user {{user_name_1}}
@@ -93,18 +84,10 @@
         that:
           - "result.changed == false"
 
-- include: assert_no_user.yml user_name={{user_name_1}}
+    - include: assert_no_user.yml user_name={{user_name_1}}
 
-  # Tests with force_context: no
-  # Test user creation
-- vars:
-    mysql_parameters: &mysql_params
-      login_user: '{{ mysql_user }}'
-      login_password: '{{ mysql_password }}'
-      login_host: 127.0.0.1
-      login_port: '{{ mysql_primary_port }}'
-
-  block:
+    # Tests with force_context: no
+    # Test user creation
     - name: Drop mysql user if exists
       mysql_user:
         <<: *mysql_params
@@ -128,16 +111,7 @@
         that:
           - "result.changed == true"
 
-- include: assert_user.yml user_name={{user_name_1}}
-
-- vars:
-    mysql_parameters: &mysql_params
-      login_user: '{{ mysql_user }}'
-      login_password: '{{ mysql_password }}'
-      login_host: 127.0.0.1
-      login_port: '{{ mysql_primary_port }}'
-
-  block:
+    - include: assert_user.yml user_name={{user_name_1}}
 
     # Test user removal
     - name: remove mysql user {{user_name_1}}
@@ -191,4 +165,4 @@
         that:
           - "result.changed == false"
 
-- include: assert_no_user.yml user_name={{user_name_1}}
+    - include: assert_no_user.yml user_name={{user_name_1}}

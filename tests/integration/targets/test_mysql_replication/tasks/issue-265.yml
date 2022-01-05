@@ -1,7 +1,7 @@
 ---
 - name: alias mysql command to include default options
   set_fact:
-    mysql_command: "mysql -u{{ mysql_user }} -p{{ mysql_password }} -P{{ mysql_primary_port }} --protocol=tcp"
+    mysql_command: "mysql -u{{ mysql_user }} -p{{ mysql_password }} --protocol=tcp"
 
 - vars:
     mysql_parameters: &mysql_params
@@ -9,10 +9,23 @@
       login_password: '{{ mysql_password }}'
       login_host: 127.0.0.1
       login_port: '{{ mysql_primary_port }}'
-  when: tls_enabled
   block:
 
-    - name: Drop mysql user if exists
+    # start replica so it is available for testing
+
+    - name: Start replica
+      mysql_replication:
+        <<: *mysql_params
+        login_port: '{{ mysql_replica1_port }}'
+        mode: startreplica
+      register: result
+
+    - assert:
+        that:
+          - result is changed
+          - result.queries == ["START SLAVE"] or result.queries == ["START REPLICA"]
+
+    - name: Drop {{ user_name_1 }} if exists
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
@@ -29,13 +42,13 @@
         priv: '*.*:ALL,GRANT'
         force_context: yes
 
-    - name: attempt connection on replica2 with newly created user (expect success)
+    - name: attempt connection on replica1 with newly created user (expect success)
       mysql_replication:
         mode: getprimary
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
         login_host: 127.0.0.1
-        login_port: '{{ mysql_replica2_port }}'
+        login_port: '{{ mysql_replica1_port }}'
       register: result
       ignore_errors: yes
 
@@ -43,11 +56,10 @@
         that:
           - result is succeeded
 
-    - name: Drop mysql user
+    - name: Drop user
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
-        host: 127.0.0.1
         state: absent
         force_context: yes
 
@@ -57,7 +69,7 @@
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
         login_host: 127.0.0.1
-        login_port: '{{ mysql_replica2_port }}'
+        login_port: '{{ mysql_replica1_port }}'
       register: result
       ignore_errors: yes
 
@@ -65,12 +77,12 @@
         that:
           - result is failed
 
-    # Prepare replica2 for testing with a replication filter in place
-    # Stop replication, create a filter and restart replication on replica2.
+    # Prepare replica1 for testing with a replication filter in place
+    # Stop replication, create a filter and restart replication on replica1.
     - name: Stop replica
       mysql_replication:
         <<: *mysql_params
-        login_port: '{{ mysql_replica2_port }}'
+        login_port: '{{ mysql_replica1_port }}'
         mode: stopreplica
       register: result
 
@@ -80,12 +92,12 @@
           - result.queries == ["STOP SLAVE"] or result.queries == ["STOP REPLICA"]
 
     - name: Create replication filter
-      shell: "echo \"CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = (mysql);\" | {{ mysql_command }} -P{{ mysql_replica2_port }}"
+      shell: "echo \"CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = (mysql);\" | {{ mysql_command }} -P{{ mysql_replica1_port }}"
 
     - name: Start replica
       mysql_replication:
         <<: *mysql_params
-        login_port: '{{ mysql_replica2_port }}'
+        login_port: '{{ mysql_replica1_port }}'
         mode: startreplica
       register: result
 
@@ -110,7 +122,7 @@
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
         login_host: 127.0.0.1
-        login_port: '{{ mysql_replica2_port }}'
+        login_port: '{{ mysql_replica1_port }}'
       register: result
       ignore_errors: yes
 
@@ -118,20 +130,19 @@
         that:
           - result is failed
 
-    - name: Drop mysql user
+    - name: Drop user
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
-        host: 127.0.0.1
         state: absent
         force_context: yes
 
-    # restore normal replica2 operation
-    # Stop replication, remove the filter and restart replication on replica2.
+    # restore normal replica1 operation
+    # Stop replication and remove the filter
     - name: Stop replica
       mysql_replication:
         <<: *mysql_params
-        login_port: '{{ mysql_replica2_port }}'
+        login_port: '{{ mysql_replica1_port }}'
         mode: stopreplica
       register: result
 
@@ -141,16 +152,4 @@
           - result.queries == ["STOP SLAVE"] or result.queries == ["STOP REPLICA"]
 
     - name: Create replication filter
-      shell: "echo \"CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = ();\" | {{ mysql_command }} -P{{ mysql_replica2_port }}"
-
-    - name: Start replica
-      mysql_replication:
-        <<: *mysql_params
-        login_port: '{{ mysql_replica2_port }}'
-        mode: startreplica
-      register: result
-
-    - assert:
-        that:
-          - result is changed
-          - result.queries == ["START SLAVE"] or result.queries == ["START REPLICA"]
+      shell: "echo \"CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = ();\" | {{ mysql_command }} -P{{ mysql_replica1_port }}"

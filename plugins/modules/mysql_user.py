@@ -74,6 +74,19 @@ options:
       - Whether binary logging should be enabled or disabled for the connection.
     type: bool
     default: yes
+  force_context:
+    description:
+      - Sets the С(mysql) system database as context for the executed statements (it will be used
+        as a database to connect to). Useful if you use binlog / replication filters in MySQL as
+        per default the statements can not be caught by a binlog / replication filter, they require
+        a database to be set to work, otherwise the replication can break down.
+      - See U(https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#option_mysqld_binlog-ignore-db)
+        for a description on how binlog filters work (filtering on the primary).
+      - See U(https://dev.mysql.com/doc/refman/8.0/en/replication-options-replica.html#option_mysqld_replicate-ignore-db)
+        for a description on how replication filters work (filtering on the replica).
+    type: bool
+    default: no
+    version_added: '3.1.0'
   state:
     description:
       - Whether the user should exist.
@@ -341,6 +354,7 @@ def main():
         plugin_hash_string=dict(default=None, type='str'),
         plugin_auth_string=dict(default=None, type='str'),
         resource_limits=dict(type='dict'),
+        force_context=dict(type='bool', default=False),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -366,6 +380,8 @@ def main():
     ssl_ca = module.params["ca_cert"]
     check_hostname = module.params["check_hostname"]
     db = ''
+    if module.params["force_context"]:
+        db = 'mysql'
     sql_log_bin = module.params["sql_log_bin"]
     plugin = module.params["plugin"]
     plugin_hash_string = module.params["plugin_hash_string"]

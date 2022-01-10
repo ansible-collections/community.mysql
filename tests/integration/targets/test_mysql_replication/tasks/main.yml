@@ -9,6 +9,9 @@
 # Initial CI tests of mysql_replication module:
 - import_tasks: mysql_replication_initial.yml
 
+# Tests of replication filters and force_context
+- include: issue-265.yml
+
 # Tests of primary_delay parameter:
 - import_tasks: mysql_replication_primary_delay.yml
 

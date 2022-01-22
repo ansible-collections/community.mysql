@@ -80,8 +80,10 @@ notes:
      yum install python2-PyMySQL (RHEL/CentOS/Fedora; see M(ansible.builtin.yum)). You can also use dnf install python2-PyMySQL
      for newer versions of Fedora; see M(ansible.builtin.dnf).
    - Be sure you have PyMySQL or MySQLdb library installed on the target machine
-     for the Python interpreter Ansible uses, for example, if it is Python 3,
-     you must install the library for Python 3. You can also change the interpreter.
+     for the Python interpreter Ansible discovers.  For example if ansible discovers and uses Python 3, you need to install
+     the Python 3 version of PyMySQL.  If ansible discovers and uses Python 2, you need to install the Python 2 version
+     of either PyMySQL or MySQL-python.
+   - If you have trouble, it may help to force Ansible to use Python 3 by specifying C(ansible_python_interpreter).
      For more information, see U(https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html).
    - Both C(login_password) and C(login_user) are required when you are
      passing credentials. If none are present, the module will attempt to read

@@ -43,7 +43,7 @@ def parse_from_mysql_config_file(cnf):
 
 def mysql_connect(module, login_user=None, login_password=None, config_file='', ssl_cert=None,
                   ssl_key=None, ssl_ca=None, db=None, cursor_class=None, connect_timeout=30,
-                  autocommit=False, config_overrides_defaults=False, check_hostname=None):
+                  autocommit=False, config_overrides_defaults=False, check_hostname=None, protocol=None):
     config = {}
 
     if config_file and os.path.exists(config_file):
@@ -88,6 +88,8 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
         config['ssl']['ca'] = ssl_ca
     if db is not None:
         config['db'] = db
+    if protocol is not None and protocol.upper() in ('TCP', 'SOCKET', 'PIPE', 'MEMORY'):
+        config['protocol'] = protocol.upper()
     if connect_timeout is not None:
         config['connect_timeout'] = connect_timeout
     if check_hostname is not None:
@@ -132,6 +134,7 @@ def mysql_common_argument_spec():
         client_key=dict(type='path', aliases=['ssl_key']),
         ca_cert=dict(type='path', aliases=['ssl_ca']),
         check_hostname=dict(type='bool', default=None),
+        protocol=dict(type='str', default=None),
     )
 
 

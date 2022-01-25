@@ -175,6 +175,7 @@ def main():
         variable=dict(type='str'),
         value=dict(type='str'),
         mode=dict(type='str', choices=['global', 'persist', 'persist_only'], default='global'),
+        protocol=dict(type='str', default=None, choices=['tcp', 'socket', 'pipe', 'memory']),
     )
 
     module = AnsibleModule(
@@ -193,6 +194,7 @@ def main():
     mysqlvar = module.params["variable"]
     value = module.params["value"]
     mode = module.params["mode"]
+    protocol = module.params["protocol"]
 
     if mysqlvar is None:
         module.fail_json(msg="Cannot run without variable to operate with")
@@ -204,8 +206,10 @@ def main():
         warnings.filterwarnings('error', category=mysql_driver.Warning)
 
     try:
-        cursor, db_conn = mysql_connect(module, user, password, config_file, ssl_cert, ssl_key, ssl_ca, db,
-                                        connect_timeout=connect_timeout, check_hostname=check_hostname)
+        cursor, db_conn = mysql_connect(
+            module, user, password, config_file, ssl_cert, ssl_key, ssl_ca, db, protocol,
+            connect_timeout=connect_timeout, check_hostname=check_hostname
+        )
     except Exception as e:
         if os.path.exists(config_file):
             module.fail_json(msg=("unable to connect to database, check login_user and "

@@ -129,6 +129,7 @@ def main():
         positional_args=dict(type='list'),
         named_args=dict(type='dict'),
         single_transaction=dict(type='bool', default=False),
+        protocol=dict(type='str', default=None, choices=['tcp', 'socket', 'pipe', 'memory']),
     )
 
     module = AnsibleModule(
@@ -148,6 +149,7 @@ def main():
     check_hostname = module.params['check_hostname']
     config_file = module.params['config_file']
     query = module.params["query"]
+    protocol = module.params["protocol"]
 
     if not isinstance(query, (str, list)):
         module.fail_json(msg="the query option value must be a string or list, passed %s" % type(query))
@@ -176,11 +178,13 @@ def main():
 
     # Connect to DB:
     try:
-        cursor, db_connection = mysql_connect(module, login_user, login_password,
-                                              config_file, ssl_cert, ssl_key, ssl_ca, db,
-                                              check_hostname=check_hostname,
-                                              connect_timeout=connect_timeout,
-                                              cursor_class='DictCursor', autocommit=autocommit)
+        cursor, db_connection = mysql_connect(
+            module, login_user, login_password,
+            config_file, ssl_cert, ssl_key, ssl_ca, db, protocol,
+            check_hostname=check_hostname,
+            connect_timeout=connect_timeout,
+            cursor_class='DictCursor', autocommit=autocommit
+        )
     except Exception as e:
         module.fail_json(msg="unable to connect to database, check login_user and "
                              "login_password are correct or %s has the credentials. "

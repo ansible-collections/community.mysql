@@ -150,6 +150,17 @@ options:
     type: bool
     default: no
     version_added: '0.1.0'
+  protocol:
+    description:
+      - Provide protocol arguments on how to connect to MySQL database instance.
+        Used when I(state=dump), I(state=import), I(state=present) and I(state=absent) ignored otherwise.
+        Use case, when needing intermediary MySQL database instance and relying on MySQL Official container image 
+        and need "--protocol=TCP". When using MySQL Official container image, you may run your container with 
+        docker "--net=host" flag in that case you shouldn't need to specify "login_host". Otherwise you will have 
+        to connect to the LAN/WAN IP address or hostname and it that case you need to with the binding as you need to 
+        specified the "login_host" in complement to "protocol". 
+    type: str
+    version_added: '2.3.3'
 
 seealso:
 - module: community.mysql.mysql_info
@@ -206,6 +217,14 @@ EXAMPLES = r'''
     name: my_db
     state: import
     target: /tmp/dump.sql.bz2
+
+- name: Restore database in MySQL Official container image instance
+  community.mysql.mysql_db:
+    name: my_db
+    state: import
+    target: /tmp/dump.sql.bz2
+    protocol: tcp
+    login_host: <SOME_IP_ADDRESS_OR_HOSTNAME>
 
 - name: Restore database ignoring errors
   community.mysql.mysql_db:
@@ -349,7 +368,7 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
             single_transaction=None, quick=None, ignore_tables=None, hex_blob=None,
             encoding=None, force=False, master_data=0, skip_lock_tables=False,
             dump_extra_args=None, unsafe_password=False, restrict_config_file=False,
-            check_implicit_admin=False):
+            check_implicit_admin=False, protocol=None):
     cmd = module.get_bin_path('mysqldump', True)
     # If defined, mysqldump demands --defaults-extra-file be the first option
     if config_file:
@@ -382,6 +401,8 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
         cmd += " --socket=%s" % shlex_quote(socket)
     else:
         cmd += " --host=%s --port=%i" % (shlex_quote(host), port)
+    if protocol is not None:
+        cmd += " --host=%s" % protocol
 
     if all_databases:
         cmd += " --all-databases"
@@ -429,7 +450,7 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
 def db_import(module, host, user, password, db_name, target, all_databases, port, config_file,
               socket=None, ssl_cert=None, ssl_key=None, ssl_ca=None, encoding=None, force=False,
               use_shell=False, unsafe_password=False, restrict_config_file=False,
-              check_implicit_admin=False):
+              check_implicit_admin=False, protocol=None):
     if not os.path.exists(target):
         return module.fail_json(msg="target %s does not exist on the host" % target)
 
@@ -471,6 +492,8 @@ def db_import(module, host, user, password, db_name, target, all_databases, port
     if not all_databases:
         cmd.append("--one-database")
         cmd.append(shlex_quote(''.join(db_name)))
+    if protocol is not None:
+        cmd.append("--protocol=%s" % protocol)
 
     comp_prog_path = None
     if os.path.splitext(target)[-1] == '.gz':
@@ -562,6 +585,7 @@ def main():
         restrict_config_file=dict(type='bool', default=False),
         check_implicit_admin=dict(type='bool', default=False),
         config_overrides_defaults=dict(type='bool', default=False),
+        protocol=dict(type='str', default=None, choices=['tcp', 'socket', 'pipe', 'memory']),
     )
 
     module = AnsibleModule(
@@ -610,6 +634,7 @@ def main():
     restrict_config_file = module.params["restrict_config_file"]
     check_implicit_admin = module.params['check_implicit_admin']
     config_overrides_defaults = module.params['config_overrides_defaults']
+    protocol = module.params['protocol']
 
     if len(db) > 1 and state == 'import':
         module.fail_json(msg="Multiple databases are not supported with state=import")
@@ -628,17 +653,21 @@ def main():
         cursor = None
         if check_implicit_admin:
             try:
-                cursor, db_conn = mysql_connect(module, 'root', '', config_file, ssl_cert, ssl_key, ssl_ca,
-                                                connect_timeout=connect_timeout, check_hostname=check_hostname,
-                                                config_overrides_defaults=config_overrides_defaults)
+                cursor, db_conn = mysql_connect(
+                    module, 'root', '', config_file, ssl_cert, ssl_key, ssl_ca, protocol,
+                    connect_timeout=connect_timeout, check_hostname=check_hostname,
+                    config_overrides_defaults=config_overrides_defaults
+                )
             except Exception as e:
                 check_implicit_admin = False
                 pass
 
         if not cursor:
-            cursor, db_conn = mysql_connect(module, login_user, login_password, config_file, ssl_cert, ssl_key, ssl_ca,
-                                            connect_timeout=connect_timeout, config_overrides_defaults=config_overrides_defaults,
-                                            check_hostname=check_hostname)
+            cursor, db_conn = mysql_connect(
+                module, login_user, login_password, config_file, ssl_cert, ssl_key, ssl_ca, protocol,
+                connect_timeout=connect_timeout, config_overrides_defaults=config_overrides_defaults,
+                check_hostname=check_hostname
+            )
     except Exception as e:
         if os.path.exists(config_file):
             module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "
@@ -690,7 +719,7 @@ def main():
                                      ssl_ca, single_transaction, quick, ignore_tables,
                                      hex_blob, encoding, force, master_data, skip_lock_tables,
                                      dump_extra_args, unsafe_login_password, restrict_config_file,
-                                     check_implicit_admin)
+                                     check_implicit_admin, protocol)
         if rc != 0:
             module.fail_json(msg="%s" % stderr)
         module.exit_json(changed=True, db=db_name, db_list=db, msg=stdout,
@@ -710,7 +739,7 @@ def main():
                                        login_port, config_file,
                                        socket, ssl_cert, ssl_key, ssl_ca,
                                        encoding, force, use_shell, unsafe_login_password,
-                                       restrict_config_file, check_implicit_admin)
+                                       restrict_config_file, check_implicit_admin, protocol)
         if rc != 0:
             module.fail_json(msg="%s" % stderr)
         module.exit_json(changed=True, db=db_name, db_list=db, msg=stdout,

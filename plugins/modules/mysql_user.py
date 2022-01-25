@@ -355,6 +355,7 @@ def main():
         plugin_auth_string=dict(default=None, type='str'),
         resource_limits=dict(type='dict'),
         force_context=dict(type='bool', default=False),
+        protocol=dict(type='str', default=None, choices=['tcp', 'socket', 'pipe', 'memory']),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -382,6 +383,7 @@ def main():
     db = ''
     if module.params["force_context"]:
         db = 'mysql'
+    protocol = module.params["protocol"]
     sql_log_bin = module.params["sql_log_bin"]
     plugin = module.params["plugin"]
     plugin_hash_string = module.params["plugin_hash_string"]
@@ -400,14 +402,18 @@ def main():
     try:
         if check_implicit_admin:
             try:
-                cursor, db_conn = mysql_connect(module, "root", "", config_file, ssl_cert, ssl_key, ssl_ca, db,
-                                                connect_timeout=connect_timeout, check_hostname=check_hostname)
+                cursor, db_conn = mysql_connect(
+                    module, "root", "", config_file, ssl_cert, ssl_key, ssl_ca, db, protocol,
+                    connect_timeout=connect_timeout, check_hostname=check_hostname
+                )
             except Exception:
                 pass
 
         if not cursor:
-            cursor, db_conn = mysql_connect(module, login_user, login_password, config_file, ssl_cert, ssl_key, ssl_ca, db,
-                                            connect_timeout=connect_timeout, check_hostname=check_hostname)
+            cursor, db_conn = mysql_connect(
+                module, login_user, login_password, config_file, ssl_cert, ssl_key, ssl_ca, db, protocol,
+                connect_timeout=connect_timeout, check_hostname=check_hostname
+            )
     except Exception as e:
         module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "
                              "Exception message: %s" % (config_file, to_native(e)))

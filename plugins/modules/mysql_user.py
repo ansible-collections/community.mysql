@@ -415,8 +415,8 @@ def main():
                 connect_timeout=connect_timeout, check_hostname=check_hostname
             )
     except Exception as e:
-        module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "
-                             "Exception message: %s" % (config_file, to_native(e)))
+        module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s "
+                             "has the credentials. Exception message: %s" % (config_file, to_native(e)))
 
     if not sql_log_bin:
         cursor.execute("SET SQL_LOG_BIN=0;")

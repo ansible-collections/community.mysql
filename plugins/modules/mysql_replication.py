@@ -188,7 +188,7 @@ extends_documentation_fragment:
 - community.mysql.mysql
 
 
-seealso:
+see also:
 - module: community.mysql.mysql_info
 - name: MySQL replication reference
   description: Complete reference of the MySQL replication documentation.

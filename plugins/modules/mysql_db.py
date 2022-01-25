@@ -162,7 +162,7 @@ options:
     type: str
     version_added: '2.3.3'
 
-seealso:
+see also:
 - module: community.mysql.mysql_info
 - module: community.mysql.mysql_variables
 - module: community.mysql.mysql_user
@@ -335,7 +335,10 @@ import traceback
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import mysql_quote_identifier
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
+from ansible_collections.community.mysql.plugins.module_utils.mysql import (
+    mysql_connect, mysql_driver,
+    mysql_driver_fail_msg, mysql_common_argument_spec
+)
 from ansible.module_utils.six.moves import shlex_quote
 from ansible.module_utils._text import to_native
 
@@ -520,7 +523,7 @@ def db_import(module, host, user, password, db_name, target, all_databases, port
                 return p2.returncode, stdout2, stderr2
         else:
             # Used to prevent 'Broken pipe' errors that
-            # occasionaly occur when target files are compressed.
+            # occasionally occur when target files are compressed.
             # FYI: passing the `shell=True` argument to p2 = subprocess.Popen()
             # doesn't solve the problem.
             cmd = " ".join(cmd)
@@ -670,8 +673,8 @@ def main():
             )
     except Exception as e:
         if os.path.exists(config_file):
-            module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "
-                                 "Exception message: %s" % (config_file, to_native(e)))
+            module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s "
+                                 "has the credentials. Exception message: %s" % (config_file, to_native(e)))
         else:
             module.fail_json(msg="unable to find %s. Exception message: %s" % (config_file, to_native(e)))
 

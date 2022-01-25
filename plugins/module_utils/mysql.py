@@ -55,7 +55,7 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
             except Exception as e:
                 module.fail_json(msg="Failed to parse %s: %s" % (config_file, to_native(e)))
 
-            # Override some commond defaults with values from config file if needed
+            # Override some common defaults with values from config file if needed
             if cp and cp.has_section('client'):
                 try:
                     module.params['login_host'] = cp.get('client', 'host', fallback=module.params['login_host'])

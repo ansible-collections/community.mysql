@@ -111,7 +111,7 @@ notes:
     If you want to avoid this behavior, set I(set_default_role_all) to C(no).
   - Supports C(check_mode).
 
-seealso:
+see also:
   - module: community.mysql.mysql_user
   - name: MySQL role reference
     description: Complete reference of the MySQL role documentation.

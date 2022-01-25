@@ -43,7 +43,8 @@ options:
     - Where passed queries run in a single transaction (C(yes)) or commit them one-by-one (C(no)).
     type: bool
     default: no
-seealso:
+
+see also:
 - module: community.mysql.mysql_db
 author:
 - Andrew Klychkov (@Andersson007)

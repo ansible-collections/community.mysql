@@ -184,7 +184,8 @@ engines:
   returned: if not excluded by filter
   type: dict
   sample:
-  - { "CSV": { "Comment": "CSV storage engine", "Savepoints": "NO", "Support": "YES", "Transactions": "NO", "XA": "NO" } }
+  - { "CSV": { "Comment": "CSV storage engine", "Savepoints": "NO", "Support": "YES", "Transactions": "NO", 
+               "XA": "NO" } }
 master_status:
   description: Master status information.
   returned: if master
@@ -196,7 +197,8 @@ slave_status:
   returned: if standby
   type: dict
   sample:
-  - { "192.168.1.101": { "3306": { "replication_user": { "Connect_Retry": 60, "Exec_Master_Log_Pos": 769,  "Last_Errno": 0 } } } }
+  - { "192.168.1.101": { "3306": { "replication_user": { "Connect_Retry": 60, "Exec_Master_Log_Pos": 769,  
+      "Last_Errno": 0 } } } }
 slave_hosts:
   description: Slave status information.
   returned: if master
@@ -341,7 +343,7 @@ class MySQL_Info(object):
                         self.info['engines'][engine][vname] = val
 
     def __convert(self, val):
-        """Convert unserializable data."""
+        """Convert un-serializable data."""
         try:
             if isinstance(val, Decimal):
                 val = float(val)
@@ -564,8 +566,8 @@ def main():
             check_hostname=check_hostname,
             connect_timeout=connect_timeout, cursor_class='DictCursor')
     except Exception as e:
-        module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "
-                             "Exception message: %s" % (config_file, to_native(e)))
+        module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s "
+                             "has the credentials. Exception message: %s" % (config_file, to_native(e)))
 
     ###############################
     # Create object and do main job

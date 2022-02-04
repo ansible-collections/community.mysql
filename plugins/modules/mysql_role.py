@@ -769,7 +769,8 @@ class Role():
 
                 self.cursor.execute(*self.q_builder.role_grant(user))
 
-                self.role_impl.set_default_role_all(user)
+                if set_default_role_all:
+                    self.role_impl.set_default_role_all(user)
 
                 changed = True
 

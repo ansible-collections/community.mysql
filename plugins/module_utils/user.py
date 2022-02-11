@@ -368,7 +368,7 @@ def user_delete(cursor, user, host, host_all, check_mode):
         hostnames = [host]
 
     for hostname in hostnames:
-        cursor.execute("DROP USER %s@%s", (user, hostname))
+        cursor.execute("DROP USER IF EXIST %s@%s", (user, hostname))
 
     return True
 

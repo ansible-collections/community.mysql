@@ -741,7 +741,7 @@ class Role():
         if check_mode and self.exists:
             return True
 
-        self.cursor.execute('DROP ROLE %s', (self.name,))
+        self.cursor.execute('DROP ROLE /*!50700 IF EXISTS */ /*M!100100 IF EXISTS */ %s', (self.name,))
         return True
 
     def update_members(self, users, check_mode=False, append_members=False,

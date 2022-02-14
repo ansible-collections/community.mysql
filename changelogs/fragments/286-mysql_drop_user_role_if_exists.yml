@@ -1,2 +1,2 @@
 bugfixes:
-  - mysql_role and mysql_user Adds IF EXISTS clause to DROP ROLE and DROP USER statements to make them replication safe on MySQL 5.7+ and MariaDB 10.1+
+  - mysql_role and mysql_user - adds IF EXISTS clause to DROP ROLE and DROP USER statements to make them replication safe on MySQL 5.7+ and MariaDB 10.1+ (https://github.com/ansible-collections/community.mysql/pull/286).

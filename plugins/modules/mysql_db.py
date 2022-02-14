@@ -338,7 +338,7 @@ def db_delete(cursor, db):
     if not db:
         return False
     for each_db in db:
-        query = "DROP DATABASE /*!50700 IF EXISTS */ /*M!100100 IF EXISTS */ %s" % mysql_quote_identifier(each_db, 'database')
+        query = "DROP DATABASE %s" % mysql_quote_identifier(each_db, 'database')
         executed_commands.append(query)
         cursor.execute(query)
     return True

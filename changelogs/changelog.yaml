@@ -48,3 +48,17 @@ releases:
     - 267-prepare_for_distutils_be_removed.yml
     - 3.1.0.yml
     release_date: '2022-01-18'
+  3.1.1:
+    changes:
+      bugfixes:
+      - mysql_role - make the ``set_default_role_all`` parameter actually working
+        (https://github.com/ansible-collections/community.mysql/pull/282).
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection
+
+        that have been added after the release of ``community.mysql`` 3.1.0.'
+    fragments:
+    - 282-mysql_role_fix_set_default_role_all_argument.yml
+    - 3.1.1.yml
+    release_date: '2022-02-16'

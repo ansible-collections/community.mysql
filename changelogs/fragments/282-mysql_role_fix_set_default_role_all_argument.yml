@@ -1,2 +1,0 @@
-bugfixes:
-- mysql_role - make the ``set_default_role_all`` parameter actually working (https://github.com/ansible-collections/community.mysql/pull/282).

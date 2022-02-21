@@ -660,7 +660,6 @@
       - result.query_result.0.0['user_roles'] == 0
     when: install_type == 'mariadb'
 
-  # FIXME: do this check with mariadb too
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
     mysql_query:
@@ -674,6 +673,19 @@
       that:
       - result is failed
     when: install_type == 'mysql'
+
+  - name: Check in DB (mariadb)
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ role1 }}' AND Role = '{{ role0 }}'"
+    when: install_type == 'mariadb'
+
+  - name: Check (mariadb)
+    assert:
+      that:
+      - result.query_result.0.0['user_roles'] == 0
+    when: install_type == 'mariadb'
 
   #========================
 
@@ -774,7 +786,6 @@
       - result.query_result.0.0['user_roles'] == 1
     when: install_type == 'mariadb'
 
-  # FIXME: do this check on mariadb too
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
     mysql_query:
@@ -788,6 +799,20 @@
       that:
       - result is succeeded
     when: install_type == 'mysql'
+
+  - name: Check in DB (mariadb)
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ role1 }}' AND Role = '{{ role0 }}'"
+    when: install_type == 'mariadb'
+
+  - name: Check (mariadb)
+    assert:
+      that:
+      - result.query_result.0.0['user_roles'] == 1
+    when: install_type == 'mariadb'
+
 
   #==========================
 

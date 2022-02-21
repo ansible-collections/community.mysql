@@ -92,7 +92,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
   - name: Check
     assert:
@@ -146,27 +146,12 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
-    when: install_type == 'mysql'
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
   - name: Check
     assert:
       that:
       - result.rowcount.0 == 1
-    when: install_type == 'mysql'
-
-  - name: Check in DB (mariadb)
-    <<: *task_params
-    mysql_query:
-      <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = ''"
-    when: install_type == 'mariadb'
-
-  - name: Check (mariadb)
-    assert:
-      that:
-      - result.rowcount.0 == 1
-    when: install_type == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -247,27 +232,12 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
-    when: install_type == 'mysql'
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
   - name: Check
     assert:
       that:
       - result.rowcount.0 == 1
-    when: install_type == 'mysql'
-
-  - name: Check in DB (mariadb)
-    <<: *task_params
-    mysql_query:
-      <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = ''"
-    when: install_type == 'mariadb'
-
-  - name: Check (mariadb)
-    assert:
-      that:
-      - result.rowcount.0 == 1
-    when: install_type == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -313,27 +283,12 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
-    when: install_type == 'mysql'
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
   - name: Check
     assert:
       that:
       - result.rowcount.0 == 1
-    when: install_type == 'mysql'
-
-  - name: Check in DB (mariadb)
-    <<: *task_params
-    mysql_query:
-      <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = ''"
-    when: install_type == 'mariadb'
-
-  - name: Check (mariadb)
-    assert:
-      that:
-      - result.rowcount.0 == 1
-    when: install_type == 'mariadb'
 
   #========================
 
@@ -354,27 +309,12 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
-    when: install_type == 'mysql'
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
   - name: Check
     assert:
       that:
       - result.rowcount.0 == 1
-    when: install_type == 'mysql'
-
-  - name: Check in DB (mariadb)
-    <<: *task_params
-    mysql_query:
-      <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = ''"
-    when: install_type == 'mariadb'
-
-  - name: Check (mariadb)
-    assert:
-      that:
-      - result.rowcount.0 == 1
-    when: install_type == 'mariadb'
 
   # Must pass because of check_mode
   - name: Check in DB, if not granted, the query will fail
@@ -422,27 +362,12 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
-    when: install_type == 'mysql'
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
   - name: Check
     assert:
       that:
       - result.rowcount.0 == 0
-    when: install_type == 'mysql'
-
-  - name: Check in DB (mariadb)
-    <<: *task_params
-    mysql_query:
-      <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = ''"
-    when: install_type == 'mariadb'
-
-  - name: Check (mariadb)
-    assert:
-      that:
-      - result.rowcount.0 == 0
-    when: install_type == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -523,27 +448,12 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
-    when: install_type == 'mysql'
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
   - name: Check
     assert:
       that:
       - result.rowcount.0 == 0
-    when: install_type == 'mysql'
-
-  - name: Check in DB (mariadb)
-    <<: *task_params
-    mysql_query:
-      <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = ''"
-    when: install_type == 'mariadb'
-
-  - name: Check (mariadb)
-    assert:
-      that:
-      - result.rowcount.0 == 0
-    when: install_type == 'mariadb'
 
   #========================
 
@@ -568,27 +478,12 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = '%'"
-    when: install_type == 'mysql'
+      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
   - name: Check
     assert:
       that:
       - result.rowcount.0 == 1
-    when: install_type == 'mysql'
-
-  - name: Check in DB (mariadb)
-    <<: *task_params
-    mysql_query:
-      <<: *mysql_params
-      query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = ''"
-    when: install_type == 'mariadb'
-
-  - name: Check (mariadb)
-    assert:
-      that:
-      - result.rowcount.0 == 1
-    when: install_type == 'mariadb'
 
   #========================
 

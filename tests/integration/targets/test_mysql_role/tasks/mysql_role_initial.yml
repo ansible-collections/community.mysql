@@ -32,10 +32,9 @@
     when:
     - srv['version']['major'] < 8
 
-  # FIXME: tests should pass for both mysql >= 8 and mariadb
   # Skip unsupported versions
   - meta: end_play
-    when: srv['version']['major'] < 8 or install_type == 'mariadb'
+    when: srv['version']['major'] < 8
 
   #########
   # Prepare

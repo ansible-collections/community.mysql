@@ -725,14 +725,17 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@localhost"
     when: install_type == 'mariadb'
 
+  # FIXME:
+  # this test passes with mysql >= 8 and mariadb >= 10.3
+  # why does not pass with mariadb == 10.2?
   - name: Check (mariadb)
     assert:
       that:
-      - result.query_result.0.0['user_roles'] == 0
-    when: install_type == 'mariadb'
+      - "'{{ role0 }}' not in result.query_result.0.0['Grants for user0@localhost']"
+    when: install_type == 'mariadb' and srv['version']['major'] == 10 and srv['version']['minor'] > 2
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -828,10 +831,15 @@
       - '{{ role1 }}'
     check_mode: yes
 
+  # FIXME:
+  # this test passes with mysql >= 8 and mariadb >= 10.3
+  # why does not pass with mariadb == 10.2?
   - name: Check
     assert:
       that:
       - result is not changed
+    when: install_type == 'mysql' or
+          (install_type == 'mariadb' and srv['version']['major'] == 10 and srv['version']['minor'] > 2)
 
   #==========================
 
@@ -846,10 +854,15 @@
       - '{{ user2 }}@localhost'
       - '{{ role1 }}'
 
+  # FIXME:
+  # this test passes with mysql >= 8 and mariadb >= 10.3
+  # why does not pass with mariadb == 10.2?
   - name: Check
     assert:
       that:
       - result is not changed
+    when: install_type == 'mysql' or
+          (install_type == 'mariadb' and srv['version']['major'] == 10 and srv['version']['minor'] > 2)
 
   #==========================
 

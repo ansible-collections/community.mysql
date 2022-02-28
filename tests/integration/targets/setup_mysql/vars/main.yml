@@ -15,7 +15,6 @@ python_packages: [pymysql == 0.9.3]
 install_prereqs:
   - libaio1
   - libnuma1
-  - libncurses5
 
 install_python_prereqs:
   - python3-dev

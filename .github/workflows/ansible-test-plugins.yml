@@ -120,7 +120,7 @@ jobs:
         run: "sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }}"
 
       - name: Run integration tests
-        run: ansible-test integration --docker -v --color --retry-on-error --continue-on-error --python ${{ matrix.python }} --diff --coverage
+        run: ansible-test integration --docker ubuntu1804 -v --color --retry-on-error --continue-on-error --python ${{ matrix.python }} --diff --coverage
         working-directory: ./ansible_collections/community/mysql
 
       - name: Generate coverage report.

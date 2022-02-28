@@ -19,13 +19,6 @@
     state: present
   when: install_type == 'mariadb'
 
-- name: "{{ role_name }} | install | update repository targets when MariaDB"
-  replace:
-    path: /etc/apt/sources.list
-    regexp: eoan
-    replace: focal
-  when: install_type == 'mariadb'
-
 - name: "{{ role_name }} | install | add mariadb repositories"
   apt_repository:
     repo: "deb [arch=amd64,arm64] https://downloads.mariadb.com/MariaDB/mariadb-{{ mysql_major_version }}/repo/ubuntu {{ ansible_lsb.codename }} main"

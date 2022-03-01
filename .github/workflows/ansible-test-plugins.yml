@@ -58,14 +58,14 @@ jobs:
         db_engine_version:
           - mysql_5.7.31
           - mysql_8.0.22
-          - mariadb_10.2.37
+          - mariadb_10.3.34
           - mariadb_10.5.9
         ansible:
           - stable-2.9
           - stable-2.10
           - stable-2.11
           - stable-2.12
-          #- devel
+          - devel
         python:
           - 3.6
           - 3.8

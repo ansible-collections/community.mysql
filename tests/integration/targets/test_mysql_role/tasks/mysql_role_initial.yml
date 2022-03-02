@@ -514,15 +514,10 @@
         'mysql.*': 'UPDATE'
     check_mode: yes
 
-  # FIXME:
-  # this test passes with mysql >= 8 and mariadb >= 10.3
-  # why does not pass with mariadb == 10.2?
   - name: Check
     assert:
       that:
       - result is not changed
-    when: install_type == 'mysql' or
-          (install_type == 'mariadb' and srv['version']['major'] == 10 and srv['version']['minor'] > 2)
 
   #========================
 
@@ -538,15 +533,10 @@
         '*.*': 'SELECT,INSERT'
         'mysql.*': 'UPDATE'
 
-  # FIXME:
-  # this test passes with mysql >= 8 and mariadb >= 10.3
-  # why does not pass with mariadb == 10.2?
   - name: Check
     assert:
       that:
       - result is not changed
-    when: install_type == 'mysql' or
-          (install_type == 'mariadb' and srv['version']['major'] == 10 and srv['version']['minor'] > 2)
 
   # ##############################################
   # Test rewriting / appending / detaching members
@@ -728,14 +718,11 @@
       query: "SHOW GRANTS FOR {{ user0 }}@localhost"
     when: install_type == 'mariadb'
 
-  # FIXME:
-  # this test passes with mysql >= 8 and mariadb >= 10.3
-  # why does not pass with mariadb == 10.2?
   - name: Check (mariadb)
     assert:
       that:
       - "'{{ role0 }}' not in result.query_result.0.0['Grants for user0@localhost']"
-    when: install_type == 'mariadb' and srv['version']['major'] == 10 and srv['version']['minor'] > 2
+    when: install_type == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -831,15 +818,10 @@
       - '{{ role1 }}'
     check_mode: yes
 
-  # FIXME:
-  # this test passes with mysql >= 8 and mariadb >= 10.3
-  # why does not pass with mariadb == 10.2?
   - name: Check
     assert:
       that:
       - result is not changed
-    when: install_type == 'mysql' or
-          (install_type == 'mariadb' and srv['version']['major'] == 10 and srv['version']['minor'] > 2)
 
   #==========================
 
@@ -854,15 +836,10 @@
       - '{{ user2 }}@localhost'
       - '{{ role1 }}'
 
-  # FIXME:
-  # this test passes with mysql >= 8 and mariadb >= 10.3
-  # why does not pass with mariadb == 10.2?
   - name: Check
     assert:
       that:
       - result is not changed
-    when: install_type == 'mysql' or
-          (install_type == 'mariadb' and srv['version']['major'] == 10 and srv['version']['minor'] > 2)
 
   #==========================
 

@@ -481,7 +481,7 @@ class MariaDBQueryBuilder():
         Returns:
             tuple: (query_string, tuple_containing_parameters).
         """
-        return "SELECT count(*) FROM mysql.user WHERE user = %s AND is_role  = 'Y'", (self.name)
+        return "SELECT count(*) FROM mysql.user WHERE user = %s AND is_role  = 'Y'", (self.name,)
 
     def role_grant(self, user):
         """Return a query to grant a role to a user or role.

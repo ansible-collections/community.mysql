@@ -11,6 +11,7 @@ percona_mysql_packages:
   - "{{ percona_client_package }}"
 
 python_packages: [pymysql == 0.9.3]
+connector_type: pymysql
 
 install_prereqs:
   - libaio1

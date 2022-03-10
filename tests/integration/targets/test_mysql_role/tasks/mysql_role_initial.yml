@@ -36,6 +36,11 @@
   - meta: end_play
     when: srv['version']['major'] < 8
 
+  # https://github.com/ansible-collections/community.mysql/issues/292
+  # FIXME: try to make it working
+  - meta: end_play
+    when: connector_type == 'mysqlclient'
+
   #########
   # Prepare
   - name: Create db {{ test_db }}

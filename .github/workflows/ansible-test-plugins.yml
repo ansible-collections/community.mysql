@@ -78,10 +78,6 @@ jobs:
             connector: pymysql==0.7.10
           - db_engine_version: mariadb_10.5.9
             connector: pymysql==0.7.10
-          - db_engine_version: mariadb_10.3.34
-            connector: mysqlclient==2.0.1
-          - db_engine_version: mariadb_10.5.9
-            connector: mysqlclient==2.0.1
           - python: 3.8
             ansible: stable-2.9
           - python: 3.8
@@ -122,6 +118,9 @@ jobs:
 
       - name: Set Connector version (${{ matrix.connector }})
         run: "sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }}"
+
+      - name: Set Connector type (${{ matrix.connector }})
+        run: "sed -i 's/^connector_type:.*/connector_type: echo $(echo ${{ matrix.connector }} | cut -f1 -d'=')/' ${{ env.connector_version_file }}"
 
       - name: Run integration tests
         run: ansible-test integration --docker -v --color --retry-on-error --continue-on-error --python ${{ matrix.python }} --diff --coverage

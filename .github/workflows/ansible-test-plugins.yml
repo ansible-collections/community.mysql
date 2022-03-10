@@ -120,7 +120,7 @@ jobs:
         run: "sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }}"
 
       - name: Set Connector type (${{ matrix.connector }})
-        run: "sed -i 's/^connector_type:.*/connector_type: echo $(echo ${{ matrix.connector }} | cut -f1 -d'=')/' ${{ env.connector_version_file }}"
+        run: "sed -i 's/^connector_type:.*/connector_type: $(echo ${{ matrix.connector }} | cut -f1 -d'=')/' ${{ env.connector_version_file }}"
 
       - name: Run integration tests
         run: ansible-test integration --docker -v --color --retry-on-error --continue-on-error --python ${{ matrix.python }} --diff --coverage

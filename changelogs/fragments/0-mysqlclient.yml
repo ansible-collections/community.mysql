@@ -1,0 +1,2 @@
+bugfixes:
+- Collection core functions - fixes related to the mysqlclient Python connector (https://github.com/ansible-collections/community.mysql/issues/292).

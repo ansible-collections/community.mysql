@@ -6,6 +6,21 @@ Community MySQL Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.1.2
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection
+that have been added after the release of ``community.mysql`` 3.1.1.
+
+Bugfixes
+--------
+
+- Collection core functions - fixes related to the mysqlclient Python connector (https://github.com/ansible-collections/community.mysql/issues/292).
+
 v3.1.1
 ======
 

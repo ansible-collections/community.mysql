@@ -62,3 +62,17 @@ releases:
     - 282-mysql_role_fix_set_default_role_all_argument.yml
     - 3.1.1.yml
     release_date: '2022-02-16'
+  3.1.2:
+    changes:
+      bugfixes:
+      - Collection core functions - fixes related to the mysqlclient Python connector
+        (https://github.com/ansible-collections/community.mysql/issues/292).
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection
+
+        that have been added after the release of ``community.mysql`` 3.1.1.'
+    fragments:
+    - 0-mysqlclient.yml
+    - 3.1.2.yml
+    release_date: '2022-03-14'

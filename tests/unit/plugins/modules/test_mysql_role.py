@@ -28,9 +28,9 @@ module = Module()
 @pytest.mark.parametrize(
     'builder,output',
     [
-        (MariaDBQueryBuilder('role0'), ("SELECT count(*) FROM mysql.user WHERE user = %s AND is_role  = 'Y'", ('role0'))),
+        (MariaDBQueryBuilder('role0'), ("SELECT count(*) FROM mysql.user WHERE user = %s AND is_role  = 'Y'", ('role0',))),
         (MySQLQueryBuilder('role0', '%'), ('SELECT count(*) FROM mysql.user WHERE user = %s AND host = %s', ('role0', '%'))),
-        (MariaDBQueryBuilder('role1'), ("SELECT count(*) FROM mysql.user WHERE user = %s AND is_role  = 'Y'", ('role1'))),
+        (MariaDBQueryBuilder('role1'), ("SELECT count(*) FROM mysql.user WHERE user = %s AND is_role  = 'Y'", ('role1',))),
         (MySQLQueryBuilder('role1', 'fake'), ('SELECT count(*) FROM mysql.user WHERE user = %s AND host = %s', ('role1', 'fake'))),
     ]
 )

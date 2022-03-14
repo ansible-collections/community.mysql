@@ -449,7 +449,7 @@ def privileges_get(cursor, user, host, maria_role=False):
     if not maria_role:
         cursor.execute("SHOW GRANTS FOR %s@%s", (user, host))
     else:
-        cursor.execute("SHOW GRANTS FOR %s", (user))
+        cursor.execute("SHOW GRANTS FOR %s", (user,))
     grants = cursor.fetchall()
 
     def pick(x):
@@ -673,7 +673,7 @@ def privileges_revoke(cursor, user, host, db_table, priv, grant_option, maria_ro
         params = (user, host)
     else:
         query.append("FROM %s")
-        params = (user)
+        params = (user,)
 
     query = ' '.join(query)
     cursor.execute(query, params)
@@ -699,6 +699,10 @@ def privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_rol
     if 'GRANT' in priv:
         query.append("WITH GRANT OPTION")
     query = ' '.join(query)
+
+    if isinstance(params, str):
+        params = (params,)
+
     cursor.execute(query, params)
 
 

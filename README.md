@@ -66,6 +66,19 @@ Every voice is important and every idea is valuable. If you have something on yo
 - 2.11
 - devel
 
+### Databases
+
+- mysql 5.7.31
+- mysql 8.0.22
+- mariadb 10.3.34
+- mariadb 10.5.9
+
+### Database connectors
+
+- pymysql 0.7.10
+- pymysql 0.9.3
+- mysqlclient 2.0.1
+
 ## External requirements
 
 The MySQL modules rely on a MySQL connector. The list of supported drivers is below:

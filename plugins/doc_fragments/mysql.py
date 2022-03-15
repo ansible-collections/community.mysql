@@ -71,7 +71,8 @@ options:
     type: bool
     version_added: '1.1.0'
 requirements:
-   - PyMySQL (Python 2.7 and Python 3.X), or
+   - mysqlclient (Python 3.5+) or
+   - PyMySQL (Python 2.7 and Python 3.x) or
    - MySQLdb (Python 2.x)
 notes:
    - Requires the PyMySQL (Python 2.7 and Python 3.X) or MySQL-python (Python 2.X) package installed on the remote host.

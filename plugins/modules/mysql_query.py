@@ -103,6 +103,8 @@ rowcount:
     sample: [5, 1]
 '''
 
+import warnings
+
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_connect,
@@ -196,9 +198,21 @@ def main():
     executed_queries = []
     rowcount = []
 
+    already_exists = False
     for q in query:
         try:
-            cursor.execute(q, arguments)
+            with warnings.catch_warnings():
+                warnings.filterwarnings(action='error',
+                                        message='.*already exists*',
+                                        category=mysql_driver.Warning)
+
+                try:
+                    cursor.execute(q, arguments)
+                except mysql_driver.Warning:
+                    # When something is run with IF NOT EXISTS
+                    # and there's "already exists" MySQL warning,
+                    # set the flag as True
+                    already_exists = True
 
         except Exception as e:
             if not autocommit:
@@ -208,7 +222,8 @@ def main():
             module.fail_json(msg="Cannot execute SQL '%s' args [%s]: %s" % (q, arguments, to_native(e)))
 
         try:
-            query_result.append([dict(row) for row in cursor.fetchall()])
+            if not already_exists:
+                query_result.append([dict(row) for row in cursor.fetchall()])
 
         except Exception as e:
             if not autocommit:
@@ -224,8 +239,12 @@ def main():
 
         for keyword in DDL_QUERY_KEYWORDS:
             if keyword in q:
-                changed = True
-
+                if already_exists:
+                    # Indicates the entity already exists
+                    changed = False
+                    already_exists = False  # Reset flag
+                else:
+                    changed = True
         try:
             executed_queries.append(cursor._last_executed)
         except AttributeError:

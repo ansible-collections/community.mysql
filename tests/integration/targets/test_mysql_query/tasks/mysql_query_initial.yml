@@ -321,6 +321,28 @@
       - result is changed
       - result.rowcount == [2]
 
+  # Issue https://github.com/ansible-collections/community.mysql/issues/268
+  - name: Create table
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ test_db }}'
+      query: "CREATE TABLE issue268 (id int)"
+      single_transaction: yes
+
+  # Issue https://github.com/ansible-collections/community.mysql/issues/268
+  - name: Create table with IF NOT EXISTS
+    mysql_query:
+      <<: *mysql_params
+      login_db: '{{ test_db }}'
+      query: "CREATE TABLE IF NOT EXISTS issue268 (id int)"
+      single_transaction: yes
+    register: result
+
+  # Issue https://github.com/ansible-collections/community.mysql/issues/268
+  - assert:
+      that:
+      - result is not changed
+
   - name: Drop db {{ test_db }}
     mysql_query:
       <<: *mysql_params

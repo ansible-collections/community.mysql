@@ -45,7 +45,7 @@ options:
     description:
       - "MySQL privileges string in the format: C(db.table:priv1,priv2)."
       - "Multiple privileges can be specified by separating each one using
-        a forward slash: C(db.table:priv/db.table:priv)."
+        a forward slash: C(db.table1:priv/db.table2:priv)."
       - The format is based on MySQL C(GRANT) statement.
       - Database and table names can be quoted, MySQL-style.
       - If column privileges are used, the C(priv1,priv2) part must be
@@ -54,6 +54,11 @@ options:
         by permission (C(SELECT(col1,col2)) instead of C(SELECT(col1),SELECT(col2))).
       - Can be passed as a dictionary (see the examples).
       - Supports GRANTs for procedures and functions (see the examples).
+      - "Note: If you pass the same C(db.table) combination to this parameter
+        two or more times with different privileges,
+        for example, C('*.*:SELECT/*.*:SHOW VIEW'), only the last one will be applied,
+        in this example, it will be C(SHOW VIEW) respectively.
+        Use C('*.*:SELECT,SHOW VIEW') instead to apply both."
     type: raw
   append_privs:
     description:

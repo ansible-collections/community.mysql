@@ -29,7 +29,7 @@ except ImportError:
     except ImportError:
         mysql_driver = None
 
-mysql_driver_fail_msg = 'A MySQL module is required: for Python 2.7 either mysqlclient, PyMySQL, or MySQL-python, or for Python 3.X mysqlclient or PyMySQL.  Consider setting ansible_python_interpreter to use the intended Python version.'
+mysql_driver_fail_msg = 'A MySQL module is required: for Python 2.7 either PyMySQL, or MySQL-python, or for Python 3.X mysqlclient or PyMySQL.  Consider setting ansible_python_interpreter to use the intended Python version.'
 
 
 def parse_from_mysql_config_file(cnf):

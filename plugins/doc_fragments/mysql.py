@@ -81,8 +81,8 @@ notes:
      for newer versions of Fedora; see M(ansible.builtin.dnf).
    - Be sure you have mysqlclient, PyMySQL, or MySQLdb library installed on the target machine
      for the Python interpreter Ansible discovers.  For example if ansible discovers and uses Python 3, you need to install
-     the Python 3 version of PyMySQL.  If ansible discovers and uses Python 2, you need to install the Python 2 version
-     of either PyMySQL or MySQL-python.
+     the Python 3 version of PyMySQL or mysqlclient.  If ansible discovers and uses Python 2, you need to install the Python 2
+     version of either PyMySQL or MySQL-python.
    - If you have trouble, it may help to force Ansible to use the Python interpreter you need by specifying
      C(ansible_python_interpreter).  For more information, see
      U(https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html).

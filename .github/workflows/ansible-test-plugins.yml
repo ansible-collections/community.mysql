@@ -29,6 +29,7 @@ jobs:
           - stable-2.10
           - stable-2.11
           - stable-2.12
+          - stable-2.13
           - devel
     steps:
 
@@ -65,6 +66,7 @@ jobs:
           - stable-2.10
           - stable-2.11
           - stable-2.12
+          - stable-2.13
           - devel
         python:
           - 3.6
@@ -86,6 +88,8 @@ jobs:
             ansible: stable-2.11
           - python: 3.6
             ansible: stable-2.12
+          - python: 3.6
+            ansible: stable-2.13
           - python: 3.6
             ansible: devel
 
@@ -144,6 +148,7 @@ jobs:
           - stable-2.10
           - stable-2.11
           - stable-2.12
+          - stable-2.13
           - devel
 
     steps:

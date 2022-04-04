@@ -1057,8 +1057,6 @@ def main():
     except Exception as e:
         module.fail_json(msg=to_native(e))
 
-    # Exit
-    db_conn.close()
     module.exit_json(changed=changed)
 
 

@@ -1,0 +1,2 @@
+bugfixes:
+  - "mysql_role - remove redundant connection closing (https://github.com/ansible-collections/community.mysql/pull/330)."

@@ -169,7 +169,7 @@ def is_hash(password):
 
 def user_mod(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             append_privs, tls_requires, module, role=False, maria_role=False):
+             append_privs, subtract_privs, tls_requires, module, role=False, maria_role=False):
     changed = False
     msg = "User unchanged"
     grant_option = False
@@ -288,47 +288,58 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
             # If the user has privileges on a db.table that doesn't appear at all in
             # the new specification, then revoke all privileges on it.
-            for db_table, priv in iteritems(curr_priv):
-                # If the user has the GRANT OPTION on a db.table, revoke it first.
-                if "GRANT" in priv:
-                    grant_option = True
-                if db_table not in new_priv:
-                    if user != "root" and "PROXY" not in priv and not append_privs:
-                        msg = "Privileges updated"
-                        if module.check_mode:
-                            return (True, msg)
-                        privileges_revoke(cursor, user, host, db_table, priv, grant_option, maria_role)
-                        changed = True
+            if not append_privs and not subtract_privs:
+                for db_table, priv in iteritems(curr_priv):
+                    # If the user has the GRANT OPTION on a db.table, revoke it first.
+                    if "GRANT" in priv:
+                        grant_option = True
+                    if db_table not in new_priv:
+                        if user != "root" and "PROXY" not in priv:
+                            msg = "Privileges updated"
+                            if module.check_mode:
+                                return (True, msg)
+                            privileges_revoke(cursor, user, host, db_table, priv, grant_option, maria_role)
+                            changed = True
 
             # If the user doesn't currently have any privileges on a db.table, then
             # we can perform a straight grant operation.
-            for db_table, priv in iteritems(new_priv):
-                if db_table not in curr_priv:
-                    msg = "New privileges granted"
-                    if module.check_mode:
-                        return (True, msg)
-                    privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_role)
-                    changed = True
+            if not subtract_privs:
+                for db_table, priv in iteritems(new_priv):
+                    if db_table not in curr_priv:
+                        msg = "New privileges granted"
+                        if module.check_mode:
+                            return (True, msg)
+                        privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_role)
+                        changed = True
 
             # If the db.table specification exists in both the user's current privileges
             # and in the new privileges, then we need to see if there's a difference.
             db_table_intersect = set(new_priv.keys()) & set(curr_priv.keys())
             for db_table in db_table_intersect:
 
-                # If appending privileges, only the set difference between new privileges and current privileges matter.
-                # The symmetric difference isn't relevant for append because existing privileges will not be revoked.
+                grant_privs = []
+                revoke_privs = []
                 if append_privs:
-                    priv_diff = set(new_priv[db_table]) - set(curr_priv[db_table])
+                    # When appending privileges, only missing privileges need to be granted. Nothing is revoked.
+                    grant_privs = list(set(new_priv[db_table]) - set(curr_priv[db_table]))
+                elif subtract_privs:
+                    # When subtracting privileges, revoke only the intersection of requested and current privileges.
+                    # No privileges are granted.
+                    revoke_privs = list(set(new_priv[db_table]) & set(curr_priv[db_table]))
                 else:
-                    priv_diff = set(new_priv[db_table]) ^ set(curr_priv[db_table])
+                    # When replacing (neither append_privs nor subtract_privs), grant all missing privileges
+                    # and revoke existing privileges that were not requested.
+                    grant_privs = list(set(new_priv[db_table]) - set(curr_priv[db_table]))
+                    revoke_privs = list(set(curr_priv[db_table]) - set(new_priv[db_table]))
 
-                if len(priv_diff) > 0:
+                if len(grant_privs) + len(revoke_privs) > 0:
                     msg = "Privileges updated"
                     if module.check_mode:
                         return (True, msg)
-                    if not append_privs:
-                        privileges_revoke(cursor, user, host, db_table, curr_priv[db_table], grant_option, maria_role)
-                    privileges_grant(cursor, user, host, db_table, new_priv[db_table], tls_requires, maria_role)
+                    if len(revoke_privs) > 0:
+                        privileges_revoke(cursor, user, host, db_table, revoke_privs, grant_option, maria_role)
+                    if len(grant_privs) > 0:
+                        privileges_grant(cursor, user, host, db_table, grant_privs, tls_requires, maria_role)
                     changed = True
 
         if role:

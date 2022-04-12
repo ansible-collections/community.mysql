@@ -63,7 +63,13 @@ options:
   append_privs:
     description:
       - Append the privileges defined by priv to the existing ones for this
-        user instead of overwriting existing ones.
+        user instead of overwriting existing ones. Mutually exclusive with I(subtract_privs).
+    type: bool
+    default: no
+  subtract_privs:
+    description:
+      - Revoke the privileges defined by the I(priv) option and keep other existing privileges.
+        Mutually exclusive with I(append_privs).
     type: bool
     default: no
   tls_requires:
@@ -306,6 +312,13 @@ EXAMPLES = r'''
       MAX_QUERIES_PER_HOUR: 10
       MAX_CONNECTIONS_PER_HOUR: 5
 
+- name: Ensure bob does not have the DELETE privilege
+  community.mysql.mysql_user:
+    name: bob
+    subtract_privs: yes
+    priv:
+      'db1.*': DELETE
+
 # Example .my.cnf file for setting the root password
 # [client]
 # user=root
@@ -352,6 +365,7 @@ def main():
         priv=dict(type='raw'),
         tls_requires=dict(type='dict'),
         append_privs=dict(type='bool', default=False),
+        subtract_privs=dict(type='bool', default=False),
         check_implicit_admin=dict(type='bool', default=False),
         update_password=dict(type='str', default='always', choices=['always', 'on_create'], no_log=False),
         sql_log_bin=dict(type='bool', default=True),
@@ -364,6 +378,7 @@ def main():
     module = AnsibleModule(
         argument_spec=argument_spec,
         supports_check_mode=True,
+        mutually_exclusive=(('append_privs', 'subtract_privs'),)
     )
     login_user = module.params["login_user"]
     login_password = module.params["login_password"]
@@ -379,6 +394,7 @@ def main():
     connect_timeout = module.params["connect_timeout"]
     config_file = module.params["config_file"]
     append_privs = module.boolean(module.params["append_privs"])
+    subtract_privs = module.boolean(module.params['subtract_privs'])
     update_password = module.params['update_password']
     ssl_cert = module.params["client_cert"]
     ssl_key = module.params["client_key"]
@@ -435,11 +451,11 @@ def main():
                 if update_password == "always":
                     changed, msg = user_mod(cursor, user, host, host_all, password, encrypted,
                                             plugin, plugin_hash_string, plugin_auth_string,
-                                            priv, append_privs, tls_requires, module)
+                                            priv, append_privs, subtract_privs, tls_requires, module)
                 else:
                     changed, msg = user_mod(cursor, user, host, host_all, None, encrypted,
                                             plugin, plugin_hash_string, plugin_auth_string,
-                                            priv, append_privs, tls_requires, module)
+                                            priv, append_privs, subtract_privs, tls_requires, module)
 
             except (SQLParseError, InvalidPrivsError, mysql_driver.Error) as e:
                 module.fail_json(msg=to_native(e))

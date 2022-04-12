@@ -51,7 +51,14 @@ options:
   append_privs:
     description:
       - Append the privileges defined by the I(priv) option to the existing ones
-        for this role instead of overwriting them.
+        for this role instead of overwriting them. Mutually exclusive with I(subtract_privs).
+    type: bool
+    default: no
+
+  subtract_privs:
+    description:
+      - Revoke the privileges defined by the I(priv) option and keep other existing privileges.
+        Mutually exclusive with I(append_privs).
     type: bool
     default: no
 
@@ -233,6 +240,14 @@ EXAMPLES = r'''
     name: business
     members:
     - marketing
+
+- name: Ensure the role foo does not have the DELETE privilege 
+  community.mysql.mysql_role:
+    state: present
+    name: foo
+    subtract_privs: yes
+    priv:
+      'db1.*': DELETE
 '''
 
 RETURN = '''#'''
@@ -821,9 +836,9 @@ class Role():
         return True
 
     def update(self, users, privs, check_mode=False,
-               append_privs=False, append_members=False,
-               detach_members=False, admin=False,
-               set_default_role_all=True):
+               append_privs=False, subtract_privs=False,
+               append_members=False, detach_members=False,
+               admin=False, set_default_role_all=True):
         """Update a role.
 
         Update a role if needed.
@@ -837,6 +852,8 @@ class Role():
             check_mode (bool): If True, just checks and does nothing.
             append_privs (bool): If True, adds new privileges passed through privs
                 not touching current privileges.
+            subtract_privs (bool): If True, revoke the privileges passed through privs
+                not touching other existing privileges.
             append_members (bool): If True, adds new members passed through users
                 not touching current members.
             detach_members (bool): If True, removes members passed through users from a role.
@@ -861,7 +878,7 @@ class Role():
         if privs:
             changed, msg = user_mod(self.cursor, self.name, self.host,
                                     None, None, None, None, None, None,
-                                    privs, append_privs, None,
+                                    privs, append_privs, subtract_privs, None,
                                     self.module, role=True, maria_role=self.is_mariadb)
 
         if admin:
@@ -931,6 +948,7 @@ def main():
         admin=dict(type='str'),
         priv=dict(type='raw'),
         append_privs=dict(type='bool', default=False),
+        subtract_privs=dict(type='bool', default=False),
         members=dict(type='list', elements='str'),
         append_members=dict(type='bool', default=False),
         detach_members=dict(type='bool', default=False),
@@ -945,6 +963,7 @@ def main():
             ('admin', 'members'),
             ('admin', 'append_members'),
             ('admin', 'detach_members'),
+            ('append_privs', 'subtract_privs'),
         ),
     )
 
@@ -958,6 +977,7 @@ def main():
     connect_timeout = module.params['connect_timeout']
     config_file = module.params['config_file']
     append_privs = module.params['append_privs']
+    subtract_privs = module.boolean(module.params['subtract_privs'])
     members = module.params['members']
     append_members = module.params['append_members']
     detach_members = module.params['detach_members']
@@ -1047,7 +1067,7 @@ def main():
                                    set_default_role_all)
 
             else:
-                changed = role.update(members, priv, module.check_mode, append_privs,
+                changed = role.update(members, priv, module.check_mode, append_privs, subtract_privs,
                                       append_members, detach_members, admin,
                                       set_default_role_all)
 

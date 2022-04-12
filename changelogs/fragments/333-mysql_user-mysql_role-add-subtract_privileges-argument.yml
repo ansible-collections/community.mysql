@@ -1,0 +1,2 @@
+minor_changes:
+  - "mysql_user and mysql_role: Add the argument ``subtract_privs`` (boolean, default false, mutually exclusive with ``append_privs``). If set, the privileges given in ``priv`` are revoked and existing privileges are kept. (https://github.com/ansible-collections/community.mysql/pull/333)"

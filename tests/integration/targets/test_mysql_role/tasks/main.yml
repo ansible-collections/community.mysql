@@ -5,3 +5,8 @@
 
 # mysql_role module initial CI tests
 - import_tasks: mysql_role_initial.yml
+
+# Test that subtract_privs will only revoke the grants given by priv
+# (https://github.com/ansible-collections/community.mysql/issues/331)
+- include: test_priv_subtract.yml enable_check_mode=no
+- include: test_priv_subtract.yml enable_check_mode=yes

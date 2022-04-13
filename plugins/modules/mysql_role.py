@@ -1034,7 +1034,7 @@ def main():
             module.fail_json(msg=to_native(e))
 
         try:
-            priv = privileges_unpack(priv, mode)
+            priv = privileges_unpack(priv, mode, ensure_usage=not subtract_privs)
         except Exception as e:
             module.fail_json(msg='Invalid privileges string: %s' % to_native(e))
 
@@ -1063,6 +1063,8 @@ def main():
     try:
         if state == 'present':
             if not role.exists:
+                if subtract_privs:
+                    priv = None  # avoid granting unwanted privileges
                 changed = role.add(members, priv, module.check_mode, admin,
                                    set_default_role_all)
 

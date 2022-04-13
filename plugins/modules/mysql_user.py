@@ -443,7 +443,7 @@ def main():
             mode = get_mode(cursor)
         except Exception as e:
             module.fail_json(msg=to_native(e))
-        priv = privileges_unpack(priv, mode)
+        priv = privileges_unpack(priv, mode, ensure_usage=not subtract_privs)
 
     if state == "present":
         if user_exists(cursor, user, host, host_all):
@@ -463,6 +463,8 @@ def main():
             if host_all:
                 module.fail_json(msg="host_all parameter cannot be used when adding a user")
             try:
+                if subtract_privs:
+                    priv = None  # avoid granting unwanted privileges
                 changed = user_add(cursor, user, host, host_all, password, encrypted,
                                    plugin, plugin_hash_string, plugin_auth_string,
                                    priv, tls_requires, module.check_mode)

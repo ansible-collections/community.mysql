@@ -78,17 +78,17 @@
       command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_4 }}'@'localhost'\""
       register: result
 
-    - name: Assert that the permissions were not changed if check_mode is set to 'no'
+    - name: Assert that the permissions were not changed if check_mode is set to 'yes'
       assert:
         that:
           - "'GRANT SELECT, INSERT ON `data1`.*' in result.stdout"
-      when: enable_check_mode == 'no'
+      when: enable_check_mode == 'yes'
 
-    - name: Assert that only DELETE was revoked if check_mode is set to 'yes'
+    - name: Assert that only DELETE was revoked if check_mode is set to 'no'
       assert:
         that:
           - "'GRANT SELECT ON `data1`.*' in result.stdout"
-      when: enable_check_mode == 'yes'
+      when: enable_check_mode == 'no'
 
     - name: Try to subtract invalid privileges
       mysql_user:

@@ -69,6 +69,7 @@ options:
   subtract_privs:
     description:
       - Revoke the privileges defined by the I(priv) option and keep other existing privileges.
+        If set, invalid privileges in I(priv) are ignored.
         Mutually exclusive with I(append_privs).
     type: bool
     default: no

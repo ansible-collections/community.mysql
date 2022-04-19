@@ -100,13 +100,26 @@
         state: present
       check_mode: '{{ enable_check_mode }}'
       register: result
-      ignore_errors: true
 
-    - name: Assert that there wasn't a change in privileges if check_mode is set to 'no'
+    - name: Assert that there was no change because invalid permissions are ignored
       assert:
         that:
-          - result is failed
-          - "'Error granting privileges' in result.msg"
+          - "result.changed == false"
+
+    - name: Run command to show privileges for user (expect privileges in stdout)
+      command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_4 }}'@'localhost'\""
+      register: result
+
+    - name: Assert that the permissions were not changed with check_mode=='yes'
+      assert:
+        that:
+          - "'GRANT SELECT, INSERT ON `data1`.*' in result.stdout"
+      when: enable_check_mode == 'yes'
+
+    - name: Assert that the permissions were not changed with check_mode=='no'
+      assert:
+        that:
+          - "'GRANT SELECT ON `data1`.*' in result.stdout"
       when: enable_check_mode == 'no'
 
     - name: trigger failure by trying to subtract and append privileges at the same time

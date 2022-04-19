@@ -139,10 +139,17 @@
       command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ role2 }}'\""
       register: result
 
-    - name: Assert that the permissions stayed the same
+    - name: Assert that the permissions stayed the same, with check_mode=='yes'
+      assert:
+        that:
+          - "'GRANT SELECT, INSERT ON `data1`.*' in result.stdout"
+      when: enable_check_mode == 'yes'
+
+    - name: Assert that the permissions stayed the same, with check_mode=='no'
       assert:
         that:
           - "'GRANT SELECT ON `data1`.*' in result.stdout"
+      when: enable_check_mode == 'no'
 
     ##########
     # Clean up

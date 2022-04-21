@@ -532,6 +532,8 @@ def main():
         replica_term = 'REPLICA'
     else:
         replica_term = 'SLAVE'
+        if primary_use_gtid == 'replica_pos':
+            primary_use_gtid = 'slave_pos'
 
     if mode == 'getprimary':
         status = get_primary_status(cursor)

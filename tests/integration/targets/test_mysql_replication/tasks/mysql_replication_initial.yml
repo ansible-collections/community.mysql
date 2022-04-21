@@ -75,6 +75,7 @@
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
         mode: startreplica
+        primary_use_gtid: replica_pos
         fail_on_error: yes
       register: result
       ignore_errors: yes

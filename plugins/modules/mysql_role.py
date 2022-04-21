@@ -242,7 +242,7 @@ EXAMPLES = r'''
     members:
     - marketing
 
-- name: Ensure the role foo does not have the DELETE privilege 
+- name: Ensure the role foo does not have the DELETE privilege
   community.mysql.mysql_role:
     state: present
     name: foo

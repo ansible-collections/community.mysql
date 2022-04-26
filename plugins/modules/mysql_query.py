@@ -22,7 +22,7 @@ options:
     description:
     - SQL query to run. Multiple queries can be passed using YAML list syntax.
     - Must be a string or YAML list containing strings.
-    - Note that if you use the C(IF EXISTS/IF NOT EXIST) clauses in your query,
+    - Note that if you use the C(IF EXISTS/IF NOT EXISTS) clauses in your query,
       the module will report that the state has been changed even if it has not
       when C(mysqlclient) connector is used.
     type: raw

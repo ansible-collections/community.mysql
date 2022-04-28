@@ -333,7 +333,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     revoke_privs = list(set(curr_priv[db_table]) - set(new_priv[db_table]))
                 if grant_privs == ['GRANT']:
                     # USAGE grants no privileges, it is only needed because 'WITH GRANT OPTION' cannot stand alone
-                    grant_privs.extend('USAGE')
+                    grant_privs.append('USAGE')
 
                 if len(grant_privs) + len(revoke_privs) > 0:
                     msg = "Privileges updated: granted %s, revoked %s" % (grant_privs, revoke_privs)

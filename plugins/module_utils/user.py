@@ -336,7 +336,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     grant_privs.extend(curr_priv[db_table])
 
                 if len(grant_privs) + len(revoke_privs) > 0:
-                    msg = "Privileges updated"
+                    msg = "Privileges updated: granted %s, revoked %s" % (grant_privs, revoke_privs)
                     if module.check_mode:
                         return (True, msg)
                     if len(revoke_privs) > 0:

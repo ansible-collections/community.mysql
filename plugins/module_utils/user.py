@@ -331,6 +331,9 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     # and revoke existing privileges that were not requested.
                     grant_privs = list(set(new_priv[db_table]) - set(curr_priv[db_table]))
                     revoke_privs = list(set(curr_priv[db_table]) - set(new_priv[db_table]))
+                if grant_privs == ['GRANT']:
+                    # add the existing privileges because 'WITH GRANT OPTION' cannot stand alone
+                    grant_privs.extend(curr_priv[db_table])
 
                 if len(grant_privs) + len(revoke_privs) > 0:
                     msg = "Privileges updated"

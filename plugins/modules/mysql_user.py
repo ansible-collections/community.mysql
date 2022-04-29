@@ -952,6 +952,7 @@ def privileges_revoke(cursor, user, host, db_table, priv, grant_option):
     query.append("FROM %s@%s")
     query = ' '.join(query)
     cursor.execute(query, (user, host))
+    cursor.execute("FLUSH PRIVILEGES")
 
 
 def privileges_grant(cursor, user, host, db_table, priv, tls_requires):

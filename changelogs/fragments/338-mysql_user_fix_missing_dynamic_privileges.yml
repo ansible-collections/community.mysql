@@ -1,0 +1,2 @@
+bugfixes:
+  - "mysql_user - fix missing dynamic privileges after revoke and grant privileges to user (https://github.com/ansible-collections/community.mysql/issues/120)."

@@ -417,7 +417,7 @@ def privileges_get(cursor, user, host, maria_role=False):
             res = re.match("""GRANT (.+) ON (.+) TO (['`"]).*\\3""", grant[0])
 
         if res is None:
-            # If a user have roles assigned, we'll have one of priv tuples looking like
+            # If a user has roles assigned, we'll have one of priv tuples looking like
             # GRANT `admin`@`%` TO `user1`@`localhost`
             # which will result None as res value.
             # As we use the mysql_role module to manipulate roles

@@ -24,7 +24,6 @@
       loop:
       - data1
       - data2
-      - data3
 
     - name: Create user with privileges
       mysql_user:
@@ -49,7 +48,7 @@
     - name: Create role
       mysql_role:
         <<: *mysql_params
-        name: test
+        name: test231
         members:
         - '{{ user_name_3 }}@localhost'
 
@@ -82,7 +81,6 @@
       loop:
       - data1
       - data2
-      - data3
 
     - name: Drop test user
       mysql_user:
@@ -93,5 +91,5 @@
     - name: Drop test role
       mysql_role:
         <<: *mysql_params
-        name: test
+        name: test231
         state: absent

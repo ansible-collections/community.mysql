@@ -71,6 +71,7 @@ options:
       - Revoke the privileges defined by the I(priv) option and keep other existing privileges.
         If set, invalid privileges in I(priv) are ignored.
         Mutually exclusive with I(append_privs).
+    version_added: '3.2.0'
     type: bool
     default: no
   tls_requires:

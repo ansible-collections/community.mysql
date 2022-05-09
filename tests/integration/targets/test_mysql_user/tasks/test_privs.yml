@@ -173,7 +173,7 @@
         state: present
       register: result
 
-    # FIXME: on mariadb 10.5 there's always a change
+    # FIXME: on mariadb >=10.5.2 there's always a change because the REPLICATION CLIENT privilege was renamed to BINLOG MONITOR
     - name: Assert that priv did not change
       assert:
         that:

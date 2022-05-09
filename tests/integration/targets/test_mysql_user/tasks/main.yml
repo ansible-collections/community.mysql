@@ -274,6 +274,11 @@
     - include: test_priv_append.yml enable_check_mode=no
     - include: test_priv_append.yml enable_check_mode=yes
 
+    # Test that subtract_privs will only revoke the grants given by priv
+    # (https://github.com/ansible-collections/community.mysql/issues/331)
+    - include: test_priv_subtract.yml enable_check_mode=no
+    - include: test_priv_subtract.yml enable_check_mode=yes
+
     # Tests for the TLS requires dictionary
     - include: tls_requirements.yml
 

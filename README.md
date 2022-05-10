@@ -60,7 +60,8 @@ Every voice is important and every idea is valuable. If you have something on yo
   - [mysql_variables](https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_variables_module.html)
 
 ## Tested with
-### Ansible
+
+### ansible-core
 
 - 2.11
 - 2.12

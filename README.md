@@ -62,12 +62,10 @@ Every voice is important and every idea is valuable. If you have something on yo
 ## Tested with
 ### Ansible
 
-- 2.9
-- 2.10
 - 2.11
 - 2.12
 - 2.13
-- devel
+- current development version
 
 ### Databases
 

@@ -282,3 +282,6 @@
     - import_tasks: issue-64560.yaml
       tags:
         - issue-64560
+
+    # https://github.com/ansible-collections/community.mysql/issues/231
+    - include: test_user_grants_with_roles_applied.yml

@@ -54,7 +54,7 @@
     - name: Grant role
       mysql_query:
         <<: *mysql_params
-        query: 'GRANT ROLE test231 TO {{ user_name_3 }}@localhost'
+        query: 'GRANT test231 TO {{ user_name_3 }}@localhost'
 
     - name: Try to change privs
       mysql_user:

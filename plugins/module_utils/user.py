@@ -112,9 +112,29 @@ def get_grants(cursor, user, host):
     return grants.split(", ")
 
 
+def get_existing_authentication(cursor, user):
+    # Return the plugin and auth_string if there is exactly one distinct existing plugin and auth_string.
+    cursor.execute("SELECT VERSION()")
+    if 'mariadb' in cursor.fetchone()[0].lower():
+        # before MariaDB 10.2.19 and 10.3.11, "password" and "authentication_string" can differ
+        # when using mysql_native_password
+        cursor.execute("""select plugin, auth from (
+            select plugin, password as auth from mysql.user where user=%(user)s
+            union select plugin, authentication_string as auth from mysql.user where user=%(user)s
+            ) x group by plugin, auth
+        """, {'user': user})
+    else:
+        cursor.execute("""select plugin, authentication_string as auth from mysql.user where user=%(user)s
+            group by plugin, authentication_string""", {'user': user})
+    rows = cursor.fetchall()
+    if len(rows) == 1:
+        return {'plugin': rows[0][0], 'auth_string': rows[0][1]}
+    return None
+
+
 def user_add(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             tls_requires, check_mode):
+             tls_requires, check_mode, reuse_existing_password):
     # we cannot create users without a proper hostname
     if host_all:
         return False
@@ -127,6 +147,12 @@ def user_add(cursor, user, host, host_all, password, encrypted,
 
     mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
 
+    if reuse_existing_password:
+        existing_auth = get_existing_authentication(cursor, user)
+        if existing_auth:
+            plugin = existing_auth['plugin']
+            plugin_hash_string = existing_auth['auth_string']
+            password = None
     if password and encrypted:
         if impl.supports_identified_by_password(cursor):
             query_with_args = "CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password)

@@ -370,7 +370,7 @@ def main():
         append_privs=dict(type='bool', default=False),
         subtract_privs=dict(type='bool', default=False),
         check_implicit_admin=dict(type='bool', default=False),
-        update_password=dict(type='str', default='always', choices=['always', 'on_create'], no_log=False),
+        update_password=dict(type='str', default='always', choices=['always', 'on_create', 'on_new_username'], no_log=False),
         sql_log_bin=dict(type='bool', default=True),
         plugin=dict(default=None, type='str'),
         plugin_hash_string=dict(default=None, type='str'),
@@ -468,9 +468,10 @@ def main():
             try:
                 if subtract_privs:
                     priv = None  # avoid granting unwanted privileges
+                reuse_existing_password = update_password == 'on_new_username'
                 changed = user_add(cursor, user, host, host_all, password, encrypted,
                                    plugin, plugin_hash_string, plugin_auth_string,
-                                   priv, tls_requires, module.check_mode)
+                                   priv, tls_requires, module.check_mode, reuse_existing_password)
                 if changed:
                     msg = "User added"
 

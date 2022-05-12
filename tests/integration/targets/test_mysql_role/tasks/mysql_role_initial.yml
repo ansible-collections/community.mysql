@@ -1540,3 +1540,24 @@
     - '{{ test_db }}'
     - '{{ test_db1 }}'
     - '{{ test_db2 }}'
+
+  - name: Drop users
+    <<: *task_params
+    mysql_user:
+      <<: *mysql_params
+      name: '{{ item }}'
+      state: absent
+    loop:
+    - '{{ user0 }}'
+    - '{{ user1 }}'
+    - '{{ user2 }}'
+
+  - name: Drop roles
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ item }}'
+      state: absent
+    loop:
+    - '{{ role0 }}'
+    - test

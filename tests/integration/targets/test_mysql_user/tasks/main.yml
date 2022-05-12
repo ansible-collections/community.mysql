@@ -293,3 +293,6 @@
     # Test that mysql_user still works with force_context enabled (database set to "mysql")
     # (https://github.com/ansible-collections/community.mysql/issues/265)
     - include: issue-265.yml
+
+    # https://github.com/ansible-collections/community.mysql/issues/231
+    - include: test_user_grants_with_roles_applied.yml

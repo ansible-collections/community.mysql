@@ -25,8 +25,6 @@ jobs:
     strategy:
       matrix:
         ansible:
-          - stable-2.9
-          - stable-2.10
           - stable-2.11
           - stable-2.12
           - stable-2.13
@@ -60,8 +58,6 @@ jobs:
           - 5.7.31
           - 8.0.22
         ansible:
-          - stable-2.9
-          - stable-2.10
           - stable-2.11
           - stable-2.12
           - stable-2.13
@@ -75,10 +71,6 @@ jobs:
         exclude:
           - mysql: 8.0.22
             connector: pymysql==0.7.10
-          - python: 3.8
-            ansible: stable-2.9
-          - python: 3.8
-            ansible: stable-2.10
           - python: 3.8
             ansible: stable-2.11
           - python: 3.6
@@ -129,8 +121,6 @@ jobs:
       fail-fast: true
       matrix:
         ansible:
-          - stable-2.9
-          - stable-2.10
           - stable-2.11
           - stable-2.12
           - stable-2.13

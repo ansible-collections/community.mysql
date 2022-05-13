@@ -415,3 +415,35 @@ releases:
     - 0-mysqlclient.yml
     - 2.3.5.yml
     release_date: '2022-03-14'
+  2.3.6:
+    changes:
+      bugfixes:
+      - mysql_role - remove redundant connection closing (https://github.com/ansible-collections/community.mysql/pull/330).
+      - mysql_user - fix missing dynamic privileges after revoke and grant privileges
+        to user (https://github.com/ansible-collections/community.mysql/issues/120).
+      - mysql_user - fix parsing privs when a user has roles assigned (https://github.com/ansible-collections/community.mysql/issues/231).
+      - 'mysql_user - fix the possibility for a race condition that breaks certain
+        (circular) replication configurations when ``DROP USER`` is executed on multiple
+        nodes in the replica set. Adding ``IF EXISTS`` avoids the need to use ``sql_log_bin:
+        no`` making the statement always replication safe (https://github.com/ansible-collections/community.mysql/pull/287).'
+      major_changes:
+      - The community.mysql collection no longer supports ``Ansible 2.9`` and ``ansible-base
+        2.10``. While we take no active measures to prevent usage and there are no
+        plans to introduce incompatible code to the modules, we will stop testing
+        against ``Ansible 2.9`` and ``ansible-base 2.10``. Both will very soon be
+        End of Life and if you are still using them, you should consider upgrading
+        to the ``latest Ansible / ansible-core 2.11 or later`` as soon as possible
+        (https://github.com/ansible-collections/community.mysql/pull/343).
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection
+
+        that have been added after the release of ``community.mysql`` 2.3.5.'
+    fragments:
+    - 001-mysql_user_fix_pars_users_with_roles_assigned.yml
+    - 2.3.6.yml
+    - 307-mysql_user_add_if_exists_to_drop.yml
+    - 329-mysql_role-remove-redudant-connection-closing.yml
+    - 338-mysql_user_fix_missing_dynamic_privileges.yml
+    - drop_support_of_2.9-2.10.yml
+    release_date: '2022-05-13'

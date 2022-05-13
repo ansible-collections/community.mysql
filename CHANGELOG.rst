@@ -6,6 +6,32 @@ Community MySQL Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.2.0
+======
+
+Release Summary
+---------------
+
+This is the minor release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection
+that have been added after the release of ``community.mysql`` 3.1.3.
+
+Major Changes
+-------------
+
+- The community.mysql collection no longer supports ``Ansible 2.9`` and ``ansible-base 2.10``. While we take no active measures to prevent usage and there are no plans to introduce incompatible code to the modules, we will stop testing against ``Ansible 2.9`` and ``ansible-base 2.10``. Both will very soon be End of Life and if you are still using them, you should consider upgrading to the ``latest Ansible / ansible-core 2.11 or later`` as soon as possible (https://github.com/ansible-collections/community.mysql/pull/343).
+
+Minor Changes
+-------------
+
+- mysql_user and mysql_role: Add the argument ``subtract_privs`` (boolean, default false, mutually exclusive with ``append_privs``). If set, the privileges given in ``priv`` are revoked and existing privileges are kept (https://github.com/ansible-collections/community.mysql/pull/333).
+
+Bugfixes
+--------
+
+- mysql_user - fix missing dynamic privileges after revoke and grant privileges to user (https://github.com/ansible-collections/community.mysql/issues/120).
+- mysql_user - fix parsing privs when a user has roles assigned (https://github.com/ansible-collections/community.mysql/issues/231).
+
 v3.1.3
 ======
 

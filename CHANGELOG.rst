@@ -6,6 +6,21 @@ Community MySQL Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.2.1
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection
+that have been added after the release of ``community.mysql`` 3.2.0.
+
+Bugfixes
+--------
+
+- Include ``PSF-license.txt`` file for ``plugins/module_utils/_version.py``.
+
 v3.2.0
 ======
 

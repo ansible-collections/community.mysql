@@ -911,10 +911,11 @@ class Role():
                                                       set_default_role_all=set_default_role_all)
 
         if privs:
-            changed, msg = user_mod(self.cursor, self.name, self.host,
+            result = user_mod(self.cursor, self.name, self.host,
                                     None, None, None, None, None, None,
                                     privs, append_privs, subtract_privs, None,
                                     self.module, role=True, maria_role=self.is_mariadb)
+            changed = result['changed']
 
         if admin:
             self.role_impl.set_admin(admin)

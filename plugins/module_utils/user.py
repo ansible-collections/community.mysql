@@ -121,11 +121,11 @@ def get_existing_authentication(cursor, user):
         cursor.execute("""select plugin, auth from (
             select plugin, password as auth from mysql.user where user=%(user)s
             union select plugin, authentication_string as auth from mysql.user where user=%(user)s
-            ) x group by plugin, auth
+            ) x group by plugin, auth limit 2
         """, {'user': user})
     else:
         cursor.execute("""select plugin, authentication_string as auth from mysql.user where user=%(user)s
-            group by plugin, authentication_string""", {'user': user})
+            group by plugin, authentication_string limit 2""", {'user': user})
     rows = cursor.fetchall()
     if len(rows) == 1:
         return {'plugin': rows[0][0], 'auth_string': rows[0][1]}

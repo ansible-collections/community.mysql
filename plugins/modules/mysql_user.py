@@ -457,13 +457,13 @@ def main():
             try:
                 if update_password == "always":
                     result = user_mod(cursor, user, host, host_all, password, encrypted,
-                                            plugin, plugin_hash_string, plugin_auth_string,
-                                            priv, append_privs, subtract_privs, tls_requires, module)
+                                      plugin, plugin_hash_string, plugin_auth_string,
+                                      priv, append_privs, subtract_privs, tls_requires, module)
 
                 else:
                     result = user_mod(cursor, user, host, host_all, None, encrypted,
-                                            None, None, None,
-                                            priv, append_privs, subtract_privs, tls_requires, module)
+                                      None, None, None,
+                                      priv, append_privs, subtract_privs, tls_requires, module)
                 changed = result['changed']
                 msg = result['msg']
                 password_changed = result['password_changed']
@@ -478,8 +478,8 @@ def main():
                     priv = None  # avoid granting unwanted privileges
                 reuse_existing_password = update_password == 'on_new_username'
                 result = user_add(cursor, user, host, host_all, password, encrypted,
-                                   plugin, plugin_hash_string, plugin_auth_string,
-                                   priv, tls_requires, module.check_mode, reuse_existing_password)
+                                  plugin, plugin_hash_string, plugin_auth_string,
+                                  priv, tls_requires, module.check_mode, reuse_existing_password)
                 changed = result['changed']
                 password_changed = result['password_changed']
                 if changed:

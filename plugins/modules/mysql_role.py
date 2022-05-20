@@ -114,6 +114,13 @@ options:
     type: bool
     default: no
 
+  members_must_exist:
+    description:
+      - When C(yes), the module fails if any user in C(members) does not exist.
+      - When C(no), users in C(members) which don't exist are simply skipped.
+    type: bool
+    default: yes
+
 notes:
   - Pay attention that the module runs C(SET DEFAULT ROLE ALL TO)
     all the I(members) passed by default when the state has changed.
@@ -918,6 +925,7 @@ def main():
         detach_members=dict(type='bool', default=False),
         check_implicit_admin=dict(type='bool', default=False),
         set_default_role_all=dict(type='bool', default=True),
+        members_must_exist=dict(type='bool', default=True)
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -951,6 +959,7 @@ def main():
     check_hostname = module.params['check_hostname']
     db = ''
     set_default_role_all = module.params['set_default_role_all']
+    members_must_exist = module.params['members_must_exist']
 
     if priv and not isinstance(priv, (str, dict)):
         msg = ('The "priv" parameter must be str or dict '
@@ -1019,7 +1028,8 @@ def main():
 
     if members:
         members = normalize_users(module, members, server.is_mariadb())
-        server.check_users_in_db(members)
+        if members_must_exist and not detach_members:
+            server.check_users_in_db(members)
 
     # Main job starts here
     role = Role(module, cursor, name, server)

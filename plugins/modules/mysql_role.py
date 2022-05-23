@@ -389,6 +389,11 @@ class DbServer():
                 msg = 'User / role `%s` with host `%s` does not exist' % (user[0], user[1])
                 self.module.fail_json(msg=msg)
 
+    def filter_existing_users(self, users):
+        for user in users:
+            if user in self.users:
+                yield user
+
     def __get_users(self):
         """Get users.
 
@@ -1028,8 +1033,10 @@ def main():
 
     if members:
         members = normalize_users(module, members, server.is_mariadb())
-        if members_must_exist and not detach_members:
+        if members_must_exist:
             server.check_users_in_db(members)
+        else:
+            members = list(server.filter_existing_users(members))
 
     # Main job starts here
     role = Role(module, cursor, name, server)

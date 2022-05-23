@@ -128,6 +128,7 @@ seealso:
 
 author:
   - Andrew Klychkov (@Andersson007)
+  - Felix Hamme (@betanummeric)
 
 extends_documentation_fragment:
   - community.mysql.mysql

@@ -128,6 +128,7 @@ seealso:
 
 author:
   - Andrew Klychkov (@Andersson007)
+  - Felix Hamme (@betanummeric)
 
 extends_documentation_fragment:
   - community.mysql.mysql
@@ -1028,6 +1029,8 @@ def main():
             if not role.exists:
                 if subtract_privs:
                     priv = None  # avoid granting unwanted privileges
+                if detach_members:
+                    members = None  # avoid adding unwanted members
                 changed = role.add(members, priv, module.check_mode, admin,
                                    set_default_role_all)
 

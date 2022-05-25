@@ -1248,6 +1248,32 @@
       that:
       - result is not changed
 
+  - name: '"detach" users when creating a new role'
+    <<: *task_params
+    mysql_role:
+      <<: *mysql_params
+      name: '{{ role3 }}'
+      state: present
+      detach_members: yes
+      members:
+        - '{{ user1 }}@localhost'
+
+  - name: Check the role was created
+    assert:
+      that:
+        - result is changed
+
+  - name: Check grants
+    <<: *task_params
+    mysql_query:
+      <<: *mysql_params
+      query: "SHOW GRANTS FOR {{ user1 }}@localhost"
+
+  - name: asssert detach_members did not add a user to the role
+    assert:
+      that:
+        - "'{{ role3 }}' not in result.query_result.0.0['Grants for {{ user1 }}@localhost']"
+
   # ##########
   # Test privs
   # ##########
@@ -1561,3 +1587,4 @@
     loop:
     - '{{ role0 }}'
     - test
+    - '{{ role3 }}'

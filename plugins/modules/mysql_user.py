@@ -456,13 +456,8 @@ def main():
                                             priv, append_privs, subtract_privs, tls_requires, module)
                 else:
                     changed, msg = user_mod(cursor, user, host, host_all, None, encrypted,
-<<<<<<< HEAD
-                                            plugin, plugin_hash_string, plugin_auth_string,
-                                            priv, append_privs, subtract_privs, tls_requires, module)
-=======
                                             None, None, None,
-                                            priv, append_privs, tls_requires, module)
->>>>>>> mysql_user: prevent password getting set for existing users on on_create when plugin is used
+                                            priv, append_privs, subtract_privs, tls_requires, module)
 
             except (SQLParseError, InvalidPrivsError, mysql_driver.Error) as e:
                 module.fail_json(msg=to_native(e))

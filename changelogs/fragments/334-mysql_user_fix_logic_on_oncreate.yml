@@ -1,4 +1,4 @@
 bugfixes:
-  - "mysql_user - fix logicwhen update_password is set to on_create for users using plugin* arguments (https://github.com/ansible-collections/community.mysql/issues/334)."
+  - "mysql_user - fix logicwhen ``update_password`` is set to ``on_create`` for users using ``plugin*`` arguments (https://github.com/ansible-collections/community.mysql/issues/334)."
 
 

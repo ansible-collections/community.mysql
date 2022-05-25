@@ -1,0 +1,6 @@
+bugfixes:
+  - >
+    mysql_role - in some cases (when "SHOW GRANTS" did not use backticks for quotes), no unwanted members were detached
+    from the role (and redundant "GRANT" statements were executed for wanted members). This is fixed by querying the
+    existing role members from the mysql.role_edges (MySQL) or mysql.roles_mapping (MariaDB) tables instead of parsing
+    the "SHOW GRANTS" output (https://github.com/ansible-collections/community.mysql/pull/368).

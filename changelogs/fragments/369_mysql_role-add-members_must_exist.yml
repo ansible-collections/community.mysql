@@ -1,5 +1,4 @@
 minor_changes:
   - >
-    mysql_role: Add the argument "members_must_exist" (boolean, default true). The assertion that the users supplied in
-    the "members" argument exist is only executed when the new argument "members_must_exist" is true, to allow opt-out.
-    See (https://github.com/ansible-collections/community.mysql/pull/369).
+    mysql_role - add the argument ``members_must_exist`` (boolean, default true). The assertion that the users supplied in
+    the ``members`` argument exist is only executed when the new argument ``members_must_exist`` is ``true``, to allow opt-out (https://github.com/ansible-collections/community.mysql/pull/369).

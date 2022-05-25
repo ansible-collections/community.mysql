@@ -878,50 +878,11 @@ class Role():
         Returns:
             set: Members.
         """
-        members = set()
-
-        for user, host in self.server.get_users():
-            # Don't handle itself
-            if user == self.name and host == self.host:
-                continue
-
-            grants = self.server.get_grants(user, host)
-
-            if self.__is_member(grants):
-                members.add((user, host))
-
-        return members
-
-    def __is_member(self, grants):
-        """Check if a user / role is a member of a role.
-
-        To check if a user is a member of a role,
-        we parse their grants looking for the role name in them.
-        In the following grants, we can see that test@% is a member of readers.
-        +---------------------------------------------------+
-        | Grants for test@%                                 |
-        +---------------------------------------------------+
-        | GRANT SELECT, INSERT, UPDATE ON *.* TO `test`@`%` |
-        | GRANT ALL PRIVILEGES ON `mysql`.* TO `test`@`%`   |
-        | GRANT INSERT ON `mysql`.`user` TO `test`@`%`      |
-        | GRANT `readers`@`%` TO `test`@`%`                 |
-        +---------------------------------------------------+
-
-        Args:
-            grants (list): Grants of a user to parse.
-
-        Returns:
-            bool: True if the self.full_name has been found in grants,
-                otherwise returns False.
-        """
-        if not grants:
-            return False
-
-        for grant in grants:
-            if self.full_name in grant[0]:
-                return True
-
-        return False
+        if self.is_mariadb:
+            self.cursor.execute('select user, host from mysql.roles_mapping where role = %s', (self.name,))
+        else:
+            self.cursor.execute('select TO_USER as user, TO_HOST as host from mysql.role_edges where FROM_USER = %s', (self.name,))
+        return set(self.cursor.fetchall())
 
 
 def main():

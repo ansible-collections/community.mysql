@@ -116,8 +116,8 @@ options:
 
   members_must_exist:
     description:
-      - When C(yes), the module fails if any user in C(members) does not exist.
-      - When C(no), users in C(members) which don't exist are simply skipped.
+      - When C(yes), the module fails if any user in I(members) does not exist.
+      - When C(no), users in I(members) which don't exist are simply skipped.
     type: bool
     default: yes
 

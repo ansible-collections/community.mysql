@@ -22,6 +22,10 @@ options:
     description:
     - SQL query to run. Multiple queries can be passed using YAML list syntax.
     - Must be a string or YAML list containing strings.
+    - Note that if you use the C(IF EXISTS/IF NOT EXISTS) clauses in your query
+      and C(mysqlclient) connector, the module will report that
+      the state has been changed even if it has not. If it is important in your
+      workflow, use the C(PyMySQL) connector instead.
     type: raw
     required: yes
   positional_args:
@@ -102,6 +106,8 @@ rowcount:
     type: list
     sample: [5, 1]
 '''
+
+import warnings
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
@@ -196,9 +202,22 @@ def main():
     executed_queries = []
     rowcount = []
 
+    already_exists = False
     for q in query:
         try:
-            cursor.execute(q, arguments)
+            with warnings.catch_warnings():
+                warnings.filterwarnings(action='error',
+                                        message='.*already exists*',
+                                        category=mysql_driver.Warning)
+
+                try:
+                    cursor.execute(q, arguments)
+                except mysql_driver.Warning:
+                    # When something is run with IF NOT EXISTS
+                    # and there's "already exists" MySQL warning,
+                    # set the flag as True.
+                    # PyMySQL throws the warning, mysqlclinet does NOT.
+                    already_exists = True
 
         except Exception as e:
             if not autocommit:
@@ -208,7 +227,8 @@ def main():
             module.fail_json(msg="Cannot execute SQL '%s' args [%s]: %s" % (q, arguments, to_native(e)))
 
         try:
-            query_result.append([dict(row) for row in cursor.fetchall()])
+            if not already_exists:
+                query_result.append([dict(row) for row in cursor.fetchall()])
 
         except Exception as e:
             if not autocommit:
@@ -224,8 +244,12 @@ def main():
 
         for keyword in DDL_QUERY_KEYWORDS:
             if keyword in q:
-                changed = True
-
+                if already_exists:
+                    # Indicates the entity already exists
+                    changed = False
+                    already_exists = False  # Reset flag
+                else:
+                    changed = True
         try:
             executed_queries.append(cursor._last_executed)
         except AttributeError:

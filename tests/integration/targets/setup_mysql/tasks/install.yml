@@ -28,6 +28,23 @@
 - name: "{{ role_name }} | install | install python packages"
   pip:
     name: "{{ python_packages }}"
+  register: connector
+
+- name: Extract connector.name.0 content
+  set_fact:
+    connector_name: "{{ connector.name.0 }}"
+
+- name: Debug connector_name content
+  debug:
+    msg: '{{ connector_name }}'
+
+- name: Extract connector version
+  set_fact:
+    connector_ver: "{{ connector_name.split('=')[2].strip() }}"
+
+- name: Debug connector_ver var content
+  debug:
+    msg: '{{ connector_ver }}'
 
 - name: "{{ role_name }} | install | install packages required by mysql"
   apt:

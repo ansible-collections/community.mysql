@@ -259,7 +259,7 @@ EXAMPLES = r'''
     priv:
       'db1.*': DELETE
 
-- name: add some members to a role and skip not-existent users
+- name: Add some members to a role and skip not-existent users
   community.mysql.mysql_role:
     state: present
     name: foo

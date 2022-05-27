@@ -260,7 +260,7 @@ EXAMPLES = r'''
       'db1.*': DELETE
 
 - name: add some members to a role and skip not-existent users
-    community.mysql.mysql_role:
+  community.mysql.mysql_role:
     state: present
     name: foo
     append_members: yes
@@ -270,7 +270,7 @@ EXAMPLES = r'''
     - 'not_existing_user@localhost'
 
 - name: detach some members from a role and ignore not-existent users
-    community.mysql.mysql_role:
+  community.mysql.mysql_role:
     state: present
     name: foo
     detach_members: yes

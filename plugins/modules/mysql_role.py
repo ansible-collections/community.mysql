@@ -258,6 +258,26 @@ EXAMPLES = r'''
     subtract_privs: yes
     priv:
       'db1.*': DELETE
+
+- name: add some members to a role and skip not-existent users
+    community.mysql.mysql_role:
+    state: present
+    name: foo
+    append_members: yes
+    members_must_exist: no
+    members:
+    - 'existing_user@localhost'
+    - 'not_existing_user@localhost'
+
+- name: detach some members from a role and ignore not-existent users
+    community.mysql.mysql_role:
+    state: present
+    name: foo
+    detach_members: yes
+    members_must_exist: no
+    members:
+    - 'existing_user@localhost'
+    - 'not_existing_user@localhost'
 '''
 
 RETURN = '''#'''

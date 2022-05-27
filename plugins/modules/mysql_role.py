@@ -269,7 +269,7 @@ EXAMPLES = r'''
     - 'existing_user@localhost'
     - 'not_existing_user@localhost'
 
-- name: detach some members from a role and ignore not-existent users
+- name: Detach some members from a role and ignore not-existent users
   community.mysql.mysql_role:
     state: present
     name: foo

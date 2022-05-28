@@ -22,7 +22,7 @@ options:
     required: true
   password:
     description:
-      - Set the user's password. Only for `mysql_native_password` authentication. For other authentication plugins see the combination of plugin, plugin_hash_string, plugin_auth_string.
+      - Set the user's password. Only for C(mysql_native_password) authentication. For other authentication plugins see the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string).
     type: str
   encrypted:
     description:

@@ -115,7 +115,7 @@ options:
     default: no
   update_password:
     description:
-      - C(always) will update passwords if they differ. This affects password and the combinationi of plugin, plugin_hash_string, plugin_auth_string
+      - C(always) will update passwords if they differ. This affects I(password) and the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string).
       - C(on_create) will only set the password or the combination of plugin, plugin_hash_string, plugin_auth_string for newly created users. 
     type: str
     choices: [ always, on_create ]

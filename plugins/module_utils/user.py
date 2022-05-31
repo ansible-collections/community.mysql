@@ -112,21 +112,49 @@ def get_grants(cursor, user, host):
     return grants.split(", ")
 
 
+def get_existing_authentication(cursor, user):
+    # Return the plugin and auth_string if there is exactly one distinct existing plugin and auth_string.
+    cursor.execute("SELECT VERSION()")
+    if 'mariadb' in cursor.fetchone()[0].lower():
+        # before MariaDB 10.2.19 and 10.3.11, "password" and "authentication_string" can differ
+        # when using mysql_native_password
+        cursor.execute("""select plugin, auth from (
+            select plugin, password as auth from mysql.user where user=%(user)s
+            union select plugin, authentication_string as auth from mysql.user where user=%(user)s
+            ) x group by plugin, auth limit 2
+        """, {'user': user})
+    else:
+        cursor.execute("""select plugin, authentication_string as auth from mysql.user where user=%(user)s
+            group by plugin, authentication_string limit 2""", {'user': user})
+    rows = cursor.fetchall()
+    if len(rows) == 1:
+        return {'plugin': rows[0][0], 'auth_string': rows[0][1]}
+    return None
+
+
 def user_add(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             tls_requires, check_mode):
+             tls_requires, check_mode, reuse_existing_password):
     # we cannot create users without a proper hostname
     if host_all:
-        return False
+        return {'changed': False, 'password_changed': False}
 
     if check_mode:
-        return True
+        return {'changed': True, 'password_changed': None}
 
     # Determine what user management method server uses
     old_user_mgmt = impl.use_old_user_mgmt(cursor)
 
     mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
 
+    used_existing_password = False
+    if reuse_existing_password:
+        existing_auth = get_existing_authentication(cursor, user)
+        if existing_auth:
+            plugin = existing_auth['plugin']
+            plugin_hash_string = existing_auth['auth_string']
+            password = None
+            used_existing_password = True
     if password and encrypted:
         if impl.supports_identified_by_password(cursor):
             query_with_args = "CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password)
@@ -156,7 +184,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
             privileges_grant(cursor, user, host, db_table, priv, tls_requires)
     if tls_requires is not None:
         privileges_grant(cursor, user, host, "*.*", get_grants(cursor, user, host), tls_requires)
-    return True
+    return {'changed': True, 'password_changed': not used_existing_password}
 
 
 def is_hash(password):
@@ -182,6 +210,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
     else:
         hostnames = [host]
 
+    password_changed = False
     for host in hostnames:
         # Handle clear text and hashed passwords.
         if not role:
@@ -226,9 +255,10 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     encrypted_password = cursor.fetchone()[0]
 
                 if current_pass_hash != encrypted_password:
+                    password_changed = True
                     msg = "Password updated"
                     if module.check_mode:
-                        return (True, msg)
+                        return {'changed': True, 'msg': msg, 'password_changed': password_changed}
                     if old_user_mgmt:
                         cursor.execute("SET PASSWORD FOR %s@%s = %s", (user, host, encrypted_password))
                         msg = "Password updated (old style)"
@@ -280,6 +310,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s", (user, host, plugin)
 
                 cursor.execute(*query_with_args)
+                password_changed = True
                 changed = True
 
         # Handle privileges
@@ -297,7 +328,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                         if user != "root" and "PROXY" not in priv:
                             msg = "Privileges updated"
                             if module.check_mode:
-                                return (True, msg)
+                                return {'changed': True, 'msg': msg, 'password_changed': password_changed}
                             privileges_revoke(cursor, user, host, db_table, priv, grant_option, maria_role)
                             changed = True
 
@@ -308,7 +339,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     if db_table not in curr_priv:
                         msg = "New privileges granted"
                         if module.check_mode:
-                            return (True, msg)
+                            return {'changed': True, 'msg': msg, 'password_changed': password_changed}
                         privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_role)
                         changed = True
 
@@ -338,7 +369,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 if len(grant_privs) + len(revoke_privs) > 0:
                     msg = "Privileges updated: granted %s, revoked %s" % (grant_privs, revoke_privs)
                     if module.check_mode:
-                        return (True, msg)
+                        return {'changed': True, 'msg': msg, 'password_changed': password_changed}
                     if len(revoke_privs) > 0:
                         privileges_revoke(cursor, user, host, db_table, revoke_privs, grant_option, maria_role)
                     if len(grant_privs) > 0:
@@ -353,7 +384,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
         if current_requires != tls_requires:
             msg = "TLS requires updated"
             if module.check_mode:
-                return (True, msg)
+                return {'changed': True, 'msg': msg, 'password_changed': password_changed}
             if not old_user_mgmt:
                 pre_query = "ALTER USER"
             else:
@@ -369,7 +400,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             cursor.execute(*query_with_args)
             changed = True
 
-    return (changed, msg)
+    return {'changed': changed, 'msg': msg, 'password_changed': password_changed}
 
 
 def user_delete(cursor, user, host, host_all, check_mode):

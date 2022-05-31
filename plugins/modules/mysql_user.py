@@ -118,8 +118,12 @@ options:
     description:
       - C(always) will update passwords if they differ. This affects I(password) and the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string).
       - C(on_create) will only set the password or the combination of plugin, plugin_hash_string, plugin_auth_string for newly created users.
+      - "C(on_new_username) works like C(on_create), but it tries to reuse an existing password: If one different user
+        with the same username exists, or multiple different users with the same username and equal C(plugin) and
+        C(authentication_string) attribute, the existing C(plugin) and C(authentication_string) are used for the
+        new user instead of the I(password), I(plugin), I(plugin_hash_string) or I(plugin_auth_string) argument."
     type: str
-    choices: [ always, on_create ]
+    choices: [ always, on_create, on_new_username ]
     default: always
   plugin:
     description:
@@ -370,7 +374,7 @@ def main():
         append_privs=dict(type='bool', default=False),
         subtract_privs=dict(type='bool', default=False),
         check_implicit_admin=dict(type='bool', default=False),
-        update_password=dict(type='str', default='always', choices=['always', 'on_create'], no_log=False),
+        update_password=dict(type='str', default='always', choices=['always', 'on_create', 'on_new_username'], no_log=False),
         sql_log_bin=dict(type='bool', default=True),
         plugin=dict(default=None, type='str'),
         plugin_hash_string=dict(default=None, type='str'),
@@ -447,18 +451,22 @@ def main():
         except Exception as e:
             module.fail_json(msg=to_native(e))
         priv = privileges_unpack(priv, mode, ensure_usage=not subtract_privs)
-
+    password_changed = False
     if state == "present":
         if user_exists(cursor, user, host, host_all):
             try:
                 if update_password == "always":
-                    changed, msg = user_mod(cursor, user, host, host_all, password, encrypted,
-                                            plugin, plugin_hash_string, plugin_auth_string,
-                                            priv, append_privs, subtract_privs, tls_requires, module)
+                    result = user_mod(cursor, user, host, host_all, password, encrypted,
+                                      plugin, plugin_hash_string, plugin_auth_string,
+                                      priv, append_privs, subtract_privs, tls_requires, module)
+
                 else:
-                    changed, msg = user_mod(cursor, user, host, host_all, None, encrypted,
-                                            None, None, None,
-                                            priv, append_privs, subtract_privs, tls_requires, module)
+                    result = user_mod(cursor, user, host, host_all, None, encrypted,
+                                      None, None, None,
+                                      priv, append_privs, subtract_privs, tls_requires, module)
+                changed = result['changed']
+                msg = result['msg']
+                password_changed = result['password_changed']
 
             except (SQLParseError, InvalidPrivsError, mysql_driver.Error) as e:
                 module.fail_json(msg=to_native(e))
@@ -468,9 +476,12 @@ def main():
             try:
                 if subtract_privs:
                     priv = None  # avoid granting unwanted privileges
-                changed = user_add(cursor, user, host, host_all, password, encrypted,
-                                   plugin, plugin_hash_string, plugin_auth_string,
-                                   priv, tls_requires, module.check_mode)
+                reuse_existing_password = update_password == 'on_new_username'
+                result = user_add(cursor, user, host, host_all, password, encrypted,
+                                  plugin, plugin_hash_string, plugin_auth_string,
+                                  priv, tls_requires, module.check_mode, reuse_existing_password)
+                changed = result['changed']
+                password_changed = result['password_changed']
                 if changed:
                     msg = "User added"
 
@@ -487,7 +498,7 @@ def main():
         else:
             changed = False
             msg = "User doesn't exist"
-    module.exit_json(changed=changed, user=user, msg=msg)
+    module.exit_json(changed=changed, user=user, msg=msg, password_changed=password_changed)
 
 
 if __name__ == '__main__':

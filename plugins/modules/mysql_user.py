@@ -119,9 +119,9 @@ options:
       - C(always) will update passwords if they differ. This affects I(password) and the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string).
       - C(on_create) will only set the password or the combination of plugin, plugin_hash_string, plugin_auth_string for newly created users.
       - "C(on_new_username) works like C(on_create), but it tries to reuse an existing password: If one different user
-        with the same username exists, or multiple different users with the same username and equal ``plugin`` and
-        ``authentication_string`` attribute, the existing ``plugin`` and ``authentication_string`` are used for the
-        new user instead of the C(password), I(plugin), I(plugin_hash_string) or I(plugin_auth_string) argument."
+        with the same username exists, or multiple different users with the same username and equal C(plugin) and
+        C(authentication_string) attribute, the existing C(plugin) and C(authentication_string) are used for the
+        new user instead of the I(password), I(plugin), I(plugin_hash_string) or I(plugin_auth_string) argument."
     type: str
     choices: [ always, on_create, on_new_username ]
     default: always

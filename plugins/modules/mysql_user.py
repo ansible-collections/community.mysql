@@ -22,7 +22,8 @@ options:
     required: true
   password:
     description:
-      - Set the user's password.
+      - Set the user's password. Only for C(mysql_native_password) authentication.
+        For other authentication plugins see the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string).
     type: str
   encrypted:
     description:
@@ -94,8 +95,8 @@ options:
     default: no
   update_password:
     description:
-      - C(always) will update passwords if they differ.
-      - C(on_create) will only set the password for newly created users.
+      - C(always) will update passwords if they differ. This affects I(password) and the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string).
+      - C(on_create) will only set the password or the combination of plugin, plugin_hash_string, plugin_auth_string for newly created users.
     type: str
     choices: [ always, on_create ]
     default: always
@@ -1263,8 +1264,8 @@ def main():
                                             priv, append_privs, tls_requires, module)
                 else:
                     changed, msg = user_mod(cursor, user, host, host_all, None, encrypted,
-                                            plugin, plugin_hash_string, plugin_auth_string,
-                                            priv, append_privs, tls_requires, module)
+                                            None, None, None,
+                                            priv, append_privs, subtract_privs, tls_requires, module)
 
             except (SQLParseError, InvalidPrivsError, mysql_driver.Error) as e:
                 module.fail_json(msg=to_native(e))

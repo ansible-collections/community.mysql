@@ -1265,7 +1265,7 @@ def main():
                 else:
                     changed, msg = user_mod(cursor, user, host, host_all, None, encrypted,
                                             None, None, None,
-                                            priv, append_privs, subtract_privs, tls_requires, module)
+                                            priv, append_privs, tls_requires, module)
 
             except (SQLParseError, InvalidPrivsError, mysql_driver.Error) as e:
                 module.fail_json(msg=to_native(e))

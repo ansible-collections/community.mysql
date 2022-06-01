@@ -442,7 +442,7 @@ def db_import(module, host, user, password, db_name, target, all_databases, port
             cmd.append("--defaults-extra-file=%s" % shlex_quote(config_file))
 
     if check_implicit_admin:
-        cmd += " --user=root --password=''"
+        cmd.append("--user=root --password=''")
     else:
         if user:
             cmd.append("--user=%s" % shlex_quote(user))

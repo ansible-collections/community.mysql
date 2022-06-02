@@ -1,2 +1,0 @@
-bugfixes:
-  - "mysql_role - don't add members to a role when creating the role and ``detach_members: true`` is set (https://github.com/ansible-collections/community.mysql/pull/367)."

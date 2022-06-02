@@ -5,6 +5,22 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v1.4.7
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection that
+have been added after the release of ``community.mysql`` 1.4.6.
+
+Bugfixes
+--------
+
+- mysql_query - fix false change reports when ``IF EXISTS/IF NOT EXISTS`` clause is used (https://github.com/ansible-collections/community.mysql/issues/268).
+- mysql_user - fix logic when ``update_password`` is set to ``on_create`` for users using ``plugin*`` arguments (https://github.com/ansible-collections/community.mysql/issues/334). The ``on_create`` sets ``password`` to None for old mysql_native_authentication but not for authentiation methods which uses the ``plugin*`` arguments. This PR changes this so ``on_create`` also exchange ``plugin``, ``plugin_hash_string``, ``plugin_auth_string`` to None in the list of arguments to change
+
 v1.4.6
 ======
 

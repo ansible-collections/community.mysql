@@ -7,7 +7,7 @@ __metaclass__ = type
 # still belong to the author of the module, and may assign their own license
 # to the complete work.
 #
-# Simplified BSD License (see licenses/simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
+# Simplified BSD License (see simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
 
 import string
 import re

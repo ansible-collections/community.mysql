@@ -7,7 +7,7 @@
 # Copyright (c), Jonathan Mainguy <jon@soh.re>, 2015
 # Most of this was originally added by Sven Schliesing @muffl0n in the mysql_user.py module
 #
-# Simplified BSD License (see licenses/simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
+# Simplified BSD License (see simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
 
 from __future__ import (absolute_import, division, print_function)
 from functools import reduce

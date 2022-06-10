@@ -92,6 +92,7 @@ options:
       if an encrypted connection can be established.
     - For details, refer to
       L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
+    - The default is C(false).
     type: bool
     aliases: [master_ssl]
   primary_ssl_ca:

@@ -150,6 +150,12 @@ options:
     type: bool
     default: no
     version_added: '0.1.0'
+  chdir:
+    description:
+    - Changes the current working directory.
+    - Can be useful, for example, when I(state=import) and a dump file contains relative paths.
+    type: path
+    version_added: '3.4.0'
 
 seealso:
 - module: community.mysql.mysql_info
@@ -562,6 +568,7 @@ def main():
         restrict_config_file=dict(type='bool', default=False),
         check_implicit_admin=dict(type='bool', default=False),
         config_overrides_defaults=dict(type='bool', default=False),
+        chdir=dict(type='path'),
     )
 
     module = AnsibleModule(
@@ -610,6 +617,13 @@ def main():
     restrict_config_file = module.params["restrict_config_file"]
     check_implicit_admin = module.params['check_implicit_admin']
     config_overrides_defaults = module.params['config_overrides_defaults']
+    chdir = module.params['chdir']
+
+    if chdir:
+        try:
+            os.chdir(chdir)
+        except Exception as e:
+            module.fail_json("Cannot change the current directory to %s: %s" % (chdir, e))
 
     if len(db) > 1 and state == 'import':
         module.fail_json(msg="Multiple databases are not supported with state=import")

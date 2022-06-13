@@ -92,8 +92,8 @@ options:
       if an encrypted connection can be established.
     - For details, refer to
       L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
+    - The default is C(false).
     type: bool
-    default: false
     aliases: [master_ssl]
   primary_ssl_ca:
     description:
@@ -449,7 +449,7 @@ def main():
         primary_log_pos=dict(type='int', aliases=['master_log_pos']),
         relay_log_file=dict(type='str'),
         relay_log_pos=dict(type='int'),
-        primary_ssl=dict(type='bool', default=False, aliases=['master_ssl']),
+        primary_ssl=dict(type='bool', aliases=['master_ssl']),
         primary_ssl_ca=dict(type='str', aliases=['master_ssl_ca']),
         primary_ssl_capath=dict(type='str', aliases=['master_ssl_capath']),
         primary_ssl_cert=dict(type='str', aliases=['master_ssl_cert']),
@@ -577,8 +577,11 @@ def main():
             chm.append("RELAY_LOG_FILE='%s'" % relay_log_file)
         if relay_log_pos is not None:
             chm.append("RELAY_LOG_POS=%s" % relay_log_pos)
-        if primary_ssl:
-            chm.append("MASTER_SSL=1")
+        if primary_ssl is not None:
+            if primary_ssl:
+                chm.append("MASTER_SSL=1")
+            else:
+                chm.append("MASTER_SSL=0")
         if primary_ssl_ca is not None:
             chm.append("MASTER_SSL_CA='%s'" % primary_ssl_ca)
         if primary_ssl_capath is not None:

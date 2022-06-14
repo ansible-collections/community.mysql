@@ -98,4 +98,9 @@ notes:
    - Alternatively, you can use the mysqlclient library instead of MySQL-python (MySQLdb)
      which supports both Python 2.X and Python >=3.5.
      See U(https://pypi.org/project/mysqlclient/) how to install it.
+   - The config file, C(~/.my.cnf), if it exists, must contain a C([client]) section as a MySQL connector requirement.
+   - The default config file, C(~/.my.cnf) will be read, if it exists, even if I(config_file) is not specified.
+   - To prevent the default config file from being read, set I(config_file) to be an empty string.
+   - If credentials from the config file (for example, C(/root/.my.cnf)) are not needed to connect to a database server but
+     the file exists and does not contain a C([client]) section, it will be read and will cause the connection to fail.
 '''

@@ -101,7 +101,7 @@ notes:
    - Alternatively, you can use the mysqlclient library instead of MySQL-python (MySQLdb)
      which supports both Python 2.X and Python >=3.5.
      See U(https://pypi.org/project/mysqlclient/) how to install it.
-   - If credentials from the config file (for example, C(/root/.my.cnf)) are not needed to connect to a database server, but
+   - "If credentials from the config file (for example, C(/root/.my.cnf)) are not needed to connect to a database server, but
      the file exists and does not contain a C([client]) section, before any other valid directives, it will be read and this
-     will cause the connection to fail, to prevent this set it to an empty string, (for example C(config_file: '')).
+     will cause the connection to fail, to prevent this set it to an empty string, (for example C(config_file: ''))."
 '''

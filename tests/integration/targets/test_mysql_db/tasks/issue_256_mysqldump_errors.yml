@@ -1,0 +1,28 @@
+---
+
+# When mysqldump encountered an issue, mysql_db was still happy. But the
+# dump produced was empty or worse, only contained `DROP TABLE IF EXISTS...`
+
+- module_defaults:
+    ansible.builtin.mysql_db: &mysql_defaults
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+      login_port: '{{ mysql_primary_port }}'
+    ansible.builtin.mysql_query: *mysql_defaults
+
+  block:
+
+    - name: Setup test - Create 2 schemas
+      community.mysql.mysql_db:
+        name:
+          - "db1"
+          - "db2"
+        state: present
+
+    - name: Setup test - Create 2 tables
+      community.mysql.mysql_query:
+        query:
+          - "CREATE TABLE db1.t1 (id int)"
+          - "CREATE TABLE db1.t2 (id int)"
+          - "CREATE VIEW db2.v1 AS SELECT id from db1.t1"

@@ -63,3 +63,6 @@
   vars:
     db_name: "{{ item }}"
   loop: "{{ db_names }}"
+
+- name: Check errors from mysqldump are seen issue 256
+  ansible.builtin.include_tasks: issue_256_mysqldump_errors.yml

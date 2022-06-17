@@ -44,6 +44,9 @@ options:
   config_file:
     description:
       - Specify a config file from which user and password are to be read.
+      - The default config file, C(~/.my.cnf), if it exists, will be read, even if I(config_file) is not specified.
+      - The default config file, C(~/.my.cnf), if it exists, must contain a C([client]) section as a MySQL connector requirement.
+      - To prevent the default config file from being read, set I(config_file) to be an empty string.
     type: path
     default: '~/.my.cnf'
   ca_cert:
@@ -98,4 +101,7 @@ notes:
    - Alternatively, you can use the mysqlclient library instead of MySQL-python (MySQLdb)
      which supports both Python 2.X and Python >=3.5.
      See U(https://pypi.org/project/mysqlclient/) how to install it.
+   - "If credentials from the config file (for example, C(/root/.my.cnf)) are not needed to connect to a database server, but
+     the file exists and does not contain a C([client]) section, before any other valid directives, it will be read and this
+     will cause the connection to fail, to prevent this set it to an empty string, (for example C(config_file: ''))."
 '''

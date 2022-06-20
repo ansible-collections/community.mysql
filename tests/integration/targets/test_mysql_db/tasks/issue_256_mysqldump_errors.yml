@@ -13,16 +13,64 @@
 
   block:
 
-    - name: Setup test - Create 2 schemas
+    - name: Check dumps errors | Setup test | Create 2 schemas
       community.mysql.mysql_db:
         name:
           - "db1"
           - "db2"
         state: present
 
-    - name: Setup test - Create 2 tables
+    - name: Check dumps errors | Setup test | Create 2 tables
       community.mysql.mysql_query:
         query:
           - "CREATE TABLE db1.t1 (id int)"
           - "CREATE TABLE db1.t2 (id int)"
           - "CREATE VIEW db2.v1 AS SELECT id from db1.t1"
+
+    - name: Check dumps errors | Full dump without compression
+      community.mysql.mysql_db:
+        state: dump
+        name: all
+        target: /tmp/full-dump.sql
+      register: full_dump
+
+    - name: Check dumps errors | Full dump with gunzip
+      community.mysql.mysql_db:
+        state: dump
+        name: all
+        target: /tmp/full-dump.sql.gz
+      register: full_dump_gz
+
+    - name: Check dumps errors | Check full dumps are changed
+      ansible.builtin.assert:
+        that:
+          - full_dump is changed
+          - full_dump_gz is changed
+
+    # Now db2.v1 targets an inexistant table so mysqldump will fail
+    - name: Check dumps errors | Drop t1
+      community.mysql.mysql_query:
+        query:
+          - "DROP TABLE db1.t1"
+
+    - name: Check dumps errors | Full dump after drop t1 without compression
+      community.mysql.mysql_db:
+        state: dump
+        name: all
+        target: /tmp/full-dump-without-t1.sql
+      register: full_dump_without_t1
+      ignore_errors: true
+
+    - name: Check dumps errors | Full dump after drop t1 with gzip
+      community.mysql.mysql_db:
+        state: dump
+        name: all
+        target: /tmp/full-dump-without-t1.sql.gz
+      register: full_dump_without_t1_gz
+      ignore_errors: true
+
+    - name: Check dumps errors | Check full dump
+      ansible.builtin.assert:
+        that:
+          - full_dump_without_t1 is failed
+          - full_dump_without_t1_gz is failed

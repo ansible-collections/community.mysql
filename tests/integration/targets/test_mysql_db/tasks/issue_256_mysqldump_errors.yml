@@ -41,11 +41,25 @@
         target: /tmp/full-dump.sql.gz
       register: full_dump_gz
 
-    - name: Check dumps errors | Check full dumps are changed
+    - name: Check dumps errors | Distinct dump without compression
+      community.mysql.mysql_db:
+        state: dump
+        name: db2
+        target: /tmp/dump-db2.sql
+      register: dump_db2
+
+    - name: Check dumps errors | Distinct dump with gunzip
+      community.mysql.mysql_db:
+        state: dump
+        name: db2
+        target: /tmp/dump-db2.sql.gz
+      register: dump_db2_gz
+
+    - name: Check dumps errors | Check distinct dumps are changed
       ansible.builtin.assert:
         that:
-          - full_dump is changed
-          - full_dump_gz is changed
+          - dump_db2 is changed
+          - dump_db2_gz is changed
 
     # Now db2.v1 targets an inexistant table so mysqldump will fail
     - name: Check dumps errors | Drop t1
@@ -74,3 +88,25 @@
         that:
           - full_dump_without_t1 is failed
           - full_dump_without_t1_gz is failed
+
+    - name: Check dumps errors | Distinct dump after drop t1 without compression
+      community.mysql.mysql_db:
+        state: dump
+        name: db2
+        target: /tmp/dump-db2-without_t1.sql
+      register: dump_db2_without_t1
+      ignore_errors: true
+
+    - name: Check dumps errors | Distinct dump after drop t1 with gzip
+      community.mysql.mysql_db:
+        state: dump
+        name: db2
+        target: /tmp/dump-db2-without_t1.sql.gz
+      register: dump_db2_without_t1_gz
+      ignore_errors: true
+
+    - name: Check dumps errors | Check full dump
+      ansible.builtin.assert:
+        that:
+          - dump_db2_without_t1 is failed
+          - dump_db2_without_t1_gz is failed

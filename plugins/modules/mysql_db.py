@@ -423,12 +423,12 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
         path = module.get_bin_path('xz', True)
 
     if path:
-        cmd = '%s | %s > %s' % (cmd, path, shlex_quote(target))
+        cmd = 'set -o pipefail && %s | %s > %s' % (cmd, path, shlex_quote(target))
     else:
         cmd += " > %s" % shlex_quote(target)
 
     executed_commands.append(cmd)
-    rc, stdout, stderr = module.run_command(cmd, use_unsafe_shell=True)
+    rc, stdout, stderr = module.run_command(cmd, use_unsafe_shell=True, executable='bash')
     return rc, stdout, stderr
 
 

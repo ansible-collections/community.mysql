@@ -110,3 +110,10 @@
         that:
           - dump_db2_without_t1 is failed
           - dump_db2_without_t1_gz is failed
+
+    - name: Check dumps errors | Cleanup
+      community.mysql.mysql_db:
+        name:
+          - "db1"
+          - "db2"
+        state: absent

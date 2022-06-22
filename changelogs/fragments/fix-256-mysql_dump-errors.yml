@@ -4,4 +4,4 @@ bugfixes:
   - mysql_dump - Fixes issue 256. Using compression masks errors messages from
     mysql_dump. By default the fix is inactiv to ensure retro-compatibility
     with system without bash. To activate the fix, use the module option
-    `pipefail=true`.
+    ``pipefail=true`` (https://github.com/ansible-collections/community.mysql/issues/256).

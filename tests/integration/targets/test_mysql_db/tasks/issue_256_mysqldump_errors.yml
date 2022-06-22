@@ -97,11 +97,11 @@
         that:
           - full_dump_without_t1 is failed
           - full_dump_without_t1.msg is search(
-              "View 'db2.v1' references invalid table(s)")
+              'references invalid table')
           - full_dump_without_t1_gz_without_fix is changed
           - full_dump_without_t1_gz_with_fix is failed
           - full_dump_without_t1_gz_with_fix.msg is search(
-              "View 'db2.v1' references invalid table(s)")
+              'references invalid table')
 
     - name: Dumps errors | Distinct dump after drop t1 without compression
       community.mysql.mysql_db:
@@ -128,17 +128,16 @@
       register: dump_db2_without_t1_gz_with_fix
       ignore_errors: true
 
-    - name: Dumps errors | Check full dump
+    - name: Dumps errors | Check distinct dump
       ansible.builtin.assert:
         that:
           - dump_db2_without_t1 is failed
           - dump_db2_without_t1.msg is search(
-              "View 'db2.v1' references invalid table(s)")
+              'references invalid table')
           - dump_db2_without_t1_gz_without_fix is changed
           - dump_db2_without_t1_gz_with_fix is failed
           - dump_db2_without_t1_gz_with_fix.msg is search(
-              "View 'db2.v1' references invalid table(s)")
-
+              'references invalid table')
     - name: Dumps errors | Cleanup
       community.mysql.mysql_db:
         name:

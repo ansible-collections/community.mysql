@@ -4,12 +4,12 @@
 # dump produced was empty or worse, only contained `DROP TABLE IF EXISTS...`
 
 - module_defaults:
-    ansible.builtin.mysql_db: &mysql_defaults
+    community.mysql.mysql_db: &mysql_defaults
       login_user: '{{ mysql_user }}'
       login_password: '{{ mysql_password }}'
       login_host: 127.0.0.1
       login_port: '{{ mysql_primary_port }}'
-    ansible.builtin.mysql_query: *mysql_defaults
+    community.mysql.mysql_query: *mysql_defaults
 
   block:
 

@@ -158,7 +158,7 @@ options:
     version_added: '3.4.0'
   pipefail:
     description:
-    - Use bash instead of sh and add -o pipefail to catch errors from the
+    - Use C(bash) instead of C(sh) and add C(-o pipefail) to catch errors from the
       mysql_dump command when compression is used. The default is false to
       prevent issue on system without bash. The default may change in a future release
     type: bool

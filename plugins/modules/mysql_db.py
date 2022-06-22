@@ -159,11 +159,11 @@ options:
   pipefail:
     description:
     - Use C(bash) instead of C(sh) and add C(-o pipefail) to catch errors from the
-      mysql_dump command when compression is used. The default is false to
-      prevent issue on system without bash. The default may change in a future release
+      mysql_dump command when I(state=import) and compression is used. The default is I(false) to
+      prevent issue on system without bash. The default may change in a future release.
     type: bool
     default: no
-    version_added: '3.3.1'
+    version_added: '3.4.0'
 
 seealso:
 - module: community.mysql.mysql_info

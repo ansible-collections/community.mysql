@@ -18,8 +18,8 @@
 # ============================================================
 - name: remove database if it exists
   command: >
-    "{{ mysql_command }} -sse 'drop database {{ db_name }}'"
-  ignore_errors: True
+    "{{ mysql_command }} -sse 'DROP DATABASE IF EXISTS {{ db_name }}'"
+  ignore_errors: true
 
 - name: make sure the test database is not there
   command: "{{ mysql_command }} {{ db_name }}"

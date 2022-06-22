@@ -13,61 +13,61 @@
 
   block:
 
-    - name: Check dumps errors | Setup test | Create 2 schemas
+    - name: Dumps errors | Setup test | Create 2 schemas
       community.mysql.mysql_db:
         name:
           - "db1"
           - "db2"
         state: present
 
-    - name: Check dumps errors | Setup test | Create 2 tables
+    - name: Dumps errors | Setup test | Create 2 tables
       community.mysql.mysql_query:
         query:
           - "CREATE TABLE db1.t1 (id int)"
           - "CREATE TABLE db1.t2 (id int)"
           - "CREATE VIEW db2.v1 AS SELECT id from db1.t1"
 
-    - name: Check dumps errors | Full dump without compression
+    - name: Dumps errors | Full dump without compression
       community.mysql.mysql_db:
         state: dump
         name: all
         target: /tmp/full-dump.sql
       register: full_dump
 
-    - name: Check dumps errors | Full dump with gunzip
+    - name: Dumps errors | Full dump with gunzip
       community.mysql.mysql_db:
         state: dump
         name: all
         target: /tmp/full-dump.sql.gz
       register: full_dump_gz
 
-    - name: Check dumps errors | Distinct dump without compression
+    - name: Dumps errors | Distinct dump without compression
       community.mysql.mysql_db:
         state: dump
         name: db2
         target: /tmp/dump-db2.sql
       register: dump_db2
 
-    - name: Check dumps errors | Distinct dump with gunzip
+    - name: Dumps errors | Distinct dump with gunzip
       community.mysql.mysql_db:
         state: dump
         name: db2
         target: /tmp/dump-db2.sql.gz
       register: dump_db2_gz
 
-    - name: Check dumps errors | Check distinct dumps are changed
+    - name: Dumps errors | Check distinct dumps are changed
       ansible.builtin.assert:
         that:
           - dump_db2 is changed
           - dump_db2_gz is changed
 
     # Now db2.v1 targets an inexistant table so mysqldump will fail
-    - name: Check dumps errors | Drop t1
+    - name: Dumps errors | Drop t1
       community.mysql.mysql_query:
         query:
           - "DROP TABLE db1.t1"
 
-    - name: Check dumps errors | Full dump after drop t1 without compression
+    - name: Dumps errors | Full dump after drop t1 without compression
       community.mysql.mysql_db:
         state: dump
         name: all
@@ -75,21 +75,35 @@
       register: full_dump_without_t1
       ignore_errors: true
 
-    - name: Check dumps errors | Full dump after drop t1 with gzip
+    - name: Dumps errors | Full dump after drop t1 with gzip without the fix
       community.mysql.mysql_db:
         state: dump
         name: all
         target: /tmp/full-dump-without-t1.sql.gz
-      register: full_dump_without_t1_gz
+      register: full_dump_without_t1_gz_without_fix
       ignore_errors: true
 
-    - name: Check dumps errors | Check full dump
+    - name: Dumps errors | Full dump after drop t1 with gzip with the fix
+      community.mysql.mysql_db:
+        state: dump
+        name: all
+        target: /tmp/full-dump-without-t1.sql.gz
+        pipefail: true
+      register: full_dump_without_t1_gz_with_fix
+      ignore_errors: true
+
+    - name: Dumps errors | Check full dump
       ansible.builtin.assert:
         that:
           - full_dump_without_t1 is failed
-          - full_dump_without_t1_gz is failed
+          - full_dump_without_t1.msg is search(
+              "View 'db2.v1' references invalid table(s)")
+          - full_dump_without_t1_gz_without_fix is changed
+          - full_dump_without_t1_gz_with_fix is failed
+          - full_dump_without_t1_gz_with_fix.msg is search(
+              "View 'db2.v1' references invalid table(s)")
 
-    - name: Check dumps errors | Distinct dump after drop t1 without compression
+    - name: Dumps errors | Distinct dump after drop t1 without compression
       community.mysql.mysql_db:
         state: dump
         name: db2
@@ -97,21 +111,35 @@
       register: dump_db2_without_t1
       ignore_errors: true
 
-    - name: Check dumps errors | Distinct dump after drop t1 with gzip
+    - name: Dumps errors | Distinct dump after drop t1 with gzip without the fix
       community.mysql.mysql_db:
         state: dump
         name: db2
         target: /tmp/dump-db2-without_t1.sql.gz
-      register: dump_db2_without_t1_gz
+      register: dump_db2_without_t1_gz_without_fix
       ignore_errors: true
 
-    - name: Check dumps errors | Check full dump
+    - name: Dumps errors | Distinct dump after drop t1 with gzip with the fix
+      community.mysql.mysql_db:
+        state: dump
+        name: db2
+        target: /tmp/dump-db2-without_t1.sql.gz
+        pipefail: true
+      register: dump_db2_without_t1_gz_with_fix
+      ignore_errors: true
+
+    - name: Dumps errors | Check full dump
       ansible.builtin.assert:
         that:
           - dump_db2_without_t1 is failed
-          - dump_db2_without_t1_gz is failed
+          - dump_db2_without_t1.msg is search(
+              "View 'db2.v1' references invalid table(s)")
+          - dump_db2_without_t1_gz_without_fix is changed
+          - dump_db2_without_t1_gz_with_fix is failed
+          - dump_db2_without_t1_gz_with_fix.msg is search(
+              "View 'db2.v1' references invalid table(s)")
 
-    - name: Check dumps errors | Cleanup
+    - name: Dumps errors | Cleanup
       community.mysql.mysql_db:
         name:
           - "db1"

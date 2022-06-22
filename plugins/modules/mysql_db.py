@@ -440,9 +440,9 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
     executed_commands.append(cmd)
 
     if pipefail:
-      rc, stdout, stderr = module.run_command(cmd, use_unsafe_shell=True, executable='bash')
+        rc, stdout, stderr = module.run_command(cmd, use_unsafe_shell=True, executable='bash')
     else:
-      rc, stdout, stderr = module.run_command(cmd, use_unsafe_shell=True)
+        rc, stdout, stderr = module.run_command(cmd, use_unsafe_shell=True)
 
     return rc, stdout, stderr
 

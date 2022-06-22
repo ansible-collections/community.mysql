@@ -430,7 +430,7 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
     elif os.path.splitext(target)[-1] == '.xz':
         path = module.get_bin_path('xz', True)
 
-    if pipefail:
+    if pipefail and path:
         cmd = 'set -o pipefail && %s | %s > %s' % (cmd, path, shlex_quote(target))
     elif path:
         cmd = '%s | %s > %s' % (cmd, path, shlex_quote(target))

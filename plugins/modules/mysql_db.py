@@ -303,6 +303,13 @@ EXAMPLES = r'''
     login_password: 123456
     name: bobdata
     state: present
+
+- name: Dump a database with compression and catch errors from mysqldump with bash pipefail
+  community.mysql.mysql_db:
+    state: dump
+    name: foo
+    target: /tmp/dump.sql.gz
+    pipefail: true
 '''
 
 RETURN = r'''

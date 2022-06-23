@@ -115,7 +115,7 @@ jobs:
         if: ${{ startsWith(matrix.db_engine_version, 'mariadb') }}
 
       - name: Set MariaDB URL sub dir
-        run: |-
+        run: |
           sed -i -e "s/^mariadb_url_subdir:.*/mariadb_url_subdir: linux-systemd/g" ${{ env.mysql_version_file }}
         if: matrix.db_engine_version == 'mariadb_10.8.3'
 

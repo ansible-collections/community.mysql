@@ -116,7 +116,7 @@ jobs:
 
       - name: Set MariaDB URL sub dir
         run: |
-          sed -i -e "s/^mariadb_url_subdir:.*/mariadb_url_subdir: linux-systemd/g" ${{ env.mysql_version_file }}
+          sed -i -e "s/^mariadb_url_subdir:.*/mariadb_url_subdir: linux-systemd/g" ${{ env.connector_version_file }}
         if: matrix.db_engine_version == 'mariadb_10.8.3'
 
       - name: Set Connector version (${{ matrix.connector }})

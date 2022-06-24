@@ -72,8 +72,8 @@ Every voice is important and every idea is valuable. If you have something on yo
 
 - mysql 5.7.31
 - mysql 8.0.22
-- mariadb 10.3.34
-- mariadb 10.5.9
+- mariadb 10.3.34 (only collection version >= 3)
+- mariadb 10.8.3 (only collection version >= 3)
 
 ### Database connectors
 

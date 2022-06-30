@@ -156,6 +156,14 @@ options:
     - Can be useful, for example, when I(state=import) and a dump file contains relative paths.
     type: path
     version_added: '3.4.0'
+  pipefail:
+    description:
+    - Use C(bash) instead of C(sh) and add C(-o pipefail) to catch errors from the
+      mysql_dump command when I(state=import) and compression is used. The default is I(false) to
+      prevent issue on system without bash. The default may change in a future release.
+    type: bool
+    default: no
+    version_added: '3.4.0'
 
 seealso:
 - module: community.mysql.mysql_info
@@ -295,6 +303,13 @@ EXAMPLES = r'''
     login_password: 123456
     name: bobdata
     state: present
+
+- name: Dump a database with compression and catch errors from mysqldump with bash pipefail
+  community.mysql.mysql_db:
+    state: dump
+    name: foo
+    target: /tmp/dump.sql.gz
+    pipefail: true
 '''
 
 RETURN = r'''
@@ -355,7 +370,7 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
             single_transaction=None, quick=None, ignore_tables=None, hex_blob=None,
             encoding=None, force=False, master_data=0, skip_lock_tables=False,
             dump_extra_args=None, unsafe_password=False, restrict_config_file=False,
-            check_implicit_admin=False):
+            check_implicit_admin=False, pipefail=False):
     cmd = module.get_bin_path('mysqldump', True)
     # If defined, mysqldump demands --defaults-extra-file be the first option
     if config_file:
@@ -424,11 +439,18 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
 
     if path:
         cmd = '%s | %s > %s' % (cmd, path, shlex_quote(target))
+        if pipefail:
+            cmd = 'set -o pipefail && ' + cmd
     else:
         cmd += " > %s" % shlex_quote(target)
 
     executed_commands.append(cmd)
-    rc, stdout, stderr = module.run_command(cmd, use_unsafe_shell=True)
+
+    if pipefail:
+        rc, stdout, stderr = module.run_command(cmd, use_unsafe_shell=True, executable='bash')
+    else:
+        rc, stdout, stderr = module.run_command(cmd, use_unsafe_shell=True)
+
     return rc, stdout, stderr
 
 
@@ -569,6 +591,7 @@ def main():
         check_implicit_admin=dict(type='bool', default=False),
         config_overrides_defaults=dict(type='bool', default=False),
         chdir=dict(type='path'),
+        pipefail=dict(type='bool', default=False),
     )
 
     module = AnsibleModule(
@@ -618,6 +641,7 @@ def main():
     check_implicit_admin = module.params['check_implicit_admin']
     config_overrides_defaults = module.params['config_overrides_defaults']
     chdir = module.params['chdir']
+    pipefail = module.params['pipefail']
 
     if chdir:
         try:
@@ -704,7 +728,7 @@ def main():
                                      ssl_ca, single_transaction, quick, ignore_tables,
                                      hex_blob, encoding, force, master_data, skip_lock_tables,
                                      dump_extra_args, unsafe_login_password, restrict_config_file,
-                                     check_implicit_admin)
+                                     check_implicit_admin, pipefail)
         if rc != 0:
             module.fail_json(msg="%s" % stderr)
         module.exit_json(changed=True, db=db_name, db_list=db, msg=stdout,

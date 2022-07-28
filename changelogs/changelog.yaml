@@ -382,3 +382,16 @@ releases:
     - 322-mysql_query_fix_false_change_report.yml
     - 334-mysql_user_fix_logic_on_oncreate.yml
     release_date: '2022-06-02'
+  1.4.8:
+    changes:
+      bugfixes:
+      - Include ``simplified_bsd.txt`` license file for various module utils.
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection that
+
+        have been added after the release of ``community.mysql`` 1.4.7.'
+    fragments:
+    - 1.4.8.yml
+    - simplified-bsd-license.yml
+    release_date: '2022-07-28'

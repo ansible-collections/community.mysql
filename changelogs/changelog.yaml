@@ -492,3 +492,16 @@ releases:
     - 367-mysql_role-fix-deatch-members.yml
     - 368-mysql_role-fix-member-detection.yml
     release_date: '2022-06-02'
+  2.3.9:
+    changes:
+      bugfixes:
+      - Include ``simplified_bsd.txt`` license file for various module utils.
+      release_summary: 'This is the patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection
+
+        that have been added after the release of ``community.mysql`` 2.3.8.'
+    fragments:
+    - 2.3.9.yml
+    - simplified-bsd-license.yml
+    release_date: '2022-08-02'

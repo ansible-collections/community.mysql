@@ -5,6 +5,21 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v1.4.8
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection that
+have been added after the release of ``community.mysql`` 1.4.7.
+
+Bugfixes
+--------
+
+- Include ``simplified_bsd.txt`` license file for various module utils.
+
 v1.4.7
 ======
 

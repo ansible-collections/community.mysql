@@ -48,12 +48,6 @@
     - assert:
         that:
           - result is failed
-      when: pymysql_version.stdout != ""
-
-    - assert:
-        that:
-          - result is succeeded
-      when: pymysql_version.stdout == ""
 
     - name: attempt connection with newly created user ignoring hostname
       mysql_variables:

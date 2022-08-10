@@ -202,9 +202,12 @@ seealso:
 '''
 
 EXAMPLES = r'''
+# If you encounter the "Please explicitly state intended protocol" error,
+# use the login_unix_socket argument
 - name: Stop mysql replica thread
   community.mysql.mysql_replication:
     mode: stopreplica
+    login_unix_socket: /run/mysqld/mysqld.sock
 
 - name: Get primary binlog file name and binlog position
   community.mysql.mysql_replication:

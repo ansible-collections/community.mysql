@@ -35,6 +35,7 @@ options:
   login_unix_socket:
     description:
       - The path to a Unix domain socket for local connections.
+      - Use this parameter to avoid the C(Please explicitly state intended protocol) error.
     type: str
   connect_timeout:
     description:
@@ -78,6 +79,8 @@ requirements:
    - PyMySQL (Python 2.7 and Python 3.x) or
    - MySQLdb (Python 2.x)
 notes:
+   - "To avoid the C(Please explicitly state intended protocol) error, use the I(login_unix_socket) argument,
+     for example, C(login_unix_socket: /run/mysqld/mysqld.sock)."
    - Requires the PyMySQL (Python 2.7 and Python 3.X) or MySQL-python (Python 2.X) package installed on the remote host.
      The Python package may be installed with apt-get install python-pymysql (Ubuntu; see M(ansible.builtin.apt)) or
      yum install python2-PyMySQL (RHEL/CentOS/Fedora; see M(ansible.builtin.yum)). You can also use dnf install python2-PyMySQL

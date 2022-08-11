@@ -162,7 +162,7 @@
       register: oor_result
       ignore_errors: true
 
-    - include: assert_var.yml changed=false output={{ oor_result }} var_name=max_connect_errors var_value=1
+    - include: assert_var.yml changed=true output={{ oor_result }} var_name=max_connect_errors var_value=1
       when: pymysql_version.stdout == ""
 
     - include: assert_fail_msg.yml output={{ oor_result }}  msg='Truncated incorrect'

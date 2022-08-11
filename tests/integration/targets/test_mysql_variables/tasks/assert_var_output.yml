@@ -22,7 +22,7 @@
 - name: assert output message changed value
   assert:
     that:
-      - "output.changed == {{ changed }}"
+      - "output.changed | bool == changed | bool"
 
 - set_fact:
     key_name: "{{ var_name }}"

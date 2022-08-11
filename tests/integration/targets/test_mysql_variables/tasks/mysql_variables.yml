@@ -151,8 +151,6 @@
     # ============================================================
     # Verify mysql_variable fails when setting an incorrect value (out of range)
     #
-    - shell: pip show pymysql | awk '/Version/ {print $2}'
-      register: pymysql_version
 
     - name: set mysql variable value to a number out of range
       mysql_variables:

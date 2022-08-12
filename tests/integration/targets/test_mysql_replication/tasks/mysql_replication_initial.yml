@@ -199,9 +199,6 @@
         - replica_status.Exec_Source_Log_Pos != mysql_primary_status.Position
       when: mysql8022_and_higher == true
 
-    - shell: pip show pymysql | awk '/Version/ {print $2}'
-      register: pymysql_version
-
     - name: Start replica that is already running
       mysql_replication:
         <<: *mysql_params
@@ -210,10 +207,13 @@
         fail_on_error: true
       register: result
 
+    # Task is changed with mysqlclient 2.0.1 and pymysql 0.9.3
     - assert:
         that:
-        - result is not changed
-      when: (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '<=')
+          - result is not changed
+      when:
+        - connector_name is search('pymysql')
+        - connector_ver is version('0.9.3', '<=')
 
     # Test stopreplica mode:
     - name: Stop replica using deprecated stopslave choice
@@ -237,7 +237,10 @@
         fail_on_error: true
       register: result
 
+    # Task is changed with mysqlclient 2.0.1 and pymysql 0.9.3
     - assert:
         that:
-        - result is not changed
-      when: (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '<=')
+          - result is not changed
+      when:
+        - connector_name is search('pymysql')
+        - connector_ver is version('0.9.3', '<=')

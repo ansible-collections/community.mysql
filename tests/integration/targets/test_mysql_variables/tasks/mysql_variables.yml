@@ -151,22 +151,20 @@
     # ============================================================
     # Verify mysql_variable fails when setting an incorrect value (out of range)
     #
-    - shell: pip show pymysql | awk '/Version/ {print $2}'
-      register: pymysql_version
 
     - name: set mysql variable value to a number out of range
       mysql_variables:
         <<: *mysql_params
         variable: max_connect_errors
-        value: -1
+        value: '-1'
       register: oor_result
       ignore_errors: true
 
     - include: assert_var.yml changed=true output={{ oor_result }} var_name=max_connect_errors var_value=1
-      when: pymysql_version.stdout == ""
+      when: connector.name.0 is not search('pymysql')
 
     - include: assert_fail_msg.yml output={{ oor_result }}  msg='Truncated incorrect'
-      when: pymysql_version.stdout != ""
+      when: connector.name.0 is search('pymysql')
 
     # ============================================================
     # Verify mysql_variable fails when setting an incorrect value (incorrect type)

@@ -23,6 +23,7 @@ install_prereqs:
 
 install_python_prereqs:
   - python3-dev
+  - python3-cryptography
   - default-libmysqlclient-dev
   - build-essential
 

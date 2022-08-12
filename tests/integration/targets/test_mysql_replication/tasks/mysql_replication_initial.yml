@@ -218,10 +218,13 @@
         fail_on_error: true
       register: result
 
+    # Task is changed with mysqlclient 2.0.1 and pymysql 0.9.3
     - assert:
         that:
-        - result is not changed
-      when: (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '<=')
+          - result is not changed
+      when:
+        - connector_name is search('pymysql')
+        - connector_ver is version('0.9.3', '<=')
 
     # Test stopreplica mode:
     - name: Stop replica
@@ -247,8 +250,7 @@
 
     - assert:
         that:
-        - result is not changed
-      when: (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '<=')
+          - result is not changed
 
     # master / slave related choices were removed in 3.0.0
     # https://github.com/ansible-collections/community.mysql/pull/252

@@ -361,7 +361,13 @@
       register: pymysql_version
 
     - name: Test plugin auth switching which doesn't work on pymysql < 0.9
-      when: pymysql_version.stdout == "" or (pymysql_version.stdout != "" and pymysql_version.stdout is version('0.9', '>='))
+      when:
+        - >
+          connector_name is not search('pymysql')
+          or (
+            connector_name is search('pymysql')
+            and connector_ver is version('0.9', '>=')
+          )
       block:
 
       - name: Create user with plugin auth (empty auth string)

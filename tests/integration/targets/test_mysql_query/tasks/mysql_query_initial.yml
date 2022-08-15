@@ -343,7 +343,7 @@
       that:
       # PyMySQL driver throws a warning, so the following is correct
       - result is not changed
-    when: connector.name.0 is search('pymysql')
+    when: connector_name is search('pymysql')
 
   # Issue https://github.com/ansible-collections/community.mysql/issues/268
   - assert:
@@ -352,7 +352,7 @@
       # if the state was changed or not.
       # We assume that it was for DDL queryes by default in the code
       - result is changed
-    when: connector.name.0 is search('mysqlclient')
+    when: connector_name is search('mysqlclient')
 
   - name: Drop db {{ test_db }}
     mysql_query:

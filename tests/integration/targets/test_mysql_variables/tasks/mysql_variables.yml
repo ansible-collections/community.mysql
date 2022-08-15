@@ -160,10 +160,10 @@
       ignore_errors: true
 
     - include: assert_var.yml changed=true output={{ oor_result }} var_name=max_connect_errors var_value=1
-      when: connector.name.0 is not search('pymysql')
+      when: connector_name is not search('pymysql')
 
     - include: assert_fail_msg.yml output={{ oor_result }}  msg='Truncated incorrect'
-      when: connector.name.0 is search('pymysql')
+      when: connector_name is search('pymysql')
 
     # ============================================================
     # Verify mysql_variable fails when setting an incorrect value (incorrect type)

@@ -9,8 +9,6 @@
   block:
 
     # ============================================================
-    - shell: pip show pymysql | awk '/Version/ {print $2}'
-      register: pymysql_version
 
     - name: get server certificate
       copy:

@@ -356,12 +356,14 @@
     # plugins that are loaded by default are sha2*, but these aren't compatible with pymysql < 0.9, so skip these tests
     # for those versions.
     #
-    - name: Get pymysql version
-      shell: pip show pymysql | awk '/Version/ {print $2}'
-      register: pymysql_version
-
     - name: Test plugin auth switching which doesn't work on pymysql < 0.9
-      when: pymysql_version.stdout == "" or (pymysql_version.stdout != "" and pymysql_version.stdout is version('0.9', '>='))
+      when:
+        - >
+          connector_name is not search('pymysql')
+          or (
+            connector_name is search('pymysql')
+            and connector_ver is version('0.9', '>=')
+          )
       block:
 
       - name: Create user with plugin auth (empty auth string)

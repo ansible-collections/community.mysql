@@ -184,8 +184,8 @@
       shell: "echo \"INSERT INTO {{ test_table }} (id) VALUES (1), (2), (3); FLUSH LOGS;\" | {{ mysql_command }} -P{{ mysql_primary_port }} {{ test_db }}"
 
     - name: Small pause to be sure the bin log, which was flushed previously, reached the replica
-      pause:
-        seconds: 2
+      ansible.builtin.wait_for:
+        timeout: 2
 
     # Test primary log pos has been changed:
     - name: Get replica status
@@ -218,10 +218,12 @@
         fail_on_error: true
       register: result
 
+    # mysqlclient 2.0.1 always return "changed"
     - assert:
         that:
-        - result is not changed
-      when: (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '<=')
+          - result is not changed
+      when:
+        - connector_name == 'pymysql'
 
     # Test stopreplica mode:
     - name: Stop replica
@@ -236,7 +238,12 @@
         - result is changed
         - result.queries == ["STOP SLAVE"] or result.queries == ["STOP REPLICA"]
 
+    - name: Pause for 2 seconds to let the replication stop
+      ansible.builtin.wait_for:
+        timeout: 2
+
     # Test stopreplica mode:
+    # mysqlclient 2.0.1 always return "changed"
     - name: Stop replica that is no longer running
       mysql_replication:
         <<: *mysql_params
@@ -247,8 +254,9 @@
 
     - assert:
         that:
-        - result is not changed
-      when: (pymysql_version.stdout | default('1000', true)) is version('0.9.3', '<=')
+          - result is not changed
+      when:
+        - connector_name == 'pymysql'
 
     # master / slave related choices were removed in 3.0.0
     # https://github.com/ansible-collections/community.mysql/pull/252

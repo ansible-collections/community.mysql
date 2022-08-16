@@ -334,7 +334,6 @@
     # plugins that are loaded by default are sha2*, but these aren't compatible with pymysql < 0.9, so skip these tests
     # for those versions.
     #
-
     - name: Test plugin auth switching which doesn't work on pymysql < 0.9
       when:
         - >

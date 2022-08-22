@@ -196,7 +196,7 @@
 - name: assert output message that database was created
   assert:
     that:
-      - "result.changed == true"
+      - result is changed
 
 - name: run command to test database was created using user1
   command: "{{ mysql_command }} -e \"show databases like '{{ db_user1 | regex_replace(\"([%_\\\\])\", \"\\\\\\1\") }}'\""

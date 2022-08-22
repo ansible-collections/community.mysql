@@ -43,4 +43,4 @@
     - name: assert output message mysql user was created
       assert:
         that:
-          - "result.changed == true"
+          - result is changed

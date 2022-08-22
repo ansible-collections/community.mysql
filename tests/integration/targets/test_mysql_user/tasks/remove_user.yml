@@ -37,7 +37,7 @@
     - name: assert output message mysql user was removed
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     # ============================================================
     - name: create blank mysql user to be removed later
@@ -58,7 +58,7 @@
     - name: assert changed is true for removing all blank users
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - name: remove blank mysql user with hosts=all (expect ok)
       mysql_user:
@@ -71,4 +71,4 @@
     - name: assert changed is true for removing all blank users
       assert:
         that:
-          - "result.changed == false"
+          - result is not changed

@@ -159,7 +159,7 @@
 - name: assert successful completion of dump operation (with multiple databases in list form) via check mode
   assert:
     that:
-      - "dump_result.changed == true"
+      - dump_result is changed
 
 - name: database dump file2 should not exist
   stat:
@@ -187,7 +187,7 @@
 - name: assert successful completion of dump operation (with multiple databases in list form)
   assert:
     that:
-      - "dump_result2.changed == true"
+      - dump_result2 is changed
 
 - name: state dump - dump file2 should exist
   file:
@@ -249,7 +249,7 @@
 - name: assert output message restored a database from dump file1
   assert:
     that:
-      - "import_result.changed == true"
+      - import_result is changed
 
 - name: remove database
   mysql_db:
@@ -284,7 +284,7 @@
 - name: assert output message restored a database from dump file2 (check mode)
   assert:
     that:
-      - "check_import_result.changed == true"
+      - check_import_result is changed
 
 - name: run command to list databases
   command: "{{ mysql_command }} \"-e show databases like 'data%'\""
@@ -309,7 +309,7 @@
 - name: assert output message restored a database from dump file2
   assert:
     that:
-      - import_result2.changed == true
+      - import_result2 is changed
       - import_result2.db_list == ['{{ db_name2 }}']
 
 - name: run command to list databases
@@ -335,7 +335,7 @@
 - name: assert output message backup the database
   assert:
     that:
-      - "result.changed == true"
+      - result is changed
       - "result.db =='{{ db_name }}'"
 
 # - name: assert database was backed up successfully
@@ -364,7 +364,7 @@
 - name: assert output message restore the database
   assert:
     that:
-      - "result.changed == true"
+      - result is changed
 
 - name: select data from table employee
   command: "{{ mysql_command }} {{ db_name }} \"-e select * from  employee\""

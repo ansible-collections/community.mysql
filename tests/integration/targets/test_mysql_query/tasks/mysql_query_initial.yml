@@ -18,8 +18,8 @@
 
   - assert:
       that:
-      - result is changed
-      - result.executed_queries == ['CREATE DATABASE {{ test_db }}']
+        - result is changed
+        - result.executed_queries == ['CREATE DATABASE {{ test_db }}']
 
   - name: Create {{ test_table1 }}
     mysql_query:
@@ -30,8 +30,8 @@
 
   - assert:
       that:
-      - result is changed
-      - result.executed_queries == ['CREATE TABLE {{ test_table1 }} (id int)']
+        - result is changed
+        - result.executed_queries == ['CREATE TABLE {{ test_table1 }} (id int)']
 
   - name: Insert test data
     mysql_query:
@@ -45,9 +45,9 @@
 
   - assert:
       that:
-      - result is changed
-      - result.rowcount == [2, 1]
-      - result.executed_queries == ['INSERT INTO {{ test_table1 }} VALUES (1), (2)', 'INSERT INTO {{ test_table1 }} VALUES (3)']
+        - result is changed
+        - result.rowcount == [2, 1]
+        - result.executed_queries == ['INSERT INTO {{ test_table1 }} VALUES (1), (2)', 'INSERT INTO {{ test_table1 }} VALUES (3)']
 
   - name: Check data in {{ test_table1 }}
     mysql_query:
@@ -305,8 +305,8 @@
 
   - assert:
       that:
-      - result is changed
-      - result.rowcount == [1]
+        - result is changed
+        - result.rowcount == [1]
 
   - name: Replace test data
     mysql_query:
@@ -318,8 +318,8 @@
 
   - assert:
       that:
-      - result is changed
-      - result.rowcount == [2]
+        - result is changed
+        - result.rowcount == [2]
 
   # Issue https://github.com/ansible-collections/community.mysql/issues/268
   - name: Create table
@@ -341,17 +341,17 @@
   # Issue https://github.com/ansible-collections/community.mysql/issues/268
   - assert:
       that:
-      # PyMySQL driver throws a warning, so the following is correct
-      - result is not changed
+        # PyMySQL driver throws a warning, so the following is correct
+        - result is not changed
     when: connector_name is search('pymysql')
 
   # Issue https://github.com/ansible-collections/community.mysql/issues/268
   - assert:
       that:
-      # mysqlclient driver throws nothing, so it's impossible to figure out
-      # if the state was changed or not.
-      # We assume that it was for DDL queryes by default in the code
-      - result is changed
+        # mysqlclient driver throws nothing, so it's impossible to figure out
+        # if the state was changed or not.
+        # We assume that it was for DDL queryes by default in the code
+        - result is changed
     when: connector_name is search('mysqlclient')
 
   - name: Drop db {{ test_db }}
@@ -362,5 +362,5 @@
 
   - assert:
       that:
-      - result is changed
-      - result.executed_queries == ['DROP DATABASE {{ test_db }}']
+        - result is changed
+        - result.executed_queries == ['DROP DATABASE {{ test_db }}']

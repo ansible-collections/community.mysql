@@ -225,7 +225,7 @@
 
   - assert:
       that:
-      - result.failed == true
+        - result is failed
 
   - name: Check the prev rename
     mysql_query:
@@ -271,8 +271,8 @@
 
   - assert:
       that:
-      - result is failed
-      - result.msg is search('the query option value must be a string or list')
+        - result is failed
+        - result.msg is search('the query option value must be a string or list')
 
   - name: Pass wrong query element
     mysql_query:
@@ -286,8 +286,8 @@
 
   - assert:
       that:
-      - result is failed
-      - result.msg is search('the elements in query list must be strings')
+        - result is failed
+        - result.msg is search('the elements in query list must be strings')
 
   - name: Create {{ test_table4 }}
     mysql_query:

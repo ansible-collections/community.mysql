@@ -398,7 +398,7 @@
 
 - assert:
     that:
-      - result.failed == true
+      - result is failed
 
 - name: try to import with force parameter
   mysql_db:

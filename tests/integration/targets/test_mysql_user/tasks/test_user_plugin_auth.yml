@@ -59,7 +59,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     - name: Update the user with a different hash
       mysql_user:
@@ -88,7 +88,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     # Cleanup
     - include: remove_user.yml user_name={{ test_user_name }} user_password={{ test_plugin_new_auth_string }}
@@ -135,7 +135,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     - name: Update the user with the same hash (no change expected)
       mysql_user:
@@ -180,7 +180,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     # Cleanup
     - include: remove_user.yml user_name={{ test_user_name }} user_password={{ test_plugin_auth_string }}
@@ -227,7 +227,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     - name: Update the user with the same auth string
       mysql_user:
@@ -271,7 +271,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     # Cleanup
     - include: remove_user.yml user_name={{ test_user_name }} user_password={{ test_plugin_auth_string }}
@@ -318,7 +318,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     - name: Get the MySQL version using an non-empty password (should fail)
       mysql_info:
@@ -333,7 +333,7 @@
     - name: Assert that mysql_info failed
       assert:
         that:
-          - "result.failed == true"
+          - result is failed
 
     - name: Update the user without changing the auth mechanism
       mysql_user:

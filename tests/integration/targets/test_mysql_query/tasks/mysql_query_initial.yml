@@ -58,12 +58,12 @@
 
   - assert:
       that:
-      - result is not changed
-      - result.executed_queries == ['SELECT * FROM {{ test_table1 }}']
-      - result.rowcount == [3]
-      - result.query_result[0][0].id == 1
-      - result.query_result[0][1].id == 2
-      - result.query_result[0][2].id == 3
+        - result is not changed
+        - result.executed_queries == ['SELECT * FROM {{ test_table1 }}']
+        - result.rowcount == [3]
+        - result.query_result[0][0].id == 1
+        - result.query_result[0][1].id == 2
+        - result.query_result[0][2].id == 3
 
   - name: Check data in {{ test_table1 }} using positional args
     mysql_query:
@@ -76,10 +76,10 @@
 
   - assert:
       that:
-      - result is not changed
-      - result.executed_queries == ["SELECT * FROM {{ test_table1 }} WHERE id = 1"]
-      - result.rowcount == [1]
-      - result.query_result[0][0].id == 1
+        - result is not changed
+        - result.executed_queries == ["SELECT * FROM {{ test_table1 }} WHERE id = 1"]
+        - result.rowcount == [1]
+        - result.query_result[0][0].id == 1
 
   - name: Check data in {{ test_table1 }} using named args
     mysql_query:
@@ -92,10 +92,10 @@
 
   - assert:
       that:
-      - result is not changed
-      - result.executed_queries == ["SELECT * FROM {{ test_table1 }} WHERE id = 1"]
-      - result.rowcount == [1]
-      - result.query_result[0][0].id == 1
+        - result is not changed
+        - result.executed_queries == ["SELECT * FROM {{ test_table1 }} WHERE id = 1"]
+        - result.rowcount == [1]
+        - result.query_result[0][0].id == 1
 
   - name: Update data in {{ test_table1 }}
     mysql_query:
@@ -109,9 +109,9 @@
 
   - assert:
       that:
-      - result is changed
-      - result.executed_queries == ['UPDATE {{ test_table1 }} SET id = 0 WHERE id = 1']
-      - result.rowcount == [1]
+        - result is changed
+        - result.executed_queries == ['UPDATE {{ test_table1 }} SET id = 0 WHERE id = 1']
+        - result.rowcount == [1]
 
   - name: Check the prev update - row with value 1 does not exist anymore
     mysql_query:
@@ -124,9 +124,9 @@
 
   - assert:
       that:
-      - result is not changed
-      - result.executed_queries == ['SELECT * FROM {{ test_table1 }} WHERE id = 1']
-      - result.rowcount == [0]
+        - result is not changed
+        - result.executed_queries == ['SELECT * FROM {{ test_table1 }} WHERE id = 1']
+        - result.rowcount == [0]
 
   - name: Check the prev update - row with value - exist
     mysql_query:
@@ -139,9 +139,9 @@
 
   - assert:
       that:
-      - result is not changed
-      - result.executed_queries == ['SELECT * FROM {{ test_table1 }} WHERE id = 0']
-      - result.rowcount == [1]
+        - result is not changed
+        - result.executed_queries == ['SELECT * FROM {{ test_table1 }} WHERE id = 0']
+        - result.rowcount == [1]
 
   - name: Update data in {{ test_table1 }} again
     mysql_query:
@@ -155,9 +155,9 @@
 
   - assert:
       that:
-      - result is not changed
-      - result.executed_queries == ['UPDATE {{ test_table1 }} SET id = 0 WHERE id = 1']
-      - result.rowcount == [0]
+        - result is not changed
+        - result.executed_queries == ['UPDATE {{ test_table1 }} SET id = 0 WHERE id = 1']
+        - result.rowcount == [0]
 
   - name: Delete data from {{ test_table1 }}
     mysql_query:
@@ -170,9 +170,9 @@
 
   - assert:
       that:
-      - result is changed
-      - result.executed_queries == ['DELETE FROM {{ test_table1 }} WHERE id = 0', 'SELECT * FROM {{ test_table1 }} WHERE id = 0']
-      - result.rowcount == [1, 0]
+        - result is changed
+        - result.executed_queries == ['DELETE FROM {{ test_table1 }} WHERE id = 0', 'SELECT * FROM {{ test_table1 }} WHERE id = 0']
+        - result.rowcount == [1, 0]
 
   - name: Delete data from {{ test_table1 }} again
     mysql_query:
@@ -183,9 +183,9 @@
 
   - assert:
       that:
-      - result is not changed
-      - result.executed_queries == ['DELETE FROM {{ test_table1 }} WHERE id = 0']
-      - result.rowcount == [0]
+        - result is not changed
+        - result.executed_queries == ['DELETE FROM {{ test_table1 }} WHERE id = 0']
+        - result.rowcount == [0]
 
   - name: Truncate {{ test_table1 }}
     mysql_query:
@@ -198,9 +198,9 @@
 
   - assert:
       that:
-      - result is changed
-      - result.executed_queries == ['TRUNCATE {{ test_table1 }}', 'SELECT * FROM {{ test_table1 }}']
-      - result.rowcount == [0, 0]
+        - result is changed
+        - result.executed_queries == ['TRUNCATE {{ test_table1 }}', 'SELECT * FROM {{ test_table1 }}']
+        - result.rowcount == [0, 0]
 
   - name: Rename {{ test_table1 }}
     mysql_query:
@@ -211,9 +211,9 @@
 
   - assert:
       that:
-      - result is changed
-      - result.executed_queries == ['RENAME TABLE {{ test_table1 }} TO {{ test_table2 }}']
-      - result.rowcount == [0]
+        - result is changed
+        - result.executed_queries == ['RENAME TABLE {{ test_table1 }} TO {{ test_table2 }}']
+        - result.rowcount == [0]
 
   - name: Check the prev rename
     mysql_query:
@@ -236,7 +236,7 @@
 
   - assert:
       that:
-      - result.rowcount == [0]
+        - result.rowcount == [0]
 
   - name: Create {{ test_table3 }}
     mysql_query:
@@ -259,7 +259,7 @@
 
   - assert:
       that:
-      - result.rowcount == [2]
+        - result.rowcount == [2]
 
   - name: Pass wrong query type
     mysql_query:

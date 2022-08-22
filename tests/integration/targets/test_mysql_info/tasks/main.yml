@@ -212,4 +212,4 @@
     - name: Check
       assert:
         that:
-          result.databases.allviews.size == 0
+          - result.databases.allviews.size == 0

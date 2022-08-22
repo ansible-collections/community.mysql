@@ -20,6 +20,7 @@
         connector_name is search('pymysql')
         and connector_ver is version('0.9.3', '>=')
       )
+
 - name: Create include_dir
   file:
     path: '{{ include_dir }}'

@@ -35,6 +35,6 @@
 - name: assert output variable info match mysql variable info
   assert:
     that:
-      - "result.changed == true"
+      - "result.changed | bool == true"
       - "key_name in result.stdout"
       - "key_value in result.stdout"

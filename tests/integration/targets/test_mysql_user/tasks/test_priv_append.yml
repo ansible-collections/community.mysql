@@ -50,7 +50,7 @@
     - name: Assert that there wasn't a change in permissions
       assert:
         that:
-          - "result.changed == false"
+          - result is not changed
 
     - name: Run command to show privileges for user (expect privileges in stdout)
       command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_4 }}'@'localhost'\""
@@ -76,7 +76,7 @@
     - name: Assert that there was a change because permissions were added to data1.*
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - name: Run command to show privileges for user (expect privileges in stdout)
       command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_4 }}'@'localhost'\""

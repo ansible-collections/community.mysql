@@ -28,7 +28,7 @@
     - name: assert output message mysql user was created
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - include: assert_user.yml user_name={{user_name_1}}
 
@@ -45,7 +45,7 @@
     - name: assert output message mysql user was removed
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     # Test blank user removal
     - name: create blank mysql user to be removed later
@@ -68,7 +68,7 @@
     - name: assert changed is true for removing all blank users
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - name: remove blank mysql user with hosts=all (expect ok)
       mysql_user:
@@ -82,7 +82,7 @@
     - name: assert changed is true for removing all blank users
       assert:
         that:
-          - "result.changed == false"
+          - result is not changed
 
     - include: assert_no_user.yml user_name={{user_name_1}}
 
@@ -109,7 +109,7 @@
     - name: assert output message mysql user was created
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - include: assert_user.yml user_name={{user_name_1}}
 
@@ -126,7 +126,7 @@
     - name: assert output message mysql user was removed
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     # Test blank user removal
     - name: create blank mysql user to be removed later
@@ -149,7 +149,7 @@
     - name: assert changed is true for removing all blank users
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - name: remove blank mysql user with hosts=all (expect ok)
       mysql_user:
@@ -163,6 +163,6 @@
     - name: assert changed is true for removing all blank users
       assert:
         that:
-          - "result.changed == false"
+          - result is not changed
 
     - include: assert_no_user.yml user_name={{user_name_1}}

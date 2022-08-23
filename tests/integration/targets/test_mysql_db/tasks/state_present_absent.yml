@@ -95,7 +95,7 @@
 - name: assert test mysql_db encoding param not valid - issue 8075 (failed=true)
   assert:
     that:
-      - "result.failed == true"
+      - result is failed
       - "'Traceback' not in result.msg"
       - "'Unknown character set' in result.msg"
 
@@ -196,7 +196,7 @@
 - name: assert output message that database was created
   assert:
     that:
-      - "result.changed == true"
+      - result is changed
 
 - name: run command to test database was created using user1
   command: "{{ mysql_command }} -e \"show databases like '{{ db_user1 | regex_replace(\"([%_\\\\])\", \"\\\\\\1\") }}'\""
@@ -233,7 +233,7 @@
 - name: assert output message that database was not created using dbuser2
   assert:
     that:
-      - "result.failed == true"
+      - result is failed
       - "'Access denied' in result.msg"
 
 - name: run command to test that database was not created
@@ -260,7 +260,7 @@
 - name: assert output message that database was not deleted using dbuser2
   assert:
     that:
-      - "result.failed == true"
+      - result is failed
       - "'Access denied' in result.msg"
 
 - name: run command to test database was not deleted

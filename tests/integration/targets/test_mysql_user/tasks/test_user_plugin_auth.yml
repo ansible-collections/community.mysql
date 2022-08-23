@@ -37,8 +37,13 @@
     - name: Check that the module made a change and that the expected plugin type is set
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
+
+    - name: Check that the expected plugin type is set
+      assert:
+        that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
+      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -54,7 +59,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     - name: Update the user with a different hash
       mysql_user:
@@ -67,7 +72,7 @@
     - name: Check that the module makes the change because the hash changed
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -83,7 +88,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     # Cleanup
     - include: remove_user.yml user_name={{ test_user_name }} user_password={{ test_plugin_new_auth_string }}
@@ -108,8 +113,13 @@
     - name: Check that the module made a change and that the expected plugin type is set
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
+
+    - name: Check that the expected plugin type is set
+      assert:
+        that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
+      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -125,7 +135,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     - name: Update the user with the same hash (no change expected)
       mysql_user:
@@ -138,7 +148,8 @@
     - name: Check that the module doesn't make a change when the same hash is passed in
       assert:
         that:
-          - "result.changed == false"
+          - result is not changed
+      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -154,7 +165,7 @@
     - name: Check that the module did not change the password
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - name: Getting the MySQL info should still work
       mysql_info:
@@ -168,7 +179,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     # Cleanup
     - include: remove_user.yml user_name={{ test_user_name }} user_password={{ test_plugin_auth_string }}
@@ -193,7 +204,11 @@
     - name: Check that the module made a change and that the expected plugin type is set
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
+
+    - name: Check that the expected plugin type is set
+      assert:
+        that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
@@ -210,7 +225,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     - name: Update the user with the same auth string
       mysql_user:
@@ -225,7 +240,7 @@
     - name: The module should detect a change even though the password is the same
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -240,7 +255,7 @@
     - name: Check that the module did not change the password
       assert:
         that:
-          - "result.changed == false"
+          - result is not changed
 
     - name: Get the MySQL version using the newly created creds
       mysql_info:
@@ -254,7 +269,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     # Cleanup
     - include: remove_user.yml user_name={{ test_user_name }} user_password={{ test_plugin_auth_string }}
@@ -278,8 +293,13 @@
     - name: Check that the module made a change and that the expected plugin type is set
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
+
+    - name: Check that the expected plugin type is set
+      assert:
+        that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
+      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -296,7 +316,7 @@
     - name: Assert that mysql_info was successful
       assert:
         that:
-          - "result.failed == false"
+          - result is succeeded
 
     - name: Get the MySQL version using an non-empty password (should fail)
       mysql_info:
@@ -311,7 +331,7 @@
     - name: Assert that mysql_info failed
       assert:
         that:
-          - "result.failed == true"
+          - result is failed
 
     - name: Update the user without changing the auth mechanism
       mysql_user:
@@ -324,7 +344,7 @@
     - name: Assert that the user wasn't changed because the auth string is still empty
       assert:
         that:
-          - "result.changed == false"
+          - result is not changed
 
     # Cleanup
     - include: remove_user.yml user_name={{ test_user_name }} user_password={{ test_plugin_auth_string }}
@@ -359,8 +379,13 @@
       - name: Check that the module made a change and that the expected plugin type is set
         assert:
           that:
-            - "result.changed == true"
+            - result is changed
+
+      - name: Check that the expected plugin type is set
+        assert:
+          that:
             - "'{{ test_plugin_type }}' in show_create_user.stdout"
+        when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
       - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -379,8 +404,13 @@
       - name: Check that the module made a change and that the expected plugin type is set
         assert:
           that:
-            - "result.changed == true"
-            - "'sha256_password' in show_create_user.stdout"
+            - result is changed
+
+      - name: Check that the expected plugin type is set
+        assert:
+          that:
+              - "'sha256_password' in show_create_user.stdout"
+        when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
 
       - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 

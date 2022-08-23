@@ -44,7 +44,7 @@
 - name: assert successful completion of create database using check_mode since databases does not exist prior
   assert:
     that:
-      - check_mode_result.changed == true
+      - check_mode_result is changed
 
 - name: run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
@@ -75,7 +75,7 @@
 - name: assert successful completion of create database
   assert:
     that:
-      - result.changed == true
+      - result is changed
       - result.db_list == ['{{ db1_name }}', '{{ db2_name }}', '{{ db3_name }}']
 
 - name: run command to list databases like specified database name
@@ -108,7 +108,7 @@
 - name: assert that recreation of existing databases does not make change (since recreated using check mode)
   assert:
     that:
-      - check_mode_result.changed == false
+      - check_mode_result is not changed
 
 - name: run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
@@ -139,7 +139,7 @@
 - name: assert that recreation of existing databases does not make change
   assert:
     that:
-      - result.changed == false
+      - result is not changed
 
 - name: run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
@@ -168,7 +168,7 @@
 - name: assert successful completion of deleting database
   assert:
     that:
-      - result.changed == true
+      - result is changed
 
 - name: run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
@@ -200,7 +200,7 @@
 - name: assert successful completion of recreation of partially existing database using check mode
   assert:
     that:
-      - check_mode_result.changed == true
+      - check_mode_result is changed
 
 - name: run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
@@ -231,7 +231,7 @@
 - name: assert successful completion of create database
   assert:
     that:
-      - result.changed == true
+      - result is changed
 
 - name: run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
@@ -272,7 +272,7 @@
 - name: assert successful completion of dump operation using check mode
   assert:
     that:
-      - check_mode_dump_result.changed == true
+      - check_mode_dump_result is changed
 
 - name: run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
@@ -389,7 +389,7 @@
 - name: assert successful completion of dump operation
   assert:
     that:
-      - dump_result.changed == true
+      - dump_result is changed
       - dump_result.db_list == ['{{ db1_name }}', '{{ db2_name }}', '{{ db3_name }}']
 
 - name: run command to list databases like specified database name
@@ -439,7 +439,7 @@
 - name: assert successful completion of dump operation
   assert:
     that:
-      - dump_result.changed == true
+      - dump_result is changed
 
 - name: run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
@@ -479,7 +479,7 @@
 - name: assert successful completion of delete databases which already exists using check mode
   assert:
     that:
-      - check_mode_result.changed == true
+      - check_mode_result is changed
 
 - name: run command to test state=absent for a database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
@@ -508,7 +508,7 @@
 - name: assert successful completion of deleting database
   assert:
     that:
-      - result.changed == true
+      - result is changed
       - result.db_list == ['{{ db2_name }}', '{{ db3_name }}']
 
 - name: run command to list databases like specified database name
@@ -539,7 +539,7 @@
 - name: assert that deletion of non existing databases does not make change (using check mode)
   assert:
     that:
-      - check_mode_result.changed == false
+      - check_mode_result is not changed
 
 - name: run command to test state=absent for a database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
@@ -568,7 +568,7 @@
 - name: assert that deletion of non existing databases does not make change
   assert:
     that:
-      - result.changed == false
+      - result is not changed
 
 - name: run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
@@ -600,7 +600,7 @@
 - name: assert successful completion of deleting database
   assert:
     that:
-      - result.changed == true
+      - result is changed
 
 - name: run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""

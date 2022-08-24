@@ -4,7 +4,11 @@ mysql_user: root
 mysql_password: msandbox
 mysql_primary_port: 3307
 
-db_name: 'data'
+# Database names
+db_names:
+  - "data"
+  - "db%"
+
 db_name2: 'data2'
 db_user1: 'datauser1'
 db_user2: 'datauser2'

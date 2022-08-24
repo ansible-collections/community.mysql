@@ -276,11 +276,6 @@
     - include: test_priv_append.yml enable_check_mode=no
     - include: test_priv_append.yml enable_check_mode=yes
 
-    # Test that subtract_privs will only revoke the grants given by priv
-    # (https://github.com/ansible-collections/community.mysql/issues/331)
-    - include: test_priv_subtract.yml enable_check_mode=no
-    - include: test_priv_subtract.yml enable_check_mode=yes
-
     # Tests for the TLS requires dictionary
     - include: tls_requirements.yml
 
@@ -291,10 +286,6 @@
     - import_tasks: issue-64560.yaml
       tags:
         - issue-64560
-
-    # Test that mysql_user still works with force_context enabled (database set to "mysql")
-    # (https://github.com/ansible-collections/community.mysql/issues/265)
-    - include: issue-265.yml
 
     # https://github.com/ansible-collections/community.mysql/issues/231
     - include: test_user_grants_with_roles_applied.yml

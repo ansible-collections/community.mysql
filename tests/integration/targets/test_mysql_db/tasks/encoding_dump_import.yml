@@ -45,11 +45,11 @@
     encoding: latin1
     target: "{{ latin1_file1 }}"
     state: dump
-  register: dump_result
+  register: result
 
 - assert:
     that:
-    - result is changed
+      - result is changed
 
 - name: state dump - file name should exist
   file:

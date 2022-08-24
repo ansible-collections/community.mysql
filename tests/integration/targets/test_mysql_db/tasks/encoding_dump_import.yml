@@ -49,7 +49,7 @@
 
 - assert:
     that:
-      - result is changed
+    - result is changed
 
 - name: state dump - file name should exist
   file:
@@ -78,6 +78,7 @@
     encoding: latin1
     name: '{{ db_latin1_name }}'
     target: "{{ latin1_file1 }}"
+  register: result
 
 - assert:
     that:

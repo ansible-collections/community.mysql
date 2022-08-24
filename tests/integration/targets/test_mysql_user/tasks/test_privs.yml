@@ -194,7 +194,6 @@
       assert:
         that:
           - result is failed
-          - "'Error granting privileges' in result.msg"
 
     - name: remove username
       mysql_user:

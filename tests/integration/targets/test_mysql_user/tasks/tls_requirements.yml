@@ -55,7 +55,7 @@
             issuer: '/CN=org/O=MyDom, Inc./C=US/ST=Oregon/L=Portland'
 
     - block:
-      - name: retrieve TLS requiremets for users in old database version
+      - name: retrieve TLS requirements for users in old database version
         command: "{{ mysql_command }} -L -N -s -e \"SHOW GRANTS for '{{ item }}'@'localhost'\""
         register: old_result
         with_items: ['{{ user_name_1 }}', '{{ user_name_2 }}', '{{ user_name_3 }}']
@@ -67,7 +67,7 @@
       when: db_version.version.major <= 5 and db_version.version.minor <= 6 or db_version.version.major == 10 and db_version.version.minor < 2
 
     - block:
-      - name: retrieve TLS requiremets for users in new database version
+      - name: retrieve TLS requirements for users in new database version
         command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ item }}'@'localhost'\""
         register: new_result
         with_items: ['{{ user_name_1 }}', '{{ user_name_2 }}', '{{ user_name_3 }}']
@@ -119,12 +119,12 @@
         that:
           - result is changed
 
-    - name: retrieve TLS requiremets for users in old database version
+    - name: retrieve TLS requirements for users in old database version
       command: "{{ mysql_command }} -L -N -s -e \"SHOW GRANTS for '{{ user_name_1 }}'@'localhost'\""
       register: old_result
       when: db_version.version.major <= 5 and db_version.version.minor <= 6 or db_version.version.major == 10 and db_version.version.minor < 2
 
-    - name: retrieve TLS requiremets for users in new database version
+    - name: retrieve TLS requirements for users in new database version
       command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
       register: new_result
       when: db_version.version.major == 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2
@@ -143,12 +143,12 @@
         tls_requires:
           X509:
 
-    - name: retrieve TLS requiremets for users in old database version
+    - name: retrieve TLS requirements for users in old database version
       command: "{{ mysql_command }} -L -N -s -e \"SHOW GRANTS for '{{ user_name_1 }}'@'localhost'\""
       register: old_result
       when: db_version.version.major <= 5 and db_version.version.minor <= 6 or db_version.version.major == 10 and db_version.version.minor < 2
 
-    - name: retrieve TLS requiremets for users in new database version
+    - name: retrieve TLS requirements for users in new database version
       command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
       register: new_result
       when: db_version.version.major == 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2
@@ -159,19 +159,19 @@
       vars:
         - reqs: "{{(old_result is skipped | ternary(new_result, old_result)).stdout.split('REQUIRE')[1].split(separator)[0].strip()}}"
 
-    - name: remove TLS requiremets from user (expect changed=true)
+    - name: remove TLS requirements from user (expect changed=true)
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
         password: '{{ user_password_1 }}'
         tls_requires:
 
-    - name: retrieve TLS requiremets for users in old database version
+    - name: retrieve TLS requirements for users in old database version
       command: "{{ mysql_command }} -L -N -s -e \"SHOW GRANTS for '{{ user_name_1 }}'@'localhost'\""
       register: old_result
       when: db_version.version.major <= 5 and db_version.version.minor <= 6 or db_version.version.major == 10 and db_version.version.minor < 2
 
-    - name: retrieve TLS requiremets for users in new database version
+    - name: retrieve TLS requirements for users in new database version
       command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
       register: new_result
       when: db_version.version.major == 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2

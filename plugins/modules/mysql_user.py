@@ -152,11 +152,14 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = r'''
+# If you encounter the "Please explicitly state intended protocol" error,
+# use the login_unix_socket argument
 - name: Removes anonymous user account for localhost
   community.mysql.mysql_user:
     name: ''
     host: localhost
     state: absent
+    login_unix_socket: /run/mysqld/mysqld.sock
 
 - name: Removes all anonymous user accounts
   community.mysql.mysql_user:

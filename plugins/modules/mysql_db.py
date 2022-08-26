@@ -183,10 +183,13 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = r'''
+# If you encounter the "Please explicitly state intended protocol" error,
+# use the login_unix_socket argument
 - name: Create a new database with name 'bobdata'
   community.mysql.mysql_db:
     name: bobdata
     state: present
+    login_unix_socket: /run/mysqld/mysqld.sock
 
 - name: Create new databases with names 'foo' and 'bar'
   community.mysql.mysql_db:

@@ -57,10 +57,13 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = r'''
+# If you encounter the "Please explicitly state intended protocol" error,
+# use the login_unix_socket argument
 - name: Simple select query to acme db
   community.mysql.mysql_query:
     login_db: acme
     query: SELECT * FROM orders
+    login_unix_socket: /run/mysqld/mysqld.sock
 
 - name: Select query to db acme with positional arguments
   community.mysql.mysql_query:

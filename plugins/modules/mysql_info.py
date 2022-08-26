@@ -76,9 +76,12 @@ EXAMPLES = r'''
 # Display all info from databases group except settings:
 # ansible databases -m mysql_info -a 'filter=!settings'
 
+# If you encounter the "Please explicitly state intended protocol" error,
+# use the login_unix_socket argument
 - name: Collect all possible information using passwordless root access
   community.mysql.mysql_info:
     login_user: root
+    login_unix_socket: /run/mysqld/mysqld.sock
 
 - name: Get MySQL version with non-default credentials
   community.mysql.mysql_info:

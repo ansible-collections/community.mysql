@@ -58,9 +58,12 @@ extends_documentation_fragment:
 '''
 
 EXAMPLES = r'''
+# If you encounter the "Please explicitly state intended protocol" error,
+# use the login_unix_socket argument
 - name: Check for sync_binlog setting
   community.mysql.mysql_variables:
     variable: sync_binlog
+    login_unix_socket: /run/mysqld/mysqld.sock
 
 - name: Set read_only variable to 1 persistently
   community.mysql.mysql_variables:

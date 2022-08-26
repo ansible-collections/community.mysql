@@ -151,7 +151,6 @@
     # ============================================================
     # Verify mysql_variable fails when setting an incorrect value (out of range)
     #
-
     - name: set mysql variable value to a number out of range
       mysql_variables:
         <<: *mysql_params
@@ -360,7 +359,9 @@
 
         - include: assert_var.yml changed=true output={{ result }} var_name={{ set_name }} var_value='{{ def_val }}'
 
-      when: mysql_version is not version('8.0', '<')
+      when:
+        - mysql_version is version('8.0', '>=')
+        - install_type == 'mysql'
 
     # Bugfix of https://github.com/ansible/ansible/issues/54239
     # - name: set variable containing dot

@@ -45,7 +45,7 @@
     encoding: latin1
     target: "{{ latin1_file1 }}"
     state: dump
-  register: dump_result
+  register: result
 
 - assert:
     that:
@@ -78,6 +78,7 @@
     encoding: latin1
     name: '{{ db_latin1_name }}'
     target: "{{ latin1_file1 }}"
+  register: result
 
 - assert:
     that:

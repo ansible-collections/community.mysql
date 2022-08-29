@@ -51,7 +51,7 @@
     - name: assert output message for current privileges
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - name: run command to show privileges for user (expect privileges in stdout)
       command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{user_name_2}}'@'localhost'\""
@@ -101,7 +101,7 @@
     - name: Assert that priv changed
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - name: Add privs to a specific table (expect ok)
       mysql_user:
@@ -115,7 +115,7 @@
     - name: Assert that priv did not change
       assert:
         that:
-          - "result.changed == false"
+          - result is not changed
 
     # ============================================================
     - name: update user with all privileges
@@ -162,7 +162,7 @@
     - name: Assert that priv changed
       assert:
         that:
-          - "result.changed == true"
+          - result is changed
 
     - name: Test idempotency (expect ok)
       mysql_user:
@@ -176,7 +176,24 @@
     - name: Assert that priv did not change
       assert:
         that:
-          - "result.changed == false"
+          - result is not changed
+      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.2', '=='))
+
+    # ============================================================
+    - name: update user with invalid privileges
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_2 }}'
+        password: '{{ user_password_2 }}'
+        priv: '*.*:INVALID'
+        state: present
+      register: result
+      ignore_errors: yes
+
+    - name: Assert that priv did not change
+      assert:
+        that:
+          - result is failed
 
     - name: remove username
       mysql_user:

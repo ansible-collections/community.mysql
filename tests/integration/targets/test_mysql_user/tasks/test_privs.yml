@@ -181,6 +181,56 @@
       when: (install_type == 'mysql' and mysql_version is version('8', '<')) or (install_type == 'mariadb' and mariadb_version is version('10.2', '=='))
 
     # ============================================================
+    - name: grant all privileges with grant option
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_2 }}'
+        password: '{{ user_password_2 }}'
+        priv: '*.*:ALL,GRANT'
+        state: present
+      register: result
+
+    - name: Assert that priv changed
+      assert:
+        that:
+          - "\"granted ['ALL', 'GRANT']\" in result.msg"
+
+    - name: Assert that 'GRANT' permission is present
+      assert:
+        that:
+          - "\"granted ['ALL', 'GRANT']\" in result.msg"
+
+    - name: Test idempotency (expect ok)
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_2 }}'
+        password: '{{ user_password_2 }}'
+        priv: '*.*:ALL,GRANT'
+        state: present
+      register: result
+
+    # FIXME: on mysql >=8 and mariadb >=10.5.2 there's always a change because the REPLICATION CLIENT privilege was renamed to BINLOG MONITOR
+    - name: Assert that priv did not change
+      assert:
+        that:
+          - result is not changed
+      when: (install_type == 'mysql' and mysql_version is version('8', '<')) or (install_type == 'mariadb' and mariadb_version is version('10.2', '=='))
+
+    - name: Assert that 'GRANT' permission is present
+      assert:
+        that:
+          - "\"granted ['ALL', 'GRANT']\" in result.msg"
+
+    - name: drop database using user
+      mysql_db:
+        login_user: '{{ user_name_2 }}'
+        login_password: '{{ user_password_2 }}'
+        login_host: '{{ mysql_host }}'
+        login_port: '{{ mysql_primary_port }}'
+        name: '{{ db_name }}'
+        state: absent
+
+    # ============================================================
     - name: update user with invalid privileges
       mysql_user:
         <<: *mysql_params

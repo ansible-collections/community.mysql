@@ -359,9 +359,18 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     revoke_privs = list(set(new_priv[db_table]) & set(curr_priv[db_table]))
                 else:
                     # When replacing (neither append_privs nor subtract_privs), grant all missing privileges
-                    # and revoke existing privileges that were not requested.
+                    # and revoke existing privileges that were not requested...
                     grant_privs = list(set(new_priv[db_table]) - set(curr_priv[db_table]))
                     revoke_privs = list(set(curr_priv[db_table]) - set(new_priv[db_table]))
+
+                    # ... but do not revoke GRANT option when it's already allowed
+                    # and already in privs.
+                    #
+                    # For more details
+                    # https://github.com/ansible-collections/community.mysql/issues/77#issuecomment-1209693807
+                    if 'GRANT' in new_priv[db_table] and 'GRANT' in curr_priv[db_table]:
+                        grant_privs.append('GRANT')
+
                 if grant_privs == ['GRANT']:
                     # USAGE grants no privileges, it is only needed because 'WITH GRANT OPTION' cannot stand alone
                     grant_privs.append('USAGE')

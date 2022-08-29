@@ -47,8 +47,8 @@
 
     - assert:
         that:
-        - result.changed == false
-        - "mysql_version in result.version.full"
+        - result is not changed
+        - "mysql_version in result.version.full or mariadb_version in result.version.full"
         - result.settings != {}
         - result.global_status != {}
         - result.databases != {}
@@ -66,7 +66,7 @@
 
     - assert:
         that:
-        - result.changed == false
+        - result is not changed
         - result.version != {}
 
     # Remove cred files
@@ -86,8 +86,8 @@
 
     - assert:
         that:
-        - result.changed == false
-        - result.version != {}
+          - result is not changed
+          - result.version != {}
 
     # Test excluding
     - name: Collect all info except settings and users
@@ -98,13 +98,13 @@
 
     - assert:
         that:
-        - result.changed == false
-        - result.version != {}
-        - result.global_status != {}
-        - result.databases != {}
-        - result.engines != {}
-        - result.settings is not defined
-        - result.users is not defined
+          - result is not changed
+          - result.version != {}
+          - result.global_status != {}
+          - result.databases != {}
+          - result.engines != {}
+          - result.settings is not defined
+          - result.users is not defined
 
     # Test including
     - name: Collect info only about version and databases
@@ -117,13 +117,13 @@
 
     - assert:
         that:
-        - result.changed == false
-        - result.version != {}
-        - result.databases != {}
-        - result.engines is not defined
-        - result.settings is not defined
-        - result.global_status is not defined
-        - result.users is not defined
+          - result is not changed
+          - result.version != {}
+          - result.databases != {}
+          - result.engines is not defined
+          - result.settings is not defined
+          - result.global_status is not defined
+          - result.users is not defined
 
     # Test exclude_fields: db_size
     # 'unsupported' element is passed to check that an unsupported value
@@ -140,9 +140,9 @@
 
     - assert:
         that:
-        - result.changed == false
-        - result.databases != {}
-        - result.databases.mysql == {}
+          - result is not changed
+          - result.databases != {}
+          - result.databases.mysql == {}
 
     ########################################################
     # Issue #65727, empty databases must be in returned dict
@@ -163,9 +163,9 @@
     # Check acme is in returned dict
     - assert:
         that:
-        - result.changed == false
-        - result.databases.acme.size == 0
-        - result.databases.mysql != {}
+          - result is not changed
+          - result.databases.acme.size == 0
+          - result.databases.mysql != {}
 
     - name: Collect info about databases excluding their sizes
       mysql_info:
@@ -180,9 +180,9 @@
     # Check acme is in returned dict
     - assert:
         that:
-        - result.changed == false
-        - result.databases.acme == {}
-        - result.databases.mysql == {}
+          - result is not changed
+          - result.databases.acme == {}
+          - result.databases.mysql == {}
 
     - name: Remove acme database
       mysql_db:
@@ -212,4 +212,4 @@
     - name: Check
       assert:
         that:
-          result.databases.allviews.size == 0
+          - result.databases.allviews.size == 0

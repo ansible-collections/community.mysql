@@ -180,6 +180,13 @@
           - result is not changed
       when: (install_type == 'mysql' and mysql_version is version('8', '<')) or (install_type == 'mariadb' and mariadb_version is version('10.2', '=='))
 
+    - name: remove username
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_2 }}'
+        password: '{{ user_password_2 }}'
+        state: absent
+
     # ============================================================
     - name: grant all privileges with grant option
       mysql_user:
@@ -193,12 +200,18 @@
     - name: Assert that priv changed
       assert:
         that:
-          - "\"granted ['ALL', 'GRANT']\" in result.msg"
+          - result is changed
+
+    - name: Collect user info by host
+      community.mysql.mysql_info:
+        <<: *mysql_params
+        filter: "users"
+      register: mysql_info_about_users
 
     - name: Assert that 'GRANT' permission is present
       assert:
         that:
-          - "\"granted ['ALL', 'GRANT']\" in result.msg"
+          - "mysql_info_about_users.users.localhost.{{ user_name_2 }}.Grant_priv == 'Y'"
 
     - name: Test idempotency (expect ok)
       mysql_user:
@@ -216,19 +229,16 @@
           - result is not changed
       when: (install_type == 'mysql' and mysql_version is version('8', '<')) or (install_type == 'mariadb' and mariadb_version is version('10.2', '=='))
 
+    - name: Collect user info by host
+      community.mysql.mysql_info:
+        <<: *mysql_params
+        filter: "users"
+      register: mysql_info_about_users
+
     - name: Assert that 'GRANT' permission is present
       assert:
         that:
-          - "\"granted ['ALL', 'GRANT']\" in result.msg"
-
-    - name: drop database using user
-      mysql_db:
-        login_user: '{{ user_name_2 }}'
-        login_password: '{{ user_password_2 }}'
-        login_host: '{{ mysql_host }}'
-        login_port: '{{ mysql_primary_port }}'
-        name: '{{ db_name }}'
-        state: absent
+          - "mysql_info_about_users.users.localhost.{{ user_name_2 }}.Grant_priv == 'Y'"
 
     # ============================================================
     - name: update user with invalid privileges

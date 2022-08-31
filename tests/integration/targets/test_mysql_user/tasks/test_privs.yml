@@ -222,12 +222,12 @@
         state: present
       register: result
 
-    # FIXME: on mysql >=8 and mariadb >=10.5.2 there's always a change because the REPLICATION CLIENT privilege was renamed to BINLOG MONITOR
+    # FIXME: on mysql >=8 there's always a change (ALL PRIVILEGES -> specific privileges)
     - name: Assert that priv did not change
       assert:
         that:
           - result is not changed
-      when: (install_type == 'mysql' and mysql_version is version('8', '<')) or (install_type == 'mariadb' and mariadb_version is version('10.2', '=='))
+      when: (install_type == 'mysql' and mysql_version is version('8', '<'))
 
     - name: Collect user info by host
       community.mysql.mysql_info:

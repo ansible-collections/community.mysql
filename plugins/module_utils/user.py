@@ -367,8 +367,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     #
                     # For more details
                     # https://github.com/ansible-collections/community.mysql/issues/77#issuecomment-1209693807
-                    if 'GRANT' in grant_privs:
-                        grant_option = 'GRANT' in revoke_privs and 'GRANT' not in grant_privs
+                    grant_option = 'GRANT' in revoke_privs and 'GRANT' not in grant_privs
 
                 if grant_privs == ['GRANT']:
                     # USAGE grants no privileges, it is only needed because 'WITH GRANT OPTION' cannot stand alone

@@ -178,7 +178,7 @@
       assert:
         that:
           - result is not changed
-      when: (install_type == 'mysql' and mysql_version is version('8', '<')) or (install_type == 'mariadb' and mariadb_version is version('10.2', '=='))
+      when: (install_type == 'mysql' and mysql_version is version('8', '<')) or (install_type == 'mariadb' and mariadb_version is version('10.5', '<'))
 
     - name: remove username
       mysql_user:
@@ -227,7 +227,7 @@
       assert:
         that:
           - result is not changed
-      when: (install_type == 'mysql' and mysql_version is version('8', '<'))
+      when: (install_type == 'mysql' and mysql_version is version('8', '<')) or (install_type == 'mariadb')
 
     - name: Collect user info by host
       community.mysql.mysql_info:

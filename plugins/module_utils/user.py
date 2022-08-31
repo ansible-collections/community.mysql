@@ -363,7 +363,11 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     grant_privs = list(set(new_priv[db_table]) - set(curr_priv[db_table]))
                     revoke_privs = list(set(curr_priv[db_table]) - set(new_priv[db_table]))
 
-                    # ... but only revoke grant option if it exists and absence is requested
+                    # ... avoiding pointless revocations when ALL are granted
+                    if 'ALL' in grant_privs or 'ALL PRIVILEGES' in grant_privs:
+                      revoke_privs = list({'GRANT', 'PROXY'} & set(revoke_privs))
+
+                    # Only revoke grant option if it exists and absence is requested
                     #
                     # For more details
                     # https://github.com/ansible-collections/community.mysql/issues/77#issuecomment-1209693807

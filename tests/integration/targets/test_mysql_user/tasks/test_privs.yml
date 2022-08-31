@@ -164,7 +164,7 @@
         that:
           - result is changed
 
-    - name: Test idempotency (expect ok)
+    - name: Test idempotency with a long privileges list (expect ok)
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_2 }}'

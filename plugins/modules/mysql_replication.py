@@ -131,6 +131,11 @@ options:
       L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
     aliases: [master_ssl_cipher]
+  primary_ssl_verify_server_cert:
+    description:
+    - Same as mysql variable.
+    type: bool
+    aliases: [master_ssl_verify_server_cert]
   primary_auto_position:
     description:
     - Whether the host uses GTID based replication or not.
@@ -458,6 +463,7 @@ def main():
         primary_ssl_cert=dict(type='str', aliases=['master_ssl_cert']),
         primary_ssl_key=dict(type='str', no_log=False, aliases=['master_ssl_key']),
         primary_ssl_cipher=dict(type='str', aliases=['master_ssl_cipher']),
+        primary_ssl_verify_server_cert=dict(type='bool', aliases=['master_ssl_verify_server_cert']),
         primary_use_gtid=dict(type='str', choices=[
             'current_pos', 'replica_pos', 'disabled'], aliases=['master_use_gtid']),
         primary_delay=dict(type='int', aliases=['master_delay']),
@@ -487,6 +493,7 @@ def main():
     primary_ssl_cert = module.params["primary_ssl_cert"]
     primary_ssl_key = module.params["primary_ssl_key"]
     primary_ssl_cipher = module.params["primary_ssl_cipher"]
+    primary_ssl_verify_server_cert = module.params["primary_ssl_verify_server_cert"]
     primary_auto_position = module.params["primary_auto_position"]
     ssl_cert = module.params["client_cert"]
     ssl_key = module.params["client_key"]
@@ -595,6 +602,8 @@ def main():
             chm.append("MASTER_SSL_KEY='%s'" % primary_ssl_key)
         if primary_ssl_cipher is not None:
             chm.append("MASTER_SSL_CIPHER='%s'" % primary_ssl_cipher)
+        if primary_ssl_verify_server_cert:
+            chm.append("SOURCE_SSL_VERIFY_SERVER_CERT=1")
         if primary_auto_position:
             chm.append("MASTER_AUTO_POSITION=1")
         if primary_use_gtid is not None:

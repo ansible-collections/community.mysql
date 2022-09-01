@@ -135,7 +135,8 @@ options:
     description:
     - Same as mysql variable.
     type: bool
-    aliases: [master_ssl_verify_server_cert]
+    default: false
+    version_added: '3.4.5'
   primary_auto_position:
     description:
     - Whether the host uses GTID based replication or not.
@@ -463,7 +464,7 @@ def main():
         primary_ssl_cert=dict(type='str', aliases=['master_ssl_cert']),
         primary_ssl_key=dict(type='str', no_log=False, aliases=['master_ssl_key']),
         primary_ssl_cipher=dict(type='str', aliases=['master_ssl_cipher']),
-        primary_ssl_verify_server_cert=dict(type='bool', aliases=['master_ssl_verify_server_cert']),
+        primary_ssl_verify_server_cert=dict(type='bool', default=False),
         primary_use_gtid=dict(type='str', choices=[
             'current_pos', 'replica_pos', 'disabled'], aliases=['master_use_gtid']),
         primary_delay=dict(type='int', aliases=['master_delay']),

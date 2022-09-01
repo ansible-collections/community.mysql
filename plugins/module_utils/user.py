@@ -365,7 +365,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
                     # ... avoiding pointless revocations when ALL are granted
                     if 'ALL' in grant_privs or 'ALL PRIVILEGES' in grant_privs:
-                      revoke_privs = list({'GRANT', 'PROXY'} & set(revoke_privs))
+                        revoke_privs = list(set(['GRANT', 'PROXY']).intersection(set(revoke_privs)))
 
                     # Only revoke grant option if it exists and absence is requested
                     #

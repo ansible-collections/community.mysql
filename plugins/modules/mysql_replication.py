@@ -136,7 +136,7 @@ options:
     - Same as mysql variable.
     type: bool
     default: false
-    version_added: '3.4.5'
+    version_added: '3.5.0'
   primary_auto_position:
     description:
     - Whether the host uses GTID based replication or not.

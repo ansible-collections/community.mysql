@@ -1,0 +1,5 @@
+---
+bugfixes:
+  - mysql_user - grant option was revoked accidentally when modifying users.
+    This fix revokes grant option only when privs are setup to do that
+    (https://github.com/ansible-collections/community.mysql/issues/77#issuecomment-1209693807).

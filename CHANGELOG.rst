@@ -6,6 +6,26 @@ Community MySQL Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.5.0
+======
+
+Release Summary
+---------------
+
+This is the minor release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules in this collection
+that have been added after the release of ``community.mysql`` 3.4.0.
+
+Minor Changes
+-------------
+
+- mysql_replication - add a new option: ``primary_ssl_verify_server_cert`` (https://github.com//pull/435).
+
+Bugfixes
+--------
+
+- mysql_user - grant option was revoked accidentally when modifying users. This fix revokes grant option only when privs are setup to do that (https://github.com/ansible-collections/community.mysql/issues/77#issuecomment-1209693807).
+
 v3.4.0
 ======
 

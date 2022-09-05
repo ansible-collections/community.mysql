@@ -227,3 +227,21 @@ releases:
     - fix-256-mysql_dump-errors.yml
     - simplified-bsd-license.yml
     release_date: '2022-08-02'
+  3.5.0:
+    changes:
+      bugfixes:
+      - mysql_user - grant option was revoked accidentally when modifying users. This
+        fix revokes grant option only when privs are setup to do that (https://github.com/ansible-collections/community.mysql/issues/77#issuecomment-1209693807).
+      minor_changes:
+      - 'mysql_replication - add a new option: ``primary_ssl_verify_server_cert``
+        (https://github.com//pull/435).'
+      release_summary: 'This is the minor release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules in this collection
+
+        that have been added after the release of ``community.mysql`` 3.4.0.'
+    fragments:
+    - 3.5.0.yml
+    - 434-do-not-revoke-grant-option-always.yaml
+    - 435-mysql_replication_verify_server_cert.yml
+    release_date: '2022-09-05'

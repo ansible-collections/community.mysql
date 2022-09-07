@@ -1491,16 +1491,10 @@
       priv: '{{ test_db1 }}.{{ test_table }}:SELECT,INSERT/{{ test_db2 }}.{{ test_table }}:DELETE'
       append_privs: yes
 
-  # TODO it must be changed. The module uses user_mod function
-  # taken from mysql_user module. It's a bug / expected behavior
-  # because I added a similar tasks to mysql_user tests
-  # https://github.com/ansible-collections/community.mysql/issues/50#issuecomment-871216825
-  # and it's also failed. Create an issue after the module is merged to avoid conflicts.
-  # TODO Fix this after user_mod is fixed.
-  - name: Check
+  - name: Check that there's no change
     assert:
       that:
-      - result is changed
+      - result is not changed
 
   - name: Rewrite privs
     <<: *task_params

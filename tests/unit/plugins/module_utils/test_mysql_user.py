@@ -104,8 +104,8 @@ def test_normalize_col_grants(input_, expected):
     'before_privileges,after_privileges,output',
     [
         (
-            {'*.*': ['INSERT', 'UPDATE' 'GRANT'], '`mysql`.*': ['SELECT']},
-            {'*.*': ['INSERT', 'UPDATE' 'GRANT'], '`mysql`.*': ['SELECT']},
+            {'*.*': ['INSERT', 'UPDATE', 'GRANT'], '`mysql`.*': ['SELECT']},
+            {'*.*': ['INSERT', 'UPDATE', 'GRANT'], '`mysql`.*': ['SELECT']},
             True
         ),
         (

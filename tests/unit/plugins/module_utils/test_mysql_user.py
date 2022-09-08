@@ -98,33 +98,3 @@ def test_handle_grant_on_col(privileges, start, end, output):
 def test_normalize_col_grants(input_, expected):
     """Tests normalize_col_grants function."""
     assert normalize_col_grants(input_) == expected
-
-
-@pytest.mark.parametrize(
-    'before_privileges,after_privileges,output',
-    [
-        (
-            {'*.*': ['INSERT', 'UPDATE', 'GRANT'], '`mysql`.*': ['SELECT']},
-            {'*.*': ['INSERT', 'UPDATE', 'GRANT'], '`mysql`.*': ['SELECT']},
-            True
-        ),
-        (
-            {'`mysql`.*': ['SELECT'], '`sys`.*': ['SELECT']},
-            {'`mysql`.*': ['SELECT'], '`sys`.*': ['SELECT']},
-            True
-        ),
-        (
-            {'`sys`.*': ['SELECT'], '`mysql`.*': ['SELECT']},
-            {'`mysql`.*': ['SELECT'], '`sys`.*': ['SELECT']},
-            True
-        ),
-        (
-            {'`mysql`.*': ['UPDATE'], '`sys`.*': ['SELECT']},
-            {'`mysql`.*': ['SELECT'], '`sys`.*': ['SELECT']},
-            False
-        ),
-    ]
-)
-def test_privileges_equal(before_privileges, after_privileges, output):
-    """Tests privileges_equal function."""
-    assert privileges_equal(before_privileges, after_privileges) == output

@@ -388,7 +388,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
             # after privilege manipulation, compare privileges from before and now
             after_priv = privileges_get(cursor, user, host, maria_role)
-            changed = changed or not (curr_priv == after_priv)
+            changed = changed or (curr_priv != after_priv)
 
         if role:
             continue

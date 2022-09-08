@@ -13,8 +13,7 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     handle_grant_on_col,
     has_grant_on_col,
     normalize_col_grants,
-    sort_column_order,
-    privileges_equal
+    sort_column_order
 )
 from ..utils import dummy_cursor_class
 

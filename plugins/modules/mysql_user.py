@@ -23,7 +23,7 @@ options:
   password:
     description:
       - Set the user's password. Only for C(mysql_native_password) authentication.
-        For other authentication plugins see the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string).
+        For other authentication plugins see the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string), I(plugin_auth_service_string).
     type: str
   encrypted:
     description:
@@ -116,12 +116,12 @@ options:
     default: no
   update_password:
     description:
-      - C(always) will update passwords if they differ. This affects I(password) and the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string).
-      - C(on_create) will only set the password or the combination of plugin, plugin_hash_string, plugin_auth_string for newly created users.
+      - C(always) will update passwords if they differ. This affects I(password) and the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string), I(plugin_auth_service_string).
+      - C(on_create) will only set the password or the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string), I(plugin_auth_service_string) for newly created users.
       - "C(on_new_username) works like C(on_create), but it tries to reuse an existing password: If one different user
         with the same username exists, or multiple different users with the same username and equal C(plugin) and
         C(authentication_string) attribute, the existing C(plugin) and C(authentication_string) are used for the
-        new user instead of the I(password), I(plugin), I(plugin_hash_string) or I(plugin_auth_string) argument."
+        new user instead of the I(password), I(plugin), I(plugin_hash_string) or I(plugin_auth_string), I(plugin_auth_service_string) argument."
     type: str
     choices: [ always, on_create, on_new_username ]
     default: always
@@ -140,6 +140,12 @@ options:
       - User's plugin auth_string (``CREATE USER user IDENTIFIED WITH plugin BY plugin_auth_string``).
     type: str
     version_added: '0.1.0'
+  plugin_auth_service_string:
+    description:
+      - User's plugin service_string e.g. pam/auth_pam (``CREATE USER user IDENTIFIED WITH plugin USING plugin_auth_service_string``)
+      - User's plugin service_string for plugins using auth_string and service_string (``CREATE USER user IDENTIFIED WITH plugin BY plugin_auth_string USING plugin_auth_service_string``)
+    type: str
+    version_added: '3.5.0'
   resource_limits:
     description:
       - Limit the user for certain server resources. Provided since MySQL 5.6 / MariaDB 10.2.
@@ -382,6 +388,7 @@ def main():
         plugin=dict(default=None, type='str'),
         plugin_hash_string=dict(default=None, type='str'),
         plugin_auth_string=dict(default=None, type='str'),
+        plugin_auth_service_string=dict(default=None, type='str'),
         resource_limits=dict(type='dict'),
         force_context=dict(type='bool', default=False),
     )
@@ -417,6 +424,7 @@ def main():
     plugin = module.params["plugin"]
     plugin_hash_string = module.params["plugin_hash_string"]
     plugin_auth_string = module.params["plugin_auth_string"]
+    plugin_auth_service_string = module.params["plugin_auth_service_string"]
     resource_limits = module.params["resource_limits"]
     if priv and not isinstance(priv, (str, dict)):
         module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
@@ -460,12 +468,12 @@ def main():
             try:
                 if update_password == "always":
                     result = user_mod(cursor, user, host, host_all, password, encrypted,
-                                      plugin, plugin_hash_string, plugin_auth_string,
+                                      plugin, plugin_hash_string, plugin_auth_string, plugin_auth_service_string,
                                       priv, append_privs, subtract_privs, tls_requires, module)
 
                 else:
                     result = user_mod(cursor, user, host, host_all, None, encrypted,
-                                      None, None, None,
+                                      None, None, None, None,
                                       priv, append_privs, subtract_privs, tls_requires, module)
                 changed = result['changed']
                 msg = result['msg']
@@ -481,7 +489,7 @@ def main():
                     priv = None  # avoid granting unwanted privileges
                 reuse_existing_password = update_password == 'on_new_username'
                 result = user_add(cursor, user, host, host_all, password, encrypted,
-                                  plugin, plugin_hash_string, plugin_auth_string,
+                                  plugin, plugin_hash_string, plugin_auth_string, plugin_auth_service_string,
                                   priv, tls_requires, module.check_mode, reuse_existing_password)
                 changed = result['changed']
                 password_changed = result['password_changed']

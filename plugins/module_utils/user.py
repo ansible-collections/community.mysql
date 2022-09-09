@@ -133,7 +133,7 @@ def get_existing_authentication(cursor, user):
 
 
 def user_add(cursor, user, host, host_all, password, encrypted,
-             plugin, plugin_hash_string, plugin_auth_string, new_priv,
+             plugin, plugin_hash_string, plugin_auth_string, plugin_auth_service_string, new_priv,
              tls_requires, check_mode, reuse_existing_password):
     # we cannot create users without a proper hostname
     if host_all:
@@ -169,8 +169,12 @@ def user_add(cursor, user, host, host_all, password, encrypted,
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, encrypted_password)
     elif plugin and plugin_hash_string:
         query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string)
+    elif plugin and plugin_auth_string and plugin_auth_service_string:
+        query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s BY %s USING %s", (user, host, plugin, plugin_auth_string, plugin_auth_service_string)
     elif plugin and plugin_auth_string:
         query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)
+    elif plugin and plugin_auth_service_string:
+        query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s USING %s", (user, host, plugin, plugin_auth_service_string)
     elif plugin:
         query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s", (user, host, plugin)
     else:
@@ -196,7 +200,7 @@ def is_hash(password):
 
 
 def user_mod(cursor, user, host, host_all, password, encrypted,
-             plugin, plugin_hash_string, plugin_auth_string, new_priv,
+             plugin, plugin_hash_string, plugin_auth_string, plugin_auth_service_string, new_priv,
              append_privs, subtract_privs, tls_requires, module, role=False, maria_role=False):
     changed = False
     msg = "User unchanged"
@@ -304,8 +308,12 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             if update:
                 if plugin_hash_string:
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string)
+                elif plugin_auth_string and plugin_auth_service_string:
+                    query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s BY %s USING %s", (user, host, plugin, plugin_auth_string, plugin_auth_service_string)
                 elif plugin_auth_string:
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)
+                elif plugin_auth_service_string:
+                    query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s USING %s", (user, host, plugin, plugin_auth_service_string)
                 else:
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s", (user, host, plugin)
 

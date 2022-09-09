@@ -1,7 +1,0 @@
----
-bugfixes:
-  - mysql_user, mysql_role - mysql/mariadb recent versions translate 'ALL
-    PRIVILEGES' to a list of specific privileges. That caused a change every time
-    we modified user privileges. This fix compares privs before and after user
-    modification to avoid this infinite change
-    (https://github.com/ansible-collections/community.mysql/issues/77).

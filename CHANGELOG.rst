@@ -6,6 +6,21 @@ Community MySQL Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.5.1
+======
+
+Release Summary
+---------------
+
+This is the patch release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules and plugins in this collection
+that have been made after the previous release.
+
+Bugfixes
+--------
+
+- mysql_user, mysql_role - mysql/mariadb recent versions translate 'ALL PRIVILEGES' to a list of specific privileges. That caused a change every time we modified user privileges. This fix compares privs before and after user modification to avoid this infinite change (https://github.com/ansible-collections/community.mysql/issues/77).
+
 v3.5.0
 ======
 

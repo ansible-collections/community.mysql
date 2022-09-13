@@ -170,8 +170,8 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     elif plugin and plugin_hash_string:
         query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string)
     elif plugin and plugin_auth_string:
-        # Mysql and MariaDB differ in naming pam plugin
-        if plugin == 'pam' or plugin == 'auth_pam':  
+        # Mysql and MariaDB differ in naming pam plugin and Syntax to set it
+        if plugin == 'pam':
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s USING %s", (user, host, plugin, plugin_auth_string)
         else:
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)
@@ -309,8 +309,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 if plugin_hash_string:
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string)
                 elif plugin_auth_string:
-                    # Mysql and MariaDB differ in naming pam plugin
-                    if plugin == 'pam' or plugin == 'auth_pam':  
+                    # Mysql and MariaDB differ in naming pam plugin and syntax to set it
+                    if plugin == 'pam':
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s USING %s", (user, host, plugin, plugin_auth_string)
                     else:
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)

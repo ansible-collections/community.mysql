@@ -30,6 +30,7 @@ jobs:
         python:
           - 3.6
           - 3.8
+          - 3.9
         exclude:
           - python: 3.8
             ansible: stable-2.11
@@ -38,6 +39,8 @@ jobs:
           - python: 3.6
             ansible: stable-2.13
           - python: 3.6
+            ansible: devel
+          - python: 3.8
             ansible: devel
 
     steps:

@@ -117,7 +117,7 @@ options:
   update_password:
     description:
       - C(always) will update passwords if they differ. This affects I(password) and the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string).
-      - C(on_create) will only set the password or the combination of plugin, plugin_hash_string, plugin_auth_string for newly created users.
+      - C(on_create) will only set the password or the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string) for newly created users.
       - "C(on_new_username) works like C(on_create), but it tries to reuse an existing password: If one different user
         with the same username exists, or multiple different users with the same username and equal C(plugin) and
         C(authentication_string) attribute, the existing C(plugin) and C(authentication_string) are used for the
@@ -138,6 +138,8 @@ options:
   plugin_auth_string:
     description:
       - User's plugin auth_string (``CREATE USER user IDENTIFIED WITH plugin BY plugin_auth_string``).
+      - If I(plugin) is ``pam`` or ``auth_pam`` I(plugin_auth_string) can be used to determine the pam service  (``CREATE USER user IDENTIFIED WITH plugin USING plugin_auth_string``).
+        This was chosen because MySQL and MariaDB store the ``USING plugin_auth_string`` part in the ``authentication_string`` column in ``mysql.user``.
     type: str
     version_added: '0.1.0'
   resource_limits:

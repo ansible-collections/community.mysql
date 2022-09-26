@@ -15,8 +15,8 @@ on:
 
 
 env:
-  mysql_version_file: "./ansible_collections/community/mysql/tests/integration/targets/setup_mysql/defaults/main.yml"
-  connector_version_file: "./ansible_collections/community/mysql/tests/integration/targets/setup_mysql/vars/main.yml"
+  mysql_version_file: "tests/integration/targets/setup_mysql/defaults/main.yml"
+  connector_version_file: "tests/integration/targets/setup_mysql/vars/main.yml"
 
 jobs:
   sanity:

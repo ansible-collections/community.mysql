@@ -107,7 +107,9 @@ jobs:
             sed -i -e "s/^${DB_ENGINE}_version:.*/${DB_ENGINE}_version: $DB_VERSION/g" -e 's/^mariadb_install: false/mariadb_install: true/g' '${{ env.mysql_version_file }}';
             ${{
               matrix.db_engine_version == 'mariadb_10.8.3'
-              && '>&2 echo Set MariaDB v10.8.3 URL sub dir...; sed -i -e "s/^mariadb_url_subdir:.*/mariadb_url_subdir: linux-systemd/g" ${{ env.connector_version_file }};'
+              && format(
+                '>&2 echo Set MariaDB v10.8.3 URL sub dir...; sed -i -e "s/^mariadb_url_subdir:.*/mariadb_url_subdir: linux-systemd/g" "{0}";', env.connector_version_file
+              )
               || ''
             }}
             >&2 echo Setting Connector version to ${{ matrix.connector }}...;

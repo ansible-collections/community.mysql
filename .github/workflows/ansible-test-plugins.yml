@@ -111,7 +111,7 @@ jobs:
               || ''
             }}
             >&2 echo Setting Connector version to ${{ matrix.connector }}...;
-            sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }};
+            sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration
 

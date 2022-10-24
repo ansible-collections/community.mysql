@@ -53,7 +53,7 @@ jobs:
           # - stable-2.14
           # - devel
         python:
-          # - 3.6
+          - 3.6
           - 3.8
           # - 3.9
         connector:

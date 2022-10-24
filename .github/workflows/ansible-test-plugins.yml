@@ -45,44 +45,44 @@ jobs:
       matrix:
         db_engine_version:
           - mysql_5.7.31
-          - mysql_8.0.22
+          # - mysql_8.0.22
         ansible:
-          - stable-2.11
+          # - stable-2.11
           - stable-2.12
-          - stable-2.13
-          - stable-2.14
-          - devel
+          # - stable-2.13
+          # - stable-2.14
+          # - devel
         python:
-          - 3.6
+          # - 3.6
           - 3.8
-          - 3.9
+          # - 3.9
         connector:
-          - pymysql==0.7.10
+          # - pymysql==0.7.10
           - pymysql==0.9.3
-          - mysqlclient==2.0.1
+          # - mysqlclient==2.0.1
         exclude:
-          - db_engine_version: mysql_8.0.22
-            connector: pymysql==0.7.10
-          - python: 3.6
-            ansible: stable-2.12
-          - python: 3.6
-            ansible: stable-2.13
-          - python: 3.6
-            ansible: stable-2.14
-          - python: 3.6
-            ansible: devel
-          - python: 3.8
-            ansible: stable-2.11
-          - python: 3.8
-            ansible: stable-2.13
-          - python: 3.8
-            ansible: stable-2.14
-          - python: 3.8
-            ansible: devel
-          - python: 3.9
-            ansible: stable-2.11
-          - python: 3.9
-            ansible: stable-2.12
+          # - db_engine_version: mysql_8.0.22
+          #   connector: pymysql==0.7.10
+          # - python: 3.6
+          #   ansible: stable-2.12
+          # - python: 3.6
+          #   ansible: stable-2.13
+          # - python: 3.6
+          #   ansible: stable-2.14
+          # - python: 3.6
+          #   ansible: devel
+          # - python: 3.8
+          #   ansible: stable-2.11
+          # - python: 3.8
+          #   ansible: stable-2.13
+          # - python: 3.8
+          #   ansible: stable-2.14
+          # - python: 3.8
+          #   ansible: devel
+          # - python: 3.9
+          #   ansible: stable-2.11
+          # - python: 3.9
+          #   ansible: stable-2.12
 
     steps:
       - name: >-
@@ -114,7 +114,6 @@ jobs:
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         if: ${{ failure() }}
-        timeout-minutes: 60
         with:
           limit-access-to-actor: true
 

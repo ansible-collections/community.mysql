@@ -177,7 +177,7 @@
       when: db_version.version.major == 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2
 
     - debug:
-      msg: reqs is {{(old_result is skipped | ternary(new_result, old_result)).stdout.split('REQUIRE')[1].split(separator)[0].strip() | default('NONE') }}
+        msg: reqs is {{(old_result is skipped | ternary(new_result, old_result)).stdout.split('REQUIRE')[1].split(separator)[0].strip() | default('NONE') }}
 
     # - name: assert user1 TLS requirements
     #   assert:

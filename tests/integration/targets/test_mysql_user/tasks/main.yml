@@ -51,6 +51,8 @@
 
     - include: assert_no_user.yml user_name={{user_name_1}}
 
+    - debug: var=hostvars[inventory_hostname]
+
     # ============================================================
     # Create mysql user that already exist on mysql database
     #

@@ -116,6 +116,7 @@ jobs:
             sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration
+          target: test_mysql_user
 
   # units:
   #   runs-on: ubuntu-latest

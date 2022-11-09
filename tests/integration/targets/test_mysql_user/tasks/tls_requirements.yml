@@ -176,8 +176,11 @@
       register: new_result
       when: db_version.version.major == 5 and db_version.version.minor >= 7 or db_version.version.major > 5 and db_version.version.major < 10  or db_version.version.major == 10 and db_version.version.minor >= 2
 
-    - debug:
-        msg: reqs is {{(old_result is skipped | ternary(new_result, old_result)).stdout.split('REQUIRE')[1].split(separator)[0].strip() | default('NONE') }}
+    - name: Debug retrieve TLS requirements for users in new database version
+      ansible.builtin.debug:
+        msg: >
+          old_result: {{ old_result | d("empty") }}
+          new_result: {{ new_result | d("empty") }}
 
     # - name: assert user1 TLS requirements
     #   assert:

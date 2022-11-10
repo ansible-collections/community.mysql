@@ -7,12 +7,8 @@ dbdeployer_sandbox_download_dir: "{{ home_dir }}/downloads"
 dbdeployer_sandbox_binary_dir: "{{ home_dir }}/opt/mysql"
 dbdeployer_sandbox_home_dir: "{{ home_dir }}/sandboxes"
 
-percona_mysql_repos:
-  - deb http://repo.percona.com/apt {{ ansible_lsb.codename }} main
-  - deb-src http://repo.percona.com/apt {{ ansible_lsb.codename }} main
-
 percona_mysql_packages:
-  - percona-server-client-{{ percona_client_version }}
+  - "{{ percona_client_package }}"
 
 python_packages: [pymysql == 0.9.3]
 
@@ -29,5 +25,6 @@ install_python_prereqs:
 
 mysql_tarball: "mysql-{{ mysql_version }}-linux-glibc2.12-x86_64.tar.{{ mysql_compression_extension }}"
 mysql_src: "https://dev.mysql.com/get/Downloads/MySQL-{{ mysql_major_version }}/{{ mysql_tarball }}"
-mariadb_tarball: "mariadb-{{ mariadb_version }}-linux-x86_64.tar.gz"
-mariadb_src: "https://downloads.mariadb.com/MariaDB/mariadb-{{ mariadb_version }}/bintar-linux-x86_64/{{ mariadb_tarball }}"
+mariadb_url_subdir: "linux"
+mariadb_tarball: "mariadb-{{ mariadb_version }}-{{ mariadb_url_subdir }}-x86_64.tar.gz"
+mariadb_src: "https://downloads.mariadb.com/MariaDB/mariadb-{{ mariadb_version }}/bintar-{{ mariadb_url_subdir }}-x86_64/{{ mariadb_tarball }}"

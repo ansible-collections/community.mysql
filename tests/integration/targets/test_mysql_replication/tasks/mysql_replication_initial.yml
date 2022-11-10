@@ -24,14 +24,20 @@
         mysql8022_and_higher: true
       when:
       - db.version.major > 8 or (db.version.major == 8 and db.version.minor > 0) or (db.version.major == 8 and db.version.minor == 0 and db.version.release >= 22)
+      - install_type == 'mysql'
 
     - name: alias mysql command to include default options
       set_fact:
         mysql_command: "mysql -u{{ mysql_user }} -p{{ mysql_password }} --protocol=tcp"
 
     # Preparation:
-    - name: Create user for replication
+    - name: Create user for mysql replication
       shell: "echo \"CREATE USER '{{ replication_user }}'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'localhost';\" | {{ mysql_command }} -P{{ mysql_primary_port }}"
+      when: install_type == 'mysql'
+
+    - name: Create user for mariadb replication
+      shell: "echo \"CREATE USER '{{ replication_user }}'@'localhost' IDENTIFIED BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'localhost';\" | {{ mysql_command }} -P{{ mysql_primary_port }}"
+      when: install_type == 'mariadb'
 
     - name: Create test database
       mysql_db:

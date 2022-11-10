@@ -4,12 +4,26 @@
     keyserver: keyserver.ubuntu.com
     id: 4D1BB29D63D98E422B2113B19334A25F8507EFA5
     state: present
+  when: install_type == 'mysql'
 
 - name: "{{ role_name }} | install | add percona repositories"
   apt_repository:
-    repo: "{{ item }}"
+    repo: deb http://repo.percona.com/percona/apt {{ ansible_lsb.codename }} main
     state: present
-  loop: "{{ percona_mysql_repos }}"
+  when: install_type == 'mysql'
+
+- name: "{{ role_name }} | install | add apt signing key for mariadb"
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: F1656F24C74CD1D8
+    state: present
+  when: install_type == 'mariadb'
+
+- name: "{{ role_name }} | install | add mariadb repositories"
+  apt_repository:
+    repo: "deb [arch=amd64,arm64] https://downloads.mariadb.com/MariaDB/mariadb-{{ mysql_major_version }}/repo/ubuntu {{ ansible_lsb.codename }} main"
+    state: present
+  when: install_type == 'mariadb'
 
 - name: "{{ role_name }} | install | install packages required by percona"
   apt:

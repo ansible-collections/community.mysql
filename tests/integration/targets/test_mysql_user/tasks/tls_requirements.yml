@@ -167,9 +167,8 @@
         tls_requires:
 
     - name: retrieve TLS requirements for users
-      command: "{{ mysql_command }} -L -N -s -e \"SHOW GRANTS for '{{ user_name_1 }}'@'localhost'\""
+      command: "{{ mysql_command }} -L -N -s -e \"SHOW CREATE USER '{{ user_name_1 }}'@'localhost'\""
       register: result
-
 
     - name: assert user1 TLS requirements
       assert:

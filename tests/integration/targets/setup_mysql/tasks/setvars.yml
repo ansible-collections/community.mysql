@@ -1,7 +1,12 @@
 ---
 - name: "{{ role_name }} | setvars | split mysql version in parts"
   set_fact:
-    mysql_version_parts: "{{ mysql_version.split('.') }}"
+    mysql_version_parts: >-
+      {%- if mariadb_install -%}
+      {{ mariadb_version.split('.') }}
+      {%- else -%}
+      {{ mysql_version.split('.') }}
+      {%- endif -%}
 
 - name: "{{ role_name }} | setvars | get mysql major version"
   set_fact:

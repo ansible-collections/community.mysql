@@ -725,7 +725,7 @@ def privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_rol
     try:
         cursor.execute(query, params)
     except (mysql_driver.ProgrammingError, mysql_driver.OperationalError, mysql_driver.InternalError) as e:
-        raise InvalidPrivsError("Error granting privileges, invalid priv string: %s , query: %s , exception: %s." % (priv_string, query, str(e)) )
+        raise InvalidPrivsError("Error granting privileges, invalid priv string: %s , query: %s , exception: %s." % (priv_string, query, str(e)))
 
 
 def convert_priv_dict_to_str(priv):

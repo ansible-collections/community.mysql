@@ -1,0 +1,53 @@
+# test code for privileges for mysql_user module - issue 465
+# (c) 2014,  Wayne Rosario <wrosario@ansible.com>
+
+# This file is part of Ansible
+#
+# Ansible is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ansible is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+      login_port: '{{ mysql_primary_port }}'
+
+  block:
+
+    # ============================================================
+    - name: create admin user with ALL privs, without GRANT OPTIONS
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_1 }}'
+        password: '{{ user_password_1 }}'
+        priv: '*.{{ db_name }}:ALL'
+        state: present
+
+    - include: assert_user.yml user_name={{user_name_2}} priv='ALL'
+
+    - name: create consumer user with all privileges using admin user
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ user_name_2 }}'
+        password: '{{ user_password_2 }}'
+        login_user: '{{ user_name_1 }}'
+        login_password: '{{ user_password_1 }}'
+        priv: '*.{{ db_name }}:ALL'
+        state: present
+      register: result
+
+    - name: assert output message for current privileges
+      assert:
+        that:
+          - result is changed

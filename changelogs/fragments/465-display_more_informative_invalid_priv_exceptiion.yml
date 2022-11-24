@@ -1,0 +1,5 @@
+---
+minor_changes:
+  - mysql_user - display a more informative invalid privilege exception.
+    Changes the exception handling of the granting permission logic to show the query executed 
+    and the exception message granting privileges fails` (https://github.com//pull/435).

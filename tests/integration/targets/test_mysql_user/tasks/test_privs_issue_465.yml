@@ -26,28 +26,19 @@
   block:
 
     # ============================================================
-    - name: create admin user with ALL privs, without GRANT OPTIONS
-      mysql_user:
-        <<: *mysql_params
-        name: '{{ user_name_1 }}'
-        password: '{{ user_password_1 }}'
-        priv: '*.{{ db_name }}:ALL'
-        state: present
-
-    - include: assert_user.yml user_name={{user_name_2}} priv='ALL'
-
-    - name: create consumer user with all privileges using admin user
+    - name: create a user with parameters that will always cause an exception
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_2 }}'
         password: '{{ user_password_2 }}'
-        login_user: '{{ user_name_1 }}'
-        login_password: '{{ user_password_1 }}'
-        priv: '*.{{ db_name }}:ALL'
+        priv: '*.{{ db_name }}:SELECT'
         state: present
+      ignore_errors: yes
       register: result
 
     - name: assert output message for current privileges
       assert:
         that:
-          - result is changed
+          - result is failed
+          - result.msg.find('exception') != -1
+        fail_msg: "Error granting privileges, invalid priv string: SELECT , query: GRANT SELECT ON *.`data` TO %s@%s , exception: (1064, \"You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '`data` TO 'db_user2'@'localhost'' at line 1\")."

@@ -40,5 +40,7 @@
       assert:
         that:
           - result is failed
-          - result.msg.find('exception') != -1
-        fail_msg: "Error granting privileges, invalid priv string: SELECT , query: GRANT SELECT ON *.`data` TO %s@%s , exception: (1064, \"You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '`data` TO 'db_user2'@'localhost'' at line 1\")."
+          - result.msg is search('invalid priv string')
+          - result.msg is search('params')
+          - result.msg is search('query')
+          - result.msg is search('exception')

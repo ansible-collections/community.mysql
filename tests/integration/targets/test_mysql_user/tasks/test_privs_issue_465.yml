@@ -1,20 +1,5 @@
+---
 # test code for privileges for mysql_user module - issue 465
-# (c) 2014,  Wayne Rosario <wrosario@ansible.com>
-
-# This file is part of Ansible
-#
-# Ansible is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# Ansible is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
 - vars:
     mysql_parameters: &mysql_params
@@ -29,11 +14,11 @@
     - name: create a user with parameters that will always cause an exception
       mysql_user:
         <<: *mysql_params
-        name: '{{ user_name_2 }}'
-        password: '{{ user_password_2 }}'
+        name: user_issue_465
+        password: a_test_password_465
         priv: '*.{{ db_name }}:SELECT'
         state: present
-      ignore_errors: yes
+      ignore_errors: true
       register: result
 
     - name: assert output message for current privileges

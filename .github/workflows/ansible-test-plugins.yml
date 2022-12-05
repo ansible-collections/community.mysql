@@ -21,7 +21,7 @@ env:
 jobs:
   sanity:
     name: "Sanity (Ansible: ${{ matrix.ansible }})"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         ansible:
@@ -39,7 +39,7 @@ jobs:
 
   integration:
     name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, MySQL: ${{ matrix.db_engine_version }}, Connector: ${{ matrix.connector }})"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
@@ -118,7 +118,7 @@ jobs:
           testing-type: integration
 
   units:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     name: Units (Ⓐ${{ matrix.ansible }})
     strategy:
       # As soon as the first unit test fails,

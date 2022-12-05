@@ -281,7 +281,7 @@
     - include: test_priv_subtract.yml enable_check_mode=no
     - include: test_priv_subtract.yml enable_check_mode=yes
 
-    - include: test_privs_issue_465.yml
+    - import_tasks: test_privs_issue_465.yml
       tags:
         - issue_465
 

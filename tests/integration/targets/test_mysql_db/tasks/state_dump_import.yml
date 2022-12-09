@@ -36,6 +36,7 @@
     login_host: 127.0.0.1
     login_port: '{{ mysql_primary_port }}'
     name: '{{ db_user }}'
+    host: '%'
     password: '{{ db_user_unsafe_password }}'
     priv: '*.*:ALL'
     state: present

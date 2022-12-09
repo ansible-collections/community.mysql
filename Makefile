@@ -9,6 +9,6 @@ test-integration-mariadb-10-5:
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
 		mariadb:10.5
 	while ! podman healthcheck run mariadb105 && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
-	-ansible-test integration test_mysql_db --venv
+	-ansible-test integration --venv
 	podman stop --time 0 --ignore mariadb105
 	podman rm --ignore mariadb105

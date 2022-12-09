@@ -113,7 +113,7 @@
   assert:
     that:
       - result is changed
-      - result.executed_commands[0] is search("mysqldump --defaults-file={{ config_file }} --user={{ db_user }} --password=\*\*\*\*\*\*\*\* --force --host=127.0.0.1 --port={{ mysql_primary_port }} {{ db_name }} --skip-lock-tables --quick --ignore-table={{ db_name }}.department --master-data=1 --skip-triggers")
+      - result.executed_commands[0] is search(".department --master-data=1 --skip-triggers")
 
 - name: state dump/import - file name should exist
   file:

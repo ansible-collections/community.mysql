@@ -90,32 +90,49 @@ jobs:
           - python: 3.9
             ansible: stable-2.12
 
+    # runs all of the steps inside the specified container rather than on the VM host.  
+    # Because of this the network configuration changes from host based network to a container network.
+    services:
+      mariadb105:
+        container_name: mariadb105
+        image: mariadb:10.5
+        env:
+          MARIADB_ROOT_PASSWORD: msandbox
+        ports:
+          - 3307:3306
+        # needed because the mariadb container does not provide a healthcheck
+        options: --health-cmd mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1
+
     steps:
-      - name: >-
-          Perform integration testing against
-          Ansible version ${{ matrix.ansible }}
-          under Python ${{ matrix.python }}
-        uses: ansible-community/ansible-test-gh-action@release/v1
+      - name: Check out code
+        uses: actions/checkout@v2
         with:
-          ansible-core-version: ${{ matrix.ansible }}
-          pre-test-cmd: >-
-            DB_ENGINE=$(echo '${{ matrix.db_engine_version }}' | awk -F_ '{print $1}');
-            DB_VERSION=$(echo '${{ matrix.db_engine_version }}' | awk -F_ '{print $2}');
-            DB_ENGINE_PRETTY=$([[ "${DB_ENGINE}" == 'mysql' ]] && echo 'MySQL' || echo 'MariaDB');
-            >&2 echo Matrix factor for the DB is ${{ matrix.db_engine_version }}...;
-            >&2 echo Setting ${DB_ENGINE_PRETTY} version to ${DB_VERSION}...;
-            sed -i -e "s/^${DB_ENGINE}_version:.*/${DB_ENGINE}_version: $DB_VERSION/g" -e 's/^mariadb_install: false/mariadb_install: true/g' '${{ env.mysql_version_file }}';
-            ${{
-              matrix.db_engine_version == 'mariadb_10.8.3'
-              && format(
-                '>&2 echo Set MariaDB v10.8.3 URL sub dir...; sed -i -e "s/^mariadb_url_subdir:.*/mariadb_url_subdir: linux-systemd/g" "{0}";', env.connector_version_file
-              )
-              || ''
-            }}
-            >&2 echo Setting Connector version to ${{ matrix.connector }}...;
-            sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }}
-          target-python-version: ${{ matrix.python }}
-          testing-type: integration
+          path: ansible_collections/community/mysql
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install ansible-base (${{ matrix.ansible }})
+        run: pip install https://github.com/ansible/ansible/archive/${{ matrix.ansible }}.tar.gz --disable-pip-version-check
+
+      - name: Set Connector version (${{ matrix.connector }})
+        run: "sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }}"
+
+      # TODO, add a loop that wait on mariadb container healthcheck here
+
+      - name: Run integration tests
+        run: ansible-test integration --venv -v --color --retry-on-error --continue-on-error --python ${{ matrix.python }} --diff --coverage
+        working-directory: ./ansible_collections/community/mysql
+
+      - name: Generate coverage report.
+        run: ansible-test coverage xml -v --requirements --group-by command --group-by version
+        working-directory: ./ansible_collections/community/mysql
+
+      - uses: codecov/codecov-action@v1
+        with:
+          fail_ci_if_error: false
 
   units:
     runs-on: ubuntu-20.04

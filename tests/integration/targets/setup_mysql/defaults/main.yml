@@ -1,7 +1,7 @@
 dbdeployer_version: 1.64.0
 dbdeployer_home_dir: /opt/dbdeployer
 
-home_dir: /root
+home_dir: "{{ playbook_dir }}/root"
 
 mariadb_install: false
 

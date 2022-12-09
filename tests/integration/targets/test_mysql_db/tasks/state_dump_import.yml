@@ -24,7 +24,7 @@
     dump_file2: "{{ tmp_dir }}/{{ file3 }}"
     db_user: "test"
     db_user_unsafe_password: "pass!word"
-    config_file: "/root/.my.cnf"
+    config_file: "{{ playbook_dir }}/root/.my.cnf"
 
 - name: create custom config file
   shell: 'echo "[client]" > {{ config_file }}'

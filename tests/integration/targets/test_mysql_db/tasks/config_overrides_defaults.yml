@@ -1,9 +1,9 @@
 - set_fact:
     db_to_create: testdb1
-    config_file: "/root/.my1.cnf"
+    config_file: "{{ playbook_dir }}/.my1.cnf"
     fake_port: 9999
     fake_host: "blahblah.local"
-    include_dir: "/root/mycnf.d"
+    include_dir: "{{ playbook_dir }}/mycnf.d"
 
 - name: Create custom config file
   shell: 'echo "[client]" > {{ config_file }}'

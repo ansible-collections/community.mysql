@@ -25,7 +25,6 @@ jobs:
     strategy:
       matrix:
         ansible:
-          - stable-2.11
           - stable-2.12
           - stable-2.13
           - stable-2.14
@@ -36,6 +35,7 @@ jobs:
         with:
           ansible-core-version: ${{ matrix.ansible }}
           testing-type: sanity
+          pull-request-change-detection: true
 
   integration:
     name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, MySQL: ${{ matrix.db_engine_version }}, Connector: ${{ matrix.connector }})"
@@ -47,7 +47,6 @@ jobs:
           - mysql_5.7.31
           - mysql_8.0.22
         ansible:
-          - stable-2.11
           - stable-2.12
           - stable-2.13
           - stable-2.14
@@ -72,15 +71,11 @@ jobs:
           - python: 3.6
             ansible: devel
           - python: 3.8
-            ansible: stable-2.11
-          - python: 3.8
             ansible: stable-2.13
           - python: 3.8
             ansible: stable-2.14
           - python: 3.8
             ansible: devel
-          - python: 3.9
-            ansible: stable-2.11
           - python: 3.9
             ansible: stable-2.12
 
@@ -110,6 +105,7 @@ jobs:
             sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration
+          pull-request-change-detection: true
 
   units:
     runs-on: ubuntu-20.04
@@ -120,7 +116,6 @@ jobs:
       fail-fast: true
       matrix:
         ansible:
-          - stable-2.11
           - stable-2.12
           - stable-2.13
           - stable-2.14
@@ -136,8 +131,6 @@ jobs:
           - python: 3.8
             ansible: devel
           - python: 3.9
-            ansible: stable-2.11
-          - python: 3.9
             ansible: stable-2.12
 
     steps:
@@ -149,3 +142,4 @@ jobs:
           ansible-core-version: ${{ matrix.ansible }}
           target-python-version: ${{ matrix.python }}
           testing-type: units
+          pull-request-change-detection: true

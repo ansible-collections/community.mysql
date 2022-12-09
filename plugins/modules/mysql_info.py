@@ -224,7 +224,6 @@ from ansible.module_utils._text import to_native
 # ===========================================
 # MySQL module specific support methods.
 #
-
 class MySQL_Info(object):
 
     """Class for collection MySQL instance information.

@@ -89,7 +89,6 @@ jobs:
     # Because of this the network configuration changes from host based network to a container network.
     services:
       mariadb105:
-        container_name: mariadb105
         image: mariadb:10.5
         env:
           MARIADB_ROOT_PASSWORD: msandbox

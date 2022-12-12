@@ -4,3 +4,5 @@
     src: installed_file.j2
     dest: "{{ dbdeployer_installed_file }}"
   listen: create zookeeper installed file
+  tags:
+    - setup_mysql

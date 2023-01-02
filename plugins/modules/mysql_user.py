@@ -138,8 +138,7 @@ options:
   plugin_auth_string:
     description:
       - User's plugin auth_string (``CREATE USER user IDENTIFIED WITH plugin BY plugin_auth_string``).
-      - MariaDB If I(plugin) is ``pam`` an optional I(plugin_auth_string) ults in (``CREATE USER user IDENTIFIED WITH plugin USING plugin_auth_string``).
-        This was chosen because MySQL and MariaDB store the ``USING plugin_auth_string`` part in the ``authentication_string`` column in ``mysql.user``.
+      - If I(plugin) is ``pam`` (MariaDB) or ``auth_pam`` (MySQL) an optional I(plugin_auth_string) can be used to choose a specific PAM service.
     type: str
     version_added: '0.1.0'
   resource_limits:

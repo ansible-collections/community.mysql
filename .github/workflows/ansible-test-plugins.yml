@@ -94,30 +94,42 @@ jobs:
           - 3307:3306
         # We write our own health-cmd because the mariadb container does not
         # provide a healthcheck
-        options: >
-          --health-cmd mysqladmin ping -P 3306 -pmsandbox
-          | grep alive
-          || exit 1
+        # options: >-
+        #   --health-cmd mysqladmin ping -P 3306 -pmsandbox
+        #   | grep alive
+        #   || exit 1
+        #   --health-start-period 10s
+        #   --health-interval 10s
+        #   --health-timeout 5s
+        #   --health-retries 6
       db_replica1:
         image: mariadb:10.5
         env:
           MARIADB_ROOT_PASSWORD: msandbox
         ports:
           - 3308:3306
-        options: >
-          --health-cmd mysqladmin ping -P 3306 -pmsandbox
-          | grep alive
-          || exit 1
+        # options: >
+        #   --health-cmd mysqladmin ping -P 3306 -pmsandbox
+        #   | grep alive
+        #   || exit 1
+        #   --health-start-period 10s
+        #   --health-interval 10s
+        #   --health-timeout 5s
+        #   --health-retries 6
       db_replica2:
         image: mariadb:10.5
         env:
           MARIADB_ROOT_PASSWORD: msandbox
         ports:
           - 3309:3306
-        options: >
-          --health-cmd mysqladmin ping -P 3306 -pmsandbox
-          | grep alive
-          || exit 1
+        # options: >
+        #   --health-cmd mysqladmin ping -P 3306 -pmsandbox
+        #   | grep alive
+        #   || exit 1
+        #   --health-start-period 10s
+        #   --health-interval 10s
+        #   --health-timeout 5s
+        #   --health-retries 6
 
     steps:
       - name: >-

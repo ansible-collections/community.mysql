@@ -22,7 +22,7 @@ options:
     description:
     - Variable name to operate.
     type: str
-    required: yes
+    required: true
   value:
     description:
     - If set, then sets variable value to this.

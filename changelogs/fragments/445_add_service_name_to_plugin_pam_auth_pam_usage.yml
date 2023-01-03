@@ -1,3 +1,3 @@
 ---
 minor_changes:
-  - mysql_user - add plugin_auth_string as optional parameter to use a specific pam service if pam/auth_pam plugin is used.
+  - mysql_user - add plugin_auth_string as optional parameter to use a specific pam service if pam/auth_pam plugin is used (https://github.com/ansible-collections/community.mysql/pull/445).

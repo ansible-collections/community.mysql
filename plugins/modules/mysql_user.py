@@ -29,7 +29,7 @@ options:
     description:
       - Indicate that the 'password' field is a `mysql_native_password` hash.
     type: bool
-    default: no
+    default: false
   host:
     description:
       - The 'host' part of the MySQL username.
@@ -41,7 +41,7 @@ options:
         to all hostnames for a given user.
       - This option cannot be used when creating users.
     type: bool
-    default: no
+    default: false
   priv:
     description:
       - "MySQL privileges string in the format: C(db.table:priv1,priv2)."
@@ -66,7 +66,7 @@ options:
       - Append the privileges defined by priv to the existing ones for this
         user instead of overwriting existing ones.
     type: bool
-    default: no
+    default: false
   tls_requires:
     description:
       - Set requirement for secure transport as a dictionary of requirements (see the examples).
@@ -79,7 +79,7 @@ options:
     description:
       - Whether binary logging should be enabled or disabled for the connection.
     type: bool
-    default: yes
+    default: true
   state:
     description:
       - Whether the user should exist.
@@ -92,7 +92,7 @@ options:
       - Check if mysql allows login as root/nopassword before trying supplied credentials.
       - If success, passed I(login_user)/I(login_password) will be ignored.
     type: bool
-    default: no
+    default: false
   update_password:
     description:
       - C(always) will update passwords if they differ. This affects I(password) and the combination of I(plugin), I(plugin_hash_string), I(plugin_auth_string).
@@ -164,7 +164,7 @@ EXAMPLES = r'''
 - name: Removes all anonymous user accounts
   community.mysql.mysql_user:
     name: ''
-    host_all: yes
+    host_all: true
     state: absent
 
 - name: Create database user with name 'bob' and password '12345' with all database privileges
@@ -178,7 +178,7 @@ EXAMPLES = r'''
   community.mysql.mysql_user:
     name: bob
     password: '*EE0D72C1085C46C5278932678FBE2C6A782821B4'
-    encrypted: yes
+    encrypted: true
     priv: '*.*:ALL'
     state: present
 
@@ -249,7 +249,7 @@ EXAMPLES = r'''
     If mysql allows root/nopassword login, try it without the credentials first.
     If it's not allowed, pass the credentials
   community.mysql.mysql_user:
-    check_implicit_admin: yes
+    check_implicit_admin: true
     login_user: root
     login_password: 123456
     name: sally
@@ -258,7 +258,7 @@ EXAMPLES = r'''
 - name: Ensure no user named 'sally' exists at all
   community.mysql.mysql_user:
     name: sally
-    host_all: yes
+    host_all: true
     state: absent
 
 - name: Specify grants composed of more than one word
@@ -290,7 +290,7 @@ EXAMPLES = r'''
     password: 12345
     priv: "*.*:USAGE"
     state: present
-    sql_log_bin: no
+    sql_log_bin: false
 
 - name: Create user 'bob' authenticated with plugin 'AWSAuthenticationPlugin'
   community.mysql.mysql_user:

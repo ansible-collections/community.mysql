@@ -53,7 +53,7 @@ options:
       - Append the privileges defined by the I(priv) option to the existing ones
         for this role instead of overwriting them.
     type: bool
-    default: no
+    default: false
 
   members:
     description:
@@ -71,7 +71,7 @@ options:
         for this role instead of overwriting them.
       - Mutually exclusive with the I(detach_members) and I(admin) option.
     type: bool
-    default: no
+    default: false
 
   detach_members:
     description:
@@ -79,7 +79,7 @@ options:
         instead of overwriting all the current members.
       - Mutually exclusive with the I(append_members) and I(admin) option.
     type: bool
-    default: no
+    default: false
 
   set_default_role_all:
     description:
@@ -87,7 +87,7 @@ options:
       - If C(yes), runs B(SET DEFAULT ROLE ALL TO) each of the I(members) when changed.
       - If you want to avoid this behavior, set this option to C(no) explicitly.
     type: bool
-    default: yes
+    default: true
 
   state:
     description:
@@ -103,7 +103,7 @@ options:
       - Check if mysql allows login as root/nopassword before trying supplied credentials.
       - If success, passed I(login_user)/I(login_password) will be ignored.
     type: bool
-    default: no
+    default: false
 
 notes:
   - Pay attention that the module runs C(SET DEFAULT ROLE ALL TO)
@@ -165,7 +165,7 @@ EXAMPLES = r'''
     members:
     - 'alice@%'
     - 'bob@%'
-    set_default_role_all: no
+    set_default_role_all: false
 
 # Assuming that the role developers exists,
 # add john to the current members
@@ -173,7 +173,7 @@ EXAMPLES = r'''
   community.mysql.mysql_role:
     name: developers
     state: present
-    append_members: yes
+    append_members: true
     members:
     - 'joe@localhost'
 
@@ -192,7 +192,7 @@ EXAMPLES = r'''
     name: readers
     state: present
     priv: 'fiction.*:UPDATE'
-    append_privs: yes
+    append_privs: true
 
 - name: Create role with the 'SELECT' and 'UPDATE' privileges in db1 and db2
   community.mysql.mysql_role:
@@ -208,7 +208,7 @@ EXAMPLES = r'''
     name: readers
     members:
     - 'joe@localhost'
-    detach_members: yes
+    detach_members: true
 
 - name: Remove the role readers if exists
   community.mysql.mysql_role:

@@ -167,7 +167,7 @@ options:
     description:
     - Fails on error when calling mysql.
     type: bool
-    default: False
+    default: false
     version_added: '0.1.0'
 
 notes:
@@ -246,12 +246,12 @@ EXAMPLES = r'''
   community.mysql.mysql_replication:
     mode: startreplica
     connection_name: master-1
-    fail_on_error: yes
+    fail_on_error: true
 
 - name: Change master and fail on error (like when replica thread is running)
   community.mysql.mysql_replication:
     mode: changemaster
-    fail_on_error: yes
+    fail_on_error: true
 
 '''
 

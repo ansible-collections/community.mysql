@@ -27,7 +27,7 @@ options:
       the state has been changed even if it has not. If it is important in your
       workflow, use the C(PyMySQL) connector instead.
     type: raw
-    required: yes
+    required: true
   positional_args:
     description:
     - List of values to be passed as positional arguments to the query.
@@ -46,7 +46,7 @@ options:
     description:
     - Where passed queries run in a single transaction (C(yes)) or commit them one-by-one (C(no)).
     type: bool
-    default: no
+    default: false
 seealso:
 - module: community.mysql.mysql_db
 author:
@@ -87,7 +87,7 @@ EXAMPLES = r'''
     query:
     - INSERT INTO articles (id, story) VALUES (2, 'my_long_story')
     - INSERT INTO prices (id, price) VALUES (123, '100.00')
-    single_transaction: yes
+    single_transaction: true
 '''
 
 RETURN = r'''

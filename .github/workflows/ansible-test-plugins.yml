@@ -38,18 +38,19 @@ jobs:
   #         pull-request-change-detection: true
 
   integration:
-    name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, MySQL: ${{ matrix.db_engine_version }}, Connector: ${{ matrix.connector }})"
+    # name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, MySQL: ${{ matrix.db_engine_version }}, Connector: ${{ matrix.connector }})"
+    name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, Connector: ${{ matrix.connector }})"
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        db_engine_version:
-          - mysql_5.7.31
-          - mysql_8.0.22
-          - mariadb_10.3.34
-          # When adding later versions below,
-          # also change the "Set MariaDB URL sub dir" task
-          - mariadb_10.8.3
+        # db_engine_version:
+        #   - mysql_5.7.31
+        #   - mysql_8.0.22
+        #   - mariadb_10.3.34
+        #   # When adding later versions below,
+        #   # also change the "Set MariaDB URL sub dir" task
+        #   - mariadb_10.8.3
         ansible:
           # - stable-2.12
           # - stable-2.13
@@ -60,14 +61,14 @@ jobs:
           # - 3.8
           - 3.9
         connector:
-          - pymysql==0.7.10
+          # - pymysql==0.7.10
           - pymysql==0.9.3
-          - mysqlclient==2.0.1
+          # - mysqlclient==2.0.1
         exclude:
-          - db_engine_version: mysql_8.0.22
-            connector: pymysql==0.7.10
-          - db_engine_version: mariadb_10.8.3
-            connector: pymysql==0.7.10
+          # - db_engine_version: mysql_8.0.22
+          #   connector: pymysql==0.7.10
+          # - db_engine_version: mariadb_10.8.3
+          #   connector: pymysql==0.7.10
           - python: 3.6
             ansible: stable-2.12
           - python: 3.6

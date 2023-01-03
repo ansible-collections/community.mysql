@@ -1,5 +1,9 @@
 ---
 
+- name: "{{ role_name }} | install | mysql_client"
+  package:
+    name: mysql_client
+
 - name: "{{ role_name }} | install | install python packages"
   pip:
     name: "{{ python_packages }}"

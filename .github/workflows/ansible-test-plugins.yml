@@ -143,7 +143,6 @@ jobs:
           pre-test-cmd: >-
             >&2 echo Setting Connector version to ${{ matrix.connector }}...;
             sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }}
-            apt update && apt install --assume-yes mysql-client
           target-python-version: ${{ matrix.python }}
           testing-type: integration
 

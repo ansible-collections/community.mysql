@@ -1,8 +1,10 @@
 ---
 
 - name: "{{ role_name }} | install | mysql_client"
-  package:
-    name: mysql_client
+  ansible.builtin.apt:
+    name: mysql-client
+    state: present
+    update_cache: true
 
 - name: "{{ role_name }} | install | install python packages"
   pip:

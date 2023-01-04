@@ -6,12 +6,8 @@
 
 - name: Prepare the controller python and MySQL connector
   ansible.builtin.import_tasks:
-    file: prepare_controller.yml
-  tags:
-    - setup_mysql
+    file: install.yml
 
 - name: Set variables
   ansible.builtin.import_tasks:
     file: setvars.yml
-  tags:
-    - setup_mysql

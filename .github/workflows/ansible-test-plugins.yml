@@ -16,7 +16,7 @@ on:
 
 
 env:
-  config_file: "tests/integration/targets/setup_mysql/defaults/main.yml"
+  config_file: "tests/integration/targets/setup_controller/defaults/main.yml"
 
 jobs:
   # sanity:

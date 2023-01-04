@@ -5,10 +5,6 @@
     name:
       - mysql-client
       - iproute2
-      # - python3-dev
-      # - python3-cryptography
-      # - default-libmysqlclient-dev
-      # - build-essential
     state: present
     update_cache: true
   environment:
@@ -19,12 +15,12 @@
     name: "{{ python_packages }}"
   register: connector
 
-- name: Ensure fake root folder
+- name: "{{ role_name }} | install | Ensure fake root folder"
   ansible.builtin.file:
     path: "{{ playbook_dir }}/root"
     state: directory
 
-- name: Ensure fake root default file exists
+- name: "{{ role_name }} | install | Ensure fake root default file exists"
   ansible.builtin.file:
     path: "{{ playbook_dir }}/root/.my.cnf"
     state: touch

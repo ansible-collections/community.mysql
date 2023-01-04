@@ -55,7 +55,7 @@ jobs:
           # - stable-2.12
           # - stable-2.13
           - stable-2.14
-          - devel
+          # - devel
         python:
           # - 3.6
           # - 3.8
@@ -88,15 +88,17 @@ jobs:
 
     services:
       db_primary:
-        image: mariadb:10.5
+        # image: mariadb:10.5
+        image: mysql:8.0.22
         env:
-          MARIADB_ROOT_PASSWORD: msandbox
+          # MARIADB_ROOT_PASSWORD: msandbox
+          MYSQL_ROOT_PASSWORD: msandbox
         ports:
           - 3307:3306
         # We write our own health-cmd because the mariadb container does not
         # provide a healthcheck
         # options: >-
-        #   --health-cmd mysqladmin ping -P 3306 -pmsandbox
+        #   --health-cmd "mysqladmin ping -P 3306 -pmsandbox"
         #   | grep alive
         #   || exit 1
         #   --health-start-period 10s
@@ -104,13 +106,15 @@ jobs:
         #   --health-timeout 5s
         #   --health-retries 6
       db_replica1:
-        image: mariadb:10.5
+        # image: mariadb:10.5
+        image: mysql:8.0.22
         env:
-          MARIADB_ROOT_PASSWORD: msandbox
+          # MARIADB_ROOT_PASSWORD: msandbox
+          MYSQL_ROOT_PASSWORD: msandbox
         ports:
           - 3308:3306
         # options: >
-        #   --health-cmd mysqladmin ping -P 3306 -pmsandbox
+        #   --health-cmd "mysqladmin ping -P 3306 -pmsandbox"
         #   | grep alive
         #   || exit 1
         #   --health-start-period 10s
@@ -118,13 +122,15 @@ jobs:
         #   --health-timeout 5s
         #   --health-retries 6
       db_replica2:
-        image: mariadb:10.5
+        # image: mariadb:10.5
+        image: mysql:8.0.22
         env:
-          MARIADB_ROOT_PASSWORD: msandbox
+          # MARIADB_ROOT_PASSWORD: msandbox
+          MYSQL_ROOT_PASSWORD: msandbox
         ports:
           - 3309:3306
         # options: >
-        #   --health-cmd mysqladmin ping -P 3306 -pmsandbox
+        #   --health-cmd "mysqladmin ping -P 3306 -pmsandbox"
         #   | grep alive
         #   || exit 1
         #   --health-start-period 10s

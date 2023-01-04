@@ -26,6 +26,7 @@
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
+        host: '{{ gateway_addr }}'
         state: absent
       ignore_errors: yes
 
@@ -35,6 +36,7 @@
       mysql_user:
         <<: *mysql_params
         name: "{{ user_name_1 }}"
+        host: '{{ gateway_addr }}'
         password: "{{ user_password_1 }}"
         priv: '*.*:ALL,GRANT'
         force_context: yes
@@ -57,6 +59,7 @@
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
+        host: '{{ gateway_addr }}'
         state: absent
         force_context: yes
 
@@ -89,11 +92,11 @@
           - result.queries == ["STOP SLAVE"] or result.queries == ["STOP REPLICA"]
 
     - name: Create replication filter MySQL
-      shell: "echo \"CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = (mysql);\" | {{ mysql_command }} -P{{ mysql_replica1_port }}"
+      shell: "echo \"CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = (mysql);\" | {{ mysql_command_wo_port }} -P{{ mysql_replica1_port }}"
       when: db_engine == 'mysql'
 
     - name: Create replication filter MariaDB
-      shell: "echo \"SET GLOBAL replicate_ignore_db = 'mysql';\" | {{ mysql_command }} -P{{ mysql_replica1_port }}"
+      shell: "echo \"SET GLOBAL replicate_ignore_db = 'mysql';\" | {{ mysql_command_wo_port }} -P{{ mysql_replica1_port }}"
       when: db_engine == 'mariadb'
 
     - name: Start replica
@@ -114,6 +117,7 @@
       mysql_user:
         <<: *mysql_params
         name: "{{ user_name_1 }}"
+        host: "{{ gateway_addr }}"
         password: "{{ user_password_1 }}"
         priv: '*.*:ALL,GRANT'
         force_context: yes
@@ -136,6 +140,7 @@
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
+        host: "{{ gateway_addr }}"
         state: absent
         force_context: yes
 
@@ -154,9 +159,9 @@
           - result.queries == ["STOP SLAVE"] or result.queries == ["STOP REPLICA"]
 
     - name: Remove replication filter MySQL
-      shell: "echo \"CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = ();\" | {{ mysql_command }} -P{{ mysql_replica1_port }}"
+      shell: "echo \"CHANGE REPLICATION FILTER REPLICATE_IGNORE_DB = ();\" | {{ mysql_command_wo_port }} -P{{ mysql_replica1_port }}"
       when: db_engine == 'mysql'
 
     - name: Remove replication filter MariaDB
-      shell: "echo \"SET GLOBAL replicate_ignore_db = '';\" | {{ mysql_command }} -P{{ mysql_replica1_port }}"
+      shell: "echo \"SET GLOBAL replicate_ignore_db = '';\" | {{ mysql_command_wo_port }} -P{{ mysql_replica1_port }}"
       when: db_engine == 'mariadb'

@@ -26,17 +26,14 @@
       - db.version.major > 8 or (db.version.major == 8 and db.version.minor > 0) or (db.version.major == 8 and db.version.minor == 0 and db.version.release >= 22)
       - db_engine == 'mysql'
 
-    - name: alias mysql command to include default options except for the port
-      set_fact:
-        mysql_command_wo_port: "mysql -u{{ mysql_user }} -p{{ mysql_password }} --protocol=tcp -h{{ gateway_addr }}"
 
     # Preparation:
     - name: Create user for mysql replication
-      shell: "echo \"CREATE USER '{{ replication_user }}'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'localhost';\" | {{ mysql_command_wo_port }} -P{{ mysql_primary_port }}"
+      shell: "echo \"CREATE USER '{{ replication_user }}'@'{{ gateway_addr }}' IDENTIFIED WITH mysql_native_password BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'{{ gateway_addr }}';\" | {{ mysql_command }}"
       when: db_engine == 'mysql'
 
     - name: Create user for mariadb replication
-      shell: "echo \"CREATE USER '{{ replication_user }}'@'localhost' IDENTIFIED BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'localhost';\" | {{ mysql_command_wo_port }} -P{{ mysql_primary_port }}"
+      shell: "echo \"CREATE USER '{{ replication_user }}'@'{{ gateway_addr }}' IDENTIFIED BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'{{ gateway_addr }}';\" | {{ mysql_command }}"
       when: db_engine == 'mariadb'
 
     - name: Create test database

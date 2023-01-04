@@ -1,3 +1,4 @@
+---
 name: Plugins CI
 on:
   push:

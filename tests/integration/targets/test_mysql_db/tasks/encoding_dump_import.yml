@@ -1,7 +1,7 @@
 ---
 
 - set_fact:
-    latin1_file1: "{{tmp_dir}}/{{file}}"
+    latin1_file1: "{{ tmp_dir }}/{{ file }}"
 
 - name: Deleting Latin1 encoded Database
   mysql_db:
@@ -56,7 +56,7 @@
     name: '{{ latin1_file1 }}'
     state: file
 
-- name:  od the file and check of latin1 encoded string is present
+- name: od the file and check of latin1 encoded string is present
   shell: grep -a 47 {{ latin1_file1 }} | od -c |grep "A   m 351   d 351   e       B 364\|A   m 303 251   d 303 251   e       B 303"
 
 - name: Dropping {{ db_latin1_name }} database

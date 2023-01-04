@@ -100,6 +100,8 @@ jobs:
           MYSQL_ROOT_PASSWORD: msandbox
         ports:
           - 3308:3306
+        options: >-
+          --server_id 2
 
       db_replica2:
         image: ${{ matrix.db_engine_version }}
@@ -108,6 +110,8 @@ jobs:
           MYSQL_ROOT_PASSWORD: msandbox
         ports:
           - 3309:3306
+        options: >-
+          --server_id 3
 
     steps:
       - name: 'Wait 20s for the service containers to be healthy'

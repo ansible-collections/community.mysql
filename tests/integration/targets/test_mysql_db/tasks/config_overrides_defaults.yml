@@ -51,7 +51,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: 127.0.0.1
+    login_host: '{{ gateway_addr }}'
     login_port: '{{ mysql_primary_port }}'
     name: '{{ db_to_create }}'
     state: present
@@ -71,7 +71,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: 127.0.0.1
+    login_host: '{{ gateway_addr }}'
     login_port: '{{ mysql_primary_port }}'
     name: '{{ db_to_create }}'
     state: present
@@ -95,7 +95,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: 127.0.0.1
+    login_host: '{{ gateway_addr }}'
     login_port: '{{ mysql_primary_port }}'
     name: '{{ db_to_create }}'
     state: absent
@@ -115,7 +115,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: 127.0.0.1
+    login_host: '{{ gateway_addr }}'
     login_port: '{{ mysql_primary_port }}'
     name: '{{ db_to_create }}'
     state: absent

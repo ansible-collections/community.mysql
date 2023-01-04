@@ -1,33 +1,21 @@
 ---
-- name: "{{ role_name }} | setvars | split mysql version in parts"
-  set_fact:
-    mysql_version_parts: >-
-      {%- if mariadb_install -%}
-      {{ mariadb_version.split('.') }}
-      {%- else -%}
-      {{ mysql_version.split('.') }}
-      {%- endif -%}
 
-- name: "{{ role_name }} | setvars | get mysql major version"
-  set_fact:
-    mysql_major_version: "{{ mysql_version_parts[0] + '.' + mysql_version_parts[1] }}"
+- name: "{{ role_name }} | setvars | Extract Podman/Docker Network Gateway"
+  ansible.builtin.shell:
+    cmd: ip route|grep default|awk '{print $3}'
+  register: ip_route_output
 
-- name: "{{ role_name }} | setvars | set the appropriate extension dependent on the mysql version"
-  set_fact:
-    mysql_compression_extension: "{{ mysql_version is version('8.0.0', '<') | ternary('gz', 'xz') }}"
+- name: "{{ role_name }} | setvars | Set Fact"
+  ansible.builtin.set_fact:
+    connector_name: "{{ connector.name.0 }}"
+    gateway_addr: "{{ ip_route_output.stdout }}"
 
-- name: "{{ role_name }} | setvars | set the install type"
-  set_fact:
-    install_type: "{{ mariadb_install | ternary('mariadb', 'mysql') }}"
+- name: "{{ role_name }} | setvars | Connector version"
+  ansible.builtin.set_fact:
+    connector_ver: "{{ connector_name.split('=')[2].strip() }}"
 
-- name: "{{ role_name }} | setvars | set install_version"
-  set_fact:
-    install_version: "{{ lookup('vars', install_type + '_version') }}"
-
-- name: "{{ role_name }} | setvars | set install_tarball"
-  set_fact:
-    install_tarball: "{{ lookup('vars', install_type + '_tarball') }}"
-
-- name: "{{ role_name }} | setvars | set install_src"
-  set_fact:
-    install_src: "{{ lookup('vars', install_type + '_src') }}"
+- name: "{{ role_name }} | setvars | Debug connector info"
+  ansible.builtin.debug:
+    msg: >
+      Connector name: {{ connector_name }},
+      Connector version: {{ connector_ver }}

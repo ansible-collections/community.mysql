@@ -9,7 +9,7 @@
     mysql_parameters: &mysql_params
       login_user: '{{ mysql_user }}'
       login_password: '{{ mysql_password }}'
-      login_host: 127.0.0.1
+      login_host: '{{ gateway_addr }}'
       login_port: '{{ mysql_primary_port }}'
   when: tls_enabled
   block:
@@ -42,7 +42,7 @@
         variable: '{{ set_name }}'
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
-        login_host: 127.0.0.1
+        login_host: '{{ gateway_addr }}'
         login_port: '{{ mysql_primary_port }}'
         ca_cert: /tmp/cert.pem
       register: result
@@ -63,7 +63,7 @@
         variable: '{{ set_name }}'
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
-        login_host: 127.0.0.1
+        login_host: '{{ gateway_addr }}'
         login_port: '{{ mysql_primary_port }}'
         ca_cert: /tmp/cert.pem
         check_hostname: no
@@ -78,5 +78,5 @@
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
-        host: 127.0.0.1
+        host: '{{ gateway_addr }}'
         state: absent

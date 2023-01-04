@@ -4,7 +4,7 @@
     mysql_parameters: &mysql_params
       login_user: '{{ mysql_user }}'
       login_password: '{{ mysql_password }}'
-      login_host: 127.0.0.1
+      login_host: '{{ gateway_addr }}'
       login_port: '{{ mysql_primary_port }}'
     test_user_name: 'test_user_plugin_auth'
     test_plugin_type: 'mysql_native_password'

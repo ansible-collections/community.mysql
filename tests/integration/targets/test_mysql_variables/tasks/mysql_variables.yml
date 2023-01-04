@@ -23,7 +23,7 @@
     mysql_parameters: &mysql_params
       login_user: '{{ mysql_user }}'
       login_password: '{{ mysql_password }}'
-      login_host: 127.0.0.1
+      login_host: '{{ gateway_addr }}'
       login_port: '{{ mysql_primary_port }}'
 
   block:
@@ -246,7 +246,7 @@
       mysql_variables:
         login_user: '{{ mysql_user }}'
         login_password: 'wrongpassword'
-        login_host: 127.0.0.1
+        login_host: '{{ gateway_addr }}'
         login_port: '{{ mysql_primary_port }}'
         variable: '{{ set_name }}'
       register: result
@@ -258,7 +258,7 @@
       mysql_variables:
         login_user: '{{ mysql_user }}'
         login_password: 'wrongpassword'
-        login_host: 127.0.0.1
+        login_host: '{{ gateway_addr }}'
         login_port: '{{ mysql_primary_port }}'
         variable: '{{ set_name }}'
         value: '{{ set_value }}'

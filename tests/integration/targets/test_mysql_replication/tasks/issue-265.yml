@@ -7,7 +7,7 @@
     mysql_parameters: &mysql_params
       login_user: '{{ mysql_user }}'
       login_password: '{{ mysql_password }}'
-      login_host: 127.0.0.1
+      login_host: '{{ gateway_addr }}'
       login_port: '{{ mysql_primary_port }}'
   block:
 
@@ -47,7 +47,7 @@
         mode: getprimary
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
-        login_host: 127.0.0.1
+        login_host: '{{ gateway_addr }}'
         login_port: '{{ mysql_replica1_port }}'
       register: result
       ignore_errors: yes
@@ -68,7 +68,7 @@
         mode: getprimary
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
-        login_host: 127.0.0.1
+        login_host: '{{ gateway_addr }}'
         login_port: '{{ mysql_replica1_port }}'
       register: result
       ignore_errors: yes
@@ -126,7 +126,7 @@
         mode: getprimary
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
-        login_host: 127.0.0.1
+        login_host: '{{ gateway_addr }}'
         login_port: '{{ mysql_replica1_port }}'
       register: result
       ignore_errors: yes

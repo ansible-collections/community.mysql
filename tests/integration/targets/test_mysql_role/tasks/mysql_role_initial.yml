@@ -63,6 +63,7 @@
     mysql_user:
       <<: *mysql_params
       name: '{{ item }}'
+      host: '{{ gateway_addr }}'
       password: '{{ mysql_password }}'
     loop:
     - '{{ user0 }}'
@@ -79,7 +80,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}@localhost'
+      - '{{ user0 }}@{{ gateway_addr }}'
     check_mode: yes
 
   - name: Check
@@ -103,7 +104,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     ignore_errors: yes
     when: db_engine == 'mysql'
 
@@ -117,7 +118,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -149,7 +150,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}@localhost'
+      - '{{ user0 }}@{{ gateway_addr }}'
 
   - name: Check
     assert:
@@ -171,7 +172,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -184,7 +185,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -257,7 +258,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -270,7 +271,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -335,7 +336,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -349,7 +350,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -387,7 +388,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     ignore_errors: yes
     when: db_engine == 'mysql'
 
@@ -401,7 +402,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     ignore_errors: yes
     when: db_engine == 'mariadb'
 
@@ -447,7 +448,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}@localhost'
+      - '{{ user0 }}@{{ gateway_addr }}'
       priv:
         '*.*': 'SELECT,INSERT'
         'mysql.*': 'UPDATE'
@@ -478,7 +479,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}@localhost'
+      - '{{ user0 }}@{{ gateway_addr }}'
       priv:
         '*.*': 'SELECT,INSERT'
         'mysql.*': 'UPDATE'
@@ -508,7 +509,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}@localhost'
+      - '{{ user0 }}@{{ gateway_addr }}'
       priv:
         '*.*': 'SELECT,INSERT'
         'mysql.*': 'UPDATE'
@@ -528,7 +529,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}@localhost'
+      - '{{ user0 }}@{{ gateway_addr }}'
       priv:
         '*.*': 'SELECT,INSERT'
         'mysql.*': 'UPDATE'
@@ -557,8 +558,8 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user1 }}@localhost'
-      - '{{ user2 }}@localhost'
+      - '{{ user1 }}@{{ gateway_addr }}'
+      - '{{ user2 }}@{{ gateway_addr }}'
       - '{{ role1 }}'
     check_mode: yes
 
@@ -572,7 +573,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -586,7 +587,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -600,7 +601,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user1 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     ignore_errors: yes
     when: db_engine == 'mysql'
 
@@ -614,7 +615,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -627,7 +628,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user2 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     ignore_errors: yes
     when: db_engine == 'mysql'
 
@@ -641,7 +642,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -686,8 +687,8 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user1 }}@localhost'
-      - '{{ user2 }}@localhost'
+      - '{{ user1 }}@{{ gateway_addr }}'
+      - '{{ user2 }}@{{ gateway_addr }}'
       - '{{ role1 }}'
 
   - name: Check
@@ -700,7 +701,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     ignore_errors: yes
     when: db_engine == 'mysql'
 
@@ -715,20 +716,20 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }}"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
-      - "'{{ role0 }}' not in result.query_result.0.0['Grants for user0@localhost']"
+      - "'{{ role0 }}' not in result.query_result.0.0['Grants for user0@{{ gateway_addr }}']"
     when: db_engine == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user1 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -741,7 +742,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -754,7 +755,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user2 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -767,7 +768,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -813,8 +814,8 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user1 }}@localhost'
-      - '{{ user2 }}@localhost'
+      - '{{ user1 }}@{{ gateway_addr }}'
+      - '{{ user2 }}@{{ gateway_addr }}'
       - '{{ role1 }}'
     check_mode: yes
 
@@ -832,8 +833,8 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user1 }}@localhost'
-      - '{{ user2 }}@localhost'
+      - '{{ user1 }}@{{ gateway_addr }}'
+      - '{{ user2 }}@{{ gateway_addr }}'
       - '{{ role1 }}'
 
   - name: Check
@@ -852,7 +853,7 @@
       state: present
       append_members: yes
       members:
-      - '{{ user0 }}@localhost'
+      - '{{ user0 }}@{{ gateway_addr }}'
     check_mode: yes
 
   - name: Check
@@ -864,7 +865,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     ignore_errors: yes
     when: db_engine == 'mysql'
 
@@ -878,7 +879,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -896,7 +897,7 @@
       state: present
       append_members: yes
       members:
-      - '{{ user0 }}@localhost'
+      - '{{ user0 }}@{{ gateway_addr }}'
 
   - name: Check
     assert:
@@ -907,7 +908,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -920,7 +921,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -934,7 +935,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user1 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -947,7 +948,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -960,7 +961,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user2 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -973,7 +974,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -992,7 +993,7 @@
       state: present
       append_members: yes
       members:
-      - '{{ user0 }}@localhost'
+      - '{{ user0 }}@{{ gateway_addr }}'
     check_mode: yes
 
   - name: Check
@@ -1010,7 +1011,7 @@
       state: present
       append_members: yes
       members:
-      - '{{ user0 }}@localhost'
+      - '{{ user0 }}@{{ gateway_addr }}'
 
   - name: Check
     assert:
@@ -1027,8 +1028,8 @@
       state: present
       detach_members: yes
       members:
-      - '{{ user1 }}@localhost'
-      - '{{ user2 }}@localhost'
+      - '{{ user1 }}@{{ gateway_addr }}'
+      - '{{ user2 }}@{{ gateway_addr }}'
     check_mode: yes
 
   - name: Check
@@ -1041,7 +1042,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -1054,7 +1055,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -1067,7 +1068,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user1 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -1080,7 +1081,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -1093,7 +1094,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user2 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -1106,7 +1107,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -1125,8 +1126,8 @@
       state: present
       detach_members: yes
       members:
-      - '{{ user1 }}@localhost'
-      - '{{ user2 }}@localhost'
+      - '{{ user1 }}@{{ gateway_addr }}'
+      - '{{ user2 }}@{{ gateway_addr }}'
 
   - name: Check
     assert:
@@ -1137,7 +1138,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
   - name: Check
@@ -1150,7 +1151,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -1163,7 +1164,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user1 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     ignore_errors: yes
     when: db_engine == 'mysql'
 
@@ -1177,7 +1178,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -1190,7 +1191,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
+      query: "SHOW GRANTS FOR {{ user2 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     ignore_errors: yes
     when: db_engine == 'mysql'
 
@@ -1204,7 +1205,7 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
+      query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
@@ -1223,8 +1224,8 @@
       state: present
       detach_members: yes
       members:
-      - '{{ user1 }}@localhost'
-      - '{{ user2 }}@localhost'
+      - '{{ user1 }}@{{ gateway_addr }}'
+      - '{{ user2 }}@{{ gateway_addr }}'
     check_mode: yes
 
   - name: Check
@@ -1240,8 +1241,8 @@
       state: present
       detach_members: yes
       members:
-      - '{{ user1 }}@localhost'
-      - '{{ user2 }}@localhost'
+      - '{{ user1 }}@{{ gateway_addr }}'
+      - '{{ user2 }}@{{ gateway_addr }}'
 
   - name: Check
     assert:
@@ -1256,7 +1257,7 @@
       state: present
       detach_members: yes
       members:
-        - '{{ user1 }}@localhost'
+        - '{{ user1 }}@{{ gateway_addr }}'
 
   - name: Check the role was created
     assert:
@@ -1267,12 +1268,12 @@
     <<: *task_params
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR {{ user1 }}@localhost"
+      query: "SHOW GRANTS FOR {{ user1 }}@'{{ gateway_addr }}'"
 
   - name: asssert detach_members did not add a user to the role
     assert:
       that:
-        - "'{{ role3 }}' not in result.query_result.0.0['Grants for {{ user1 }}@localhost']"
+        - "'{{ role3 }}' not in result.query_result.0.0"
 
   # test members_must_exist
   - name: try failing on not-existing user in check-mode
@@ -1284,7 +1285,7 @@
       members_must_exist: yes
       append_members: yes
       members:
-        - 'not_existent@localhost'
+        - 'not_existent@{{ gateway_addr }}'
     ignore_errors: yes
     check_mode: yes
   - name: assert failure
@@ -1301,7 +1302,7 @@
       members_must_exist: no
       append_members: yes
       members:
-        - 'not_existent@localhost'
+        - 'not_existent@{{ gateway_addr }}'
     check_mode: yes
   - name: Check for lack of change
     assert:
@@ -1317,7 +1318,7 @@
       members_must_exist: yes
       append_members: yes
       members:
-        - 'not_existent@localhost'
+        - 'not_existent@{{ gateway_addr }}'
     ignore_errors: yes
   - name: assert failure
     assert:
@@ -1333,7 +1334,7 @@
       members_must_exist: no
       append_members: yes
       members:
-        - 'not_existent@localhost'
+        - 'not_existent@{{ gateway_addr }}'
   - name: Check for lack of change
     assert:
       that:
@@ -1547,7 +1548,7 @@
       <<: *mysql_params
       name: '{{ role0 }}'
       state: present
-      admin: '{{ user0 }}@localhost'
+      admin: '{{ user0 }}@{{ gateway_addr }}'
     ignore_errors: yes
 
   - name: Check with MySQL
@@ -1582,7 +1583,7 @@
       <<: *mysql_params
       name: '{{ role0 }}'
       state: present
-      admin: '{{ user0 }}@localhost'
+      admin: '{{ user0 }}@{{ gateway_addr }}'
     ignore_errors: yes
 
   - name: Check with MySQL
@@ -1606,7 +1607,7 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ nonexistent }}@localhost'
+      - '{{ nonexistent }}@{{ gateway_addr }}'
     ignore_errors: yes
 
   - name: Check
@@ -1620,7 +1621,7 @@
   - name: Drop DBs
     mysql_query:
       <<: *mysql_params
-      query: 'DROP DATABASE {{ item }}'
+      query: 'DROP DATABASE IF EXISTS {{ item }}'
     loop:
     - '{{ test_db }}'
     - '{{ test_db1 }}'

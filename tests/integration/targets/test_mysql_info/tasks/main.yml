@@ -48,13 +48,13 @@
 
     - assert:
         that:
-        - result is not changed
-        - "mysql_version in result.version.full or mariadb_version in result.version.full"
-        - result.settings != {}
-        - result.global_status != {}
-        - result.databases != {}
-        - result.engines != {}
-        - result.users != {}
+          - result is not changed
+          - db_version in result.version.full
+          - result.settings != {}
+          - result.global_status != {}
+          - result.databases != {}
+          - result.engines != {}
+          - result.users != {}
 
     # Access by non-default cred file
     - name: mysql_info - check non-default cred file

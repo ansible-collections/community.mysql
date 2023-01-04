@@ -18,7 +18,7 @@
 # Tests of channel parameter:
 - import_tasks: mysql_replication_channel.yml
   when:
-    - install_type == 'mysql' # FIXME: mariadb introduces FOR CHANNEL in 10.7
+    - db_engine == 'mysql' # FIXME: mariadb introduces FOR CHANNEL in 10.7
 
 # Tests of resetprimary mode:
 - import_tasks: mysql_replication_resetprimary_mode.yml

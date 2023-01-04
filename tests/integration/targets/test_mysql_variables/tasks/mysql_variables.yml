@@ -356,8 +356,8 @@
         - include: assert_var.yml changed=true output={{ result }} var_name={{ set_name }} var_value='{{ def_val }}'
 
       when:
-        - mysql_version is version('8.0', '>=')
-        - install_type == 'mysql'
+        - db_engine == 'mysql'
+        - db_version is version('8.0', '>=')
 
     # Bugfix of https://github.com/ansible/ansible/issues/54239
     # - name: set variable containing dot

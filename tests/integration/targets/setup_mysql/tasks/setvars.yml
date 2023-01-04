@@ -9,6 +9,8 @@
   ansible.builtin.set_fact:
     connector_name: "{{ connector.name.0 }}"
     gateway_addr: "{{ ip_route_output.stdout }}"
+    db_engine: "{{ db_engine_version | split(':') | first }}"
+    db_version: "{{ db_engine_version | split(':') | last }}"
 
 - name: "{{ role_name }} | setvars | Set Fact using above facts"
   ansible.builtin.set_fact:
@@ -26,3 +28,4 @@
     msg: >
       Connector name: {{ connector_name }},
       Connector version: {{ connector_ver }}
+      db_engine: {{ db_engine }}

@@ -39,7 +39,7 @@
     - assert:
         that:
           - result is not changed
-          - "mysql_version in result.version.full or mariadb_version in result.version.full"
+          - db_version in result.version.full
           - result.settings != {}
           - result.global_status != {}
           - result.databases != {}

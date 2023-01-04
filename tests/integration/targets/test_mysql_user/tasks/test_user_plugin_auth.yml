@@ -43,7 +43,7 @@
       assert:
         that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
-      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
+      when: db_engine == 'mysql' or (db_engine == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -119,7 +119,7 @@
       assert:
         that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
-      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
+      when: db_engine == 'mysql' or (db_engine == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -150,7 +150,7 @@
       assert:
         that:
           - result is not changed
-      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
+      when: db_engine == 'mysql' or (db_engine == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -211,7 +211,7 @@
       assert:
         that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
-      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
+      when: db_engine == 'mysql' or (db_engine == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -301,7 +301,7 @@
       assert:
         that:
           - "'{{ test_plugin_type }}' in show_create_user.stdout"
-      when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
+      when: db_engine == 'mysql' or (db_engine == 'mariadb' and mariadb_version is version('10.3', '>='))
 
     - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -387,7 +387,7 @@
         assert:
           that:
             - "'{{ test_plugin_type }}' in show_create_user.stdout"
-        when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
+        when: db_engine == 'mysql' or (db_engine == 'mariadb' and mariadb_version is version('10.3', '>='))
 
       - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 
@@ -412,7 +412,7 @@
         assert:
           that:
               - "'sha256_password' in show_create_user.stdout"
-        when: install_type == 'mysql' or (install_type == 'mariadb' and mariadb_version is version('10.3', '>='))
+        when: db_engine == 'mysql' or (db_engine == 'mariadb' and mariadb_version is version('10.3', '>='))
 
       - include: assert_user.yml user_name={{ test_user_name }} priv={{ test_default_priv_type }}
 

@@ -105,26 +105,26 @@
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
     ignore_errors: yes
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is failed
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 0
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   #=====================
 
@@ -172,26 +172,26 @@
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check that the role is active
     <<: *task_params
@@ -201,13 +201,13 @@
       login_host: '{{ gateway_addr }}'
       login_port: '{{ mysql_primary_port }}'
       query: 'SELECT current_role()'
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - "'{{ role0 }}' in result.query_result.0.0['current_role()']"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check that the role is active (mariadb)
     <<: *task_params
@@ -219,13 +219,13 @@
       query:
         - 'SET ROLE {{ role0 }}'
         - 'SELECT current_role()'
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - "'{{ role0 }}' in result.query_result.1.0['current_role()']"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   #========================
 
@@ -258,26 +258,26 @@
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   #========================
 
@@ -336,13 +336,13 @@
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   # Must pass because of check_mode
   - name: Check in DB (mariadb)
@@ -350,13 +350,13 @@
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   #========================
 
@@ -389,13 +389,13 @@
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
     ignore_errors: yes
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is failed
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
@@ -403,13 +403,13 @@
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
     ignore_errors: yes
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 0
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   #========================
 
@@ -573,13 +573,13 @@
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   # user0 is still a member because of check_mode
   - name: Check in DB (mariadb)
@@ -587,13 +587,13 @@
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   # user1, user2, and role1 are not members because of check_mode
   - name: Check in DB, if not granted, the query will fail
@@ -602,26 +602,26 @@
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
     ignore_errors: yes
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is failed
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 0
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -629,26 +629,26 @@
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
     ignore_errors: yes
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is failed
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 0
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -656,26 +656,26 @@
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ role1 }} USING '{{ role0 }}'"
     ignore_errors: yes
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is failed
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ role1 }}' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 0
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   #========================
 
@@ -702,13 +702,13 @@
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
     ignore_errors: yes
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is failed
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   # user0 is not a member any more
   - name: Check in DB (mariadb)
@@ -716,65 +716,65 @@
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - "'{{ role0 }}' not in result.query_result.0.0['Grants for user0@localhost']"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -782,26 +782,26 @@
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ role1 }} USING '{{ role0 }}'"
     ignore_errors: yes
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ role1 }}' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
 
   #==========================
@@ -866,26 +866,26 @@
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
     ignore_errors: yes
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is failed
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 0
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
   #=====================
 
   - name: Append a member
@@ -908,26 +908,26 @@
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   # user1 and user2 must still be in DB because we are appending
   - name: Check in DB, if not granted, the query will fail
@@ -935,52 +935,52 @@
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   #========================
 
@@ -1042,78 +1042,78 @@
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   #========================
 
@@ -1138,26 +1138,26 @@
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user0 }}@localhost USING '{{ role0 }}'"
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is succeeded
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -1165,26 +1165,26 @@
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user1 }}@localhost USING '{{ role0 }}'"
     ignore_errors: yes
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is failed
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user1 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 0
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -1192,26 +1192,26 @@
       <<: *mysql_params
       query: "SHOW GRANTS FOR {{ user2 }}@localhost USING '{{ role0 }}'"
     ignore_errors: yes
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check
     assert:
       that:
       - result is failed
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user2 }}' AND Host = 'localhost' AND Role = '{{ role0 }}'"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0['user_roles'] == 0
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   #=====================
 
@@ -1374,7 +1374,7 @@
       - result.query_result.0.0["Grants for role0@%"] == "GRANT SELECT, INSERT ON *.* TO `role0`@`%`"
       - result.query_result.0.1["Grants for role0@%"] == "GRANT UPDATE ON `mysql`.* TO `role0`@`%`"
       - result.rowcount.0 == 2
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check (mariadb)
     assert:
@@ -1382,7 +1382,7 @@
       - result.query_result.0.0["Grants for role0"] == "GRANT SELECT, INSERT ON *.* TO `role0`"
       - result.query_result.0.1["Grants for role0"] == "GRANT UPDATE ON `mysql`.* TO `role0`"
       - result.rowcount.0 == 2
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Append privs in check_mode
     <<: *task_params
@@ -1411,7 +1411,7 @@
       - result.query_result.0.0["Grants for role0@%"] == "GRANT SELECT, INSERT ON *.* TO `role0`@`%`"
       - result.query_result.0.1["Grants for role0@%"] == "GRANT UPDATE ON `mysql`.* TO `role0`@`%`"
       - result.rowcount.0 == 2
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check (mariadb)
     assert:
@@ -1419,7 +1419,7 @@
       - result.query_result.0.0["Grants for role0"] == "GRANT SELECT, INSERT ON *.* TO `role0`"
       - result.query_result.0.1["Grants for role0"] == "GRANT UPDATE ON `mysql`.* TO `role0`"
       - result.rowcount.0 == 2
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Append privs
     <<: *task_params
@@ -1449,7 +1449,7 @@
       - result.query_result.0.2["Grants for role0@%"] == "GRANT SELECT, INSERT ON `test_db1`.`test_table` TO `role0`@`%`"
       - result.query_result.0.3["Grants for role0@%"] == "GRANT DELETE ON `test_db2`.`test_table` TO `role0`@`%`"
       - result.rowcount.0 == 4
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check (mariadb)
     assert:
@@ -1459,7 +1459,7 @@
       - result.query_result.0.2["Grants for role0"] == "GRANT SELECT, INSERT ON `test_db1`.`test_table` TO `role0`"
       - result.query_result.0.3["Grants for role0"] == "GRANT DELETE ON `test_db2`.`test_table` TO `role0`"
       - result.rowcount.0 == 4
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Append privs again in check_mode
     <<: *task_params
@@ -1521,14 +1521,14 @@
       that:
       - result.query_result.0.0["Grants for role0@%"] == "GRANT SELECT ON *.* TO `role0`@`%`"
       - result.rowcount.0 == 1
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check (mariadb)
     assert:
       that:
       - result.query_result.0.0["Grants for role0"] == "GRANT SELECT ON *.* TO `role0`"
       - result.rowcount.0 == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   # #################
   # Test admin option
@@ -1555,26 +1555,26 @@
       that:
       - result is failed
       - result.msg is search('option can be used only with MariaDB')
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check with MariaDB
     assert:
       that:
       - result is changed
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check in DB
     <<: *task_params
     mysql_query:
       <<: *mysql_params
       query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}' AND Host = ''"
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Check
     assert:
       that:
       - result.rowcount.0 == 1
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   - name: Create role with admin again
     <<: *task_params
@@ -1590,13 +1590,13 @@
       that:
       - result is failed
       - result.msg is search('option can be used only with MariaDB')
-    when: install_type == 'mysql'
+    when: db_engine == 'mysql'
 
   - name: Check with MariaDB
     assert:
       that:
       - result is not changed
-    when: install_type == 'mariadb'
+    when: db_engine == 'mariadb'
 
   # Try to grant a role to a user who does not exist
   - name: Create role with admin again

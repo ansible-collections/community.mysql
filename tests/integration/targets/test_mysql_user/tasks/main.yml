@@ -243,7 +243,7 @@
     #
     # FIXME: mariadb sql syntax for create/update user is not compatible
     - include: test_user_plugin_auth.yml
-      when: install_type == 'mysql'
+      when: db_engine == 'mysql'
 
     # ============================================================
     # Assert create user with SELECT privileges, attempt to create database and update privileges to create database

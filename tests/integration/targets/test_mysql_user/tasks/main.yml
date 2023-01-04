@@ -24,9 +24,6 @@
 # ============================================================
 # create mysql user and verify user is added to mysql database
 #
-- name: alias mysql command to include default options
-  set_fact:
-    mysql_command: "mysql -u{{ mysql_user }} -p{{ mysql_password }} -P{{ mysql_primary_port }} --protocol=tcp"
 
 - vars:
     mysql_parameters: &mysql_params

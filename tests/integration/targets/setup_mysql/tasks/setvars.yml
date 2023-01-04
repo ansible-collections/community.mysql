@@ -10,9 +10,16 @@
     connector_name: "{{ connector.name.0 }}"
     gateway_addr: "{{ ip_route_output.stdout }}"
 
-- name: "{{ role_name }} | setvars | Connector version"
+- name: "{{ role_name }} | setvars | Set Fact using above facts"
   ansible.builtin.set_fact:
     connector_ver: "{{ connector_name.split('=')[2].strip() }}"
+    mysql_command: >
+      mysql
+      -h{{ gateway_addr }}
+      -P{{ mysql_primary_port }}
+      -u{{ mysql_user }}
+      -p{{ mysql_password }}
+      --protocol=tcp
 
 - name: "{{ role_name }} | setvars | Debug connector info"
   ansible.builtin.debug:

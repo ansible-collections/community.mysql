@@ -28,10 +28,6 @@
 
   block:
 
-    - name: alias mysql command to include default options
-      set_fact:
-        mysql_command: "mysql -u{{ mysql_user }} -p{{ mysql_password }} -P{{ mysql_primary_port }} --protocol=tcp"
-
     - set_fact:
         set_name: 'version'
 

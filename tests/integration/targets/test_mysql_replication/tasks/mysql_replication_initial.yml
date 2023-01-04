@@ -23,9 +23,8 @@
       set_fact:
         mysql8022_and_higher: true
       when:
-      - db.version.major > 8 or (db.version.major == 8 and db.version.minor > 0) or (db.version.major == 8 and db.version.minor == 0 and db.version.release >= 22)
-      - db_engine == 'mysql'
-
+        - db_engine == 'mysql'
+        - db_version is version('8.0.22', '>=')
 
     # Preparation:
     - name: Create user for mysql replication

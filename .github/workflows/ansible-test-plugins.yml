@@ -101,8 +101,8 @@ jobs:
           MYSQL_ROOT_PASSWORD: msandbox
         ports:
           - 3308:3306
-        options: >-
-          --server_id 2
+        volumes:
+          - tests/integration/setup_mysql/replica1:/etc/mysql/conf.d/
 
       db_replica2:
         image: ${{ matrix.db_engine_version }}
@@ -111,8 +111,8 @@ jobs:
           MYSQL_ROOT_PASSWORD: msandbox
         ports:
           - 3309:3306
-        options: >-
-          --server_id 3
+        volumes:
+          - tests/integration/setup_mysql/replica2:/etc/mysql/conf.d/
 
     steps:
       - name: 'Wait 20s for the service containers to be healthy'

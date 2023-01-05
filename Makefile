@@ -17,8 +17,9 @@ test-integration:
 		--network podman \
 		--publish 3308:3306 \
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
-		mysql:8.0.22 \
-		--server_id 2
+		--security-opt label=disable \
+		--volume ./tests/integration/targets/setup_mysql/replica1/:/etc/mysql/conf.d/ \
+		mysql:8.0.22
 	podman run \
 		--detach \
 		--name replica2 \
@@ -27,8 +28,9 @@ test-integration:
 		--network podman \
 		--publish 3309:3306 \
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
-		mysql:8.0.22 \
-		--server_id 3
+		--security-opt label=disable \
+		--volume ./tests/integration/targets/setup_mysql/replica2/:/etc/mysql/conf.d/ \
+		mysql:8.0.22
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
 		-set -x; ansible-test integration -v --color --coverage --retry-on-error --continue-on-error --diff --docker --docker-network podman --python 3.8; set +x
 	podman stop --time 0 --ignore primary

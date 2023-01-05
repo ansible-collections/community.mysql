@@ -1,0 +1,4 @@
+[mysqld]
+skip-host-cache
+skip-name-resolve
+server_id = 3

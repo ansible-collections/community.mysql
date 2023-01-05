@@ -5,13 +5,13 @@
     mysql_parameters: &mysql_params
       login_user: '{{ mysql_user }}'
       login_password: '{{ mysql_password }}'
-      login_host: '{{ gateway_addr }}'
+      login_host: '{{ mysql_host }}'
       login_port: '{{ mysql_primary_port }}'
 
   block:
 
     # ============================================================
-    - name: create a user with parameters that will always cause an exception
+    - name: Privs issue 465 | Create a user with parameters that will always cause an exception
       mysql_user:
         <<: *mysql_params
         name: user_issue_465
@@ -21,7 +21,7 @@
       ignore_errors: true
       register: result
 
-    - name: assert output message for current privileges
+    - name: Privs issue 465 | Assert output message for current privileges
       assert:
         that:
           - result is failed

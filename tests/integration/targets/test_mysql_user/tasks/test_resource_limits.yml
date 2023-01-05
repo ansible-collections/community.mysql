@@ -4,18 +4,18 @@
     mysql_parameters: &mysql_params
       login_user: '{{ mysql_user }}'
       login_password: '{{ mysql_password }}'
-      login_host: '{{ gateway_addr }}'
       login_port: '{{ mysql_primary_port }}'
 
   block:
 
-    - name: Drop mysql user {{ user_name_1 }} if exists
+    - name: Resource limits | Drop mysql user {{ user_name_1 }} if exists
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
+        host_all: true
         state: absent
 
-    - name: Create mysql user {{ user_name_1 }} with resource limits in check_mode
+    - name: Resource limits | Create mysql user {{ user_name_1 }} with resource limits in check_mode
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
@@ -27,11 +27,12 @@
       check_mode: yes
       register: result
 
-    - assert:
+    - name: Resource limits | Assert that create user with resource limits is changed
+      assert:
         that:
           - result is changed
 
-    - name: Create mysql user {{ user_name_1 }} with resource limits in actual mode
+    - name: Resource limits | Create mysql user {{ user_name_1 }} with resource limits in actual mode
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
@@ -46,19 +47,23 @@
         that:
           - result is changed
 
-    - name: Check
+    - name: Resource limits | Check
       mysql_query:
         <<: *mysql_params
         query: >
-          SELECT User FROM mysql.user WHERE User = '{{ user_name_1 }}' AND Host = 'localhost'
-          AND max_questions = 10 AND max_connections = 5
+          SELECT User FROM mysql.user
+          WHERE User = '{{ user_name_1 }}'
+          AND Host = 'localhost'
+          AND max_questions = 10
+          AND max_connections = 5
       register: result
 
-    - assert:
+    - name: Resource limits | Assert that rowcount is 1
+      assert:
         that:
-        - result.rowcount[0] == 1
+          - result.rowcount[0] == 1
 
-    - name: Try to set the same limits again in check mode
+    - name: Resource limits | Try to set the same limits again in check mode
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
@@ -70,11 +75,12 @@
       check_mode: yes
       register: result
 
-    - assert:
+    - name: Resource limits | Assert that set same limits again is not changed
+      assert:
         that:
           - result is not changed
 
-    - name: Try to set the same limits again in actual mode
+    - name: Resource limits | Try to set the same limits again in actual mode
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
@@ -85,11 +91,12 @@
           MAX_CONNECTIONS_PER_HOUR: 5
       register: result
 
-    - assert:
+    - name: Resource limits | Assert that set same limits again in actual mode is not changed
+      assert:
         that:
           - result is not changed
 
-    - name: Change limits
+    - name: Resource limits | Change limits
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
@@ -100,19 +107,24 @@
           MAX_CONNECTIONS_PER_HOUR: 5
       register: result
 
-    - assert:
+    - name: Resource limits | Assert limits changed
+      assert:
         that:
           - result is changed
 
-    - name: Check
+    - name: Resource limits | Get user limits
       mysql_query:
         <<: *mysql_params
         query: >
-          SELECT User FROM mysql.user WHERE User = '{{ user_name_1 }}' AND Host = 'localhost'
-          AND max_questions = 5 AND max_connections = 5
+          SELECT User FROM mysql.user
+          WHERE User = '{{ user_name_1 }}'
+          AND Host = 'localhost'
+          AND max_questions = 5
+          AND max_connections = 5
       register: result
 
-    - assert:
+    - name: Resource limits | Assert limit row count
+      assert:
         that:
           - result.rowcount[0] == 1
 

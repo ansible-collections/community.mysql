@@ -1,5 +1,7 @@
 /tests/output/
 /tests/integration/inventory
+/tests/integration/db_engine_version
+/tests/integration/connector
 /changelogs/.plugin-cache.yaml
 *.swp
 

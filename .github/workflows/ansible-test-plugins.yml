@@ -15,9 +15,6 @@ on:
     - cron: '0 6 * * *'
 
 
-env:
-  config_file: "tests/integration/targets/setup_controller/defaults/main.yml"
-
 jobs:
   # sanity:
   #   name: "Sanity (Ansible: ${{ matrix.ansible }})"
@@ -128,9 +125,9 @@ jobs:
           ansible-core-version: ${{ matrix.ansible }}
           pre-test-cmd: >-
             >&2 echo Setting db_engine_version to ${{ matrix.db_engine_version }}...;
-            sed -i 's/^db_engine_version:.*/db_engine_version: [${{ matrix.db_engine_version }}]/' ${{ env.config_file }}
+            echo ${{ matrix.db_engine_version }} > tests/integration/db_engine_version
             >&2 echo Setting Connector version to ${{ matrix.connector }}...;
-            sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.config_file }}
+            echo ${{ matrix.connector }} > tests/integration/connector
           target-python-version: ${{ matrix.python }}
           testing-type: integration
 

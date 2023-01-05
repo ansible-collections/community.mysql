@@ -11,11 +11,6 @@
   environment:
     DEBIAN_FRONTEND: noninteractive
 
-- name: "{{ role_name }} | install | install python packages"
-  ansible.builtin.pip:
-    name: "{{ python_packages }}"
-  register: connector
-
 - name: "{{ role_name }} | install | Ensure fake root folder"
   ansible.builtin.file:
     path: "{{ playbook_dir }}/root"

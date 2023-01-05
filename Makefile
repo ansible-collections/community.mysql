@@ -1,5 +1,7 @@
 .PHONY: test-integration
 test-integration:
+	echo "mysql:8.0.22" > tests/integration/db_engine_version
+	echo "pymysql==0.9.3" > tests/integration/connector
 	podman run \
 		--detach \
 		--name primary \
@@ -32,7 +34,9 @@ test-integration:
 		--volume ./tests/integration/targets/setup_mysql/replica2/:/etc/mysql/conf.d/ \
 		mysql:8.0.22
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
-		-set -x; ansible-test integration -v --color --coverage --retry-on-error --continue-on-error --diff --docker --docker-network podman --python 3.8; set +x
+	-set -x; ansible-test integration -v --color --coverage --retry-on-error --continue-on-error --diff --docker --docker-network podman --python 3.8; set +x
+	rm tests/integration/db_engine_version
+	rm tests/integration/connector
 	podman stop --time 0 --ignore primary
 	podman stop --time 0 --ignore replica1
 	podman stop --time 0 --ignore replica2

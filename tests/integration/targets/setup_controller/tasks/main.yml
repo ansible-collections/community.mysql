@@ -11,3 +11,7 @@
 - name: Set variables
   ansible.builtin.import_tasks:
     file: setvars.yml
+
+- name: Install MySQL connector
+  ansible.builtin.import_tasks:
+    file: connector.yml

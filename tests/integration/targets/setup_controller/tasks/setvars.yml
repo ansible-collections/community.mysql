@@ -1,20 +1,29 @@
 ---
 
-- name: "{{ role_name }} | setvars | Extract Podman/Docker Network Gateway"
+- name: "{{ role_name }} | Setvars | Extract Podman/Docker Network Gateway"
   ansible.builtin.shell:
     cmd: ip route|grep default|awk '{print $3}'
   register: ip_route_output
 
-- name: "{{ role_name }} | setvars | Set Fact"
+- name: "{{ role_name }} | Setvars | Set Fact"
   ansible.builtin.set_fact:
-    connector_name: "{{ connector.name.0 }}"
     gateway_addr: "{{ ip_route_output.stdout }}"
-    db_engine: "{{ db_engine_version | split(':') | first }}"
-    db_version: "{{ db_engine_version | split(':') | last }}"
+    connector_name: >
+      {{ lookup(
+        'file',
+        '/root/ansible_collections/community/mysql/tests/integration/connector'
+      ) }}
+    db_engine_version: >
+      {{ lookup(
+        'file',
+        '/root/ansible_collections/community/mysql/tests/integration/db_engine_version'
+      ) }}"
 
-- name: "{{ role_name }} | setvars | Set Fact using above facts"
+- name: "{{ role_name }} | Setvars | Set Fact using above facts"
   ansible.builtin.set_fact:
     connector_ver: "{{ connector_name.split('=')[2].strip() }}"
+    db_engine: "{{ db_engine_version | split(':') | first }}"
+    db_version: "{{ db_engine_version | split(':') | last }}"
     mysql_command: >-
       mysql
       -h{{ gateway_addr }}
@@ -29,9 +38,10 @@
       -p{{ mysql_password }}
       --protocol=tcp
 
-- name: "{{ role_name }} | setvars | Debug connector info"
+- name: "{{ role_name }} | Setvars | Output test informations"
   ansible.builtin.debug:
     msg: >
       Connector name: {{ connector_name }},
-      Connector version: {{ connector_ver }}
-      db_engine: {{ db_engine }}
+      Connector version: {{ connector_ver }},
+      db_engine: {{ db_engine }},
+      db_version: {{ db_version }}

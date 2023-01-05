@@ -12,12 +12,12 @@
       {{ lookup(
         'file',
         '/root/ansible_collections/community/mysql/tests/integration/connector'
-      ) }}
+      ) | trim }}
     db_engine_version: >
       {{ lookup(
         'file',
         '/root/ansible_collections/community/mysql/tests/integration/db_engine_version'
-      ) }}"
+      ) | trim }}"
 
 - name: "{{ role_name }} | Setvars | Set Fact using above facts"
   ansible.builtin.set_fact:

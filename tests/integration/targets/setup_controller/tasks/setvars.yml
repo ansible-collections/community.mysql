@@ -12,18 +12,18 @@
       {{ lookup(
         'file',
         '/root/ansible_collections/community/mysql/tests/integration/connector'
-      ) | trim }}
+      ) }}
     db_engine_version: >
       {{ lookup(
         'file',
         '/root/ansible_collections/community/mysql/tests/integration/db_engine_version'
-      ) | trim }}"
+      ) }}"
 
 - name: "{{ role_name }} | Setvars | Set Fact using above facts"
   ansible.builtin.set_fact:
     connector_ver: "{{ connector_name.split('=')[2].strip() }}"
-    db_engine: "{{ db_engine_version | split(':') | first }}"
-    db_version: "{{ db_engine_version | split(':') | last }}"
+    db_engine: "{{ db_engine_version.split(':')[0].strip() }}"
+    db_version: "{{ db_engine_version.split(':')[1].strip() }}"
     mysql_command: >-
       mysql
       -h{{ gateway_addr }}

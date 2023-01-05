@@ -1,7 +1,7 @@
 .PHONY: test-integration
 test-integration:
-	echo "mysql:8.0.22" > tests/integration/db_engine_version
-	echo "pymysql==0.9.3" > tests/integration/connector
+	echo -n "mysql:8.0.22" > tests/integration/db_engine_version
+	echo -n "pymysql==0.9.3" > tests/integration/connector
 	podman run \
 		--detach \
 		--name primary \

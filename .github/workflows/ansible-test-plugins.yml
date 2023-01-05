@@ -99,7 +99,7 @@ jobs:
         ports:
           - 3308:3306
         volumes:
-          - $(pwd)/tests/integration/setup_mysql/replica1/:/etc/mysql/conf.d/
+          - ${{ github.workspace }}/tests/integration/setup_mysql/replica1/:/etc/mysql/conf.d/
 
       db_replica2:
         image: ${{ matrix.db_engine_version }}
@@ -109,7 +109,7 @@ jobs:
         ports:
           - 3309:3306
         volumes:
-          - $(pwd)/tests/integration/setup_mysql/replica2/:/etc/mysql/conf.d/
+          - ${{ github.workspace }}/tests/integration/setup_mysql/replica2/:/etc/mysql/conf.d/
 
     steps:
       - name: 'Wait 20s for the service containers to be healthy'

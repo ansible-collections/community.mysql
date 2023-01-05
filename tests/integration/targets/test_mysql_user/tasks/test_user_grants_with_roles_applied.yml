@@ -1,3 +1,4 @@
+---
 # https://github.com/ansible-collections/community.mysql/issues/231
 - vars:
     mysql_parameters: &mysql_params
@@ -22,8 +23,8 @@
         name: '{{ item }}'
         state: present
       loop:
-      - data1
-      - data2
+        - data1
+        - data2
 
     - name: Create user with privileges
       mysql_user:
@@ -50,7 +51,7 @@
         <<: *mysql_params
         name: test231
         members:
-        - '{{ user_name_3 }}@localhost'
+          - '{{ user_name_3 }}@localhost'
 
     - name: Try to change privs
       mysql_user:
@@ -79,8 +80,8 @@
         name: '{{ item }}'
         state: present
       loop:
-      - data1
-      - data2
+        - data1
+        - data2
 
     - name: Drop test user
       mysql_user:

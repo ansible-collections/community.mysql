@@ -38,26 +38,26 @@
 
     - include: issue-28.yml
 
-    - include: create_user.yml user_name={{user_name_1}} user_password={{ user_password_1 }}
+    - include: create_user.yml user_name={{ user_name_1 }} user_password={{ user_password_1 }}
 
     - include: resource_limits.yml
 
-    - include: assert_user.yml user_name={{user_name_1}}
+    - include: assert_user.yml user_name={{ user_name_1 }}
 
-    - include: remove_user.yml user_name={{user_name_1}} user_password={{ user_password_1 }}
+    - include: remove_user.yml user_name={{ user_name_1 }} user_password={{ user_password_1 }}
 
-    - include: assert_no_user.yml user_name={{user_name_1}}
+    - include: assert_no_user.yml user_name={{ user_name_1 }}
 
     # ============================================================
     # Create mysql user that already exist on mysql database
     #
-    - include: create_user.yml user_name={{user_name_1}} user_password={{ user_password_1 }}
+    - include: create_user.yml user_name={{ user_name_1 }} user_password={{ user_password_1 }}
 
     - name: create mysql user that already exist (expect changed=false)
       mysql_user:
         <<: *mysql_params
-        name: '{{user_name_1}}'
-        password: '{{user_password_1}}'
+        name: "{{ user_name_1 }}"
+        password: "{{ user_password_1 }}"
         state: present
       register: result
 
@@ -72,8 +72,8 @@
     - name: remove mysql user state=absent (expect changed=true)
       mysql_user:
         <<: *mysql_params
-        name: '{{ user_name_1 }}'
-        password: '{{ user_password_1 }}'
+        name: "{{ user_name_1 }}"
+        password: "{{ user_password_1 }}"
         state: absent
       register: result
 
@@ -82,7 +82,7 @@
         that:
           - result is changed
 
-    - include: assert_no_user.yml user_name={{user_name_1}}
+    - include: assert_no_user.yml user_name={{ user_name_1 }}
 
     # ============================================================
     # remove mysql user that does not exist on mysql database
@@ -90,8 +90,8 @@
     - name: remove mysql user that does not exist state=absent (expect changed=false)
       mysql_user:
         <<: *mysql_params
-        name: '{{ user_name_1 }}'
-        password: '{{ user_password_1 }}'
+        name: "{{ user_name_1 }}"
+        password: "{{ user_password_1 }}"
         state: absent
       register: result
 
@@ -108,16 +108,16 @@
     - name: create user with select privilege state=present (expect changed=true)
       mysql_user:
         <<: *mysql_params
-        name: '{{ user_name_1 }}'
-        password: '{{ user_password_1 }}'
+        name: "{{ user_name_1 }}"
+        password: "{{ user_password_1 }}"
         state: present
       register: result
 
-    - include: assert_user.yml user_name={{user_name_1}} priv=USAGE
+    - include: assert_user.yml user_name={{ user_name_1 }} priv=USAGE
 
-    - include: remove_user.yml user_name={{user_name_1}} user_password={{ user_password_1 }}
+    - include: remove_user.yml user_name={{ user_name_1 }} user_password={{ user_password_1 }}
 
-    - include: assert_no_user.yml user_name={{user_name_1}}
+    - include: assert_no_user.yml user_name={{ user_name_1 }}
 
     # ============================================================
     # Create user with select privileges and verify select privileges are assign
@@ -125,17 +125,17 @@
     - name: create user with select privilege state=present (expect changed=true)
       mysql_user:
         <<: *mysql_params
-        name: '{{ user_name_2 }}'
-        password: '{{ user_password_2 }}'
+        name: "{{ user_name_2 }}"
+        password: "{{ user_password_2 }}"
         state: present
         priv: '*.*:SELECT'
       register: result
 
     - include: assert_user.yml user_name={{user_name_2}} priv=SELECT
 
-    - include: remove_user.yml user_name={{user_name_2}} user_password={{ user_password_2 }}
+    - include: remove_user.yml user_name={{ user_name_2 }} user_password={{ user_password_2 }}
 
-    - include: assert_no_user.yml user_name={{user_name_2}}
+    - include: assert_no_user.yml user_name={{ user_name_2 }}
 
     # ============================================================
     # Assert user has access to multiple databases

@@ -1,3 +1,4 @@
+---
 # Test code to ensure that subtracting privileges will not result in unnecessary changes.
 - vars:
     mysql_parameters: &mysql_params
@@ -14,7 +15,7 @@
         name: '{{ item }}'
         state: present
       loop:
-      - data1
+        - data1
 
     - name: Create a user with an initial set of privileges
       mysql_user:
@@ -164,7 +165,7 @@
         name: '{{ item }}'
         state: present
       loop:
-      - data1
+        - data1
 
     - name: Drop test user
       mysql_user:

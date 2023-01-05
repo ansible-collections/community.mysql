@@ -1,3 +1,4 @@
+---
 # test code to create mysql user
 # (c) 2014,  Wayne Rosario <wrosario@ansible.com>
 
@@ -18,16 +19,16 @@
 
 - vars:
     mysql_parameters: &mysql_params
-      login_user: '{{ mysql_user }}'
-      login_password: '{{ mysql_password }}'
-      login_host: '{{ gateway_addr }}'
-      login_port: '{{ mysql_primary_port }}'
+      login_user: "{{ mysql_user }}"
+      login_password: "{{ mysql_password }}"
+      login_host: "{{ gateway_addr }}"
+      login_port: "{{ mysql_primary_port }}"
 
   block:
     - name: Drop mysql user if exists
       mysql_user:
         <<: *mysql_params
-        name: '{{ user_name_1 }}'
+        name: "{{ user_name_1 }}"
         state: absent
       ignore_errors: yes
 
@@ -35,8 +36,8 @@
     - name: create mysql user {{user_name}}
       mysql_user:
         <<: *mysql_params
-        name: '{{ user_name }}'
-        password: '{{ user_password }}'
+        name: "{{ user_name }}"
+        password: "{{ user_password }}"
         state: present
       register: result
 

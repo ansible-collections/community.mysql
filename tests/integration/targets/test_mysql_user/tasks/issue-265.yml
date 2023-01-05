@@ -16,11 +16,11 @@
 
     # Tests with force_context: yes
     # Test user creation
-    - name: create mysql user {{user_name_1}}
+    - name: create mysql user {{ user_name_1 }}
       mysql_user:
         <<: *mysql_params
-        name: '{{ user_name_1 }}'
-        password: '{{ user_password_1 }}'
+        name: "{{ user_name_1 }}"
+        password: "{{ user_password_1 }}"
         state: present
         force_context: yes
       register: result
@@ -165,4 +165,4 @@
         that:
           - result is not changed
 
-    - include: assert_no_user.yml user_name={{user_name_1}}
+    - include: assert_no_user.yml user_name={{ user_name_1 }}

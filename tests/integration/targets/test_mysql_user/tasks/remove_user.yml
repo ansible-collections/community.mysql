@@ -1,3 +1,4 @@
+---
 # test code to remove mysql user
 # (c) 2014,  Wayne Rosario <wrosario@ansible.com>
 
@@ -26,11 +27,11 @@
   block:
 
     # ============================================================
-    - name: remove mysql user {{user_name}}
+    - name: remove mysql user {{ user_name }}
       mysql_user:
         <<: *mysql_params
-        name: '{{user_name}}'
-        password: '{{user_password}}'
+        name: '{{ user_name }}'
+        password: '{{ user_password }}'
         state: absent
       register: result
 

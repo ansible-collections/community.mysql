@@ -14,9 +14,9 @@
         name: '{{ item }}'
         state: present
       loop:
-      - data1
-      - data2
-      - data3
+        - data1
+        - data2
+        - data3
 
     - name: Create user with privileges
       mysql_user:
@@ -54,7 +54,7 @@
 
     - assert:
         that:
-        - result is changed
+          - result is changed
 
     - name: Grant select on the column again
       mysql_user:
@@ -66,7 +66,7 @@
 
     - assert:
         that:
-        - result is not changed
+          - result is not changed
 
 
     - name: Grant select on columns
@@ -79,7 +79,7 @@
 
     - assert:
         that:
-        - result is changed
+          - result is changed
 
     - name: Grant select on columns again
       mysql_user:
@@ -91,7 +91,7 @@
 
     - assert:
         that:
-        - result is not changed
+          - result is not changed
 
     - name: Grant privs on columns
       mysql_user:
@@ -103,7 +103,7 @@
 
     - assert:
         that:
-        - result is changed
+          - result is changed
 
     - name: Grant same privs on columns again, note that the column order is different
       mysql_user:
@@ -115,7 +115,7 @@
 
     - assert:
         that:
-        - result is not changed
+          - result is not changed
 
     - name: Run command to show privileges for user (expect privileges in stdout)
       command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_3 }}'@'localhost'\""
@@ -141,9 +141,9 @@
         name: '{{ item }}'
         state: present
       loop:
-      - data1
-      - data2
-      - data3
+        - data1
+        - data2
+        - data3
 
     - name: Drop test user
       mysql_user:

@@ -1,3 +1,4 @@
+---
 # test code for resource_limits parameter
 - vars:
     mysql_parameters: &mysql_params

@@ -1,3 +1,4 @@
+---
 # Test code to ensure that appending privileges will not result in unnecessary changes when the current privileges
 # are a superset of the new privileges that have been defined.
 - vars:
@@ -15,8 +16,8 @@
         name: '{{ item }}'
         state: present
       loop:
-      - data1
-      - data2
+        - data1
+        - data2
 
     - name: Create a user with an initial set of privileges
       mysql_user:
@@ -123,8 +124,8 @@
         name: '{{ item }}'
         state: present
       loop:
-      - data1
-      - data2
+        - data1
+        - data2
 
     - name: Drop test user
       mysql_user:

@@ -10,7 +10,8 @@ test-integration:
 		--network podman \
 		--publish 3307:3306 \
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
-		$(db_engine_version)
+		$(db_engine_version) \
+		mysqld --server-id 1 --log-bin=/var/lib/mysql/primary-bin
 	podman run \
 		--detach \
 		--name replica1 \
@@ -19,7 +20,8 @@ test-integration:
 		--network podman \
 		--publish 3308:3306 \
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
-		$(db_engine_version)
+		$(db_engine_version) \
+		mysqld --server-id 2 --log-bin=/var/lib/mysql/replica1-bin
 	podman run \
 		--detach \
 		--name replica2 \
@@ -28,7 +30,8 @@ test-integration:
 		--network podman \
 		--publish 3309:3306 \
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
-		$(db_engine_version)
+		$(db_engine_version) \
+		mysqld --server-id 3 --log-bin=/var/lib/mysql/replica2-bin
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
 	-set -x; ansible-test integration -v --color --coverage --retry-on-error --continue-on-error --diff --docker --docker-network podman --python $(python); set +x
 	rm tests/integration/db_engine_version

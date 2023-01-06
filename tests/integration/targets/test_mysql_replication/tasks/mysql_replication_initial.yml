@@ -19,21 +19,6 @@
         - db_engine == 'mysql'
         - db_version is version('8.0.22', '>=')
 
-    # We can't pass --server-id to service containers in GHA
-    - name: Change replica1 server_id to 2
-      mysql_variables:
-        <<: *mysql_params
-        login_port: '{{ mysql_replica1_port }}'
-        variable: server_id
-        value: 2
-
-    - name: Change replica2 server_id to 3
-      mysql_variables:
-        <<: *mysql_params
-        login_port: '{{ mysql_replica2_port }}'
-        variable: server_id
-        value: 3
-
     # We use iF NOT EXISTS because the GITHUB Action:
     # "ansible-community/ansible-test-gh-action" uses "--retry-on-error".
     # If test_mysql_replication fails, test will run again an without the IF

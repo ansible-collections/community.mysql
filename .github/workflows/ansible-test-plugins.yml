@@ -120,13 +120,13 @@ jobs:
           Ansible version ${{ matrix.ansible }}
           under Python ${{ matrix.python }}
         uses: ansible-community/ansible-test-gh-action@release/v1
-        pre-test-cmd: >-
-            echo Setting db_engine_version to "${{ matrix.db_engine_version }}"...;
-            echo -n "${{ matrix.db_engine_version }}" > tests/integration/db_engine_version;
-            echo Setting Connector version to "${{ matrix.connector }}"...;
-            echo -n "${{ matrix.connector }}" > tests/integration/connector
         with:
           ansible-core-version: ${{ matrix.ansible }}
+          pre-test-cmd: >-
+              echo Setting db_engine_version to "${{ matrix.db_engine_version }}"...;
+              echo -n "${{ matrix.db_engine_version }}" > tests/integration/db_engine_version;
+              echo Setting Connector version to "${{ matrix.connector }}"...;
+              echo -n "${{ matrix.connector }}" > tests/integration/connector
           target-python-version: ${{ matrix.python }}
           testing-type: integration
 

@@ -50,13 +50,31 @@
         name: '{{ test_db }}'
 
     - name: Dump all databases from the primary
-      shell: 'mysqldump -u{{ mysql_user }} -p{{ mysql_password }} -h{{ mysql_host }} --protocol=tcp -P{{ mysql_primary_port }} --all-databases --ignore-table=mysql.innodb_index_stats --ignore-table=mysql.innodb_table_stats --master-data=2 > {{ dump_path }}'
+      shell:
+        cmd: >-
+          mysqldump
+          -u{{ mysql_user }}
+          -p{{ mysql_password }}
+          -h{{ mysql_host }}
+          -P{{ mysql_primary_port }}
+          --protocol=tcp
+          --all-databases
+          --ignore-table=mysql.innodb_index_stats
+          --ignore-table=mysql.innodb_table_stats
+          --master-data=2
+          > {{ dump_path }}
 
     - name: Restore the dump to replica1
-      shell: '{{ mysql_command_wo_port }} -P{{ mysql_replica1_port }} < {{ dump_path }}'
+      shell:
+        cmd: >-
+          {{ mysql_command_wo_port }}
+          -P{{ mysql_replica1_port }} < {{ dump_path }}
 
     - name: Restore the dump to replica2
-      shell: '{{ mysql_command_wo_port }} -P{{ mysql_replica2_port }} < {{ dump_path }}'
+      shell:
+        cmd: >-
+          {{ mysql_command_wo_port }}
+          -P{{ mysql_replica2_port }} < {{ dump_path }}
 
     # Test getprimary mode:
     - name: Get primary status

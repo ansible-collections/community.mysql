@@ -81,34 +81,34 @@ jobs:
           - python: 3.9
             ansible: stable-2.12
 
-    # services:
-    #   db_primary:
-    #     image: ${{ matrix.db_engine_version }}
-    #     env:
-    #       MARIADB_ROOT_PASSWORD: msandbox
-    #       MYSQL_ROOT_PASSWORD: msandbox
-    #     ports:
-    #       - 3307:3306
+    services:
+      db_primary:
+        image: ${{ matrix.db_engine_version }}
+        env:
+          MARIADB_ROOT_PASSWORD: msandbox
+          MYSQL_ROOT_PASSWORD: msandbox
+        ports:
+          - 3307:3306
 
-    #   db_replica1:
-    #     image: ${{ matrix.db_engine_version }}
-    #     env:
-    #       MARIADB_ROOT_PASSWORD: msandbox
-    #       MYSQL_ROOT_PASSWORD: msandbox
-    #     ports:
-    #       - 3308:3306
-    #     volumes:
-    #       - ${{ github.workspace }}/tests/integration/setup_mysql/replica1/:/etc/mysql/conf.d/
+      db_replica1:
+        image: ${{ matrix.db_engine_version }}
+        env:
+          MARIADB_ROOT_PASSWORD: msandbox
+          MYSQL_ROOT_PASSWORD: msandbox
+        ports:
+          - 3308:3306
+        volumes:
+          - ${{ github.workspace }}/tests/integration/setup_mysql/replica1/:/etc/mysql/conf.d/
 
-    #   db_replica2:
-    #     image: ${{ matrix.db_engine_version }}
-    #     env:
-    #       MARIADB_ROOT_PASSWORD: msandbox
-    #       MYSQL_ROOT_PASSWORD: msandbox
-    #     ports:
-    #       - 3309:3306
-    #     volumes:
-    #       - ${{ github.workspace }}/tests/integration/setup_mysql/replica2/:/etc/mysql/conf.d/
+      db_replica2:
+        image: ${{ matrix.db_engine_version }}
+        env:
+          MARIADB_ROOT_PASSWORD: msandbox
+          MYSQL_ROOT_PASSWORD: msandbox
+        ports:
+          - 3309:3306
+        volumes:
+          - ${{ github.workspace }}/tests/integration/setup_mysql/replica2/:/etc/mysql/conf.d/
 
     steps:
       - name: 'Wait 20s for the service containers to be healthy'

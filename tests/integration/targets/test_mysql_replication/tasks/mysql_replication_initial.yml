@@ -8,13 +8,6 @@
       login_host: '{{ gateway_addr }}'
 
   block:
-    - name: find out the database version
-      mysql_info:
-        <<: *mysql_params
-        login_port: '{{ mysql_primary_port }}'
-        filter: version
-      register: db
-
     - name: Set mysql8022_and_higher
       set_fact:
         mysql8022_and_higher: false

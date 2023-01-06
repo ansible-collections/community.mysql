@@ -16,23 +16,23 @@ on:
 
 
 jobs:
-  # sanity:
-  #   name: "Sanity (Ansible: ${{ matrix.ansible }})"
-  #   runs-on: ubuntu-20.04
-  #   strategy:
-  #     matrix:
-  #       ansible:
-  #         - stable-2.12
-  #         - stable-2.13
-  #         - stable-2.14
-  #         - devel
-  #   steps:
-  #     - name: Perform sanity testing
-  #       uses: ansible-community/ansible-test-gh-action@release/v1
-  #       with:
-  #         ansible-core-version: ${{ matrix.ansible }}
-  #         testing-type: sanity
-  #         pull-request-change-detection: true
+  sanity:
+    name: "Sanity (Ansible: ${{ matrix.ansible }})"
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        ansible:
+          - stable-2.12
+          - stable-2.13
+          - stable-2.14
+          - devel
+    steps:
+      - name: Perform sanity testing
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          ansible-core-version: ${{ matrix.ansible }}
+          testing-type: sanity
+          pull-request-change-detection: true
 
   integration:
     name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, MySQL: ${{ matrix.db_engine_version }}, Connector: ${{ matrix.connector }})"
@@ -41,29 +41,29 @@ jobs:
       fail-fast: false
       matrix:
         db_engine_version:
-        #   - mysql:5.7.40
+          - mysql:5.7.40
           - mysql:8.0.22
-        #   - mariadb:10.4.24
-        #   - mariadb:10.5.18
-        #   - mariadb:10.8.3
+          - mariadb:10.4.24
+          - mariadb:10.5.18
+          - mariadb:10.8.3
         ansible:
-          # - stable-2.12
-          # - stable-2.13
+          - stable-2.12
+          - stable-2.13
           - stable-2.14
-          # - devel
+          - devel
         python:
-          # - 3.6
-          # - 3.8
+          - 3.6
+          - 3.8
           - 3.9
         connector:
-          # - pymysql==0.7.10
+          - pymysql==0.7.10
           - pymysql==0.9.3
-          # - mysqlclient==2.0.1
+          - mysqlclient==2.0.1
         exclude:
-          # - db_engine_version: mysql_8.0.22
-          #   connector: pymysql==0.7.10
-          # - db_engine_version: mariadb_10.8.3
-          #   connector: pymysql==0.7.10
+          - db_engine_version: mysql_8.0.22
+            connector: pymysql==0.7.10
+          - db_engine_version: mariadb_10.8.3
+            connector: pymysql==0.7.10
           - python: 3.6
             ansible: stable-2.12
           - python: 3.6
@@ -128,9 +128,6 @@ jobs:
 
     steps:
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
-
       - name: >-
           Perform integration testing against
           Ansible version ${{ matrix.ansible }}
@@ -146,39 +143,39 @@ jobs:
           target-python-version: ${{ matrix.python }}
           testing-type: integration
 
-  # units:
-  #   runs-on: ubuntu-20.04
-  #   name: Units (Ⓐ${{ matrix.ansible }})
-  #   strategy:
-  #     # As soon as the first unit test fails,
-  #     # cancel the others to free up the CI queue
-  #     fail-fast: true
-  #     matrix:
-  #       ansible:
-  #         - stable-2.12
-  #         - stable-2.13
-  #         - stable-2.14
-  #         - devel
-  #       python:
-  #         - 3.8
-  #         - 3.9
-  #       exclude:
-  #         - python: 3.8
-  #           ansible: stable-2.13
-  #         - python: 3.8
-  #           ansible: stable-2.14
-  #         - python: 3.8
-  #           ansible: devel
-  #         - python: 3.9
-  #           ansible: stable-2.12
+  units:
+    runs-on: ubuntu-20.04
+    name: Units (Ⓐ${{ matrix.ansible }})
+    strategy:
+      # As soon as the first unit test fails,
+      # cancel the others to free up the CI queue
+      fail-fast: true
+      matrix:
+        ansible:
+          - stable-2.12
+          - stable-2.13
+          - stable-2.14
+          - devel
+        python:
+          - 3.8
+          - 3.9
+        exclude:
+          - python: 3.8
+            ansible: stable-2.13
+          - python: 3.8
+            ansible: stable-2.14
+          - python: 3.8
+            ansible: devel
+          - python: 3.9
+            ansible: stable-2.12
 
-  #   steps:
-  #     - name: >-
-  #         Perform unit testing against
-  #         Ansible version ${{ matrix.ansible }}
-  #       uses: ansible-community/ansible-test-gh-action@release/v1
-  #       with:
-  #         ansible-core-version: ${{ matrix.ansible }}
-  #         target-python-version: ${{ matrix.python }}
-  #         testing-type: units
-  #         pull-request-change-detection: true
+    steps:
+      - name: >-
+          Perform unit testing against
+          Ansible version ${{ matrix.ansible }}
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          ansible-core-version: ${{ matrix.ansible }}
+          target-python-version: ${{ matrix.python }}
+          testing-type: units
+          pull-request-change-detection: true

@@ -34,13 +34,27 @@
         variable: server_id
         value: 3
 
-    # Preparation:
+    # We use iF NOT EXISTS because the GITHUB Action:
+    # "ansible-community/ansible-test-gh-action" uses "--retry-on-error".
+    # If test_mysql_replication fails, test will run again an without the IF
+    # NOT EXISTS, we see "Error 1396 (HY000): Operation CREATE USER failed..."
+    # which is misleading.
     - name: Create user for mysql replication
-      shell: "echo \"CREATE USER '{{ replication_user }}'@'{{ mysql_host }}' IDENTIFIED WITH mysql_native_password BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'{{ mysql_host }}';\" | {{ mysql_command }}"
+      shell:
+        "echo \"CREATE USER IF NOT EXISTS \
+        '{{ replication_user }}'@'{{ mysql_host }}' \
+        IDENTIFIED WITH mysql_native_password BY '{{ replication_pass }}'; \
+        GRANT REPLICATION SLAVE ON *.* TO \
+        '{{ replication_user }}'@'{{ mysql_host }}';\" | {{ mysql_command }}"
       when: db_engine == 'mysql'
 
     - name: Create user for mariadb replication
-      shell: "echo \"CREATE USER '{{ replication_user }}'@'{{ mysql_host }}' IDENTIFIED BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'{{ mysql_host }}';\" | {{ mysql_command }}"
+      shell:
+        "echo \"CREATE USER IF NOT EXISTS \
+        '{{ replication_user }}'@'{{ mysql_host }}' \
+        IDENTIFIED BY '{{ replication_pass }}'; \
+        GRANT REPLICATION SLAVE ON *.* TO \
+        '{{ replication_user }}'@'{{ mysql_host }}';\" | {{ mysql_command }}"
       when: db_engine == 'mariadb'
 
     - name: Create test database

@@ -35,8 +35,7 @@ jobs:
   #         pull-request-change-detection: true
 
   integration:
-    # name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, MySQL: ${{ matrix.db_engine_version }}, Connector: ${{ matrix.connector }})"
-    name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, Connector: ${{ matrix.connector }})"
+    name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, MySQL: ${{ matrix.db_engine_version }}, Connector: ${{ matrix.connector }})"
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -116,23 +115,20 @@ jobs:
         run:
           sleep 20;
 
-      - name: Send Matrix variables to the virtual machine using text files
-        run: >-
-          echo Setting db_engine_version to ${{ matrix.db_engine_version }}...;
-          echo -n "${{ matrix.db_engine_version }}" > tests/integration/db_engine_version;
-          echo Setting Connector version to ${{ matrix.connector }}...;
-          echo -n "${{ matrix.connector }}" > tests/integration/connector
-
       - name: >-
           Perform integration testing against
           Ansible version ${{ matrix.ansible }}
           under Python ${{ matrix.python }}
         uses: ansible-community/ansible-test-gh-action@release/v1
+        pre-test-cmd: >-
+            echo Setting db_engine_version to "${{ matrix.db_engine_version }}"...;
+            echo -n "${{ matrix.db_engine_version }}" > tests/integration/db_engine_version;
+            echo Setting Connector version to "${{ matrix.connector }}"...;
+            echo -n "${{ matrix.connector }}" > tests/integration/connector
         with:
           ansible-core-version: ${{ matrix.ansible }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration
-          target: test_mysql_info
 
   # units:
   #   runs-on: ubuntu-20.04

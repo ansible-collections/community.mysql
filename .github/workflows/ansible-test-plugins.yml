@@ -82,39 +82,46 @@ jobs:
           - python: 3.9
             ansible: stable-2.12
 
-    services:
-      db_primary:
-        image: ${{ matrix.db_engine_version }}
-        env:
-          MARIADB_ROOT_PASSWORD: msandbox
-          MYSQL_ROOT_PASSWORD: msandbox
-        ports:
-          - 3307:3306
+    # services:
+    #   db_primary:
+    #     image: ${{ matrix.db_engine_version }}
+    #     env:
+    #       MARIADB_ROOT_PASSWORD: msandbox
+    #       MYSQL_ROOT_PASSWORD: msandbox
+    #     ports:
+    #       - 3307:3306
 
-      db_replica1:
-        image: ${{ matrix.db_engine_version }}
-        env:
-          MARIADB_ROOT_PASSWORD: msandbox
-          MYSQL_ROOT_PASSWORD: msandbox
-        ports:
-          - 3308:3306
-        volumes:
-          - ${{ github.workspace }}/tests/integration/setup_mysql/replica1/:/etc/mysql/conf.d/
+    #   db_replica1:
+    #     image: ${{ matrix.db_engine_version }}
+    #     env:
+    #       MARIADB_ROOT_PASSWORD: msandbox
+    #       MYSQL_ROOT_PASSWORD: msandbox
+    #     ports:
+    #       - 3308:3306
+    #     volumes:
+    #       - ${{ github.workspace }}/tests/integration/setup_mysql/replica1/:/etc/mysql/conf.d/
 
-      db_replica2:
-        image: ${{ matrix.db_engine_version }}
-        env:
-          MARIADB_ROOT_PASSWORD: msandbox
-          MYSQL_ROOT_PASSWORD: msandbox
-        ports:
-          - 3309:3306
-        volumes:
-          - ${{ github.workspace }}/tests/integration/setup_mysql/replica2/:/etc/mysql/conf.d/
+    #   db_replica2:
+    #     image: ${{ matrix.db_engine_version }}
+    #     env:
+    #       MARIADB_ROOT_PASSWORD: msandbox
+    #       MYSQL_ROOT_PASSWORD: msandbox
+    #     ports:
+    #       - 3309:3306
+    #     volumes:
+    #       - ${{ github.workspace }}/tests/integration/setup_mysql/replica2/:/etc/mysql/conf.d/
 
     steps:
       - name: 'Wait 20s for the service containers to be healthy'
         run:
           sleep 20;
+
+      - name: Send Matrix variables to the virtual machine using text files
+        run: >-
+          echo Setting db_engine_version to ${{ matrix.db_engine_version }}...;
+          echo -n "${{ matrix.db_engine_version }}" > tests/integration/db_engine_version;
+          echo Setting Connector version to ${{ matrix.connector }}...;
+          echo -n "${{ matrix.connector }}" > tests/integration/connector
 
       - name: >-
           Perform integration testing against
@@ -123,13 +130,9 @@ jobs:
         uses: ansible-community/ansible-test-gh-action@release/v1
         with:
           ansible-core-version: ${{ matrix.ansible }}
-          pre-test-cmd: >-
-            >&2 echo Setting db_engine_version to ${{ matrix.db_engine_version }}...;
-            echo -n "${{ matrix.db_engine_version }}" > tests/integration/db_engine_version;
-            >&2 echo Setting Connector version to ${{ matrix.connector }}...;
-            echo -n "${{ matrix.connector }}" > tests/integration/connector
           target-python-version: ${{ matrix.python }}
           testing-type: integration
+          target: test_mysql_info
 
   # units:
   #   runs-on: ubuntu-20.04

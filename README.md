@@ -70,10 +70,14 @@ Every voice is important and every idea is valuable. If you have something on yo
 
 ### Databases
 
-- mysql 5.7.31
-- mysql 8.0.22
-- mariadb 10.3.34 (only collection version >= 3)
-- mariadb 10.8.3 (only collection version >= 3)
+- mysql 5.7.40
+- mysql 8.0.31
+- mariadb:10.4.24 (only collection version >= 3)
+- mariadb:10.5.18 (only collection version >= 3)
+- mariadb:10.6.11 (only collection version >= 3)
+- mariadb:10.7.7 (only collection version >= 3)
+- mariadb 10.8.6 (only collection version >= 3)
+- mariadb 10.9.4 (only collection version >= 3)
 
 ### Database connectors
 

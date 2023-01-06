@@ -42,9 +42,11 @@ jobs:
       matrix:
         db_engine_version:
           - mysql:5.7.40
-          - mysql:8.0.22
+          - mysql:8.0.31
           - mariadb:10.4.24
           - mariadb:10.5.18
+          - mariadb:10.6.11
+          - mariadb:10.7.7
           - mariadb:10.8.3
         ansible:
           - stable-2.12
@@ -52,26 +54,23 @@ jobs:
           - stable-2.14
           - devel
         python:
-          - 3.6
           - 3.8
           - 3.9
+          - 3.10
+          - 3.11
         connector:
           - pymysql==0.7.10
           - pymysql==0.9.3
           - mysqlclient==2.0.1
         exclude:
-          - db_engine_version: mysql_8.0.22
+          - db_engine_version: mysql:8.0.22
             connector: pymysql==0.7.10
-          - db_engine_version: mariadb_10.8.3
+          - db_engine_version: mariadb:10.4.24
             connector: pymysql==0.7.10
-          - python: 3.6
-            ansible: stable-2.12
-          - python: 3.6
-            ansible: stable-2.13
-          - python: 3.6
-            ansible: stable-2.14
-          - python: 3.6
-            ansible: devel
+          - db_engine_version: mariadb:10.5.18
+            connector: pymysql==0.7.10
+          - db_engine_version: mariadb:10.8.3
+            connector: pymysql==0.7.10
           - python: 3.8
             ansible: stable-2.13
           - python: 3.8
@@ -80,6 +79,12 @@ jobs:
             ansible: devel
           - python: 3.9
             ansible: stable-2.12
+          - python: 3.10
+            ansible: stable-2.12
+          - python: 3.11
+            ansible: stable-2.12
+          - python: 3.11
+            ansible: stable-2.13
 
     services:
       db_primary:

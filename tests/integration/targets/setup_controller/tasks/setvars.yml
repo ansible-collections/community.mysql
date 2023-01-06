@@ -8,16 +8,16 @@
 - name: "{{ role_name }} | Setvars | Set Fact"
   ansible.builtin.set_fact:
     gateway_addr: "{{ ip_route_output.stdout }}"
-    connector_name: >
+    connector_name: >-
       {{ lookup(
         'file',
         '/root/ansible_collections/community/mysql/tests/integration/connector'
       ) }}
-    db_engine_version: >
+    db_engine_version: >-
       {{ lookup(
         'file',
         '/root/ansible_collections/community/mysql/tests/integration/db_engine_version'
-      ) }}"
+      ) }}
 
 - name: "{{ role_name }} | Setvars | Set Fact using above facts"
   ansible.builtin.set_fact:
@@ -39,9 +39,10 @@
       --protocol=tcp
 
 - name: "{{ role_name }} | Setvars | Output test informations"
-  ansible.builtin.debug:
-    msg: >
-      Connector name: {{ connector_name }},
-      Connector version: {{ connector_ver }},
-      db_engine: {{ db_engine }},
+  vars:
+    msg: |-
+      connector_name: {{ connector_name }}
+      db_engine: {{ db_engine }}
       db_version: {{ db_version }}
+  ansible.builtin.debug:
+    msg: "{{ msg.split('\n') }}"

@@ -92,9 +92,7 @@ jobs:
         # We write our own health-cmd because the mariadb container does not
         # provide a healthcheck
         options: >-
-          --health-cmd "mysqladmin ping -P 3306 -pmsandbox"
-          | grep alive
-          || exit 1
+          --health-cmd mysqladmin ping -P 3306 -pmsandbox |grep alive || exit 1
           --health-start-period 10s
           --health-interval 10s
           --health-timeout 5s
@@ -110,9 +108,7 @@ jobs:
         volumes:
           - ${{ github.workspace }}/tests/integration/setup_mysql/replica1/:/etc/mysql/conf.d/
         options: >-
-          --health-cmd "mysqladmin ping -P 3306 -pmsandbox"
-          | grep alive
-          || exit 1
+          --health-cmd mysqladmin ping -P 3306 -pmsandbox |grep alive || exit 1
           --health-start-period 10s
           --health-interval 10s
           --health-timeout 5s
@@ -128,9 +124,7 @@ jobs:
         volumes:
           - ${{ github.workspace }}/tests/integration/setup_mysql/replica2/:/etc/mysql/conf.d/
         options: >-
-          --health-cmd "mysqladmin ping -P 3306 -pmsandbox"
-          | grep alive
-          || exit 1
+          --health-cmd mysqladmin ping -P 3306 -pmsandbox |grep alive || exit 1
           --health-start-period 10s
           --health-interval 10s
           --health-timeout 5s

@@ -130,9 +130,9 @@ jobs:
 
       - name: Set MySQL server for replication
         run: |
-          docker exec ${{ job.services.db_primary.id }} sh -c 'echo [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'
-          docker exec ${{ job.services.db_replica1.id }} sh -c 'echo [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
-          docker exec ${{ job.services.db_replica2.id }} sh -c 'echo [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
+          docker exec ${{ job.services.db_primary.id }} sh -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'
+          docker exec ${{ job.services.db_replica1.id }} sh -c 'echo -e [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
+          docker exec ${{ job.services.db_replica2.id }} sh -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
           docker restart ${{ job.services.db_primary.id }}
           docker restart ${{ job.services.db_replica1.id }}
           docker restart ${{ job.services.db_replica2.id }}

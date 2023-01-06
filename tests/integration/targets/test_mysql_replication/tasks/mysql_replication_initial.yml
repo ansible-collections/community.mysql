@@ -26,13 +26,28 @@
         - db_engine == 'mysql'
         - db_version is version('8.0.22', '>=')
 
+    # We can't pass --server-id to service containers in GHA
+    - name: Change replica1 server_id to 2
+      mysql_variables:
+        <<: *mysql_params
+        login_port: '{{ mysql_replica1_port }}'
+        variable: server_id
+        value: 2
+
+    - name: Change replica2 server_id to 3
+      mysql_variables:
+        <<: *mysql_params
+        login_port: '{{ mysql_replica2_port }}'
+        variable: server_id
+        value: 3
+
     # Preparation:
     - name: Create user for mysql replication
-      shell: "echo \"CREATE USER '{{ replication_user }}'@'{{ gateway_addr }}' IDENTIFIED WITH mysql_native_password BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'{{ gateway_addr }}';\" | {{ mysql_command }}"
+      shell: "echo \"CREATE USER '{{ replication_user }}'@'{{ mysql_host }}' IDENTIFIED WITH mysql_native_password BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'{{ mysql_host }}';\" | {{ mysql_command }}"
       when: db_engine == 'mysql'
 
     - name: Create user for mariadb replication
-      shell: "echo \"CREATE USER '{{ replication_user }}'@'{{ gateway_addr }}' IDENTIFIED BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'{{ gateway_addr }}';\" | {{ mysql_command }}"
+      shell: "echo \"CREATE USER '{{ replication_user }}'@'{{ mysql_host }}' IDENTIFIED BY '{{ replication_pass }}'; GRANT REPLICATION SLAVE ON *.* TO '{{ replication_user }}'@'{{ mysql_host }}';\" | {{ mysql_command }}"
       when: db_engine == 'mariadb'
 
     - name: Create test database

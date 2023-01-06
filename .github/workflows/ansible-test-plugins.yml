@@ -105,8 +105,6 @@ jobs:
           MYSQL_ROOT_PASSWORD: msandbox
         ports:
           - 3308:3306
-        volumes:
-          - ${{ github.workspace }}/tests/integration/setup_mysql/replica1/:/etc/mysql/conf.d/
         options: >-
           --health-cmd "mysqladmin ping -P 3306 -pmsandbox |grep alive || exit 1"
           --health-start-period 10s
@@ -121,8 +119,6 @@ jobs:
           MYSQL_ROOT_PASSWORD: msandbox
         ports:
           - 3309:3306
-        volumes:
-          - ${{ github.workspace }}/tests/integration/setup_mysql/replica2/:/etc/mysql/conf.d/
         options: >-
           --health-cmd "mysqladmin ping -P 3306 -pmsandbox |grep alive || exit 1"
           --health-start-period 10s

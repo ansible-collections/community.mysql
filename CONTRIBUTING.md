@@ -16,10 +16,14 @@ The Makefile accept the following options:
 - db_engin_version: The name of the container to use. Either MYSQL or MariaDB. Use ':' as a separator. Do not use short version, like mysql:8 for instance. Our tests expect a full version to filter tests based on released version. For instance: when: db_version is version ('8.0.22', '>').
 - connector: The name of the python package of the connector along with its version number. Use '==' as a separator.
 - python: The python version to use in the controller.
-- target : TODO, I need to implement a Makefile optional variable for that.
+- target : If omitted, all test targets will run. But you can limit the tests to a single target to speed up your tests.
 
 Exemples:
 
 ```sh
+# Run all tests
 make db_engine_version="mysql:5.7.40" connector="pymysql==0.7.10" python="3.8"
+
+# A single target
+make db_engine_version="mysql:5.7.40" connector="pymysql==0.7.10" python="3.8" target="test_mysql_db"
 ```

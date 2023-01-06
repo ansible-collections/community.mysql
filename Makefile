@@ -33,7 +33,7 @@ test-integration:
 		$(db_engine_version) \
 		mysqld --server-id 3 --log-bin=/var/lib/mysql/replica2-bin
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
-	-set -x; ansible-test integration -v --color --coverage --retry-on-error --continue-on-error --diff --docker --docker-network podman --python $(python); set +x
+	-set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker --docker-network podman --python $(python); set +x
 	rm tests/integration/db_engine_version
 	rm tests/integration/connector
 	podman stop --time 0 --ignore primary

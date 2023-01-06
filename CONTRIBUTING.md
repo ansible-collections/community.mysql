@@ -13,7 +13,7 @@ Actually, the makefile only support Podman. I don't have tested with docker yet.
 
 The Makefile accept the following options:
 
-- db_engin_version: The name of the container to use. Either MYSQL or MariaDB. Use ':' as a separator.
+- db_engin_version: The name of the container to use. Either MYSQL or MariaDB. Use ':' as a separator. Do not use short version, like mysql:8 for instance. Our tests expect a full version to filter tests based on released version. For instance: when: db_version is version ('8.0.22', '>').
 - connector: The name of the python package of the connector along with its version number. Use '==' as a separator.
 - python: The python version to use in the controller.
 - target : TODO, I need to implement a Makefile optional variable for that.

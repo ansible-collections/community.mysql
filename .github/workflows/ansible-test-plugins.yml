@@ -138,6 +138,9 @@ jobs:
 
     steps:
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: >-
           Perform integration testing against
           Ansible version ${{ matrix.ansible }}

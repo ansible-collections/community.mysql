@@ -8,10 +8,15 @@
   ansible.builtin.import_tasks:
     file: install.yml
 
+# setvars.yml requires the iproute2 package installed by install.yml
 - name: Set variables
   ansible.builtin.import_tasks:
     file: setvars.yml
 
-- name: Install MySQL connector
+- name: Install MySQL local client
+  ansible.builtin.import_tasks:
+    file: client.yml
+
+- name: Install MySQL Python connector
   ansible.builtin.import_tasks:
     file: connector.yml

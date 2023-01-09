@@ -3,7 +3,6 @@
 - name: "{{ role_name }} | install | Required package for testing"
   ansible.builtin.apt:
     name:
-      - mysql-client
       - iproute2
       - python3-cryptography  # To authenticate with MySQL 8+
     state: present

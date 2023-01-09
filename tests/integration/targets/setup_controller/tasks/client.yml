@@ -1,0 +1,11 @@
+---
+
+# Is some tests, we use the local mysql client with the shell module.
+
+- name: "{{ role_name }} | client | Install mysql client"
+  ansible.builtin.apt:
+    name:
+      - "{{ db_engine ~ '-client' }}"
+    state: present
+  environment:
+    DEBIAN_FRONTEND: noninteractive

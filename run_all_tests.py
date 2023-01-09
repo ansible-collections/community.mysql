@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import yaml
+import os
 
 github_workflow_file = '.github/workflows/ansible-test-plugins.yml'
 
@@ -62,7 +63,10 @@ def main():
                 if not is_exclude(exclude_list, (db_engine, python, connector)):
                     matrix.append((db_engine, python, connector))
 
-    print(len(matrix))
+    for tests in matrix:
+        make_cmd = f'make db_engine_version="{tests[0]}" python="{tests[1]}" connector="{tests[2]}" test-integration'
+        print(f'Run tests for: {tests[0]}, Python: {tests[1]}, Connector: {tests[2]}')
+        os.system(make_cmd)
 
 
 if __name__ == '__main__':

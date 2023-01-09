@@ -62,6 +62,7 @@
           --ignore-table=mysql.innodb_index_stats
           --ignore-table=mysql.innodb_table_stats
           --master-data=2
+          {% if db_engine == 'mysql' %}--column-statistics=0{% endif %}
           > {{ dump_path }}
 
     - name: Restore the dump to replica1

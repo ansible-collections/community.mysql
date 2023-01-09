@@ -78,6 +78,8 @@ jobs:
             ansible: devel
           - python: 3.9
             ansible: stable-2.12
+          - python: 3.9
+            connector: mysqlclient==2.0.1
           - python: 3.10
             ansible: stable-2.12
 

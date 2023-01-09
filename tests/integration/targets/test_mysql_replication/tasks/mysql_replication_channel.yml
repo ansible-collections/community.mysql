@@ -31,13 +31,11 @@
         primary_log_pos: '{{ mysql_primary_status.Position }}'
         channel: '{{ test_channel }}'
       register: result
-      when: mysql8022_and_higher == true
 
     - assert:
         that:
         - result is changed
         - result.queries == ["CHANGE MASTER TO MASTER_HOST='{{ mysql_host }}',MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='********',MASTER_PORT={{ mysql_primary_port }},MASTER_LOG_FILE='{{ mysql_primary_status.File }}',MASTER_LOG_POS={{ mysql_primary_status.Position }} FOR CHANNEL '{{ test_channel }}'"]
-      when: mysql8022_and_higher == true
 
     # Test startreplica mode:
     - name: Start replica with channel
@@ -47,13 +45,11 @@
         mode: startreplica
         channel: '{{ test_channel }}'
       register: result
-      when: mysql8022_and_higher == true
 
     - assert:
         that:
         - result is changed
         - result.queries == ["START SLAVE FOR CHANNEL '{{ test_channel }}'"] or result.queries == ["START REPLICA FOR CHANNEL '{{ test_channel }}'"]
-      when: mysql8022_and_higher == true
 
     # Test getreplica mode:
     - name: Get standby status with channel
@@ -63,19 +59,18 @@
         mode: getreplica
         channel: '{{ test_channel }}'
       register: replica_status
-      when: mysql8022_and_higher == true
 
-    # - assert:
-    #     that:
-    #     - replica_status.Is_Replica == true
-    #     - replica_status.Master_Host == '{{ mysql_host }}'
-    #     - replica_status.Exec_Master_Log_Pos == mysql_primary_status.Position
-    #     - replica_status.Master_Port == {{ mysql_primary_port }}
-    #     - replica_status.Last_IO_Errno == 0
-    #     - replica_status.Last_IO_Error == ''
-    #     - replica_status.Channel_Name == '{{ test_channel }}'
-    #     - replica_status is not changed
-    #   when: mysql8022_and_higher == false
+    - assert:
+        that:
+        - replica_status.Is_Replica == true
+        - replica_status.Master_Host == '{{ mysql_host }}'
+        - replica_status.Exec_Master_Log_Pos == mysql_primary_status.Position
+        - replica_status.Master_Port == {{ mysql_primary_port }}
+        - replica_status.Last_IO_Errno == 0
+        - replica_status.Last_IO_Error == ''
+        - replica_status.Channel_Name == '{{ test_channel }}'
+        - replica_status is not changed
+      when: mysql8022_and_higher == false
 
     - assert:
         that:

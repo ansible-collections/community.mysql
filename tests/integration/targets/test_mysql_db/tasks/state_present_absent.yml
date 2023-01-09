@@ -1,3 +1,4 @@
+---
 # test code for mysql_db module with database name containing special chars
 
 # This file is part of Ansible

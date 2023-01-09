@@ -36,7 +36,13 @@
   command: "{{ mysql_command }} {{ db_latin1_name }} -e \"select * from testlatin1\""
   register: output
 
-- name: Dumping a table in Latin1 database
+# With MySQL 8, new options have been added. For instance, when attempt to dump
+# a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
+# in information_schema (1109)".
+# Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
+# major relase :( So I add --column-statistics=0 as a workaround...
+# TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
+- name: Encoding | Dumping a table in Latin1 database
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -46,6 +52,10 @@
     encoding: latin1
     target: "{{ latin1_file1 }}"
     state: dump
+    dump_extra_args: >-
+      {% if db_engine == 'mysql' %}
+      --column-statistics=0
+      {% endif %}
   register: result
 
 - assert:

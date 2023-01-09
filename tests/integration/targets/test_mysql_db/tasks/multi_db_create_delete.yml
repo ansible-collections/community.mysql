@@ -384,6 +384,13 @@
 
 # ==========================================================================
 # Dump existing databases
+
+# With MySQL 8, new options have been added. For instance, when attempt to dump
+# a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
+# in information_schema (1109)".
+# Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
+# major relase :( So I add --column-statistics=0 as a workaround...
+# TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
 - name: Dump existing databases
   mysql_db:
     login_user: '{{ mysql_user }}'
@@ -396,6 +403,10 @@
       - '{{ db3_name }}'
     state: dump
     target: '{{ dump1_file }}'
+    dump_extra_args: >-
+      {% if db_engine == 'mysql' %}
+      --column-statistics=0
+      {% endif %}
   register: dump_result
 
 - name: Assert successful completion of dump operation (existing database)
@@ -437,6 +448,12 @@
     name: '{{ dump2_file }}'
     state: absent
 
+# With MySQL 8, new options have been added. For instance, when attempt to dump
+# a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
+# in information_schema (1109)".
+# Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
+# major relase :( So I add --column-statistics=0 as a workaround...
+# TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
 - name: Dump existing databases
   mysql_db:
     login_user: '{{ mysql_user }}'
@@ -446,6 +463,10 @@
     name: all
     state: dump
     target: '{{ dump2_file }}'
+    dump_extra_args: >-
+      {% if db_engine == 'mysql' %}
+      --column-statistics=0
+      {% endif %}
   register: dump_result
 
 - name: assert successful completion of dump operation

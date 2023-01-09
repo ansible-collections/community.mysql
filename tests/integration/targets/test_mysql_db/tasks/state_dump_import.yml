@@ -523,34 +523,18 @@
     login_password: '{{ mysql_password }}'
     login_host: '{{ gateway_addr }}'
     login_port: '{{ mysql_primary_port }}'
-    name: '{{ db_name }}'
+    name: '{{ item }}'
     state: absent
+  loop:
+    - '{{ db_name }}'
+    - '{{ db_name2 }}'
 
-- name: remove database
-  mysql_db:
-    login_user: '{{ mysql_user }}'
-    login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
-    login_port: '{{ mysql_primary_port }}'
-    name: '{{ db_name2 }}'
-    state: absent
-
-- name: remove file name
+- name: Dump and Import | Clean up files
   file:
-    name: '{{ db_file_name }}'
+    name: '{{ item }}'
     state: absent
-
-- name: remove file name
-  file:
-    name: '{{ wrong_sql_file }}'
-    state: absent
-
-- name: remove dump file1
-  file:
-    name: '{{ dump_file1 }}'
-    state: absent
-
-- name: remove dump file2
-  file:
-    name: '{{ dump_file2 }}'
-    state: absent
+  loop:
+    - '{{ db_file_name }}'
+    - '{{ wrong_sql_file }}'
+    - '{{ dump_file1 }}'
+    - '{{ dump_file2 }}'

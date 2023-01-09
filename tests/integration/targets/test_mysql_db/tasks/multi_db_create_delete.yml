@@ -398,13 +398,13 @@
     target: '{{ dump1_file }}'
   register: dump_result
 
-- name: assert successful completion of dump operation
+- name: Assert successful completion of dump operation (existing database)
   assert:
     that:
       - dump_result is changed
       - dump_result.db_list == ['{{ db1_name }}', '{{ db2_name }}', '{{ db3_name }}']
 
-- name: run command to list databases like specified database name
+- name: Run command to list databases like specified database name
   command: "{{ mysql_command }} \"-e show databases like 'database%'\""
   register: mysql_result
 
@@ -415,7 +415,7 @@
       - "'{{ db2_name }}' in mysql_result.stdout"
       - "'{{ db3_name }}' in mysql_result.stdout"
 
-- name: state dump - file name should exist
+- name: State dump - file name should exist (dump1_file)
   file:
     name: '{{ dump1_file }}'
     state: file
@@ -466,7 +466,7 @@
       - "'{{ db4_name }}' not in mysql_result.stdout"
       - "'{{ db5_name }}' not in mysql_result.stdout"
 
-- name: state dump - file name should exist
+- name: state dump - file name should exist (dump2_file)
   file:
     name: '{{ dump2_file }}'
     state: file

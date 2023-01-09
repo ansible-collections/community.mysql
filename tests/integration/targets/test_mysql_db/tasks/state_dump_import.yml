@@ -17,7 +17,8 @@
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
 # ============================================================
-- set_fact:
+- name: Dump and Import | Set facts
+  set_fact:
     db_file_name: "{{ tmp_dir }}/{{ file }}"
     wrong_sql_file: "{{ tmp_dir }}/wrong.sql"
     dump_file1: "{{ tmp_dir }}/{{ file2 }}"
@@ -26,10 +27,10 @@
     db_user_unsafe_password: "pass!word"
     config_file: "{{ playbook_dir }}/root/.my.cnf"
 
-- name: create custom config file
+- name: Dump and Import | Create custom config file
   shell: 'echo "[client]" > {{ config_file }}'
 
-- name: create user for test unsafe_login_password parameter
+- name: Dump and Import | Create user for test unsafe_login_password parameter
   mysql_user:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -41,7 +42,7 @@
     priv: '*.*:ALL'
     state: present
 
-- name: state dump/import - create database
+- name: Dump and Import | State dump/import - create database
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -51,7 +52,7 @@
     state: present
     check_implicit_admin: yes
 
-- name: create database
+- name: Dump and Import | Create database
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -61,29 +62,29 @@
     state: present
     check_implicit_admin: no
 
-- name: state dump/import - create table department
+- name: Dump and Import | State dump/import - create table department
   command: "{{ mysql_command }} {{ db_name }} \"-e create table department(id int, name varchar(100))\""
 
-- name: state dump/import - create table employee
+- name: Dump and Import | State dump/import - create table employee
   command: "{{ mysql_command }} {{ db_name }} \"-e create table employee(id int, name varchar(100))\""
 
-- name: state dump/import - insert data into table employee
+- name: Dump and Import | State dump/import - insert data into table employee
   command: "{{ mysql_command }} {{ db_name }} \"-e insert into employee value(47,'Joe Smith')\""
 
-- name: state dump/import - insert data into table department
+- name: Dump and Import | State dump/import - insert data into table department
   command: "{{ mysql_command }} {{ db_name }} \"-e insert into department value(2,'Engineering')\""
 
-- name: state dump/import - file name should not exist
+- name: Dump and Import | State dump/import - file name should not exist
   file:
     name: '{{ db_file_name }}'
     state: absent
 
-- name: database dump file1 should not exist
+- name: Dump and Import | Database dump file1 should not exist
   file:
     name: '{{ dump_file1 }}'
     state: absent
 
-- name: database dump file2 should not exist
+- name: Dump and Import | Database dump file2 should not exist
   file:
     name: '{{ dump_file2 }}'
     state: absent
@@ -109,13 +110,13 @@
     check_implicit_admin: no
   register: result
 
-- name: assert successful completion of dump operation
+- name: Dump and Import | Assert successful completion of dump operation
   assert:
     that:
       - result is changed
       - result.executed_commands[0] is search(".department --master-data=1 --skip-triggers")
 
-- name: state dump/import - file name should exist
+- name: Dump and Import | State dump/import - file name should exist (db_file_name)
   file:
     name: '{{ db_file_name }}'
     state: file
@@ -132,13 +133,13 @@
     check_implicit_admin: yes
   register: dump_result1
 
-- name: assert successful completion of dump operation (with multiple databases in comma separated form)
+- name: Dump and Import | Assert successful completion of dump operation (with multiple databases in comma separated form)
   assert:
     that:
       - dump_result1 is changed
       - dump_result1.executed_commands[0] is search(" --user=root --password=\*\*\*\*\*\*\*\*")
 
-- name: state dump - dump file1 should exist
+- name: Dump and Import | State dump - dump file1 should exist
   file:
     name: '{{ dump_file1 }}'
     state: file
@@ -157,17 +158,17 @@
   register: dump_result
   check_mode: yes
 
-- name: assert successful completion of dump operation (with multiple databases in list form) via check mode
+- name: Dump and Import | Assert successful completion of dump operation (with multiple databases in list form) via check mode
   assert:
     that:
       - dump_result is changed
 
-- name: database dump file2 should not exist
+- name: Dump and Import | Database dump file2 should not exist
   stat:
     path: '{{ dump_file2 }}'
   register: stat_result
 
-- name: assert that check_mode does not create dump file for databases
+- name: Dump and Import | Assert that check_mode does not create dump file for databases
   assert:
     that:
       - stat_result.stat.exists is defined and not stat_result.stat.exists
@@ -185,17 +186,17 @@
     target: '{{ dump_file2 }}'
   register: dump_result2
 
-- name: assert successful completion of dump operation (with multiple databases in list form)
+- name: Dump and Import | Assert successful completion of dump operation (with multiple databases in list form)
   assert:
     that:
       - dump_result2 is changed
 
-- name: state dump - dump file2 should exist
+- name: Dump and Import | State dump - dump file2 should exist
   file:
     name: '{{ dump_file2 }}'
     state: file
 
-- name: state dump/import - remove database
+- name: Dump and Import | State dump/import - remove database
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -204,7 +205,7 @@
     name: '{{ db_name }}'
     state: absent
 
-- name: remove database
+- name: Dump and Import | Remove database
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -213,7 +214,7 @@
     name: '{{ db_name2 }}'
     state: absent
 
-- name: test state=import to restore the database of type {{ format_type }} (expect changed=true)
+- name: Dump and Import | Test state=import to restore the database of type {{ format_type }} (expect changed=true)
   mysql_db:
     login_user: '{{ db_user }}'
     login_password: '{{ db_user_unsafe_password }}'
@@ -226,16 +227,16 @@
     use_shell: yes
   register: result
 
-- name: show the tables
+- name: Dump and Import | Show the tables
   command: "{{ mysql_command }} {{ db_name }} \"-e show tables\""
   register: result
 
-- name: assert that the department table is absent.
+- name: Dump and Import | Assert that the department table is absent.
   assert:
     that:
       - "'department' not in result.stdout"
 
-- name: test state=import to restore a database from multiple database dumped file1
+- name: Dump and Import | Test state=import to restore a database from multiple database dumped file1
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -247,12 +248,12 @@
     use_shell: no
   register: import_result
 
-- name: assert output message restored a database from dump file1
+- name: Dump and Import | Assert output message restored a database from dump file1
   assert:
     that:
       - import_result is changed
 
-- name: remove database
+- name: Dump and Import | Remove database
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -261,16 +262,16 @@
     name: '{{ db_name2 }}'
     state: absent
 
-- name: run command to list databases
+- name: Dump and Import | Run command to list databases
   command: "{{ mysql_command }} \"-e show databases like 'data%'\""
   register: mysql_result
 
-- name: assert that db_name2 database does not exist
+- name: Dump and Import | Assert that db_name2 database does not exist
   assert:
     that:
       - "'{{ db_name2 }}' not in mysql_result.stdout"
 
-- name: test state=import to restore a database from dumped file2 (check mode)
+- name: Dump and Import | Test state=import to restore a database from dumped file2 (check mode)
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -282,21 +283,21 @@
   register: check_import_result
   check_mode: yes
 
-- name: assert output message restored a database from dump file2 (check mode)
+- name: Dump and Import | Assert output message restored a database from dump file2 (check mode)
   assert:
     that:
       - check_import_result is changed
 
-- name: run command to list databases
+- name: Dump and Import | Run command to list databases
   command: "{{ mysql_command }} \"-e show databases like 'data%'\""
   register: mysql_result
 
-- name: assert that db_name2 database does not exist (check mode)
+- name: Dump and Import | Assert that db_name2 database does not exist (check mode)
   assert:
     that:
       - "'{{ db_name2 }}' not in mysql_result.stdout"
 
-- name: test state=import to restore a database from multiple database dumped file2
+- name: Dump and Import | Test state=import to restore a database from multiple database dumped file2
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -307,17 +308,17 @@
     target: '{{ dump_file2 }}'
   register: import_result2
 
-- name: assert output message restored a database from dump file2
+- name: Dump and Import | Assert output message restored a database from dump file2
   assert:
     that:
       - import_result2 is changed
       - import_result2.db_list == ['{{ db_name2 }}']
 
-- name: run command to list databases
+- name: Dump and Import | Run command to list databases
   command: "{{ mysql_command }} \"-e show databases like 'data%'\""
   register: mysql_result
 
-- name: assert that db_name2 database does exist after import
+- name: Dump and Import | Assert that db_name2 database does exist after import
   assert:
     that:
       - "'{{ db_name2 }}' in mysql_result.stdout"
@@ -333,25 +334,25 @@
     target: '{{ db_file_name }}'
   register: result
 
-- name: assert output message backup the database
+- name: Dump and Import | Assert output message backup the database
   assert:
     that:
       - result is changed
       - "result.db =='{{ db_name }}'"
 
-# - name: assert database was backed up successfully
+# - name: Dump and Import | Assert database was backed up successfully
 #   command: "file {{ db_file_name }}"
 #   register: result
 #
-# - name: assert file format type
+# - name: Dump and Import | Assert file format type
 #   assert:
 #     that:
 #       - "'{{ format_msg_type }}' in result.stdout"
 
-- name: update database table employee
+- name: Dump and Import | Update database table employee
   command: "{{ mysql_command }} {{ db_name }} \"-e update employee set name='John Doe' where id=47\""
 
-- name: test state=import to restore the database of type {{ format_type }} (expect changed=true)
+- name: Dump and Import | Test state=import to restore the database of type {{ format_type }} (expect changed=true)
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -362,16 +363,16 @@
     target: '{{ db_file_name }}'
   register: result
 
-- name: assert output message restore the database
+- name: Dump and Import | Assert output message restore the database
   assert:
     that:
       - result is changed
 
-- name: select data from table employee
+- name: Dump and Import | Select data from table employee
   command: "{{ mysql_command }} {{ db_name }} \"-e select * from  employee\""
   register: result
 
-- name: assert data in database is from the restore database
+- name: Dump and Import | Assert data in database is from the restore database
   assert:
     that:
       - "'47' in result.stdout"
@@ -381,10 +382,10 @@
 # Test ``force`` parameter
 ##########################
 
-- name: create wrong sql file
+- name: Dump and Import | Create wrong sql file
   shell: echo 'CREATE TABLE hello (id int); CREATE ELBAT ehlo (int id);' >> '{{ wrong_sql_file }}'
 
-- name: try to import without force parameter, must fail
+- name: Dump and Import | Try to import without force parameter, must fail
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -401,7 +402,7 @@
     that:
       - result is failed
 
-- name: try to import with force parameter
+- name: Dump and Import | Try to import with force parameter
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -420,18 +421,18 @@
 ########################
 # Test import with chdir
 
-- name: Create dir
+- name: Dump and Import | Create dir
   file:
     path: ~/subdir
     state: directory
 
-- name: Create test dump
+- name: Dump and Import | Create test dump
   shell: 'echo "SOURCE ./subdir_test.sql" > ~/original_test.sql'
 
-- name: Create test source
+- name: Dump and Import | Create test source
   shell: 'echo "SELECT 1" > ~/subdir/subdir_test.sql'
 
-- name: Try to restore without chdir argument, must fail
+- name: Dump and Import | Try to restore without chdir argument, must fail
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -447,7 +448,7 @@
       - result is failed
       - result.msg is search('Failed to open file')
 
-- name: Restore with chdir argument, must pass
+- name: Dump and Import | Restore with chdir argument, must pass
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -466,7 +467,7 @@
 # Clean up
 ##########
 
-- name: remove database name
+- name: Dump and Import | Clean up databases
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'

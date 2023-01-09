@@ -1,17 +1,19 @@
-- set_fact:
+---
+- name: Config overrides | Set facts
+  set_fact:
     db_to_create: testdb1
     config_file: "{{ playbook_dir }}/.my1.cnf"
     fake_port: 9999
     fake_host: "blahblah.local"
     include_dir: "{{ playbook_dir }}/mycnf.d"
 
-- name: Create custom config file
+- name: Config overrides | Create custom config file
   shell: 'echo "[client]" > {{ config_file }}'
 
-- name: Add fake port to config file
+- name: Config overrides | Add fake port to config file
   shell: 'echo "port = {{ fake_port }}" >> {{ config_file }}'
 
-- name: Add blank line
+- name: Config overrides | Add blank line
   shell: 'echo "" >> {{ config_file }}'
   when:
     - >
@@ -21,7 +23,7 @@
         and connector_ver is version('0.9.3', '>=')
       )
 
-- name: Create include_dir
+- name: Config overrides | Create include_dir
   file:
     path: '{{ include_dir }}'
     state: directory
@@ -34,7 +36,7 @@
         and connector_ver is version('0.9.3', '>=')
       )
 
-- name: Add include_dir
+- name: Config overrides | Add include_dir
   lineinfile:
     path: '{{ config_file }}'
     line: '!includedir {{ include_dir }}'
@@ -47,7 +49,7 @@
         and connector_ver is version('0.9.3', '>=')
       )
 
-- name: Create database using fake port to connect to, must fail
+- name: Config overrides | Create database using fake port to connect to, must fail
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -61,13 +63,13 @@
   ignore_errors: yes
   register: result
 
-- name: Must fail because login_port default has beed overriden by wrong value from config file
+- name: Config overrides | Must fail because login_port default has beed overriden by wrong value from config file
   assert:
     that:
       - result is failed
       - result.msg is search("unable to connect to database")
 
-- name: Create database using default port
+- name: Config overrides | Create database using default port
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -80,18 +82,18 @@
     config_overrides_defaults: no
   register: result
 
-- name: Must not fail because of the default of login_port is correct
+- name: Config overrides | Must not fail because of the default of login_port is correct
   assert:
     that:
       - result is changed
 
-- name: Reinit custom config file
+- name: Config overrides | Reinit custom config file
   shell: 'echo "[client]" > {{ config_file }}'
 
-- name: Add fake host to config file
+- name: Config overrides | Add fake host to config file
   shell: 'echo "host = {{ fake_host }}" >> {{ config_file }}'
 
-- name: Remove database using fake login_host
+- name: Config overrides | Remove database using fake login_host
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -104,14 +106,13 @@
   register: result
   ignore_errors: yes
 
-- name: Must fail because login_host default has beed overriden by wrong value from config file
+- name: Config overrides | Must fail because login_host default has beed overriden by wrong value from config file
   assert:
     that:
       - result is failed
       - result.msg is search("Can't connect to MySQL server on '{{ fake_host }}'") or result.msg is search("Unknown MySQL server host '{{ fake_host }}'")
 
-# Clean up
-- name: Remove test db
+- name: Config overrides | Clean up test database
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'

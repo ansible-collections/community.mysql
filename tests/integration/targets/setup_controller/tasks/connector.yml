@@ -3,3 +3,4 @@
 - name: "{{ role_name }} | Connector | Install python packages"
   ansible.builtin.pip:
     name: "{{ connector_name }}"
+    state: present

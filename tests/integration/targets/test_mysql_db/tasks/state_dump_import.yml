@@ -444,8 +444,8 @@
   register: result
 - assert:
     that:
-    - result is failed
-    - result.msg is search('Failed to open file')
+      - result is failed
+      - result.msg is search('Failed to open file')
 
 - name: Restore with chdir argument, must pass
   mysql_db:
@@ -460,7 +460,7 @@
   register: result
 - assert:
     that:
-    - result is succeeded
+      - result is succeeded
 
 ##########
 # Clean up

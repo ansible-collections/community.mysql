@@ -49,7 +49,7 @@
 
 - assert:
     that:
-    - result is changed
+      - result is changed
 
 - name: state dump - file name should exist
   file:
@@ -82,7 +82,7 @@
 
 - assert:
     that:
-    - result is changed
+      - result is changed
 
 - name: check encoding of table
   ansible.builtin.command:

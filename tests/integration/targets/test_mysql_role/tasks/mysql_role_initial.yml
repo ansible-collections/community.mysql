@@ -1,3 +1,4 @@
+---
 # Test code for mysql_role module
 
 - vars:
@@ -32,8 +33,8 @@
     when:
     - srv['version']['major'] < 8
 
-  # Skip unsupported versions
-  - meta: end_play
+  - name: Skip unsupported versions
+    meta: end_play
     when: srv['version']['major'] < 8
 
   #########
@@ -80,13 +81,13 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}@{{ gateway_addr }}'
+        - '{{ user0 }}@{{ gateway_addr }}'
     check_mode: yes
 
-  - name: Check
+  - name: Assert that create role0 is changed
     assert:
       that:
-      - result is changed
+        - result is changed
 
   - name: Check in DB
     <<: *task_params
@@ -94,13 +95,13 @@
       <<: *mysql_params
       query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
-  - name: Check
+  - name: Assert that user is not in mysql.user
     assert:
       that:
-      - result.rowcount.0 == 0
+        - result.rowcount.0 == 0
 
   # It must fail because of check_mode
-  - name: Check in DB, if not granted, the query will fail
+  - name: Check in DB, if not granted, the query will fail (expect failure)
     <<: *task_params
     mysql_query:
       <<: *mysql_params
@@ -108,10 +109,10 @@
     ignore_errors: yes
     when: db_engine == 'mysql'
 
-  - name: Check
+  - name: Assert that show grants is failed
     assert:
       that:
-      - result is failed
+        - result is failed
     when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
@@ -121,13 +122,13 @@
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
-  - name: Check (mariadb)
+  - name: Assert that user is not in mysql.roles_mapping (mariadb)
     assert:
       that:
-      - result.query_result.0.0['user_roles'] == 0
+        - result.query_result.0.0['user_roles'] == 0
     when: db_engine == 'mariadb'
 
-  #=====================
+  # =====================
 
   - name: Check that the user have no active roles
     <<: *task_params
@@ -138,10 +139,10 @@
       login_port: '{{ mysql_primary_port }}'
       query: 'SELECT COALESCE(current_role(), "NONE") as "current_role()"'
 
-  - name: Check
+  - name: Assert that the user have no active roles
     assert:
       that:
-      - result.query_result.0.0["current_role()"] == "NONE"
+        - result.query_result.0.0["current_role()"] == "NONE"
 
   - name: Create role {{ role0 }}
     <<: *task_params
@@ -150,12 +151,12 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}@{{ gateway_addr }}'
+        - '{{ user0 }}@{{ gateway_addr }}'
 
-  - name: Check
+  - name: Assert that create role is changed
     assert:
       that:
-      - result is changed
+        - result is changed
 
   - name: Check in DB
     <<: *task_params
@@ -163,10 +164,10 @@
       <<: *mysql_params
       query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
-  - name: Check
+  - name: Assert that tu role is in mysql.user
     assert:
       that:
-      - result.rowcount.0 == 1
+        - result.rowcount.0 == 1
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -175,10 +176,10 @@
       query: "SHOW GRANTS FOR {{ user0 }}@{{ gateway_addr }} USING '{{ role0 }}'"
     when: db_engine == 'mysql'
 
-  - name: Check
+  - name: Assert that show grants is succeeded (mysql)
     assert:
       that:
-      - result is succeeded
+        - result is succeeded
     when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
@@ -188,10 +189,10 @@
       query: "SELECT count(User) as user_roles FROM mysql.roles_mapping WHERE User = '{{ user0 }}' AND Host = '{{ gateway_addr }}' AND Role = '{{ role0 }}'"
     when: db_engine == 'mariadb'
 
-  - name: Check (mariadb)
+  - name: Assert that role is in mysql.roles_mapping (mariadb)
     assert:
       that:
-      - result.query_result.0.0['user_roles'] == 1
+        - result.query_result.0.0['user_roles'] == 1
     when: db_engine == 'mariadb'
 
   - name: Check that the role is active
@@ -204,10 +205,10 @@
       query: 'SELECT current_role()'
     when: db_engine == 'mysql'
 
-  - name: Check
+  - name: Assert that current_role() returns role0
     assert:
       that:
-      - "'{{ role0 }}' in result.query_result.0.0['current_role()']"
+        - "'{{ role0 }}' in result.query_result.0.0['current_role()']"
     when: db_engine == 'mysql'
 
   - name: Check that the role is active (mariadb)
@@ -222,13 +223,13 @@
         - 'SELECT current_role()'
     when: db_engine == 'mariadb'
 
-  - name: Check (mariadb)
+  - name: Assert that role is active (mariadb)
     assert:
       that:
-      - "'{{ role0 }}' in result.query_result.1.0['current_role()']"
+        - "'{{ role0 }}' in result.query_result.1.0['current_role()']"
     when: db_engine == 'mariadb'
 
-  #========================
+  # ========================
 
   - name: Create role {{ role0 }} again in check_mode
     <<: *task_params
@@ -238,10 +239,10 @@
       state: present
     check_mode: yes
 
-  - name: Check
+  - name: Assert that create role role0 again is not changed
     assert:
       that:
-      - result is not changed
+        - result is not changed
 
   - name: Check in DB
     <<: *task_params
@@ -249,10 +250,10 @@
       <<: *mysql_params
       query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
-  - name: Check
+  - name: Assert that role role0 is present in the database
     assert:
       that:
-      - result.rowcount.0 == 1
+        - result.rowcount.0 == 1
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params

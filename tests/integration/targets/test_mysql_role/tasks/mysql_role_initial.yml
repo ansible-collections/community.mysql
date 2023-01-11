@@ -383,7 +383,7 @@
   - name: Check
     assert:
       that:
-      - result.rowcount.0 == 0
+        - result.rowcount.0 == 0
 
   - name: Check in DB, if not granted, the query will fail
     <<: *task_params
@@ -396,7 +396,7 @@
   - name: Check
     assert:
       that:
-      - result is failed
+        - result is failed
     when: db_engine == 'mysql'
 
   - name: Check in DB (mariadb)
@@ -410,10 +410,10 @@
   - name: Check (mariadb)
     assert:
       that:
-      - result.query_result.0.0['user_roles'] == 0
+        - result.query_result.0.0['user_roles'] == 0
     when: db_engine == 'mariadb'
 
-  #========================
+  # ========================
 
   - name: Drop role {{ role0 }} again in check_mode
     <<: *task_params
@@ -426,7 +426,7 @@
   - name: Check
     assert:
       that:
-      - result is not changed
+        - result is not changed
 
   - name: Drop role {{ role0 }} again
     <<: *task_params
@@ -435,10 +435,10 @@
       name: '{{ role0 }}'
       state: absent
 
-  - name: Check
+  - name: Assert that droping the role again is not changed
     assert:
       that:
-      - result is not changed
+        - result is not changed
 
   # ==================
 
@@ -449,16 +449,16 @@
       name: '{{ role0 }}'
       state: present
       members:
-      - '{{ user0 }}@{{ gateway_addr }}'
+        - '{{ user0 }}@{{ gateway_addr }}'
       priv:
         '*.*': 'SELECT,INSERT'
         'mysql.*': 'UPDATE'
     check_mode: yes
 
-  - name: Check
+  - name: Assert that create role in check_mode is changed
     assert:
       that:
-      - result is changed
+        - result is changed
 
   - name: Check in DB
     <<: *task_params
@@ -466,12 +466,12 @@
       <<: *mysql_params
       query: "SELECT 1 FROM mysql.user WHERE User = '{{ role0 }}'"
 
-  - name: Check
+  - name: Assert that create role in check_mode is not in the database
     assert:
       that:
-      - result.rowcount.0 == 0
+        - result.rowcount.0 == 0
 
-  #========================
+  # ========================
 
   - name: Create role {{ role0 }}
     <<: *task_params

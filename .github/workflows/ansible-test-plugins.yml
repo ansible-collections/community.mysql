@@ -54,9 +54,9 @@ jobs:
           - stable-2.14
           # - devel
         python:
-          # - 3.8
-          - 3.9
-          # - 3.10
+          - "3.8"
+          - "3.9"
+          - "3.10"  # Without quotes, this become 3.1 in run_all_test.py!
         connector:
           # - pymysql==0.7.10
           - pymysql==0.9.3

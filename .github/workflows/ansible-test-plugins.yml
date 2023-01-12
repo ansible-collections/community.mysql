@@ -130,6 +130,9 @@ jobs:
 
     steps:
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Restart MySQL server with settings for replication
         run: |
           docker exec ${{ job.services.db_primary.id }} sh -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'

@@ -11,7 +11,7 @@ test-integration:
 		--publish 3307:3306 \
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
 		$(db_engine_version) \
-		mysqld --server-id 1 --log-bin=/var/lib/mysql/primary-bin
+		mysqld
 	podman run \
 		--detach \
 		--name replica1 \
@@ -21,7 +21,7 @@ test-integration:
 		--publish 3308:3306 \
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
 		$(db_engine_version) \
-		mysqld --server-id 2 --log-bin=/var/lib/mysql/replica1-bin
+		mysqld
 	podman run \
 		--detach \
 		--name replica2 \
@@ -31,7 +31,16 @@ test-integration:
 		--publish 3309:3306 \
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
 		$(db_engine_version) \
-		mysqld --server-id 3 --log-bin=/var/lib/mysql/replica2-bin
+		mysqld
+	# Setup replication and restart containers
+	podman exec primary bash -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'
+	podman exec replica1 bash -c 'echo -e [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
+	podman exec replica2 bash -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
+		# Don't restart a container unless it is healthy
+	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
+	podman restart primary
+	podman restart replica1
+	podman restart replica2
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
 	-set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker --docker-network podman --python $(python); set +x
 	rm tests/integration/db_engine_version

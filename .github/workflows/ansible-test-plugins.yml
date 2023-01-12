@@ -130,17 +130,20 @@ jobs:
 
     steps:
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      # No need to check for service health. GitHub Action took care of it.
 
       - name: Restart MySQL server with settings for replication
         run: |
-          docker exec ${{ job.services.db_primary.id }} sh -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'
-          docker exec ${{ job.services.db_replica1.id }} sh -c 'echo -e [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
-          docker exec ${{ job.services.db_replica2.id }} sh -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
+          docker exec ${{ job.services.db_primary.id }} bash -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'
+          docker exec ${{ job.services.db_replica1.id }} bash -c 'echo -e [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
+          docker exec ${{ job.services.db_replica2.id }} bash -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
           docker restart ${{ job.services.db_primary.id }}
           docker restart ${{ job.services.db_replica1.id }}
           docker restart ${{ job.services.db_replica2.id }}
+
+      - name: Wait for the primary to be healthy
+        run: |
+          while ! /usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" ${{ job.services.db_primary.id }} && [[ "$SECONDS" -lt 120 ]]; do sleep 1; done
 
       - name: >-
           Perform integration testing against

@@ -18,7 +18,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db1_name }}'
@@ -43,7 +43,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db1_name }}'
@@ -75,7 +75,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db1_name }}'
@@ -107,7 +107,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db1_name }}'
@@ -139,7 +139,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db1_name }}'
@@ -170,7 +170,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db2_name }}'
@@ -199,7 +199,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db1_name }}'
@@ -231,7 +231,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db1_name }}'
@@ -271,7 +271,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db1_name }}'
@@ -308,7 +308,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - "{{ db1_name }}"
@@ -348,7 +348,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - "{{ db4_name }}"
@@ -395,7 +395,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db1_name }}'
@@ -458,7 +458,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name: all
     state: dump
@@ -500,7 +500,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db2_name }}'
@@ -530,7 +530,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db2_name }}'
@@ -560,7 +560,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db2_name }}'
@@ -590,7 +590,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db2_name }}'
@@ -619,7 +619,7 @@
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
-    login_host: '{{ gateway_addr }}'
+    login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
     name:
       - '{{ db1_name }}'

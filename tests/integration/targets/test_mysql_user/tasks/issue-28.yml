@@ -46,7 +46,7 @@
         host: '{{ gateway_addr }}'
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
-        login_host: '{{ gateway_addr }}'
+        login_host: '{{ mysql_host }}'
         login_port: '{{ mysql_primary_port }}'
         ca_cert: /tmp/cert.pem
       register: result
@@ -71,7 +71,7 @@
         host: '{{ gateway_addr }}'
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
-        login_host: '{{ gateway_addr }}'
+        login_host: '{{ mysql_host }}'
         login_port: '{{ mysql_primary_port }}'
         ca_cert: /tmp/cert.pem
         check_hostname: false

@@ -26,6 +26,7 @@
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
+        host_all: true
         state: absent
       ignore_errors: yes
 

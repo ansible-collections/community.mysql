@@ -26,6 +26,7 @@
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
+        host_all: true
         state: absent
       ignore_errors: yes
 
@@ -33,6 +34,7 @@
       mysql_user:
         <<: *mysql_params
         name: "{{ user_name_1 }}"
+        host: "%"
         password: "{{ user_password_1 }}"
         tls_requires:
           SSL:
@@ -78,5 +80,5 @@
       mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
-        host: '{{ gateway_addr }}'
+        host: "%"
         state: absent

@@ -56,13 +56,15 @@
       assert:
         that:
           - result is failed
-      when: connector_name is search('pymysql')
+      when:
+        - connector_name == 'pymysql'
 
     - name: Issue-28 | Assert connection succeeded
       assert:
         that:
           - result is succeeded
-      when: connector_name is not search('pymysql')
+      when:
+        - connector_name != 'pymysql'
 
     - name: Issue-28 | Attempt connection with newly created user ignoring hostname
       mysql_user:

@@ -370,9 +370,9 @@
     - name: Plugin auth | Test plugin auth switching which doesn't work on pymysql < 0.9
       when:
         - >
-          connector_name is not search('pymysql')
+          connector_name != 'pymysql'
           or (
-            connector_name is search('pymysql')
+            connector_name == 'pymysql'
             and connector_ver is version('0.9', '>=')
           )
       block:

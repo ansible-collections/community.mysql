@@ -76,7 +76,7 @@ def main():
         i = tests.get('docker_container')
         make_cmd = f'make ansible="{a}" db_engine_version="{d}" python="{p}" connector="{c}" docker_container="{i}" test-integration'
         print(f'Run tests for: Ansible: {a}, DB: {d}, Python: {p}, Connector: {c}, Image: {i}')
-        # os.system(make_cmd)
+        os.system(make_cmd)
 
 
 if __name__ == '__main__':

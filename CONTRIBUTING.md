@@ -14,7 +14,7 @@ Actually, the makefile only support Podman. I don't have tested with docker yet.
 The Makefile accept the following options:
 
 - ansible: Mandatory version of ansible to install in a venv to run ansible-test.
-- container_image:
+- docker_container:
     The container image to use to run our test. There images are created in github.com/community.mysql-test-containers and push the following images on quay.io:
     - my57-py38-pymysql093
     - my57-py38-mysqlclient201-pymysql0711
@@ -45,10 +45,10 @@ Examples:
 
 ```sh
 # Run all targets
-make ansible="stable-2.14" db_engine_version="mysql:5.7.40" connector="pymysql==0.7.10" python="3.8" container_image="my57-py38-mysqlclient201-pymysql0711"
+make ansible="stable-2.14" db_engine_version="mysql:5.7.40" connector="pymysql==0.7.10" python="3.8" docker_container="my57-py38-mysqlclient201-pymysql0711"
 
 # A single target
-make ansible="stable-2.14" db_engine_version="mysql:5.7.40" connector="pymysql==0.7.10" python="3.8" container_image="my57-py38-mysqlclient201-pymysql0711" target="test_mysql_db"
+make ansible="stable-2.14" db_engine_version="mysql:5.7.40" connector="pymysql==0.7.10" python="3.8" docker_container="my57-py38-mysqlclient201-pymysql0711" target="test_mysql_db"
 ```
 
 

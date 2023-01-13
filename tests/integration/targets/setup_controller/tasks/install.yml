@@ -1,14 +1,14 @@
 ---
 
-- name: "{{ role_name }} | install | Required package for testing"
-  ansible.builtin.apt:
-    name:
-      - iproute2
-      - python3-cryptography  # To authenticate with MySQL 8+
-    state: present
-    update_cache: true
-  environment:
-    DEBIAN_FRONTEND: noninteractive
+# - name: "{{ role_name }} | install | Required package for testing"
+#   ansible.builtin.apt:
+#     name:
+#       - iproute2              # To grab docker network gateway address
+#       - python3-cryptography  # To authenticate with MySQL 8+
+#     state: present
+#     update_cache: true
+#   environment:
+#     DEBIAN_FRONTEND: noninteractive
 
 - name: "{{ role_name }} | install | Ensure fake root folder"
   ansible.builtin.file:

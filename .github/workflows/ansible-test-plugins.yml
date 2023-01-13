@@ -40,48 +40,60 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        db_engine_version:
-          - mysql:5.7.40
-          - mysql:8.0.31
-          - mariadb:10.4.24
-          - mariadb:10.5.18
-          - mariadb:10.6.11
-          - mariadb:10.7.7
-          - mariadb:10.8.3
-        ansible:
-          - stable-2.12
-          - stable-2.13
-          - stable-2.14
-          - devel
-        python:
-          - "3.8"
-          - "3.9"
-          - "3.10"  # Without quotes, this become 3.1 in run_all_test.py!
-        connector:
-          - pymysql==0.7.10
-          - pymysql==0.9.3
-          - mysqlclient==2.0.1
-        exclude:
-          - db_engine_version: mysql:8.0.22
-            connector: pymysql==0.7.10
-          - db_engine_version: mariadb:10.4.24
-            connector: pymysql==0.7.10
-          - db_engine_version: mariadb:10.5.18
-            connector: pymysql==0.7.10
-          - db_engine_version: mariadb:10.8.3
-            connector: pymysql==0.7.10
-          - python: 3.8
-            ansible: stable-2.13
-          - python: 3.8
-            ansible: stable-2.14
-          - python: 3.8
-            ansible: devel
-          - python: 3.9
-            ansible: stable-2.12
-          - python: 3.9
-            connector: mysqlclient==2.0.1
-          - python: 3.10
-            ansible: stable-2.12
+        include:
+          - ansible: stable-2.12
+            db_engine_version: mysql:5.7.40
+            python: 3.8
+            connector: pymysql==0.7.11
+            docker_container: my57-py38-mysqlclient201-pymysql0711
+          - ansible: stable-2.12
+            db_engine_version: mysql:5.7.40
+            python: 3.8
+            connector: pymysql==0.9.3
+            docker_container: my57-py38-pymysql093
+     
+        # db_engine_version:
+        #   - mysql:5.7.40
+        #   - mysql:8.0.31
+        #   - mariadb:10.4.24
+        #   - mariadb:10.5.18
+        #   - mariadb:10.6.11
+        #   - mariadb:10.7.7
+        #   - mariadb:10.8.3
+        # ansible:
+        #   - stable-2.12
+        #   - stable-2.13
+        #   - stable-2.14
+        #   - devel
+        # python:
+        #   - "3.8"
+        #   - "3.9"
+        #   - "3.10"  # Without quotes, this become 3.1 in run_all_test.py!
+        # connector:
+        #   - pymysql==0.7.10
+        #   - pymysql==0.9.3
+        #   - mysqlclient==2.0.1
+        # exclude:
+        #   - db_engine_version: mysql:8.0.22
+        #     connector: pymysql==0.7.10
+        #   - db_engine_version: mariadb:10.4.24
+        #     connector: pymysql==0.7.10
+        #   - db_engine_version: mariadb:10.5.18
+        #     connector: pymysql==0.7.10
+        #   - db_engine_version: mariadb:10.8.3
+        #     connector: pymysql==0.7.10
+        #   - python: 3.8
+        #     ansible: stable-2.13
+        #   - python: 3.8
+        #     ansible: stable-2.14
+        #   - python: 3.8
+        #     ansible: devel
+        #   - python: 3.9
+        #     ansible: stable-2.12
+        #   - python: 3.9
+        #     connector: mysqlclient==2.0.1
+        #   - python: 3.10
+        #     ansible: stable-2.12
 
     services:
       db_primary:
@@ -157,6 +169,7 @@ jobs:
               echo -n "${{ matrix.db_engine_version }}" > tests/integration/db_engine_version;
               echo Setting Connector version to "${{ matrix.connector }}"...;
               echo -n "${{ matrix.connector }}" > tests/integration/connector
+          docker_container: ${{ matrix.docker_container }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration
 

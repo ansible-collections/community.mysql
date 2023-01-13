@@ -28,27 +28,31 @@ def extract_matrix(workflow_yaml):
     return matrix
 
 
-def is_exclude(exclude_list, test_suite):
-    test_is_excluded = False
-    for excl in exclude_list:
-        match = 0
+# def is_exclude(exclude_list, test_suite):
+#     test_is_excluded = False
+#     for excl in exclude_list:
+#         match = 0
 
-        if 'db_engine_version' in excl:
-            if excl.get('db_engine_version') == test_suite[0]:
-                match += 1
+#         if 'ansible' in excl:
+#             if excl.get('ansible') == test_suite[0]:
+#                 match += 1
 
-        if 'python' in excl:
-            if excl.get('python') == test_suite[1]:
-                match += 1
+#         if 'db_engine_version' in excl:
+#             if excl.get('db_engine_version') == test_suite[1]:
+#                 match += 1
 
-        if 'connector' in excl:
-            if excl.get('connector') == test_suite[2]:
-                match += 1
+#         if 'python' in excl:
+#             if excl.get('python') == test_suite[2]:
+#                 match += 1
 
-        if match > 1:
-            test_is_excluded = True
+#         if 'connector' in excl:
+#             if excl.get('connector') == test_suite[3]:
+#                 match += 1
 
-    return test_is_excluded
+#         if match > 1:
+#             test_is_excluded = True
+
+#     return test_is_excluded
 
 
 def main():
@@ -56,17 +60,23 @@ def main():
     tests_matrix_yaml = extract_matrix(workflow_yaml)
 
     matrix = []
-    exclude_list = tests_matrix_yaml.get('exclude')
-    for db_engine in tests_matrix_yaml.get('db_engine_version'):
-        for python in tests_matrix_yaml.get('python'):
-            for connector in tests_matrix_yaml.get('connector'):
-                if not is_exclude(exclude_list, (db_engine, python, connector)):
-                    matrix.append((db_engine, python, connector))
+    # exclude_list = tests_matrix_yaml.get('exclude')
+    # for ansible in tests_matrix_yaml.get('ansible'):
+    #     for db_engine in tests_matrix_yaml.get('db_engine_version'):
+    #         for python in tests_matrix_yaml.get('python'):
+    #             for connector in tests_matrix_yaml.get('connector'):
+    #                 if not is_exclude(exclude_list, (ansible, db_engine, python, connector)):
+    #                     matrix.append((ansible, db_engine, python, connector))
 
-    for tests in matrix:
-        make_cmd = f'make db_engine_version="{tests[0]}" python="{tests[1]}" connector="{tests[2]}" test-integration'
-        print(f'Run tests for: {tests[0]}, Python: {tests[1]}, Connector: {tests[2]}')
-        os.system(make_cmd)
+    for tests in tests_matrix_yaml.get('include'):
+        a = tests.get('ansible')
+        d = tests.get('db_engine_version')
+        p = tests.get('python')
+        c = tests.get('connector')
+        i = tests.get('docker_container')
+        make_cmd = f'make ansible="{a}" db_engine_version="{d}" python="{p}" connector="{c}" docker_container="{i}" test-integration'
+        print(f'Run tests for: Ansible: {a}, DB: {d}, Python: {p}, Connector: {c}, Image: {i}')
+        # os.system(make_cmd)
 
 
 if __name__ == '__main__':

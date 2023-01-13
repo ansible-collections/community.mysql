@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 .PHONY: test-integration
 test-integration:
 	echo -n $(db_engine_version) > tests/integration/db_engine_version
@@ -44,7 +46,13 @@ test-integration:
 	while ! podman healthcheck run replica2 && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
 	podman restart replica2
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
-	-set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker --docker-network podman --python $(python); set +x
+	mkdir -p .venv/$(ansible)
+	python -m venv .venv/$(ansible)
+	source .venv/$(ansible)/bin/activate
+	python -m pip install --disable-pip-version-check --user https://github.com/ansible/ansible/archive/$(ansible).tar.gz ansible-test
+	-set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker $(docker_container) --docker-network podman --python $(python); set +x
+	# -set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker $(docker_container) --docker-network podman --python $(python); set +x
+	# -set -x; ansible-test integration $(target) -v --color --coverage --diff --docker $(docker_container) --docker-network podman --docker-terminate never --python $(python); set +x
 	rm tests/integration/db_engine_version
 	rm tests/integration/connector
 	podman stop --time 0 --ignore primary

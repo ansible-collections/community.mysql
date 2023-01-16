@@ -16,7 +16,7 @@ The Makefile accept the following options:
 - ansible: Mandatory version of ansible to install in a venv to run ansible-test.
 - docker_container:
     The container image to use to run our tests. Those images Dockerfile are in https://github.com/community.mysql-test-containers and then pushed to quay.io: E.G.:
-    `quay.io/mws/community-mysql-test-containers-my57-py38-mysqlclient201-pymysql0711:0.0.1`. Look in the link above for a complete list of available containers. You can also look into `.github/workflows/ansible-test-plugins.yml`
+    `quay.io/mws/community-mysql-test-containers-my57-py38-mysqlclient201-pymysql0711:latest`. Look in the link above for a complete list of available containers. You can also look into `.github/workflows/ansible-test-plugins.yml`
     Unfortunatly you must provide the right container_image yourself. And you still need to provides db_engine_version, python, etc... because ansible-test won't do black magic to try to detect what we expect. Explicit is better than implicit anyway.
     To minimise the amount of images, pymysql 0.7.11 and mysqlclient are shipped together.
 - db_engine_version: The name of the container to use for the service containers that will host a primary database and two replicas. Either MYSQL or MariaDB. Use ':' as a separator. Do not use short version, like mysql:8 for instance. Our tests expect a full version to filter tests precisely. For instance: `when: db_version is version ('8.0.22', '>')`.

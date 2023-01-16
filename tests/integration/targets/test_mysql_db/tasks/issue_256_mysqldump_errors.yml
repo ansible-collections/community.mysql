@@ -27,72 +27,32 @@
           - "CREATE TABLE db1.t2 (id int)"
           - "CREATE VIEW db2.v1 AS SELECT id from db1.t1"
 
-    # With MySQL 8, new options have been added. For instance, when attempt to dump
-    # a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
-    # in information_schema (1109)".
-    # Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
-    # major relase :( So I add --column-statistics=0 as a workaround...
-    # TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
     - name: Dumps errors | Full dump without compression
       community.mysql.mysql_db:
         state: dump
         name: all
         target: /tmp/full-dump.sql
-        dump_extra_args: >-
-          {% if db_engine == 'mysql' %}
-          --column-statistics=0
-          {% endif %}
       register: full_dump
 
-    # With MySQL 8, new options have been added. For instance, when attempt to dump
-    # a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
-    # in information_schema (1109)".
-    # Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
-    # major relase :( So I add --column-statistics=0 as a workaround...
-    # TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
     - name: Dumps errors | Full dump with gunzip
       community.mysql.mysql_db:
         state: dump
         name: all
         target: /tmp/full-dump.sql.gz
-        dump_extra_args: >-
-          {% if db_engine == 'mysql' %}
-          --column-statistics=0
-          {% endif %}
       register: full_dump_gz
 
-    # With MySQL 8, new options have been added. For instance, when attempt to dump
-    # a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
-    # in information_schema (1109)".
-    # Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
-    # major relase :( So I add --column-statistics=0 as a workaround...
-    # TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
     - name: Dumps errors | Distinct dump without compression
       community.mysql.mysql_db:
         state: dump
         name: db2
         target: /tmp/dump-db2.sql
-        dump_extra_args: >-
-          {% if db_engine == 'mysql' %}
-          --column-statistics=0
-          {% endif %}
       register: dump_db2
 
-    # With MySQL 8, new options have been added. For instance, when attempt to dump
-    # a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
-    # in information_schema (1109)".
-    # Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
-    # major relase :( So I add --column-statistics=0 as a workaround...
-    # TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
     - name: Dumps errors | Distinct dump with gunzip
       community.mysql.mysql_db:
         state: dump
         name: db2
         target: /tmp/dump-db2.sql.gz
-        dump_extra_args: >-
-          {% if db_engine == 'mysql' %}
-          --column-statistics=0
-          {% endif %}
       register: dump_db2_gz
 
     - name: Dumps errors | Check distinct dumps are changed
@@ -107,60 +67,30 @@
         query:
           - "DROP TABLE db1.t1"
 
-    # With MySQL 8, new options have been added. For instance, when attempt to dump
-    # a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
-    # in information_schema (1109)".
-    # Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
-    # major relase :( So I add --column-statistics=0 as a workaround...
-    # TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
     - name: Dumps errors | Full dump after drop t1 without compression
       community.mysql.mysql_db:
         state: dump
         name: all
         target: /tmp/full-dump-without-t1.sql
         pipefail: true  # This should do nothing
-        dump_extra_args: >-
-          {% if db_engine == 'mysql' %}
-          --column-statistics=0
-          {% endif %}
 
       register: full_dump_without_t1
       ignore_errors: true
 
-    # With MySQL 8, new options have been added. For instance, when attempt to dump
-    # a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
-    # in information_schema (1109)".
-    # Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
-    # major relase :( So I add --column-statistics=0 as a workaround...
-    # TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
     - name: Dumps errors | Full dump after drop t1 with gzip without the fix
       community.mysql.mysql_db:
         state: dump
         name: all
         target: /tmp/full-dump-without-t1.sql.gz
-        dump_extra_args: >-
-          {% if db_engine == 'mysql' %}
-          --column-statistics=0
-          {% endif %}
       register: full_dump_without_t1_gz_without_fix
       ignore_errors: true
 
-    # With MySQL 8, new options have been added. For instance, when attempt to dump
-    # a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
-    # in information_schema (1109)".
-    # Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
-    # major relase :( So I add --column-statistics=0 as a workaround...
-    # TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
     - name: Dumps errors | Full dump after drop t1 with gzip with the fix
       community.mysql.mysql_db:
         state: dump
         name: all
         target: /tmp/full-dump-without-t1.sql.gz
         pipefail: true
-        dump_extra_args: >-
-          {% if db_engine == 'mysql' %}
-          --column-statistics=0
-          {% endif %}
       register: full_dump_without_t1_gz_with_fix
       ignore_errors: true
 
@@ -175,59 +105,29 @@
           - full_dump_without_t1_gz_with_fix.msg is search(
               'references invalid table')
 
-    # With MySQL 8, new options have been added. For instance, when attempt to dump
-    # a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
-    # in information_schema (1109)".
-    # Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
-    # major relase :( So I add --column-statistics=0 as a workaround...
-    # TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
     - name: Dumps errors | Distinct dump after drop t1 without compression
       community.mysql.mysql_db:
         state: dump
         name: db2
         target: /tmp/dump-db2-without_t1.sql
         pipefail: true  # This should do nothing
-        dump_extra_args: >-
-          {% if db_engine == 'mysql' %}
-          --column-statistics=0
-          {% endif %}
       register: dump_db2_without_t1
       ignore_errors: true
 
-    # With MySQL 8, new options have been added. For instance, when attempt to dump
-    # a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
-    # in information_schema (1109)".
-    # Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
-    # major relase :( So I add --column-statistics=0 as a workaround...
-    # TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
     - name: Dumps errors | Distinct dump after drop t1 with gzip without the fix
       community.mysql.mysql_db:
         state: dump
         name: db2
         target: /tmp/dump-db2-without_t1.sql.gz
-        dump_extra_args: >-
-          {% if db_engine == 'mysql' %}
-          --column-statistics=0
-          {% endif %}
       register: dump_db2_without_t1_gz_without_fix
       ignore_errors: true
 
-    # With MySQL 8, new options have been added. For instance, when attempt to dump
-    # a MySQL 5.7 instance, mysqldump will throw "Unknown table 'COLUMN_STATISTICS'
-    # in information_schema (1109)".
-    # Unfortunatly, the mysql-client-5.7 is  unavailable on Ubuntu for multiple
-    # major relase :( So I add --column-statistics=0 as a workaround...
-    # TODO : Remove this option in octobre 2023 when MySQL 5.7 will be End of Life.
     - name: Dumps errors | Distinct dump after drop t1 with gzip with the fix
       community.mysql.mysql_db:
         state: dump
         name: db2
         target: /tmp/dump-db2-without_t1.sql.gz
         pipefail: true
-        dump_extra_args: >-
-          {% if db_engine == 'mysql' %}
-          --column-statistics=0
-          {% endif %}
       register: dump_db2_without_t1_gz_with_fix
       ignore_errors: true
 

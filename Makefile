@@ -50,9 +50,9 @@ test-integration:
 	python -m venv .venv/$(ansible)
 	source .venv/$(ansible)/bin/activate
 	python -m pip install --disable-pip-version-check --user https://github.com/ansible/ansible/archive/$(ansible).tar.gz ansible-test
-	-set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker $(docker_container) --docker-network podman --python $(python); set +x
-	# -set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker $(docker_container) --docker-network podman --python $(python); set +x
-	# -set -x; ansible-test integration $(target) -v --color --coverage --diff --docker $(docker_container) --docker-network podman --docker-terminate never --python $(python); set +x
+	-set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker $(docker_image) --docker-network podman --python $(python); set +x
+	# -set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker $(docker_image) --docker-network podman --python $(python); set +x
+	# -set -x; ansible-test integration $(target) -v --color --coverage --diff --docker $(docker_image) --docker-network podman --docker-terminate never --python $(python); set +x
 	rm tests/integration/db_engine_version
 	rm tests/integration/connector
 	podman stop --time 0 --ignore primary

@@ -45,12 +45,12 @@ jobs:
             db_engine_version: mysql:5.7.40
             python: 3.8
             connector: pymysql==0.7.11
-            docker_container: quay.io/mws/community-mysql-test-containers-my57-py38-mysqlclient201-pymysql0711:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my57-py38-mysqlclient201-pymysql0711:latest
           - ansible: stable-2.12
             db_engine_version: mysql:5.7.40
             python: 3.8
             connector: pymysql==0.9.3
-            docker_container: quay.io/mws/community-mysql-test-containers-my57-py38-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my57-py38-pymysql093:latest
      
         # db_engine_version:
         #   - mysql:5.7.40
@@ -169,7 +169,7 @@ jobs:
               echo -n "${{ matrix.db_engine_version }}" > tests/integration/db_engine_version;
               echo Setting Connector version to "${{ matrix.connector }}"...;
               echo -n "${{ matrix.connector }}" > tests/integration/connector
-          docker_container: ${{ matrix.docker_container }}
+          docker-image: ${{ matrix.docker_image }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration
 

@@ -73,9 +73,9 @@ def main():
         d = tests.get('db_engine_version')
         p = tests.get('python')
         c = tests.get('connector')
-        i = tests.get('docker_container')
-        make_cmd = f'make ansible="{a}" db_engine_version="{d}" python="{p}" connector="{c}" docker_container="{i}" test-integration'
-        print(f'Run tests for: Ansible: {a}, DB: {d}, Python: {p}, Connector: {c}, Image: {i}')
+        i = tests.get('docker_image')
+        make_cmd = f'make ansible="{a}" db_engine_version="{d}" python="{p}" connector="{c}" docker_image="{i}" test-integration'
+        print(f'Run tests for: Ansible: {a}, DB: {d}, Python: {p}, Connector: {c}, Docker image: {i}')
         os.system(make_cmd)
 
 

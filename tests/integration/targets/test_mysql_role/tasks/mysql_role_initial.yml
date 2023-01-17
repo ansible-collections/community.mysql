@@ -100,7 +100,7 @@
   - name: Check in DB, if not granted, the query will fail (expect failure)
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR user0@% USING 'role0'"
+      query: "SHOW GRANTS FOR user0@'%' USING 'role0'"
     register: result
     ignore_errors: yes
     when: db_engine == 'mysql'
@@ -160,15 +160,15 @@
       query: "SELECT 1 FROM mysql.user WHERE User = 'role0'"
     register: result
 
-  - name: Assert that tu role is in mysql.user
+  - name: Assert that role0 is in mysql.user
     assert:
       that:
         - result.rowcount.0 == 1
 
-  - name: Check in DB, if not granted, the query will fail
+  - name: Query role0, if not granted, the query will fail
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR user0@'%'' USING 'role0'"
+      query: "SHOW GRANTS FOR user0@'%' USING 'role0'"
     register: result
     when: db_engine == 'mysql'
 
@@ -251,14 +251,14 @@
       that:
         - result.rowcount.0 == 1
 
-  - name: Check in DB, if not granted, the query will fail
+  - name: Query role0, if not granted, the query will fail (2)
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR user0@'%' USING 'role0'"
     register: result
     when: db_engine == 'mysql'
 
-  - name: Assert that query for the role0 is succeeded for mysql
+  - name: Assert that query for the role0 is succeeded for mysql (2)
     assert:
       that:
         - result is succeeded
@@ -329,14 +329,14 @@
         - result.rowcount.0 == 1
 
   # Must pass because of check_mode
-  - name: Check in DB, if not granted, the query will fail
+  - name: Query role0, if not granted, the query will fail (3)
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR user0@'%' USING 'role0'"
     register: result
     when: db_engine == 'mysql'
 
-  - name: Assert that role0 is still in mysql after drop in check_mode
+  - name: Assert that role0 is still in mysql after drop in check_mode (3)
     assert:
       that:
         - result is succeeded
@@ -605,7 +605,7 @@
     when: db_engine == 'mariadb'
 
   # user1, user2, and role1 are not members because of check_mode
-  - name: Query user1, if not granted, the query will fail
+  - name: Query user1, if not granted, the query will fail (expect failue)
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR user1@'%' USING 'role0'"
@@ -733,10 +733,10 @@
         - "'role0' not in result.query_result.0.0['Grants for user0@%']"
     when: db_engine == 'mariadb'
 
-  - name: Query user1, if not granted, the query will fail
+  - name: Query user1, if not granted, the query will fail (expect success)
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR user1@% USING 'role0'"
+      query: "SHOW GRANTS FOR user1@'%' USING 'role0'"
     register: result
     when: db_engine == 'mysql'
 
@@ -869,7 +869,7 @@
       that:
         - result is changed
 
-  - name: Query user0, if not granted, the query will fail
+  - name: Query user0, if not granted, the query will fail (expect failure)
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR user0@'%' USING 'role0'"
@@ -915,7 +915,7 @@
   - name: Query user0, if not granted, the query will fail
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR user0@% USING 'role0'"
+      query: "SHOW GRANTS FOR user0@'%' USING 'role0'"
     register: result
     when: db_engine == 'mysql'
 
@@ -939,10 +939,10 @@
     when: db_engine == 'mariadb'
 
   # user1 and user2 must still be in DB because we are appending
-  - name: Query user1, if not granted, the query will fail
+  - name: Query user1 using role0 (expect success)
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR user1@% USING 'role0'"
+      query: "SHOW GRANTS FOR user1@'%' USING 'role0'"
     register: result
     when: db_engine == 'mysql'
 
@@ -968,7 +968,7 @@
   - name: Query user2, if not granted, the query will fail
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR user2@% USING 'role0'"
+      query: "SHOW GRANTS FOR user2@'%' USING 'role0'"
     register: result
     when: db_engine == 'mysql'
 
@@ -1072,7 +1072,7 @@
         - result.query_result.0.0['user_roles'] == 1
     when: db_engine == 'mariadb'
 
-  - name: Query user1, if not granted, the query will fail
+  - name: Query user1 using role0 (expect success)
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR user1@'%' USING 'role0'"
@@ -1145,7 +1145,7 @@
   - name: Query user0, if not granted, the query will fail
     mysql_query:
       <<: *mysql_params
-      query: "SHOW GRANTS FOR user0@% USING 'role0'"
+      query: "SHOW GRANTS FOR user0@'%' USING 'role0'"
     register: result
     when: db_engine == 'mysql'
 
@@ -1168,7 +1168,7 @@
         - result.query_result.0.0['user_roles'] == 1
     when: db_engine == 'mariadb'
 
-  - name: Query user1, if not granted, the query will fail
+  - name: Query user1, if not granted, the query will fail (expect failure)
     mysql_query:
       <<: *mysql_params
       query: "SHOW GRANTS FOR user1@'%' USING 'role0'"

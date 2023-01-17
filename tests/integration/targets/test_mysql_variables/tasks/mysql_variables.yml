@@ -147,7 +147,7 @@
     # ============================================================
     # Verify mysql_variable fails when setting an incorrect value (out of range)
     #
-    - name: set mysql variable value to a number out of range
+    - name: Set mysql variable value to a number out of range
       mysql_variables:
         <<: *mysql_params
         variable: max_connect_errors
@@ -157,7 +157,8 @@
 
     - include: assert_var.yml changed=true output={{ oor_result }} var_name=max_connect_errors var_value=1
       when:
-        - connector_name != 'pymysql'
+        - connector_name == 'mysqlclient'
+        - db_engine == 'mysql'  # mysqlclient returns "changed" with MariaDB
 
     - include: assert_fail_msg.yml output={{ oor_result }}  msg='Truncated incorrect'
       when:

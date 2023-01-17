@@ -119,50 +119,35 @@ jobs:
           - ansible: stable-2.12
             db_engine_version: mysql:8.0.31
             python: '3.9'
-            connector: pymysql==0.7.11
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql0711:latest
-          - ansible: stable-2.12
-            db_engine_version: mysql:8.0.31
-            python: '3.9'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.12
             db_engine_version: mysql:8.0.31
             python: '3.9'
             connector: mysqlclient==2.0.3
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql0711:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql093:latest
 
           - ansible: stable-2.13
             db_engine_version: mysql:8.0.31
             python: '3.9'
-            connector: pymysql==0.7.11
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql0711:latest
-          - ansible: stable-2.13
-            db_engine_version: mysql:8.0.31
-            python: '3.9'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.13
             db_engine_version: mysql:8.0.31
             python: '3.9'
             connector: mysqlclient==2.0.3
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql0711:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql093:latest
 
           - ansible: stable-2.14
             db_engine_version: mysql:8.0.31
             python: '3.9'
-            connector: pymysql==0.7.11
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql0711:latest
-          - ansible: stable-2.14
-            db_engine_version: mysql:8.0.31
-            python: '3.9'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.14
             db_engine_version: mysql:8.0.31
             python: '3.9'
             connector: mysqlclient==2.0.3
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql0711:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py39-mysqlclient203-pymysql093:latest
 
 
           # ==================================================================
@@ -171,86 +156,46 @@ jobs:
           - ansible: stable-2.12
             db_engine_version: mysql:8.0.31
             python: '3.10'
-            connector: pymysql==0.7.11
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql0711:latest
-          - ansible: stable-2.12
-            db_engine_version: mysql:8.0.31
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-pymysql093:latest
-          - ansible: stable-2.12
-            db_engine_version: mysql:8.0.31
-            python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.12
             db_engine_version: mysql:8.0.31
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql0711:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql102:latest
 
           - ansible: stable-2.13
             db_engine_version: mysql:8.0.31
             python: '3.10'
-            connector: pymysql==0.7.11
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql0711:latest
-          - ansible: stable-2.13
-            db_engine_version: mysql:8.0.31
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-pymysql093:latest
-          - ansible: stable-2.13
-            db_engine_version: mysql:8.0.31
-            python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.13
             db_engine_version: mysql:8.0.31
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql0711:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql102:latest
 
           - ansible: stable-2.14
             db_engine_version: mysql:8.0.31
             python: '3.10'
-            connector: pymysql==0.7.11
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql0711:latest
-          - ansible: stable-2.14
-            db_engine_version: mysql:8.0.31
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-pymysql093:latest
-          - ansible: stable-2.14
-            db_engine_version: mysql:8.0.31
-            python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.14
             db_engine_version: mysql:8.0.31
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql0711:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql102:latest
 
           - ansible: devel
             db_engine_version: mysql:8.0.31
             python: '3.10'
-            connector: pymysql==0.7.11
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql0711:latest
-          - ansible: devel
-            db_engine_version: mysql:8.0.31
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-pymysql093:latest
-          - ansible: devel
-            db_engine_version: mysql:8.0.31
-            python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql102:latest
           - ansible: devel
             db_engine_version: mysql:8.0.31
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql0711:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-my80-py310-mysqlclient211-pymysql102:latest
 
           # ==================================================================
           # MariaDB 10.3 + Python 3.8
@@ -259,43 +204,43 @@ jobs:
             db_engine_version: mariadb:10.4.27
             python: '3.8'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201-pymysql093:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.4.27
             python: '3.8'
             connector: mysqlclient==2.0.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201-pymysql093:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.5.18
             python: '3.8'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201-pymysql093:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.5.18
             python: '3.8'
             connector: mysqlclient==2.0.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201-pymysql093:latest
 
           - ansible: stable-2.13
             db_engine_version: mariadb:10.4.27
             python: '3.8'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201-pymysql093:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.4.27
             python: '3.8'
             connector: mysqlclient==2.0.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201-pymysql093:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.5.18
             python: '3.8'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201-pymysql093:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.5.18
             python: '3.8'
             connector: mysqlclient==2.0.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py38-mysqlclient201-pymysql093:latest
 
 
           # ==================================================================
@@ -305,64 +250,64 @@ jobs:
             db_engine_version: mariadb:10.4.27
             python: '3.9'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.4.27
             python: '3.9'
             connector: mysqlclient==2.0.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.5.18
             python: '3.9'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.5.18
             python: '3.9'
             connector: mysqlclient==2.0.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
 
           - ansible: stable-2.13
             db_engine_version: mariadb:10.4.27
             python: '3.9'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.4.27
             python: '3.9'
             connector: mysqlclient==2.0.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.5.18
             python: '3.9'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.5.18
             python: '3.9'
             connector: mysqlclient==2.0.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
 
           - ansible: stable-2.14
             db_engine_version: mariadb:10.4.27
             python: '3.9'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.14
             db_engine_version: mariadb:10.4.27
             python: '3.9'
             connector: mysqlclient==2.0.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.14
             db_engine_version: mariadb:10.5.18
             python: '3.9'
             connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
           - ansible: stable-2.14
             db_engine_version: mariadb:10.5.18
             python: '3.9'
             connector: mysqlclient==2.0.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb103-py39-mysqlclient203-pymysql093:latest
 
 
           # ==================================================================
@@ -371,246 +316,166 @@ jobs:
           - ansible: stable-2.12
             db_engine_version: mariadb:10.5.18
             python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
-          - ansible: stable-2.12
-            db_engine_version: mariadb:10.5.18
-            python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.5.18
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: stable-2.12
-            db_engine_version: mariadb:10.6.11
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.6.11
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.6.11
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: stable-2.12
-            db_engine_version: mariadb:10.7.7
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.7.7
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.7.7
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: stable-2.12
-            db_engine_version: mariadb:10.8.3
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.8.3
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.12
             db_engine_version: mariadb:10.8.3
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
 
           - ansible: stable-2.13
             db_engine_version: mariadb:10.5.18
             python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
-          - ansible: stable-2.13
-            db_engine_version: mariadb:10.5.18
-            python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.5.18
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: stable-2.13
-            db_engine_version: mariadb:10.6.11
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.6.11
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.6.11
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: stable-2.13
-            db_engine_version: mariadb:10.7.7
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.7.7
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.7.7
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: stable-2.13
-            db_engine_version: mariadb:10.8.3
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.8.3
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.13
             db_engine_version: mariadb:10.8.3
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
 
           - ansible: stable-2.14
             db_engine_version: mariadb:10.5.18
             python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
-          - ansible: stable-2.14
-            db_engine_version: mariadb:10.5.18
-            python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.14
             db_engine_version: mariadb:10.5.18
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: stable-2.14
-            db_engine_version: mariadb:10.6.11
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.14
             db_engine_version: mariadb:10.6.11
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.14
             db_engine_version: mariadb:10.6.11
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: stable-2.14
-            db_engine_version: mariadb:10.7.7
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.14
             db_engine_version: mariadb:10.7.7
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.14
             db_engine_version: mariadb:10.7.7
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: stable-2.14
-            db_engine_version: mariadb:10.8.3
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.14
             db_engine_version: mariadb:10.8.3
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: stable-2.14
             db_engine_version: mariadb:10.8.3
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
 
           - ansible: devel
             db_engine_version: mariadb:10.5.18
             python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
-          - ansible: devel
-            db_engine_version: mariadb:10.5.18
-            python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: devel
             db_engine_version: mariadb:10.5.18
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: devel
-            db_engine_version: mariadb:10.6.11
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: devel
             db_engine_version: mariadb:10.6.11
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: devel
             db_engine_version: mariadb:10.6.11
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: devel
-            db_engine_version: mariadb:10.7.7
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: devel
             db_engine_version: mariadb:10.7.7
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: devel
             db_engine_version: mariadb:10.7.7
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
-          - ansible: devel
-            db_engine_version: mariadb:10.8.3
-            python: '3.10'
-            connector: pymysql==0.9.3
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql093:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: devel
             db_engine_version: mariadb:10.8.3
             python: '3.10'
             connector: pymysql==1.0.2
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-pymysql102:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
           - ansible: devel
             db_engine_version: mariadb:10.8.3
             python: '3.10'
             connector: mysqlclient==2.1.1
-            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211:latest
+            docker_image: quay.io/mws/community-mysql-test-containers-mariadb106-py310-mysqlclient211-pymysql102:latest
 
         # db_engine_version:
         #   - mysql:5.7.40

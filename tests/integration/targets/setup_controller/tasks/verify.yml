@@ -1,3 +1,46 @@
 ---
-# TODO, write tests that assert that our container are running the
-# version of MySQL/MariaDB specified in db_engind_version
+
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: root
+      login_password: msandbox
+      login_host: "{{ gateway_addr }}"
+      login_port: 3307
+
+  block:
+
+    - name: Query Primary container over TCP for MySQL/MariaDB version
+      mysql_info:
+        <<: *mysql_params
+        filter:
+          - version
+      register: primary_info
+
+    - name: Assert that test container runs the expected MySQL/MariaDB version
+      assert:
+        that:
+          - primary_info.version.full == db_version
+
+    - name: Assert that mysql_info module used the expected connector
+      assert:
+        that:
+          - primary_info.connector.name == connector_name
+          - primary_info.connector.version == connector_ver
+
+    - name: Display the python version in use
+      command:
+        cmd: python{{ python_version }} -V
+      changed_when: false
+      register: python_in_use
+
+    - name: Assert that expected Python is installed
+      assert:
+        that:
+          - python_version is in python_in_use.stdout
+
+    - name: Assert that we run the expected ansible version
+      assert:
+        that:
+          - >
+            "{{ ansible_version.major }}.{{ ansible_version.minor }}"
+            is version(test_ansible_version, '==')

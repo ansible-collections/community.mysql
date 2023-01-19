@@ -18,6 +18,16 @@
         'file',
         '/root/ansible_collections/community/mysql/tests/integration/db_engine_version'
       ) }}
+    python_version_lookup: >-
+      {{ lookup(
+        'file',
+        '/root/ansible_collections/community/mysql/tests/integration/python'
+      ) }}
+    ansible_version_lookup: >-
+      {{ lookup(
+        'file',
+        '/root/ansible_collections/community/mysql/tests/integration/ansible'
+      ) }}
 
 - name: "{{ role_name }} | Setvars | Set Fact using above facts"
   ansible.builtin.set_fact:
@@ -25,6 +35,8 @@
     connector_ver: "{{ connector_name_version.split('=')[2].strip() }}"
     db_engine: "{{ db_engine_version.split(':')[0].strip() }}"
     db_version: "{{ db_engine_version.split(':')[1].strip() }}"
+    python_version: "{{ python_version_lookup.strip() }}"
+    test_ansible_version: "{{ ansible_version_lookup.split('-')[1].strip() }}"
     mysql_command: >-
       mysql
       -h{{ gateway_addr }}
@@ -46,5 +58,7 @@
       connector_ver: {{ connector_ver }}
       db_engine: {{ db_engine }}
       db_version: {{ db_version }}
+      python_version: {{ python_version }}
+      test_ansible_version: {{ test_ansible_version }}
   ansible.builtin.debug:
     msg: "{{ msg.split('\n') }}"

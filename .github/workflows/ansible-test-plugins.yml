@@ -583,7 +583,11 @@ jobs:
               echo Setting db_engine_version to "${{ matrix.db_engine_version }}"...;
               echo -n "${{ matrix.db_engine_version }}" > tests/integration/db_engine_version;
               echo Setting Connector version to "${{ matrix.connector }}"...;
-              echo -n "${{ matrix.connector }}" > tests/integration/connector
+              echo -n "${{ matrix.connector }}" > tests/integration/connector;
+              echo Setting Python version to "${{ matrix.python }}"...;
+              echo -n "${{ matrix.python }}" > tests/integration/python;
+              echo Setting Ansible version to "${{ matrix.ansible }}"...;
+              echo -n "${{ matrix.ansible }}" > tests/integration/ansible
           docker-image: ${{ matrix.docker_image }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration

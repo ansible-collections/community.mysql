@@ -4,6 +4,8 @@ SHELL := /bin/bash
 test-integration:
 	echo -n $(db_engine_version) > tests/integration/db_engine_version
 	echo -n $(connector) > tests/integration/connector
+	echo -n $(python) > tests/integration/python
+	echo -n $(ansible) > tests/integration/ansible
 	podman run \
 		--detach \
 		--name primary \
@@ -55,6 +57,8 @@ test-integration:
 	# -set -x; ansible-test integration $(target) -v --color --coverage --diff --docker $(docker_image) --docker-network podman --docker-terminate never --python $(python); set +x
 	rm tests/integration/db_engine_version
 	rm tests/integration/connector
+	rm tests/integration/python
+	rm tests/integration/ansible
 	podman stop --time 0 --ignore primary
 	podman stop --time 0 --ignore replica1
 	podman stop --time 0 --ignore replica2

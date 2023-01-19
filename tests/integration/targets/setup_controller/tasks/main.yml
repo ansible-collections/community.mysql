@@ -12,3 +12,7 @@
 - name: Set variables
   ansible.builtin.import_tasks:
     file: setvars.yml
+
+- name: Verify all components version under test
+  ansible.builtin.import_tasks:
+    file: verify.yml

@@ -34,6 +34,11 @@ mysql_driver_fail_msg = ('A MySQL module is required: for Python 2.7 either PyMy
                          'Consider setting ansible_python_interpreter to use '
                          'the intended Python version.')
 
+mysql_driver_info = {
+    "name": mysql_driver.__name__,
+    "version": mysql_driver.__version__
+}
+
 
 def parse_from_mysql_config_file(cnf):
     # Default values of comment_prefix is '#' and ';'.

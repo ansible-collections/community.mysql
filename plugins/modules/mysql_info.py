@@ -206,6 +206,12 @@ slave_hosts:
   type: dict
   sample:
   - { "2": { "Host": "", "Master_id": 1, "Port": 3306 } }
+connector:
+  description: The python connector used by the plugins
+  returned: always
+  type: dict
+  sample:
+  - { "connector: { "name": "pymysql", "version": "1.0.2" } }
 '''
 
 from decimal import Decimal
@@ -216,6 +222,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_common_argument_spec,
     mysql_driver,
     mysql_driver_fail_msg,
+    mysql_driver_info,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -564,15 +571,19 @@ def main():
                                         check_hostname=check_hostname,
                                         connect_timeout=connect_timeout, cursor_class='DictCursor')
     except Exception as e:
-        module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "
-                             "Exception message: %s" % (config_file, to_native(e)))
+        module.fail_json(msg=f"unable to connect to database using \
+            {mysql_driver_info.name} {mysql_driver_info.version}, \
+            check login_user and login_password are correct or {config_file} has \
+            the credentials. Exception message: {to_native(e)}%s")
 
     ###############################
     # Create object and do main job
 
     mysql = MySQL_Info(module, cursor)
 
-    module.exit_json(changed=False, **mysql.get_info(filter_, exclude_fields, return_empty_dbs))
+    module.exit_json(changed=False,
+                    **mysql.get_info(filter_, exclude_fields, return_empty_dbs),
+                    connector=mysql_driver_info)
 
 
 if __name__ == '__main__':

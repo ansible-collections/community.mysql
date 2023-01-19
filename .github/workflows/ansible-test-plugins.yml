@@ -564,9 +564,9 @@ jobs:
           docker exec ${{ job.services.db_primary.id }} bash -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'
           docker exec ${{ job.services.db_replica1.id }} bash -c 'echo -e [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
           docker exec ${{ job.services.db_replica2.id }} bash -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
-          docker restart ${{ job.services.db_primary.id }}
-          docker restart ${{ job.services.db_replica1.id }}
-          docker restart ${{ job.services.db_replica2.id }}
+          docker restart -t 30 ${{ job.services.db_primary.id }}
+          docker restart -t 30 ${{ job.services.db_replica1.id }}
+          docker restart -t 30 ${{ job.services.db_replica2.id }}
 
       - name: Wait for the primary to be healthy
         run: |

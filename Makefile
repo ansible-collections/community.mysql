@@ -40,11 +40,11 @@ test-integration:
 	podman exec replica2 bash -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
 	# Don't restart a container unless it is healthy
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
-	podman restart primary
+	podman restart -t 30 primary
 	while ! podman healthcheck run replica1 && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
-	podman restart replica1
+	podman restart -t 30 replica1
 	while ! podman healthcheck run replica2 && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
-	podman restart replica2
+	podman restart -t 30 replica2
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
 	mkdir -p .venv/$(ansible)
 	python -m venv .venv/$(ansible)

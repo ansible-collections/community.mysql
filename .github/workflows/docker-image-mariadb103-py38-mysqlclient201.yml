@@ -8,6 +8,7 @@ on:
       - lie_tests_using_containers
     paths:
       - '${{ env.CONTEXT }}/**'
+      - .github/workflows/docker-image-mariadb103-py38-mysqlclient201.yml
 
 env:
   REGISTRY: ghcr.io

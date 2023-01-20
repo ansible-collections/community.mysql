@@ -100,7 +100,7 @@ jobs:
             connector: mysqlclient==2.0.1
             docker_image: ghcr.io/laurent-indermuehle/test-container-my80-py38-mysqlclient201:latest
 
-                    - ansible: stable-2.13
+          - ansible: stable-2.13
             db_engine_version: mysql:8.0.31
             python: '3.8'
             connector: pymysql==0.9.3

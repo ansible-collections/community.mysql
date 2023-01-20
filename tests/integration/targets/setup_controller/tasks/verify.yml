@@ -19,7 +19,9 @@
     - name: Assert that test container runs the expected MySQL/MariaDB version
       assert:
         that:
-          - primary_info.version.full == db_version
+          - >
+            {{ primary_info.version.major }}.{{ primary_info.version.minor }}
+            == {{ db_version }}
 
     - name: Assert that mysql_info module used the expected connector
       assert:

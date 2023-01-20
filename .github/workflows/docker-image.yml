@@ -1,6 +1,5 @@
 ---
-name: Docker Image CI mariadb103-py38-mysqlclient201
-
+name: Docker Image CI
 on:
   push:
     branch:

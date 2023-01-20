@@ -23,11 +23,21 @@
             {{ primary_info.version.major }}.{{ primary_info.version.minor }}
             == {{ db_version }}
 
-    - name: Assert that mysql_info module used the expected connector
+    - name: Assert that mysql_info module used the expected version of pymysql
       assert:
         that:
           - primary_info.connector.name == connector_name
           - primary_info.connector.version == connector_ver
+      when:
+        - connector_name == 'pymysql'
+
+    - name: Assert that mysql_info module used the expected version of mysqlclient
+      assert:
+        that:
+          - primary_info.connector.name == 'MySQLdb'
+          - primary_info.connector.version == connector_ver
+      when:
+        - connector_name == 'mysqlclient'
 
     - name: Display the python version in use
       command:

@@ -25,16 +25,16 @@
     - name: Assert that mysql_info module used the expected version of pymysql
       assert:
         that:
-          - primary_info.connector.name == connector_name
-          - primary_info.connector.version == connector_version
+          - primary_info.connector_name == connector_name
+          - primary_info.connector_version == connector_version
       when:
         - connector_name == 'pymysql'
 
     - name: Assert that mysql_info module used the expected version of mysqlclient
       assert:
         that:
-          - primary_info.connector.name == 'MySQLdb'
-          - primary_info.connector.version == connector_version
+          - primary_info.connector_name == 'MySQLdb'
+          - primary_info.connector_version == connector_version
       when:
         - connector_name == 'mysqlclient'
 

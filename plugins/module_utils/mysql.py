@@ -23,6 +23,7 @@ try:
     _mysql_cursor_param = 'cursor'
 except ImportError:
     try:
+        # mysqlclient is called MySQLdb
         import MySQLdb as mysql_driver
         import MySQLdb.cursors
         _mysql_cursor_param = 'cursorclass'
@@ -34,9 +35,31 @@ mysql_driver_fail_msg = ('A MySQL module is required: for Python 2.7 either PyMy
                          'Consider setting ansible_python_interpreter to use '
                          'the intended Python version.')
 
+
+def get_driver_version(mysql_driver):
+    """(class) -> str
+    Return the version of pymysql or mysqlclient (MySQLdb).
+    """
+
+    if mysql_driver is None or mysql_driver.__name__ not in ['pymysql', 'MySQLdb']:
+        return 'Unknown'
+
+    if mysql_driver.__name__ == 'pymysql':
+        # pymysql has two methods:
+        # - __version__ that returns the string: 0.7.11.None
+        # - VERSION that returns the tupple (0, 7, 11, None)
+        v = mysql_driver.VERSION[:3]
+        return '.'.join(map(str, v))
+
+    if mysql_driver.__name__ == 'MySQLdb':
+        # version_info returns the tuple (2, 1, 1, 'final', 0)
+        v = mysql_driver.version_info[:3]
+        return '.'.join(map(str, v))
+
+
 mysql_driver_info = {
     "name": mysql_driver.__name__,
-    "version": mysql_driver.__version__
+    "version": get_driver_version(mysql_driver)
 }
 
 

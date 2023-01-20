@@ -390,3 +390,10 @@
       that:
         - result is changed
         - result.executed_queries == ['DROP DATABASE {{ test_db }}']
+
+  always:
+
+    - name: Clean up test_db
+      mysql_query:
+        <<: *mysql_params
+        query: 'DROP DATABASE IF EXISTS {{ test_db }}'

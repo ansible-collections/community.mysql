@@ -77,6 +77,9 @@ def main():
         make_cmd = f'make ansible="{a}" db_engine_version="{d}" python="{p}" connector="{c}" docker_image="{i}" test-integration'
         print(f'Run tests for: Ansible: {a}, DB: {d}, Python: {p}, Connector: {c}, Docker image: {i}')
         os.system(make_cmd)
+        # TODO, allow for CTRL+C to break the loop more easily
+        # TODO, store the failures from this iteration
+    # TODO, display a summary of failures from every iterations
 
 
 if __name__ == '__main__':

@@ -572,9 +572,9 @@ def main():
                                         connect_timeout=connect_timeout, cursor_class='DictCursor')
     except Exception as e:
         module.fail_json(msg=f"unable to connect to database using \
-            {mysql_driver_info.name} {mysql_driver_info.version}, \
+            {mysql_driver_info.get('name')} {mysql_driver_info.get('version')}, \
             check login_user and login_password are correct or {config_file} has \
-            the credentials. Exception message: {to_native(e)}%s")
+            the credentials. Exception message: {to_native(e)}")
 
     ###############################
     # Create object and do main job

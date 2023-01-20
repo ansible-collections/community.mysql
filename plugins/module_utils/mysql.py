@@ -36,8 +36,15 @@ mysql_driver_fail_msg = ('A MySQL module is required: for Python 2.7 either PyMy
                          'the intended Python version.')
 
 
+def get_driver_name(mysql_driver):
+    """ (class) -> str
+    Return the name of the driver (pymysql or mysqlclient (MySQLdb)).
+    """
+    return mysql_driver.__name__
+
+
 def get_driver_version(mysql_driver):
-    """(class) -> str
+    """ (class) -> str
     Return the version of pymysql or mysqlclient (MySQLdb).
     """
 
@@ -55,12 +62,6 @@ def get_driver_version(mysql_driver):
         # version_info returns the tuple (2, 1, 1, 'final', 0)
         v = mysql_driver.version_info[:3]
         return '.'.join(map(str, v))
-
-
-mysql_driver_info = {
-    "name": mysql_driver.__name__,
-    "version": get_driver_version(mysql_driver)
-}
 
 
 def parse_from_mysql_config_file(cnf):

@@ -206,12 +206,18 @@ slave_hosts:
   type: dict
   sample:
   - { "2": { "Host": "", "Master_id": 1, "Port": 3306 } }
-connector:
-  description: The python connector used by the plugins
+connector_name:
+  description: The python connector name used by the plugins
   returned: always
-  type: dict
+  type: str
   sample:
-  - { "connector: { "name": "pymysql", "version": "1.0.2" } }
+  - "pymysql"
+connector_version:
+  description: The python connector version used by the plugins
+  returned: always
+  type: str
+  sample:
+  - "1.0.2"
 '''
 
 from decimal import Decimal
@@ -222,7 +228,8 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_common_argument_spec,
     mysql_driver,
     mysql_driver_fail_msg,
-    mysql_driver_info,
+    get_driver_name,
+    get_driver_version,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -565,16 +572,19 @@ def main():
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
 
+    driver_name = get_driver_name(mysql_driver)
+    driver_version = get_driver_version(mysql_driver)
+
     try:
         cursor, db_conn = mysql_connect(module, login_user, login_password,
                                         config_file, ssl_cert, ssl_key, ssl_ca, db,
                                         check_hostname=check_hostname,
                                         connect_timeout=connect_timeout, cursor_class='DictCursor')
     except Exception as e:
-        module.fail_json(msg=f"unable to connect to database using \
-            {mysql_driver_info.get('name')} {mysql_driver_info.get('version')}, \
-            check login_user and login_password are correct or {config_file} has \
-            the credentials. Exception message: {to_native(e)}")
+        msg = ('unable to connect to database using %s %s, check login_user '
+               'and login_password are correct or %s has the credentials. '
+               'Exception message: %s' % (driver_name, driver_version, config_file, to_native(e)))
+        module.fail_json(msg)
 
     ###############################
     # Create object and do main job
@@ -582,8 +592,9 @@ def main():
     mysql = MySQL_Info(module, cursor)
 
     module.exit_json(changed=False,
-                    **mysql.get_info(filter_, exclude_fields, return_empty_dbs),
-                    connector=mysql_driver_info)
+                     connector_name=driver_name,
+                     connector_version=driver_version,
+                     **mysql.get_info(filter_, exclude_fields, return_empty_dbs))
 
 
 if __name__ == '__main__':

@@ -38,7 +38,6 @@ jobs:
           - subfolder: my80-py310-mysqlclient211
           - subfolder: my80-py310-pymysql102
           - subfolder: my80-py38-mysqlclient201
-          - subfolder: my80-py38-pymysql0711
           - subfolder: my80-py38-pymysql093
           - subfolder: my80-py39-mysqlclient203
           - subfolder: my80-py39-pymysql093

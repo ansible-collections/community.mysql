@@ -81,7 +81,7 @@
         session_vars:
           max_connections: 1000
       register: result
-      ignore_errors: yes
+      ignore_errors: true 
 
     - name: we cannot set a global variable
       assert:

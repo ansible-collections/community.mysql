@@ -360,24 +360,16 @@
     register: result
 
   # Issue https://github.com/ansible-collections/community.mysql/issues/268
-  - name: "Assert that create table IF NOT EXISTS is not changed with pymysql \
-      and mysqlclient > 2.0.1"
+  - name: Assert that create table IF NOT EXISTS is not changed with pymysql
     assert:
       that:
         # PyMySQL driver throws a warning, so the following is correct
         - result is not changed
     when:
       - connector_name == 'pymysql'
-        or db_engine == 'mariadb'
-        or (
-          db_engine == 'mysql'
-          and connector_name == 'mysqlclient'
-          and connector_version is version('2.0.1', '>')
-        )
 
   # Issue https://github.com/ansible-collections/community.mysql/issues/268
-  - name: "Assert that create table IF NOT EXISTS is changed with mysqlclient \
-      2.0.1 and mysql"
+  - name: Assert that create table IF NOT EXISTS is changed with mysqlclient
     assert:
       that:
         # Mysqlclient 2.0.1, driver throws nothing with mysql, so it's
@@ -386,8 +378,6 @@
         - result is changed
     when:
       - connector_name == 'mysqlclient'
-      - connector_version is version('2.0.1', '==')
-      - db_engine == 'mysql'
 
   - name: Drop db {{ test_db }}
     mysql_query:

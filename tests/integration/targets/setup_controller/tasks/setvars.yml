@@ -32,7 +32,7 @@
 - name: "{{ role_name }} | Setvars | Set Fact using above facts"
   ansible.builtin.set_fact:
     connector_name: "{{ connector_name_version.split('=')[0].strip() }}"
-    connector_ver: "{{ connector_name_version.split('=')[2].strip() }}"
+    connector_version: "{{ connector_name_version.split('=')[2].strip() }}"
     db_engine: "{{ db_engine_version.split(':')[0].strip() }}"
     db_version: "{{ db_engine_version.split(':')[1].strip() }}"
     python_version: "{{ python_version_lookup.strip() }}"
@@ -55,7 +55,7 @@
   vars:
     msg: |-
       connector_name: {{ connector_name }}
-      connector_ver: {{ connector_ver }}
+      connector_version: {{ connector_version }}
       db_engine: {{ db_engine }}
       db_version: {{ db_version }}
       python_version: {{ python_version }}

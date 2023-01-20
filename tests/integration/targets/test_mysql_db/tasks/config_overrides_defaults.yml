@@ -20,7 +20,7 @@
       connector_name != 'pymysql'
       or (
         connector_name == 'pymysql'
-        and connector_ver is version('0.9.3', '>=')
+        and connector_version is version('0.9.3', '>=')
       )
 
 - name: Config overrides | Create include_dir
@@ -33,7 +33,7 @@
       connector_name != 'pymysql'
       or (
         connector_name == 'pymysql'
-        and connector_ver is version('0.9.3', '>=')
+        and connector_version is version('0.9.3', '>=')
       )
 
 - name: Config overrides | Add include_dir
@@ -46,7 +46,7 @@
       connector_name != 'pymysql'
       or (
         connector_name == 'pymysql'
-        and connector_ver is version('0.9.3', '>=')
+        and connector_version is version('0.9.3', '>=')
       )
 
 - name: Config overrides | Create database using fake port to connect to, must fail

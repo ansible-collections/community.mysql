@@ -27,7 +27,7 @@
       assert:
         that:
           - primary_info.connector.name == connector_name
-          - primary_info.connector.version == connector_ver
+          - primary_info.connector.version == connector_version
       when:
         - connector_name == 'pymysql'
 
@@ -35,7 +35,7 @@
       assert:
         that:
           - primary_info.connector.name == 'MySQLdb'
-          - primary_info.connector.version == connector_ver
+          - primary_info.connector.version == connector_version
       when:
         - connector_name == 'mysqlclient'
 

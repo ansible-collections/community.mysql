@@ -373,7 +373,7 @@
           connector_name != 'pymysql'
           or (
             connector_name == 'pymysql'
-            and connector_ver is version('0.9', '>=')
+            and connector_version is version('0.9', '>=')
           )
       block:
 

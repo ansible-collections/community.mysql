@@ -372,7 +372,7 @@
         or (
           db_engine == 'mysql'
           and connector_name == 'mysqlclient'
-          and connector_ver is version('2.0.1', '>')
+          and connector_version is version('2.0.1', '>')
         )
 
   # Issue https://github.com/ansible-collections/community.mysql/issues/268
@@ -386,7 +386,7 @@
         - result is changed
     when:
       - connector_name == 'mysqlclient'
-      - connector_ver is version('2.0.1', '==')
+      - connector_version is version('2.0.1', '==')
       - db_engine == 'mysql'
 
   - name: Drop db {{ test_db }}

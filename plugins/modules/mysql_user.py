@@ -149,6 +149,12 @@ options:
       - Used when I(state=present), ignored otherwise.
     type: dict
     version_added: '0.1.0'
+  session_vars:
+    description:
+      - "Dictionary of session variables in form of C(variable: value) to set at the beginning of module execution."
+      - Cannot be used to set global variables, use the M(community.mysql.mysql_variables) module instead.
+    type: dict
+    version_added: '3.6.0'
 
 notes:
    - "MySQL server installs with default I(login_user) of C(root) and no password.
@@ -208,12 +214,15 @@ EXAMPLES = r'''
     priv: '*.*:ALL'
     state: present
 
+# Set session var wsrep_on=off before creating the user
 - name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
   community.mysql.mysql_user:
     name: bob
     password: 12345
     priv: '*.*:ALL,GRANT'
     state: present
+    session_vars:
+      wsrep_on: off
 
 - name: Create user with password, all database privileges and 'WITH GRANT OPTION' in db1 and db2
   community.mysql.mysql_user:
@@ -341,7 +350,11 @@ RETURN = '''#'''
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import SQLParseError
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
-    mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
+    mysql_connect,
+    mysql_driver,
+    mysql_driver_fail_msg,
+    mysql_common_argument_spec,
+    set_session_vars,
 )
 from ansible_collections.community.mysql.plugins.module_utils.user import (
     convert_priv_dict_to_str,
@@ -385,6 +398,7 @@ def main():
         plugin_auth_string=dict(default=None, type='str'),
         resource_limits=dict(type='dict'),
         force_context=dict(type='bool', default=False),
+        session_vars=dict(type='dict'),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -419,6 +433,8 @@ def main():
     plugin_hash_string = module.params["plugin_hash_string"]
     plugin_auth_string = module.params["plugin_auth_string"]
     resource_limits = module.params["resource_limits"]
+    session_vars = module.params["session_vars"]
+
     if priv and not isinstance(priv, (str, dict)):
         module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
 
@@ -446,6 +462,9 @@ def main():
 
     if not sql_log_bin:
         cursor.execute("SET SQL_LOG_BIN=0;")
+
+    if session_vars:
+        set_session_vars(module, cursor, session_vars)
 
     get_impl(cursor)
 

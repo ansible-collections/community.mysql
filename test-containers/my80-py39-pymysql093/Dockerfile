@@ -9,7 +9,8 @@ RUN apt update -y && \
     mysql-client \
     iproute2
 
-RUN python3.9 -m pip install --disable-pip-version-check --no-cache-dir pymysql==0.9.3
+# cffi      # To connect to MySQL 8 with Python3.9 and PyMySQL
+RUN python3.9 -m pip install --disable-pip-version-check --no-cache-dir cffi pymysql==0.9.3
 
 ENV container=docker
 CMD ["/sbin/init"]

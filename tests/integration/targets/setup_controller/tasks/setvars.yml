@@ -36,7 +36,12 @@
     db_engine: "{{ db_engine_version.split(':')[0].strip() }}"
     db_version: "{{ db_engine_version.split(':')[1].strip() }}"
     python_version: "{{ python_version_lookup.strip() }}"
-    test_ansible_version: "{{ ansible_version_lookup.split('-')[1].strip() }}"
+    test_ansible_version: >-
+      {%- if ansible_version_lookup == 'devel' -%}
+      {{ ansible_version_lookup }}
+      {%- else -%}
+      {{ ansible_version_lookup.split('-')[1].strip() }}
+      {%- endif -%}
     mysql_command: >-
       mysql
       -h{{ gateway_addr }}

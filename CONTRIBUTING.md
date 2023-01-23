@@ -28,10 +28,10 @@ Examples:
 
 ```sh
 # Run all targets
-make ansible="stable-2.14" db_engine_version="mysql:5.7.40" connector="pymysql==0.7.10" python="3.8" docker_image="my57-py38-mysqlclient201-pymysql0711"
+make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connector="pymysql==0.7.10" docker_image="ghcr.io/community.mysql/test-container-my80-py39-mysqlclient203:latest"
 
 # A single target
-make ansible="stable-2.14" db_engine_version="mysql:5.7.40" connector="pymysql==0.7.10" python="3.8" docker_image="my57-py38-mysqlclient201-pymysql0711" target="test_mysql_db"
+make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connector="pymysql==0.7.10" docker_image="ghcr.io/community.mysql/test-container-my80-py39-mysqlclient203:latest" target="test_mysql_db"
 ```
 
 

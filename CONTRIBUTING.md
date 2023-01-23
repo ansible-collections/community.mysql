@@ -23,6 +23,7 @@ The Makefile accept the following options:
 - **connector**: The name of the python package of the connector along with its version number. Use '==' as a separator.
 - **python**: The python version to use in the controller.
 - **target** : If omitted, all test targets will run. But you can limit the tests to a single target to speed up your tests.
+- **keep_containers_alive**: This option keeps all tree databases containers and the ansible-test container alive at the end of tests or in case of failure. This is useful to enter one of the containers with `podman exec -it <container-name> bash` for debugging.
 
 Examples:
 
@@ -32,6 +33,13 @@ make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connect
 
 # A single target
 make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connector="pymysql==0.7.10" docker_image="ghcr.io/community.mysql/test-container-my80-py39-mysqlclient203:latest" target="test_mysql_db"
+
+# Keep databases and ansible tests containers alives
+# A single target
+make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connector="pymysql==0.7.10" docker_image="ghcr.io/community.mysql/test-container-my80-py39-mysqlclient203:latest" target="test_mysql_db" keep_containers_alive=1
+
+# Rerun tests after using `keep_containers_alive=1`
+podman stop -a; podman rm -a; make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connector="pymysql==0.7.10" docker_image="ghcr.io/community.mysql/test-container-my80-py39-mysqlclient203:latest" target="test_mysql_db" keep_containers_alive=1
 ```
 
 

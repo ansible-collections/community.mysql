@@ -52,16 +52,20 @@ test-integration:
 	python -m venv .venv/$(ansible)
 	source .venv/$(ansible)/bin/activate
 	python -m pip install --disable-pip-version-check --user https://github.com/ansible/ansible/archive/$(ansible).tar.gz ansible-test
+ifdef keep_containers_alive
+	-set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker $(docker_image) --docker-network podman --docker-terminate never --python $(python); set +x
+else
 	-set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker $(docker_image) --docker-network podman --python $(python); set +x
-	# -set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker $(docker_image) --docker-network podman --python $(python); set +x
-	# -set -x; ansible-test integration $(target) -v --color --coverage --diff --docker $(docker_image) --docker-network podman --docker-terminate never --python $(python); set +x
+endif
 	rm tests/integration/db_engine_version
 	rm tests/integration/connector
 	rm tests/integration/python
 	rm tests/integration/ansible
+ifndef keep_containers_alive
 	podman stop --time 0 --ignore primary
 	podman stop --time 0 --ignore replica1
 	podman stop --time 0 --ignore replica2
 	podman rm --ignore primary
 	podman rm --ignore replica1
 	podman rm --ignore replica2
+endif

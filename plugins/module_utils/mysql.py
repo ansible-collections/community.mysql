@@ -10,7 +10,7 @@
 # Simplified BSD License (see licenses/simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
 
 from __future__ import (absolute_import, division, print_function)
-from pkg_resources import parse_version
+from functools import reduce
 __metaclass__ = type
 
 import os
@@ -92,7 +92,8 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
         config['connect_timeout'] = connect_timeout
     if check_hostname is not None:
         if mysql_driver.__name__ == "pymysql":
-            if parse_version(mysql_driver.__version__) >= parse_version("0.7.11"):
+            version_tuple = (n for n in mysql_driver.__version__.split('.') if n != 'None')
+            if reduce(lambda x, y: int(x) * 100 + int(y), version_tuple) >= 711:
                 config['ssl']['check_hostname'] = check_hostname
             else:
                 module.fail_json(msg='To use check_hostname, pymysql >= 0.7.11 is required on the target host')

@@ -1,5 +1,5 @@
 ---
-name: Docker Image CI
+name: Docker Image CI my80-py310-mysqlclient211
 
 on:
   push:
@@ -7,13 +7,13 @@ on:
       - main
       - lie_tests_using_containers
     paths:
-      - 'test-containers/**'
-      - '.github/workflows/docker-image.yml'
+      - 'test-containers/my80-py310-mysqlclient211/**'
+      - '.github/workflows/docker-image-my80-py310-mysqlclient211.yml'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.actor }}/test-container-
-  CONTEXT: test-containers
+  IMAGE_NAME: ${{ github.actor }}/test-container-my80-py310-mysqlclient211
+  CONTEXT: test-containers/my80-py310-mysqlclient211
 
 jobs:
 
@@ -23,24 +23,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-    strategy:
-      matrix:
-        include:
-          - subfolder: mariadb103-py38-mysqlclient201
-          - subfolder: mariadb103-py38-pymysql093
-          - subfolder: mariadb103-py39-mysqlclient203
-          - subfolder: mariadb103-py39-pymysql093
-          - subfolder: mariadb106-py310-mysqlclient211
-          - subfolder: mariadb106-py310-pymysql102
-          - subfolder: my57-py38-mysqlclient201
-          - subfolder: my57-py38-pymysql0711
-          - subfolder: my57-py38-pymysql093
-          - subfolder: my80-py310-mysqlclient211
-          - subfolder: my80-py310-pymysql102
-          - subfolder: my80-py38-mysqlclient201
-          - subfolder: my80-py38-pymysql093
-          - subfolder: my80-py39-mysqlclient203
-          - subfolder: my80-py39-pymysql093
 
     steps:
       - name: Checkout repository
@@ -60,7 +42,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images:
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.subfolder }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       # Setting up Docker Buildx with docker-container driver is required
       # at the moment to be able to use a subdirectory with Git context
@@ -78,9 +60,9 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v3
         with:
-          context: ${{ env.CONTEXT }}/${{ matrix.subfolder }}
+          context: ${{ env.CONTEXT }}
           push: true
-          tags: ${{ steps.meta.outputs.tags }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.subfolder }}:latest
+          tags: ${{ steps.meta.outputs.tags }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

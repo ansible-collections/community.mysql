@@ -207,13 +207,14 @@ slave_hosts:
   sample:
   - { "2": { "Host": "", "Master_id": 1, "Port": 3306 } }
 connector_name:
-  description: The python connector name used by the plugins
+  description: Name of the python connector used by the plugin. When the driver is not identified, returns C(Unknown).
   returned: always
   type: str
   sample:
   - "pymysql"
+  - "MySQLdb"
 connector_version:
-  description: The python connector version used by the plugins
+  description: Version of the python connector used by the plugin. When the driver is not identified, returns C(Unknown).
   returned: always
   type: str
   sample:

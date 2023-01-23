@@ -38,27 +38,41 @@ mysql_driver_fail_msg = ('A MySQL module is required: for Python 2.7 either PyMy
 
 def get_driver_name(mysql_driver):
     """ (class) -> str
-    Return the name of the driver (pymysql or mysqlclient (MySQLdb)).
+    Return the name of the driver (pymysql or mysqlclient (MySQLdb))
+    or 'Unknown' if the driver name is not pymysql or MySQLdb. When adding a
+    connector here, also modify get_driver_version.
     """
+    if mysql_driver is None or not hasattr(mysql_driver, '__name__'):
+        return 'Unknown'
+
+    if mysql_driver.__name__ not in ['pymysql', 'MySQLdb']:
+        return 'Unknown'
+
     return mysql_driver.__name__
 
 
 def get_driver_version(mysql_driver):
     """ (class) -> str
     Return the version of pymysql or mysqlclient (MySQLdb).
+    If the driver name is unknown, this method also return 'Unknown'
     """
 
-    if mysql_driver is None or mysql_driver.__name__ not in ['pymysql', 'MySQLdb']:
+    if mysql_driver is None:
         return 'Unknown'
 
-    if mysql_driver.__name__ == 'pymysql':
+    driver_name = get_driver_name(mysql_driver)
+
+    if driver_name == 'Unknown':
+        return 'Unknown'
+
+    if driver_name == 'pymysql':
         # pymysql has two methods:
         # - __version__ that returns the string: 0.7.11.None
         # - VERSION that returns the tupple (0, 7, 11, None)
         v = mysql_driver.VERSION[:3]
         return '.'.join(map(str, v))
 
-    if mysql_driver.__name__ == 'MySQLdb':
+    if driver_name == 'MySQLdb':
         # version_info returns the tuple (2, 1, 1, 'final', 0)
         v = mysql_driver.version_info[:3]
         return '.'.join(map(str, v))

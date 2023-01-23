@@ -1,0 +1,7 @@
+---
+minor_changes:
+  - mysql_info - Add connector_name and connector_version to returned value
+  - Integration tests - Add more versions of MariaDB
+  - Integration tests - Carefully verify every component of the tests in the new target 'setup_controller' to ensure expected versions are correct Python, Ansible, connector and MySQL/MariaDB.
+  - Integration tests - Add tools to test locally the same as on GHA by using same containers and virtualenv. Custom test containers are published in ghcr.io by this repo's workflows. MySQL/MariaDB are official Docker Hub images.
+  - Integration tests - New name for many tasks to makes it easier to find failing tests. Rename duplicates. Add name for tasks which doesn't had one, refactor some tests files to better group tests by subject, ...

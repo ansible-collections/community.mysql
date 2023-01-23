@@ -42,7 +42,7 @@ options:
     description:
     - Includes names of empty databases to returned dictionary.
     type: bool
-    default: no
+    default: false
 
 notes:
 - Calculating the size of a database might be slow, depending on the number and size of tables in it.
@@ -96,14 +96,14 @@ EXAMPLES = r'''
     filter: "!settings,!users"
 
 - name: Collect info about databases and version using ~/.my.cnf as a credential file
-  become: yes
+  become: true
   community.mysql.mysql_info:
     filter:
     - databases
     - version
 
 - name: Collect info about databases and version using ~alice/.my.cnf as a credential file
-  become: yes
+  become: true
   community.mysql.mysql_info:
     config_file: /home/alice/.my.cnf
     filter:
@@ -111,13 +111,13 @@ EXAMPLES = r'''
     - version
 
 - name: Collect info about databases including empty and excluding their sizes
-  become: yes
+  become: true
   community.mysql.mysql_info:
     config_file: /home/alice/.my.cnf
     filter:
     - databases
     exclude_fields: db_size
-    return_empty_dbs: yes
+    return_empty_dbs: true
 '''
 
 RETURN = r'''

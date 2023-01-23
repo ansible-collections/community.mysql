@@ -22,6 +22,7 @@ The Makefile accept the following options:
 - **python**: The python version to use in the controller.
 - **target** : If omitted, all test targets will run. But you can limit the tests to a single target to speed up your tests.
 - **keep_containers_alive**: This option keeps all tree databases containers and the ansible-test container alive at the end of tests or in case of failure. This is useful to enter one of the containers with `podman exec -it <container-name> bash` for debugging.
+- **continue_on_errors**: Tells ansible-test to retry on errors and also continue on errors. This is the way the GitHub Action's workflow runs the tests. If you develop a new target, this option can be used to validate that your tests cleanup everything so a new run can restart without errors like "Failed to create database x because it already exists".
 
 Examples:
 

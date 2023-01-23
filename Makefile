@@ -1,5 +1,16 @@
 SHELL := /bin/bash
 
+# To tell ansible-test and Make to not kill the containers on failure or
+# end of tests. Disabled by default.
+ifdef keep_containers_alive
+	_keep_containers_alive = --docker-terminate never
+endif
+
+# This match what GitHub Action will do. Disabled by default.
+ifdef continue_on_errors
+	_continue_on_errors = --retry-on-error --continue-on-error
+endif
+
 .PHONY: test-integration
 test-integration:
 	echo -n $(db_engine_version) > tests/integration/db_engine_version
@@ -52,11 +63,7 @@ test-integration:
 	python -m venv .venv/$(ansible)
 	source .venv/$(ansible)/bin/activate
 	python -m pip install --disable-pip-version-check --user https://github.com/ansible/ansible/archive/$(ansible).tar.gz ansible-test
-ifdef keep_containers_alive
-	-set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker $(docker_image) --docker-network podman --docker-terminate never --python $(python); set +x
-else
-	-set -x; ansible-test integration $(target) -v --color --coverage --retry-on-error --continue-on-error --diff --docker $(docker_image) --docker-network podman --python $(python); set +x
-endif
+	-set -x; ansible-test integration $(target) -v --color --coverage --diff --docker $(docker_image) --docker-network podman $(_continue_on_errors) $(_keep_containers_alive) --python $(python); set +x
 	rm tests/integration/db_engine_version
 	rm tests/integration/connector
 	rm tests/integration/python

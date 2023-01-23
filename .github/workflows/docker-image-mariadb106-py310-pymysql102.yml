@@ -5,7 +5,6 @@ on:
   push:
     branch:
       - main
-      - lie_tests_using_containers
     paths:
       - 'test-containers/mariadb106-py310-pymysql102/**'
       - '.github/workflows/docker-image-mariadb106-py310-pymysql102.yml'

@@ -1,18 +1,18 @@
 ---
 name: Plugins CI
 on:
-  # push:
-  #   paths:
-  #     - 'plugins/**'
-  #     - 'tests/**'
-  #     - '.github/workflows/ansible-test-plugins.yml'
+  push:
+    paths:
+      - 'plugins/**'
+      - 'tests/**'
+      - '.github/workflows/ansible-test-plugins.yml'
   pull_request:
     paths:
       - 'plugins/**'
       - 'tests/**'
       - '.github/workflows/ansible-test-plugins.yml'
-  # schedule:
-  #   - cron: '0 6 * * *'
+  schedule:
+    - cron: '0 6 * * *'
 
 
 jobs:

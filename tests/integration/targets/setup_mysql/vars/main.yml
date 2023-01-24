@@ -24,7 +24,7 @@ install_python_prereqs:
   - build-essential
 
 mysql_tarball: "mysql-{{ mysql_version }}-linux-glibc2.12-x86_64.tar.{{ mysql_compression_extension }}"
-mysql_src: "https://dev.mysql.com/get/Downloads/MySQL-{{ mysql_major_version }}/{{ mysql_tarball }}"
+mysql_src: "https://cdn.mysql.com/archives/mysql-{{ mysql_major_version }}/{{ mysql_tarball }}"
 mariadb_url_subdir: "linux"
 mariadb_tarball: "mariadb-{{ mariadb_version }}-{{ mariadb_url_subdir }}-x86_64.tar.gz"
 mariadb_src: "https://downloads.mariadb.com/MariaDB/mariadb-{{ mariadb_version }}/bintar-{{ mariadb_url_subdir }}-x86_64/{{ mariadb_tarball }}"

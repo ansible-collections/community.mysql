@@ -47,8 +47,6 @@ jobs:
           - mysql_5.7.31
           - mysql_8.0.22
           - mariadb_10.3.34
-          # When adding later versions below,
-          # also change the "Set MariaDB URL sub dir" task
           - mariadb_10.8.3
         ansible:
           - stable-2.12
@@ -99,14 +97,12 @@ jobs:
             DB_ENGINE_PRETTY=$([[ "${DB_ENGINE}" == 'mysql' ]] && echo 'MySQL' || echo 'MariaDB');
             >&2 echo Matrix factor for the DB is ${{ matrix.db_engine_version }}...;
             >&2 echo Setting ${DB_ENGINE_PRETTY} version to ${DB_VERSION}...;
-            sed -i -e "s/^${DB_ENGINE}_version:.*/${DB_ENGINE}_version: $DB_VERSION/g" -e 's/^mariadb_install: false/mariadb_install: true/g' '${{ env.mysql_version_file }}';
-            ${{
-              matrix.db_engine_version == 'mariadb_10.8.3'
-              && format(
-                '>&2 echo Set MariaDB v10.8.3 URL sub dir...; sed -i -e "s/^mariadb_url_subdir:.*/mariadb_url_subdir: linux-systemd/g" "{0}";', env.connector_version_file
-              )
-              || ''
-            }}
+            sed -i -e "s/^${DB_ENGINE}_version:.*/${DB_ENGINE}_version: $DB_VERSION/g" '${{ env.mysql_version_file }}';
+            if [[ ${{ matrix.db_engine_version }} == mariadb* ]];
+            then
+              echo Set MariaDB install flag...; sed -i -e "s/^mariadb_install: false/mariadb_install: true/g" '${{ env.mysql_version_file }}';
+              echo Set MariaDB v10.8.3 URL sub dir...; sed -i -e "s/^mariadb_url_subdir:.*/mariadb_url_subdir: linux-systemd/g" '${{ env.connector_version_file }}';
+            fi;
             >&2 echo Setting Connector version to ${{ matrix.connector }}...;
             sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }}
           target-python-version: ${{ matrix.python }}

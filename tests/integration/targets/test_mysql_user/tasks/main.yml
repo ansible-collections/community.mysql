@@ -62,12 +62,32 @@
         name: '{{user_name_1}}'
         password: '{{user_password_1}}'
         state: present
+        session_vars:
+          sort_buffer_size: 1024
       register: result
 
     - name: assert output message mysql user was not created
       assert:
         that:
           - result is not changed
+
+    # Try to set wrong session variable, must fail
+    - name: create mysql user trying to set global variable which is forbidden
+      mysql_user:
+        <<: *mysql_params
+        name: '{{user_name_1}}'
+        password: '{{user_password_1}}'
+        state: present
+        session_vars:
+          max_connections: 1000
+      register: result
+      ignore_errors: true 
+
+    - name: we cannot set a global variable
+      assert:
+        that:
+          - result is failed
+          - result.msg is search('is a GLOBAL variable')
 
     # ============================================================
     # remove mysql user and verify user is removed from mysql database

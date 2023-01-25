@@ -2,6 +2,10 @@
 name: Docker Image CI mariadb103-py38-mysqlclient201
 
 on:
+  pull_request:
+    paths:
+      - 'test-containers/mariadb103-py38-mysqlclient201/**'
+      - '.github/workflows/docker-image-mariadb103-py38-mysqlclient201.yml'
   push:
     branch:
       - main

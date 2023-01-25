@@ -51,7 +51,7 @@ jobs:
           # test "Assert that startreplica is not changed" failed
 
           # ==================================================================
-          # MySQL 5.7 + Python 3.8
+          # mysql-client 5.7 + Python 3.8
           # ==================================================================
           - ansible: stable-2.12
             db_engine_version: mysql:5.7.40
@@ -71,7 +71,7 @@ jobs:
 
 
           # ==================================================================
-          # MySQL 8 + Python 3.8
+          # mysql-client 8 + Python 3.8
           # ==================================================================
           - ansible: stable-2.12
             db_engine_version: mysql:8.0.31
@@ -86,7 +86,7 @@ jobs:
 
 
           # ==================================================================
-          # MySQL 8 + Python 3.9
+          # mysql-client 8 + Python 3.9
           # ==================================================================
           - ansible: stable-2.13
             db_engine_version: mysql:8.0.31
@@ -112,7 +112,7 @@ jobs:
 
 
           # ==================================================================
-          # MySQL 8 + Python 3.10
+          # mysql-client 8 + Python 3.10
           # ==================================================================
           # - ansible: stable-2.13
           #   db_engine_version: mysql:8.0.31
@@ -148,7 +148,7 @@ jobs:
             docker_image: ghcr.io/community.mysql/test-container-my80-py310-mysqlclient211:latest
 
           # ==================================================================
-          # MariaDB 10.3 + Python 3.8
+          # mariadb-client 10.3 + Python 3.8
           # ==================================================================
           - ansible: stable-2.12
             db_engine_version: mariadb:10.4.27
@@ -173,7 +173,7 @@ jobs:
 
 
           # ==================================================================
-          # MariaDB 10.3 + Python 3.9
+          # mariadb-client 10.3 + Python 3.9
           # ==================================================================
           - ansible: stable-2.13
             db_engine_version: mariadb:10.4.27
@@ -219,7 +219,7 @@ jobs:
 
 
           # ==================================================================
-          # MariaDB 10.6 + Python 3.10
+          # mariadb-client 10.6 + Python 3.10
           # ==================================================================
           # - ansible: stable-2.13
           #   db_engine_version: mariadb:10.5.18

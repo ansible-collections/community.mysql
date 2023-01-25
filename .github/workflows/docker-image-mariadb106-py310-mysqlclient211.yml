@@ -3,8 +3,6 @@ name: Docker Image CI mariadb106-py310-mysqlclient211
 
 on:
   push:
-    branch:
-      - main
     paths:
       - 'test-containers/mariadb106-py310-mysqlclient211/**'
       - '.github/workflows/docker-image-mariadb106-py310-mysqlclient211.yml'

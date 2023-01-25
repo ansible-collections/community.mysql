@@ -3,8 +3,6 @@ name: Docker Image CI mariadb103-py38-pymysql093
 
 on:
   push:
-    branch:
-      - main
     paths:
       - 'test-containers/mariadb103-py38-pymysql093/**'
       - '.github/workflows/docker-image-mariadb103-py38-pymysql093.yml'

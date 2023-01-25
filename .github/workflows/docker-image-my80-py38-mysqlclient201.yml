@@ -3,8 +3,6 @@ name: Docker Image CI my80-py38-mysqlclient201
 
 on:
   push:
-    branch:
-      - main
     paths:
       - 'test-containers/my80-py38-mysqlclient201/**'
       - '.github/workflows/docker-image-my80-py38-mysqlclient201.yml'

@@ -3,8 +3,6 @@ name: Docker Image CI my57-py38-pymysql0711
 
 on:
   push:
-    branch:
-      - main
     paths:
       - 'test-containers/my57-py38-pymysql0711/**'
       - '.github/workflows/docker-image-my57-py38-pymysql0711.yml'

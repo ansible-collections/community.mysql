@@ -235,6 +235,12 @@ options:
     choices: ["stream", "on", "off"]
     type: str
     version_added: 3.6.0
+  assign_gtids_to_annonymous_transactions:
+    description:
+    - Same as the C(ASSIGN_GTIDS_TO_ANNONYMOUS_TRANSACTIONS) mysql variable.
+    - Choices: ["OFF", "LOCAL", uuid]
+    type: str
+    version_added: 3.6.0
   source_connection_auto_failover:
     description:
     - Same as mysql variable.
@@ -272,6 +278,12 @@ options:
     description:
     - Same as mysql variable.
     type: str
+    version_added: 3.6.0
+  gtid_only:
+    description:
+    - Same as mysql variable.
+    type: bool
+    default: False
     version_added: 3.6.0
   connection_name:
     description:
@@ -391,6 +403,7 @@ queries:
 '''
 
 import os
+import re
 import warnings
 
 from ansible.module_utils.basic import AnsibleModule
@@ -591,10 +604,12 @@ def main():
         do_domain_ids=dict(type='list', elements="str"),
         ignore_domain_ids=dict(type='list', elements="str"),
         primary_delay=dict(type='int', aliases=['master_delay']),
+        gtid_only=dict(type='bool', default=False)
         connection_name=dict(type='str'),
         privilege_checks_user=dict(type='str', choices=['account']),
         require_row_format=dict(type='bool', default=False),
         require_table_primary_key_check=dict(type='str', choices=['stream', 'on', 'off']),
+        assign_gtids_to_anonymous_transactions=dict(type='str')
         source_connection_auto_failover=dict(type='bool', default=False),
         network_namespace=dict(type='str'),
         channel=dict(type='str'),
@@ -641,6 +656,9 @@ def main():
     privilege_checks_user = module.params["privilege_checks_user"]
     require_row_format = module.params["require_row_format"]
     require_table_primary_key_check = module.params["require_table_primary_key_check"]
+    assign_gtids_to_anonymous_transactions = module.params["assign_gtids_to_anonymous_transactions"]
+    if re.fullmatch(r'^(?:[0-9A-F]{8}-[0-9A-F]{4}-[1-5][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}|off|local)$', assign_gtids_to_anonymous_transactions, re.I) is None:
+      module.fail_json(msg="assign_gtids_to_anonymous_transactions must be a UUID, 'OFF' or 'LOCAL'")
     source_connection_auto_failover = module.params["source_connection_auto_failover"]
     network_namespace = module.params["network_namespace"]
     ssl_cert = module.params["client_cert"]
@@ -654,6 +672,7 @@ def main():
         primary_use_gtid = 'no'
     else:
         primary_use_gtid = module.params["primary_use_gtid"]
+    gtid_only = module.params["gtid_only"]
     connection_name = module.params["connection_name"]
     channel = module.params['channel']
     fail_on_error = module.params['fail_on_error']
@@ -790,10 +809,17 @@ def main():
             chm.append("REQUIRE_ROW_FORMAT=1")
         if require_table_primary_key_check is not None:
             chm.append("REQUIRE_TABLE_PRIMARY_KEY_CHECK='%s'" % require_table_primary_key_check)
+        if assign_gtids_to_anonymous_transactions is not None:
+            chm.append("ASSIGN_GTIDS_TO_ANONYMOUS_FUNCTION='%s'" % assign_gtids_to_anonymous_transactions)
         if source_connection_auto_failover:
             chm.append("SOURCE_CONNECTION_AUTO_FAILOVER=1")
         if network_namespace is not None:
             chm.append("NETWORK_NAMESPACE='%s'" % network_namespace)
+        if gtid_only is not None:
+            if gtid_only:
+                chm.append("GTID_ONLY=1")
+            else:
+                chm.append("GTID_ONLY=0")
         try:
             changeprimary(cursor, chm, connection_name, channel)
         except mysql_driver.Warning as e:

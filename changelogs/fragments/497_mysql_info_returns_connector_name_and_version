@@ -1,3 +1,0 @@
----
-minor_changes:
-  - mysql_info - add connector_name and connector_version to returned values

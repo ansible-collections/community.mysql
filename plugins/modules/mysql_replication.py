@@ -604,12 +604,12 @@ def main():
         do_domain_ids=dict(type='list', elements="str"),
         ignore_domain_ids=dict(type='list', elements="str"),
         primary_delay=dict(type='int', aliases=['master_delay']),
-        gtid_only=dict(type='bool', default=False)
+        gtid_only=dict(type='bool', default=False),
         connection_name=dict(type='str'),
         privilege_checks_user=dict(type='str', choices=['account']),
         require_row_format=dict(type='bool', default=False),
         require_table_primary_key_check=dict(type='str', choices=['stream', 'on', 'off']),
-        assign_gtids_to_anonymous_transactions=dict(type='str')
+        assign_gtids_to_anonymous_transactions=dict(type='str'),
         source_connection_auto_failover=dict(type='bool', default=False),
         network_namespace=dict(type='str'),
         channel=dict(type='str'),
@@ -657,7 +657,7 @@ def main():
     require_row_format = module.params["require_row_format"]
     require_table_primary_key_check = module.params["require_table_primary_key_check"]
     assign_gtids_to_anonymous_transactions = module.params["assign_gtids_to_anonymous_transactions"]
-    if re.fullmatch(r'^(?:[0-9A-F]{8}-[0-9A-F]{4}-[1-5][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}|off|local)$', assign_gtids_to_anonymous_transactions, re.I) is None:
+    if assign_gtids_to_anonymous_transactions is not None and re.fullmatch(r'^(?:[0-9A-F]{8}-[0-9A-F]{4}-[1-5][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}|off|local)$', assign_gtids_to_anonymous_transactions, re.I) is None:
       module.fail_json(msg="assign_gtids_to_anonymous_transactions must be a UUID, 'OFF' or 'LOCAL'")
     source_connection_auto_failover = module.params["source_connection_auto_failover"]
     network_namespace = module.params["network_namespace"]
@@ -745,11 +745,11 @@ def main():
         if primary_port is not None:
             chm.append("MASTER_PORT=%s" % primary_port)
         if primary_heartbeat_period is not None:
-            chm.append("MASTER_HEARTBEAT_PERIOD='%s'" % primary_heartbeat_period)
+            chm.append("MASTER_HEARTBEAT_PERIOD=%s" % primary_heartbeat_period)
         if primary_connect_retry is not None:
             chm.append("MASTER_CONNECT_RETRY=%s" % primary_connect_retry)
         if primary_retry_count is not None:
-            chm.append("MASTER_RETRY_COUNT='%s'" % primary_retry_count)
+            chm.append("MASTER_RETRY_COUNT=%s" % primary_retry_count)
         if primary_log_file is not None:
             chm.append("MASTER_LOG_FILE='%s'" % primary_log_file)
         if primary_log_pos is not None:
@@ -784,7 +784,7 @@ def main():
         if primary_compression_algorithms is not None:
             chm.append("MASTER_COMPRESSION_ALGORITHMS='%s'" % primary_compression_algorithms)
         if primary_zstd_compression_level is not None:
-            chm.append("MASTER_ZSTD_COMPRESSION_LEVEL='%s'" % primary_zstd_compression_level)
+            chm.append("MASTER_ZSTD_COMPRESSION_LEVEL=%s" % primary_zstd_compression_level)
         if primary_tls_ciphersuites is not None:
             chm.append("MASTER_TLS_CIPHERSUITES='%s'" % primary_tls_ciphersuites)
         if primary_public_key_path is not None:
@@ -798,11 +798,11 @@ def main():
         if primary_use_gtid is not None:
             chm.append("MASTER_USE_GTID=%s" % primary_use_gtid)
         if ignore_server_ids:
-            chm.append("IGNORE_SERVER_IDS='%s'" % ','.join(ignore_server_ids))
+            chm.append("IGNORE_SERVER_IDS=(%s)" % ','.join(ignore_server_ids))
         if do_domain_ids:
-            chm.append("DO_DOMAIN_IDS='%s'" % ','.join(do_domain_ids))
+            chm.append("DO_DOMAIN_IDS=(%s)" % ','.join(do_domain_ids))
         if ignore_domain_ids:
-            chm.append("IGNORE_DOMAIN_IDS='%s'" % ','.join(ignore_domain_ids))
+            chm.append("IGNORE_DOMAIN_IDS=(%s)" % ','.join(ignore_domain_ids))
         if privilege_checks_user is not None:
             chm.append("PRIVILEGE_CHECKS_USER='%s'" % privilege_checks_user)
         if require_row_format:
@@ -815,7 +815,7 @@ def main():
             chm.append("SOURCE_CONNECTION_AUTO_FAILOVER=1")
         if network_namespace is not None:
             chm.append("NETWORK_NAMESPACE='%s'" % network_namespace)
-        if gtid_only is not None:
+        if gtid_only is not None and impl.supports_gtid_only(cursor):
             if gtid_only:
                 chm.append("GTID_ONLY=1")
             else:

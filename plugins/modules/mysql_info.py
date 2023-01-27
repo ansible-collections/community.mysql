@@ -231,8 +231,8 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_common_argument_spec,
     mysql_driver,
     mysql_driver_fail_msg,
-    get_driver_name,
-    get_driver_version,
+    get_connector_name,
+    get_connector_version,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -575,8 +575,8 @@ def main():
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
 
-    driver_name = get_driver_name(mysql_driver)
-    driver_version = get_driver_version(mysql_driver)
+    connector_name = get_connector_name(mysql_driver)
+    connector_version = get_connector_version(mysql_driver)
 
     try:
         cursor, db_conn = mysql_connect(module, login_user, login_password,
@@ -586,7 +586,7 @@ def main():
     except Exception as e:
         msg = ('unable to connect to database using %s %s, check login_user '
                'and login_password are correct or %s has the credentials. '
-               'Exception message: %s' % (driver_name, driver_version, config_file, to_native(e)))
+               'Exception message: %s' % (connector_name, connector_version, config_file, to_native(e)))
         module.fail_json(msg)
 
     ###############################
@@ -595,8 +595,8 @@ def main():
     mysql = MySQL_Info(module, cursor)
 
     module.exit_json(changed=False,
-                     connector_name=driver_name,
-                     connector_version=driver_version,
+                     connector_name=connector_name,
+                     connector_version=connector_version,
                      **mysql.get_info(filter_, exclude_fields, return_empty_dbs))
 
 

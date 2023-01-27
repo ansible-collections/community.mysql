@@ -38,41 +38,41 @@ mysql_driver_fail_msg = ('A MySQL module is required: for Python 2.7 either PyMy
 from ansible_collections.community.mysql.plugins.module_utils.database import mysql_quote_identifier
 
 
-def get_driver_name(mysql_driver):
+def get_connector_name(connector):
     """ (class) -> str
-    Return the name of the driver (pymysql or mysqlclient (MySQLdb))
-    or 'Unknown' if the driver name is not pymysql or MySQLdb. When adding a
-    connector here, also modify get_driver_version.
+    Return the name of the connector (pymysql or mysqlclient (MySQLdb))
+    or 'Unknown' if not pymysql or MySQLdb. When adding a
+    connector here, also modify get_connector_version.
     """
-    if mysql_driver is None or not hasattr(mysql_driver, '__name__'):
+    if connector is None or not hasattr(connector, '__name__'):
         return 'Unknown'
 
-    if mysql_driver.__name__ not in ['pymysql', 'MySQLdb']:
+    if connector.__name__ not in ['pymysql', 'MySQLdb']:
         return 'Unknown'
 
-    return mysql_driver.__name__
+    return connector.__name__
 
 
-def get_driver_version(mysql_driver):
+def get_connector_version(connector):
     """ (class) -> str
     Return the version of pymysql or mysqlclient (MySQLdb).
-    If the driver name is unknown, this method also return 'Unknown'.
+    Return 'Unknown' if the connector name is unknown.
     """
 
-    if mysql_driver is None:
+    if connector is None:
         return 'Unknown'
 
-    driver_name = get_driver_name(mysql_driver)
+    connector_name = get_connector_name(connector)
 
-    if driver_name == 'pymysql':
+    if connector_name == 'pymysql':
         # pymysql has two methods:
         # - __version__ that returns the string: 0.7.11.None
         # - VERSION that returns the tuple (0, 7, 11, None)
-        v = mysql_driver.VERSION[:3]
+        v = connector.VERSION[:3]
         return '.'.join(map(str, v))
-    elif driver_name == 'MySQLdb':
+    elif connector_name == 'MySQLdb':
         # version_info returns the tuple (2, 1, 1, 'final', 0)
-        v = mysql_driver.version_info[:3]
+        v = connector.version_info[:3]
         return '.'.join(map(str, v))
     else:
         return 'Unknown'

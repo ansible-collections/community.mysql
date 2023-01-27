@@ -215,7 +215,7 @@ connector_name:
   - "MySQLdb"
   version_added: '3.6.0'
 connector_version:
-  description: Version of the python connector used by the plugin. When the driver is not identified, returns C(Unknown).
+  description: Version of the python connector used by the module. When the connector is not identified, returns C(Unknown).
   returned: always
   type: str
   sample:

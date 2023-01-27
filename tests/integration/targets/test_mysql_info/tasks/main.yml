@@ -55,6 +55,10 @@
         - result.engines != {}
         - result.users != {}
 
+    - name: mysql_info - Test connector informations display
+      ansible.builtin.import_tasks:
+        file: connector_info.yml
+
     # Access by non-default cred file
     - name: mysql_info - check non-default cred file
       mysql_info:

@@ -1,0 +1,21 @@
+---
+# Added in 3.6.0 in
+# https://github.com/ansible-collections/community.mysql/pull/497
+
+# TODO: Refactor in PR490.
+- name: Connector info | Assert that connector_name exists and contains expected values
+  ansible.builtin.assert:
+    that:
+      - result.connector_name is defined
+      - result.connector_name ==  connector_name.split(' ')[0]
+    success_msg: Assertions passed, connector_name is {{ result.connector_name }}
+
+# TODO: Refactor in PR490.
+- name: Connector info | Assert that connector_version exists and contains expected values
+  ansible.builtin.assert:
+    that:
+      - result.connector_version is defined
+      - >
+        result.connector_version == 'Unknown'
+        or result.connector_version is version(connector_ver, '==')
+    success_msg: Assertions passed, connector_version is {{ result.connector_version }}

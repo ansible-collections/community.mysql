@@ -64,9 +64,6 @@ def get_driver_version(mysql_driver):
 
     driver_name = get_driver_name(mysql_driver)
 
-    if driver_name == 'Unknown':
-        return 'Unknown'
-
     if driver_name == 'pymysql':
         # pymysql has two methods:
         # - __version__ that returns the string: 0.7.11.None

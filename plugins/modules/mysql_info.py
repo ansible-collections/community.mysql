@@ -220,6 +220,7 @@ connector_version:
   type: str
   sample:
   - "1.0.2"
+  version_added: '3.6.0'
 '''
 
 from decimal import Decimal

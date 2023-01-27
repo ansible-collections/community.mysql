@@ -213,6 +213,7 @@ connector_name:
   sample:
   - "pymysql"
   - "MySQLdb"
+  version_added: '3.6.0'
 connector_version:
   description: Version of the python connector used by the plugin. When the driver is not identified, returns C(Unknown).
   returned: always

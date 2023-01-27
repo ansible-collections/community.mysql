@@ -67,7 +67,7 @@ def get_driver_version(mysql_driver):
     if driver_name == 'pymysql':
         # pymysql has two methods:
         # - __version__ that returns the string: 0.7.11.None
-        # - VERSION that returns the tupple (0, 7, 11, None)
+        # - VERSION that returns the tuple (0, 7, 11, None)
         v = mysql_driver.VERSION[:3]
         return '.'.join(map(str, v))
     elif driver_name == 'MySQLdb':

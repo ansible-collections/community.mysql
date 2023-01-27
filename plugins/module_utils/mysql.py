@@ -56,7 +56,7 @@ def get_driver_name(mysql_driver):
 def get_driver_version(mysql_driver):
     """ (class) -> str
     Return the version of pymysql or mysqlclient (MySQLdb).
-    If the driver name is unknown, this method also return 'Unknown'
+    If the driver name is unknown, this method also return 'Unknown'.
     """
 
     if mysql_driver is None:

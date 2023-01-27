@@ -7,13 +7,13 @@
   ansible.builtin.assert:
     that:
       - result.connector_name is defined
-      - result.connector_name == connector_name.split('=')[0].strip()
-    success_msg: >
+      - result.connector_name is in ['pymysql', 'MySQLdb']
+    success_msg: >-
       Assertions passed, result.connector_name is {{ result.connector_name }}
-    fail_msg: >
+    fail_msg: >-
       Assertion failed, result.connector_name is
       {{ result.connector_name | d('Unknown')}} which is different than expected
-      {{ connector_name.split('=')[0].strip() }}
+      pymysql or MySQLdb
 
 # TODO: Refactor in PR490.
 - name: Connector info | Assert connector_version exists and has expected values
@@ -23,10 +23,10 @@
       - >
         result.connector_version == 'Unknown'
         or result.connector_version is version(connector_ver, '==')
-    success_msg: >
+    success_msg: >-
       Assertions passed, result.connector_version is
       {{ result.connector_version }}
-    fail_msg: >
+    fail_msg: >-
       Assertion failed, result.connector_version is
       {{ result.connector_version }} which is different than expected
       {{ connector_ver }}

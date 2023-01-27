@@ -47,9 +47,6 @@ def get_connector_name(connector):
     if connector is None or not hasattr(connector, '__name__'):
         return 'Unknown'
 
-    if connector.__name__ not in ['pymysql', 'MySQLdb']:
-        return 'Unknown'
-
     return connector.__name__
 
 

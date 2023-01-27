@@ -70,11 +70,12 @@ def get_driver_version(mysql_driver):
         # - VERSION that returns the tupple (0, 7, 11, None)
         v = mysql_driver.VERSION[:3]
         return '.'.join(map(str, v))
-
-    if driver_name == 'MySQLdb':
+    elif driver_name == 'MySQLdb':
         # version_info returns the tuple (2, 1, 1, 'final', 0)
         v = mysql_driver.version_info[:3]
         return '.'.join(map(str, v))
+    else:
+        return 'Unknown'
 
 
 def parse_from_mysql_config_file(cnf):

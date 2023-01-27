@@ -207,7 +207,7 @@ slave_hosts:
   sample:
   - { "2": { "Host": "", "Master_id": 1, "Port": 3306 } }
 connector_name:
-  description: Name of the python connector used by the plugin. When the driver is not identified, returns C(Unknown).
+  description: Name of the python connector used by the module. When the connector is not identified, returns C(Unknown).
   returned: always
   type: str
   sample:

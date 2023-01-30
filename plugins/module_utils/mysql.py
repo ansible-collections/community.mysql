@@ -23,6 +23,7 @@ try:
     _mysql_cursor_param = 'cursor'
 except ImportError:
     try:
+        # mysqlclient is called MySQLdb
         import MySQLdb as mysql_driver
         import MySQLdb.cursors
         _mysql_cursor_param = 'cursorclass'
@@ -35,6 +36,43 @@ mysql_driver_fail_msg = ('A MySQL module is required: for Python 2.7 either PyMy
                          'the intended Python version.')
 
 from ansible_collections.community.mysql.plugins.module_utils.database import mysql_quote_identifier
+
+
+def get_connector_name(connector):
+    """ (class) -> str
+    Return the name of the connector (pymysql or mysqlclient (MySQLdb))
+    or 'Unknown' if not pymysql or MySQLdb. When adding a
+    connector here, also modify get_connector_version.
+    """
+    if connector is None or not hasattr(connector, '__name__'):
+        return 'Unknown'
+
+    return connector.__name__
+
+
+def get_connector_version(connector):
+    """ (class) -> str
+    Return the version of pymysql or mysqlclient (MySQLdb).
+    Return 'Unknown' if the connector name is unknown.
+    """
+
+    if connector is None:
+        return 'Unknown'
+
+    connector_name = get_connector_name(connector)
+
+    if connector_name == 'pymysql':
+        # pymysql has two methods:
+        # - __version__ that returns the string: 0.7.11.None
+        # - VERSION that returns the tuple (0, 7, 11, None)
+        v = connector.VERSION[:3]
+        return '.'.join(map(str, v))
+    elif connector_name == 'MySQLdb':
+        # version_info returns the tuple (2, 1, 1, 'final', 0)
+        v = connector.version_info[:3]
+        return '.'.join(map(str, v))
+    else:
+        return 'Unknown'
 
 
 def parse_from_mysql_config_file(cnf):

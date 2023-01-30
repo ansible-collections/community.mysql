@@ -58,6 +58,7 @@ seealso:
 author:
 - Andrew Klychkov (@Andersson007)
 - Sebastian Gumprich (@rndmh3ro)
+- Laurent Indermühle (@laurent-indermuehle)
 
 extends_documentation_fragment:
 - community.mysql.mysql

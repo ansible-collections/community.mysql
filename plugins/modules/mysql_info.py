@@ -214,14 +214,14 @@ connector_name:
   sample:
   - "pymysql"
   - "MySQLdb"
-  version_added: '3.6.0'
+  version_added: '2.4.0'
 connector_version:
   description: Version of the python connector used by the module. When the connector is not identified, returns C(Unknown).
   returned: always
   type: str
   sample:
   - "1.0.2"
-  version_added: '3.6.0'
+  version_added: '2.4.0'
 '''
 
 from decimal import Decimal

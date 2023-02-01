@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: community.mysql/test-container-mariadb103-py38-mysqlclient201
+  IMAGE_NAME: community-mysql/test-container-mariadb103-py38-mysqlclient201
   CONTEXT: test-containers/mariadb103-py38-mysqlclient201
 
 jobs:

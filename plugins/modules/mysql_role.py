@@ -1008,7 +1008,8 @@ def main():
                 cursor, db_conn = mysql_connect(module, 'root', '', config_file,
                                                 ssl_cert, ssl_key, ssl_ca, db,
                                                 connect_timeout=connect_timeout,
-                                                check_hostname=check_hostname)
+                                                check_hostname=check_hostname,
+                                                autocommit=True)
             except Exception:
                 pass
 
@@ -1016,7 +1017,8 @@ def main():
             cursor, db_conn = mysql_connect(module, login_user, login_password,
                                             config_file, ssl_cert, ssl_key,
                                             ssl_ca, db, connect_timeout=connect_timeout,
-                                            check_hostname=check_hostname)
+                                            check_hostname=check_hostname,
+                                            autocommit=True)
 
     except Exception as e:
         module.fail_json(msg='unable to connect to database, '

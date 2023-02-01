@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: community-mysql/test-container-mariadb103-py38-mysqlclient201
+  IMAGE_NAME: test-container-mariadb103-py38-mysqlclient201
   CONTEXT: test-containers/mariadb103-py38-mysqlclient201
 
 jobs:
@@ -39,7 +39,10 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images:
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            "${{ env.REGISTRY }}\
+            /${{ github.repository }}\
+            /${{ env.IMAGE_NAME }}"
+          tags: latest
 
       # Setting up Docker Buildx with docker-container driver is required
       # at the moment to be able to use a subdirectory with Git context
@@ -57,7 +60,7 @@ jobs:
         with:
           context: ${{ env.CONTEXT }}
           push: true
-          tags: ${{ steps.meta.outputs.tags }},${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

@@ -5,9 +5,9 @@ FROM quay.io/ansible/ubuntu2004-test-container:main
 # python3.8-dev                # Reqs for mysqlclient
 # default-libmysqlclient-dev   # Reqs for mysqlclient
 # build-essential              # Reqs for mysqlclient
-RUN apt update -y && \
-    DEBIAN_FRONTEND=noninteractive apt upgrade -y --no-install-recommends && \
-    DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
+RUN apt-get update -y && \
+    DEBIAN_FRONTEND=noninteractive apt-get upgrade -y --no-install-recommends && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     python3.8 \
     python3.8-dev \
     mariadb-client \

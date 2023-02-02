@@ -1,6 +1,6 @@
 ---
-bugfix:
-  - mysql_variables - Add uppercase character pattern to regex to allow GLOBAL
+bugfixes:
+  - mysql_variables - add uppercase character pattern to regex to allow GLOBAL
     variables containing uppercase characters.
-    This recognises variable names used in Galera, e.g. wsrep_OSU_method,
-    which break the normal pattern of all lowercase characters.
+    This recognizes variable names used in Galera, for example, ``wsrep_OSU_method``,
+    which breaks the normal pattern of all lowercase characters (https://github.com/ansible-collections/community.mysql/pull/501).

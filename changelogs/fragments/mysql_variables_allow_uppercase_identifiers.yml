@@ -1,0 +1,4 @@
+---
+bugfix:
+  - mysql_variables - Add uppercase character pattern to regex to allow GLOBAL variables containing uppercase characters.
+    This recognises variable names used in Galera, e.g. wsrep_OSU_method, which break the normal pattern of all lowercase characters.  

@@ -692,17 +692,19 @@ def privileges_revoke(cursor, user, host, db_table, priv, grant_option, maria_ro
         query = ' '.join(query)
         cursor.execute(query, (user, host))
     priv_string = ",".join([p for p in priv if p not in ('GRANT', )])
-    query = ["REVOKE %s ON %s" % (priv_string, db_table)]
 
-    if not maria_role:
-        query.append("FROM %s@%s")
-        params = (user, host)
-    else:
-        query.append("FROM %s")
-        params = (user,)
+    if priv_string != "":
+        query = ["REVOKE %s ON %s" % (priv_string, db_table)]
 
-    query = ' '.join(query)
-    cursor.execute(query, params)
+        if not maria_role:
+            query.append("FROM %s@%s")
+            params = (user, host)
+        else:
+            query.append("FROM %s")
+            params = (user,)
+
+        query = ' '.join(query)
+        cursor.execute(query, params)
     cursor.execute("FLUSH PRIVILEGES")
 
 

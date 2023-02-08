@@ -1,3 +1,0 @@
----
- minor_changes:
-   - mysql_role - enable auto_commit to avoid MySQL metadata table lock (https://github.com/ansible-collections/community.mysql/issues/479).

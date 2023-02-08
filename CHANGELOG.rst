@@ -5,6 +5,21 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v2.4.0
+=======
+
+Release Summary
+---------------
+
+This is a bugfix release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules and plugins in this collection
+that have been made after the previous release.
+
+Minor Changes
+-------------
+
+- mysql_info - add ``connector_name`` and ``connector_version`` to returned values (https://github.com/ansible-collections/community.mysql/pull/497).
+
 v2.3.9
 ======
 

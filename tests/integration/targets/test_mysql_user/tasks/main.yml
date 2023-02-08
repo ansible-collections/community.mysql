@@ -322,3 +322,5 @@
 
     # https://github.com/ansible-collections/community.mysql/issues/231
     - include: test_user_grants_with_roles_applied.yml
+
+    - include: revoke_only_grant.yml

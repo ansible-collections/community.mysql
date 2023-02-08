@@ -5,7 +5,7 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
-v2.3.11
+v2.4.0
 =======
 
 Release Summary

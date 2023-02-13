@@ -1,9 +1,16 @@
 # Tests
 
-This page describe how to run and extend integrations tests.
+This collection uses GitHub Actions to run ansible-test to validate its content. Three type of tests are used: Sanity, Integration and Units.
+
+The tests covers the code for plugins and roles (no role available yet, but tests are ready) and can be found here:
+
+- Plugins: *.github/workflows/ansible-test-plugins.yml*
+- Roles: *.github/workflows/ansible-test-roles.yml* (unused yet)
+
+Everytime you push on your fork or you create a pull request, both workflows runs. You can see the output on the "Actions" tab.
 
 
-## Testing locally
+## Integration tests
 
 You can use GitHub to run ansible-test either on the community repo or your fork. But sometimes you want to quickly test a single version or a single target. To do that, you can use the Makefile present at the root of this repository.
 

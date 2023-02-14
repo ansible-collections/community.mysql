@@ -8,7 +8,6 @@ try:
     from unittest.mock import MagicMock
 except ImportError:
     from mock import MagicMock
-
 from ansible_collections.community.mysql.plugins.module_utils.user import (
     handle_grant_on_col,
     has_grant_on_col,
@@ -16,7 +15,6 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     sort_column_order,
     handle_requiressl_in_priv_string
 )
-from ..utils import dummy_cursor_class
 
 
 @pytest.mark.parametrize(

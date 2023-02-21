@@ -18,7 +18,7 @@ For now, the makefile only support Podman.
 
 ### Requirements
 
-- python 3.8+
+- python >= 3.8 and <= 3.10
 - make
 
 
@@ -26,6 +26,7 @@ For now, the makefile only support Podman.
 
 The Makefile accept the following options:
 
+- **local_python_version**: This option can be omitted if your system has a version supported by Ansible. You can check with `python -V`.
 - **ansible**: Mandatory version of ansible to install in a venv to run ansible-test.
 - **docker_image**:
     The container image to use to run our tests. Those images Dockerfile are in https://github.com/community.mysql-test-containers and then pushed to quay.io: E.G.:
@@ -55,6 +56,8 @@ make ansible="stable-2.14" db_engine_version="mysql:8.0.31" python="3.9" connect
 # Kill containers before rerun tests after using `keep_containers_alive=1`
 podman stop -a; podman rm -a; make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connector="pymysql==0.7.10" docker_image="ghcr.io/community.mysql/test-container-my57-py38-pymysql0711:latest" target="test_mysql_db" keep_containers_alive=1
 
+# If your system has an usupported version of Python:
+make local_python_version="3.8" ansible="stable-2.14" db_engine_version="mariadb:10.6.11" python="3.9" connector="pymysql==0.9.3" docker_image="ghcr.io/community.mysql/test-container-mariadb103-py39-pymysql093:latest"
 ```
 
 

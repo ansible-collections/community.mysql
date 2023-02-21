@@ -50,7 +50,7 @@ make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connect
 
 # Keep databases and ansible tests containers alives
 # A single target
-make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connector="pymysql==0.7.10" docker_image="ghcr.io/community.mysql/test-container-my80-py39-mysqlclient203:latest" target="test_mysql_db" keep_containers_alive=1
+make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connector="pymysql==0.7.10" docker_image="ghcr.io/community.mysql/test-container-my80-py39-mysqlclient203:latest" target="test_mysql_db" keep_containers_alive=1 continue_on_errors=1
 
 # Rerun tests after using `keep_containers_alive=1`
 podman stop -a; podman rm -a; make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connector="pymysql==0.7.10" docker_image="ghcr.io/community.mysql/test-container-my80-py39-mysqlclient203:latest" target="test_mysql_db" keep_containers_alive=1

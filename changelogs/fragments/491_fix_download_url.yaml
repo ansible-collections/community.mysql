@@ -1,3 +1,0 @@
----
-minor_changes:
-  - setup_mysql - update MySQL tarball URL (https://github.com/ansible-collections/community.mysql/pull/491).

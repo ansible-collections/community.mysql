@@ -1,2 +1,0 @@
-minor_changes:
-- mysql_user - add the ``session_vars`` argument to set session variables at the beginning of module execution (https://github.com/ansible-collections/community.mysql/issues/478).

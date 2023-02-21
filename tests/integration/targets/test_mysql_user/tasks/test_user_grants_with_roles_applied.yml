@@ -76,7 +76,7 @@
       mysql_db:
         <<: *mysql_params
         name: '{{ item }}'
-        state: present
+        state: absent
       loop:
         - data1
         - data2

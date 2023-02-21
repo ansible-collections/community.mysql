@@ -62,7 +62,8 @@ test-integration:
 	mkdir -p .venv/$(ansible)
 	python -m venv .venv/$(ansible)
 	source .venv/$(ansible)/bin/activate
-	python -m pip install --disable-pip-version-check --user https://github.com/ansible/ansible/archive/$(ansible).tar.gz ansible-test
+	python -m ensurepip
+	python -m pip install --disable-pip-version-check --user https://github.com/ansible/ansible/archive/$(ansible).tar.gz
 	-set -x; ansible-test integration $(target) -v --color --coverage --diff --docker $(docker_image) --docker-network podman $(_continue_on_errors) $(_keep_containers_alive) --python $(python); set +x
 	rm tests/integration/db_engine_version
 	rm tests/integration/connector

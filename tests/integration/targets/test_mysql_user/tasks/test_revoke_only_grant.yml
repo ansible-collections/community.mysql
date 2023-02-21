@@ -3,17 +3,12 @@
     mysql_parameters: &mysql_params
       login_user: '{{ mysql_user }}'
       login_password: '{{ mysql_password }}'
-      login_host: 127.0.0.1
+      login_host: '{{ mysql_host }}'
       login_port: '{{ mysql_primary_port }}'
   block:
-    - name: Drop mysql user if exists
-      mysql_user:
-        <<: *mysql_params
-        name: '{{ user_name_1 }}'
-        state: absent
-      ignore_errors: true
+    - include: utils_remove_user.yml user_name={{ user_name_1 }}
 
-    - name: create user with two grants
+    - name: Revoke only grants | Create user with two grants
       mysql_user:
         <<: *mysql_params
         name: "{{ user_name_1 }}"
@@ -21,7 +16,7 @@
         update_password: on_create
         priv: '*.*:SELECT,GRANT'
 
-    - name: user must have only on priv, grant priv must be dropped
+    - name: Revoke only grants | Revoke grant priv from db_user1
       register: result
       mysql_user:
         <<: *mysql_params
@@ -30,12 +25,13 @@
         update_password: on_create
         priv: '*.*:SELECT'
 
-    - assert:
+    - name: Revoke only grants | Assert that db_user1 only have one priv left
+      assert:
         that:
           - result is not failed
           - result is changed
 
-    - name: immutable - user must have only on priv, grant priv must be dropped
+    - name: Revoke only grants | Update db_user1 again to test idempotence
       register: result
       mysql_user:
         <<: *mysql_params
@@ -44,15 +40,11 @@
         update_password: on_create
         priv: '*.*:SELECT'
 
-    - assert:
+    - name: Revoke only grants | Assert that task is idempotent
+      assert:
         that:
-          - result is not failed
+          - result is succeeded
           - result is not changed
 
   always:
-    - name: drop user
-      mysql_user:
-        <<: *mysql_params
-        name: '{{ user_name_1 }}'
-        state: absent
-      ignore_errors: true
+    - include: utils_remove_user.yml user_name={{ user_name_1 }}

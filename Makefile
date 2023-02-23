@@ -27,7 +27,7 @@ test-integration:
 		--network podman \
 		--publish 3307:3306 \
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
-		$(db_engine_version) \
+		docker.io/library/$(db_engine_version) \
 		mysqld
 	podman run \
 		--detach \
@@ -37,7 +37,7 @@ test-integration:
 		--network podman \
 		--publish 3308:3306 \
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
-		$(db_engine_version) \
+		docker.io/library/$(db_engine_version) \
 		mysqld
 	podman run \
 		--detach \
@@ -47,7 +47,7 @@ test-integration:
 		--network podman \
 		--publish 3309:3306 \
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
-		$(db_engine_version) \
+		docker.io/library/$(db_engine_version) \
 		mysqld
 	# Setup replication and restart containers
 	podman exec primary bash -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'

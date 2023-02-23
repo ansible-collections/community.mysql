@@ -17,6 +17,8 @@ test-integration:
 	echo -n $(connector) > tests/integration/connector
 	echo -n $(python) > tests/integration/python
 	echo -n $(ansible) > tests/integration/ansible
+	# Create podman network for systems missing it. Error can be ignored
+	podman network create podman || true
 	podman run \
 		--detach \
 		--name primary \

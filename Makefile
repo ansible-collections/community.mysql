@@ -76,5 +76,5 @@ test-integration:
 	rm tests/integration/ansible
 ifndef keep_containers_alive
 	podman stop --time 0 --ignore primary replica1 replica2
-	podman rm --ignore primary replica1 replica2
+	podman rm --ignore --volumes primary replica1 replica2
 endif

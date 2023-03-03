@@ -20,6 +20,8 @@ For now, the makefile only support Podman.
 
 - python >= 3.8 and <= 3.10
 - make
+- Minimum 15GB of free space on the device storing containers images and volumes. You can use this command to check: `podman system info --format='{{.Store.GraphRoot}}'|xargs findmnt --noheadings --nofsroot --output SOURCE --target|xargs df -h --output=size,used,avail,pcent,target`
+- Minimum 2GB of RAM
 
 
 ### Makefile options

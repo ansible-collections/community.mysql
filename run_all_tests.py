@@ -59,7 +59,7 @@ def main():
     workflow_yaml = read_github_workflow_file()
     tests_matrix_yaml = extract_matrix(workflow_yaml)
 
-    matrix = []
+    # matrix = []
     # exclude_list = tests_matrix_yaml.get('exclude')
     # for ansible in tests_matrix_yaml.get('ansible'):
     #     for db_engine in tests_matrix_yaml.get('db_engine_version'):

@@ -37,7 +37,8 @@ The Makefile accept the following options:
 - **connector**: The name of the python package of the connector along with its version number. Use '==' as a separator.
 - **python**: The python version to use in the controller.
 - **target** : If omitted, all test targets will run. But you can limit the tests to a single target to speed up your tests.
-- **keep_containers_alive**: This option keeps all tree databases containers and the ansible-test container alive at the end of tests or in case of failure. This is useful to enter one of the containers with `podman exec -it <container-name> bash` for debugging.
+- **keep_containers_alive**: This option keeps all tree databases containers and the ansible-test container alive at the end of tests or in case of failure. This is useful to enter one of the containers with `podman exec -it <container-name> bash` for debugging. Rerunning the
+test will recreate those containers.
 - **continue_on_errors**: Tells ansible-test to retry on errors and also continue on errors. This is the way the GitHub Action's workflow runs the tests. If you develop a new target, this option can be used to validate that your tests cleanup everything so a new run can restart without errors like "Failed to create database x because it already exists".
 
 Examples:
@@ -52,9 +53,6 @@ make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connect
 # Keep databases and ansible tests containers alives
 # A single target and continue on errors
 make ansible="stable-2.14" db_engine_version="mysql:8.0.31" python="3.9" connector="mysqlclient==2.0.3" docker_image="ghcr.io/community.mysql/test-container-my80-py39-mysqlclient203:latest" target="test_mysql_db" keep_containers_alive=1 continue_on_errors=1
-
-# Kill containers before rerun tests after using `keep_containers_alive=1`
-podman stop -a; podman rm -a; make ansible="stable-2.14" db_engine_version="mysql:5.7.40" python="3.8" connector="pymysql==0.7.10" docker_image="ghcr.io/community.mysql/test-container-my57-py38-pymysql0711:latest" target="test_mysql_db" keep_containers_alive=1
 
 # If your system has an usupported version of Python:
 make local_python_version="3.8" ansible="stable-2.14" db_engine_version="mariadb:10.6.11" python="3.9" connector="pymysql==0.9.3" docker_image="ghcr.io/community.mysql/test-container-mariadb103-py39-pymysql093:latest"

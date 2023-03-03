@@ -21,6 +21,7 @@ test-integration:
 	podman network create podman || true
 	podman run \
 		--detach \
+		--replace \
 		--name primary \
 		--env MARIADB_ROOT_PASSWORD=msandbox \
 		--env MYSQL_ROOT_PASSWORD=msandbox \
@@ -31,6 +32,7 @@ test-integration:
 		mysqld
 	podman run \
 		--detach \
+		--replace \
 		--name replica1 \
 		--env MARIADB_ROOT_PASSWORD=msandbox \
 		--env MYSQL_ROOT_PASSWORD=msandbox \
@@ -41,6 +43,7 @@ test-integration:
 		mysqld
 	podman run \
 		--detach \
+		--replace \
 		--name replica2 \
 		--env MARIADB_ROOT_PASSWORD=msandbox \
 		--env MYSQL_ROOT_PASSWORD=msandbox \

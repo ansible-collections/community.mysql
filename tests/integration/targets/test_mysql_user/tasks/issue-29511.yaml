@@ -79,4 +79,4 @@
         - foo
         - bar
 
-    - include: utils_remove_user.yml user_name="{{ user_name_2 }}"
+    - include: utils/remove_user.yml user_name="{{ user_name_2 }}"

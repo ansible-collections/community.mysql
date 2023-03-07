@@ -6,7 +6,7 @@
       login_host: '{{ mysql_host }}'
       login_port: '{{ mysql_primary_port }}'
   block:
-    - include: utils_remove_user.yml user_name={{ user_name_1 }}
+    - include: utils/remove_user.yml user_name={{ user_name_1 }}
 
     - name: Revoke only grants | Create user with two grants
       mysql_user:
@@ -47,4 +47,4 @@
           - result is not changed
 
   always:
-    - include: utils_remove_user.yml user_name={{ user_name_1 }}
+    - include: utils/remove_user.yml user_name={{ user_name_1 }}

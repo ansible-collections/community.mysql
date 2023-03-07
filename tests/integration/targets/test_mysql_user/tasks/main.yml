@@ -54,11 +54,11 @@
         state: present
       register: result
 
-    - include: utils_assert_user.yml user_name={{ user_name_1 }} user_host=localhost priv=USAGE
+    - include: utils/assert_user.yml user_name={{ user_name_1 }} user_host=localhost priv=USAGE
 
-    - include: utils_remove_user.yml user_name={{ user_name_1 }}
+    - include: utils/remove_user.yml user_name={{ user_name_1 }}
 
-    - include: utils_assert_no_user.yml user_name={{ user_name_1 }}
+    - include: utils/assert_no_user.yml user_name={{ user_name_1 }}
 
     # ============================================================
     # Create user with select privileges and verify select privileges are assign
@@ -72,11 +72,11 @@
         priv: '*.*:SELECT'
       register: result
 
-    - include: utils_assert_user.yml user_name={{ user_name_2 }} user_host=localhost priv=SELECT
+    - include: utils/assert_user.yml user_name={{ user_name_2 }} user_host=localhost priv=SELECT
 
-    - include: utils_remove_user.yml user_name={{ user_name_2 }}
+    - include: utils/remove_user.yml user_name={{ user_name_2 }}
 
-    - include: utils_assert_no_user.yml user_name={{ user_name_2 }}
+    - include: utils/assert_no_user.yml user_name={{ user_name_2 }}
 
     # ============================================================
     # Assert user has access to multiple databases
@@ -112,9 +112,9 @@
           - "'{{ item }}' in result.stdout"
       with_items: "{{db_names}}"
 
-    - include: utils_remove_user.yml user_name={{ user_name_1 }}
+    - include: utils/remove_user.yml user_name={{ user_name_1 }}
 
-    - include: utils_remove_user.yml user_name={{ user_name_2 }}
+    - include: utils/remove_user.yml user_name={{ user_name_2 }}
 
     - name: Give user SELECT access to database via wildcard
       mysql_user:
@@ -172,7 +172,7 @@
           - "'%db' in result.stdout"
           - "'INSERT' in result.stdout"
 
-    - include: utils_remove_user.yml user_name={{user_name_1}}
+    - include: utils/remove_user.yml user_name={{user_name_1}}
 
     # ============================================================
     # Test plaintext and encrypted password scenarios.

@@ -172,4 +172,4 @@
       loop:
         - data1
 
-    - include: utils_remove_user.yml user_name="{{ user_name_4 }}"
+    - include: utils/remove_user.yml user_name="{{ user_name_4 }}"

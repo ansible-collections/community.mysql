@@ -75,7 +75,7 @@ python run_all_tests.py
 ### Add a new Python, Connector or Database version
 
 1. Add a workflow in [.github/workflows/](.github/workflows)
-1. Add a new folder in *test-containers* containing a new Dockerfile. Your container must contains 3 things:
+1. Add a new folder in [test-containers](test-containers) containing a new Dockerfile. Your container must contains 3 things:
   - The python interpreter
   - The python package to connect to the database (pymysql, mysqlclient, ...)
   - A mysql client to query the database before to prepare tests before our tests starts. This client must provide both `mysql` and `mysqldump` commands.

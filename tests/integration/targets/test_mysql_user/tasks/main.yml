@@ -162,7 +162,7 @@
         host_all: yes
         password: '{{ user_password_1 }}'
 
-    - name: show grants access for user1 on database via wildcard
+    - name: Show grants access for user1 on database via wildcard
       command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_1 }}'@'localhost'\""
       register: result
 

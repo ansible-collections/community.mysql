@@ -14,7 +14,7 @@ Everytime you push on your fork or you create a pull request, both workflows run
 
 You can use GitHub to run ansible-test either on the community repo or your fork. But sometimes you want to quickly test a single version or a single target. To do that, you can use the Makefile present at the root of this repository.
 
-For now, the makefile only support Podman.
+For now, the makefile only supports Podman.
 
 ### Requirements
 

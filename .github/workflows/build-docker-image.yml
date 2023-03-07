@@ -43,7 +43,7 @@ jobs:
         with:
           images:
             "${{ inputs.registry }}\
-            /${{ github.repository }}\
+            /community.mysql\
             /${{ inputs.image_name }}"
           tags: latest
 

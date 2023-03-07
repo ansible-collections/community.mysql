@@ -6,6 +6,7 @@ on:
     paths:
       - 'test-containers/mariadb103-py38-mysqlclient201/**'
       - '.github/workflows/docker-image-mariadb103-py38-mysqlclient201.yml'
+      - '.github/workflows/build-docker-image.yml'
 
 jobs:
 

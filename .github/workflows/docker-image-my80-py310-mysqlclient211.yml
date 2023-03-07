@@ -6,6 +6,7 @@ on:
     paths:
       - 'test-containers/my80-py310-mysqlclient211/**'
       - '.github/workflows/docker-image-my80-py310-mysqlclient211.yml'
+      - '.github/workflows/build-docker-image.yml'
 
 jobs:
 

@@ -6,6 +6,7 @@ on:
     paths:
       - 'test-containers/my80-py39-pymysql093/*'
       - '.github/workflows/docker-image-my80-py39-pymysql093.yml'
+      - '.github/workflows/build-docker-image.yml'
 
 jobs:
 

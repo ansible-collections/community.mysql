@@ -10,7 +10,7 @@ on:
 jobs:
 
   call-workflow-passing-data:
-    uses: build-docker-image.yml@main
+    uses: .github/workflows/build-docker-image.yml@main
     secrets: inherit
     with:
       registry: ghcr.io

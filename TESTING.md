@@ -2,7 +2,7 @@
 
 This collection uses GitHub Actions to run ansible-test to validate its content. Three type of tests are used: Sanity, Integration and Units.
 
-The tests covers the code for plugins and roles (no role available yet, but tests are ready) and can be found here:
+The tests covers plugins and roles (no role available yet, but tests are ready) and can be found here:
 
 - Plugins: *.github/workflows/ansible-test-plugins.yml*
 - Roles: *.github/workflows/ansible-test-roles.yml* (unused yet)
@@ -15,6 +15,7 @@ Everytime you push on your fork or you create a pull request, both workflows run
 You can use GitHub to run ansible-test either on the community repo or your fork. But sometimes you want to quickly test a single version or a single target. To do that, you can use the Makefile present at the root of this repository.
 
 For now, the makefile only supports Podman.
+
 
 ### Requirements
 
@@ -33,6 +34,8 @@ The Makefile accept the following options:
 - **docker_image**:
     The container image to use to run our tests. Those images Dockerfile are in https://github.com/community.mysql/test-containers and then pushed to quay.io: E.G.:
     `quay.io/mws/community-mysql-test-containers-my57-py38-mysqlclient201-pymysql0711:latest`. Look in the link above for a complete list of available containers. You can also look into `.github/workflows/ansible-test-plugins.yml`
+    The container image to use to run our tests. Those images definition file are in [https://github.com/community.mysql/test-containers](https://github.com/ansible-collections/community.mysql/tree/main/test-containers) and then pushed to ghcr.io under the ansible-collection namespace: E.G.:
+    `ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest`. Look in the link above for a complete list of available containers. You can also look into `[.github/workflows/ansible-test-plugins.yml](https://github.com/ansible-collections/community.mysql/tree/main/.github/workflows)` to see how those containers are built.
     Unfortunatly you must provide the right container_image yourself. And you still need to provides db_engine_version, python, etc... because ansible-test won't do black magic to try to detect what we expect. Explicit is better than implicit anyway.
     To minimise the amount of images, pymysql 0.7.11 and mysqlclient are shipped together.
 - **db_engine_version**: The name of the container to use for the service containers that will host a primary database and two replicas. Either MYSQL or MariaDB. Use ':' as a separator. Do not use short version, like mysql:8 for instance. Our tests expect a full version to filter tests precisely. For instance: `when: db_version is version ('8.0.22', '>')`.
@@ -76,12 +79,11 @@ python run_all_tests.py
 
 1. Add a workflow in [.github/workflows/](.github/workflows)
 1. Add a new folder in [test-containers](test-containers) containing a new Dockerfile. Your container must contains 3 things:
-  - The python interpreter
-  - The python package to connect to the database (pymysql, mysqlclient, ...)
-  - A mysql client to query the database before to prepare tests before our tests starts. This client must provide both `mysql` and `mysqldump` commands.
+  - Python
+  - A connector: The python package to connect to the database (pymysql, mysqlclient, ...)
+  - A mysql client to prepare databases before our tests starts. This client must provide both `mysql` and `mysqldump` commands.
 1. Add your version in *.github/workflows/ansible-test-plugins.yml*
 
-After pushing the commit to the remote, the container will be build and published on ghcr.io. Have a look in the "Action" tab to see if it worked. In case of error `failed to copy: io: read/write on closed pipe` re-run the workflow, this append unfortunately a lot.
+After pushing your commit to the remote, the container will be built and published on ghcr.io. Have a look in the "Action" tab to see if it worked. In case of error `failed to copy: io: read/write on closed pipe` re-run the workflow, this append unfortunately a lot.
 
-To see the docker image produced, go to the main GitHub page of your fork or community.mysql (depending were you pushed) and look for the link "Packages" on the right hand side of the page. This page indicate a "Published x days ago" that is updated infrequently. To see the last time the container has been updated you must click on its title and look in the right hands side bellow the title "Last published".
-
+To see the docker image produced, go to the package page in the ansible-collection namespace [https://github.com/orgs/ansible-collections/packages](https://github.com/orgs/ansible-collections/packages). This page indicate a "Published x days ago" that is updated infrequently. To see the last time the container has been updated you must click on its title and look in the right hands side bellow the title "Last published".

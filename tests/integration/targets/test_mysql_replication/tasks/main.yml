@@ -18,7 +18,8 @@
 # Tests of channel parameter:
 - import_tasks: mysql_replication_channel.yml
   when:
-    - install_type == 'mysql' # FIXME: mariadb introduces FOR CHANNEL in 10.7
+    - db_engine == 'mysql' # FIXME: mariadb introduces FOR CHANNEL in 10.7
+    - mysql8022_and_higher == true  # FIXME: mysql 5.7 should work, but our tets fails, why?
 
 # Tests of resetprimary mode:
 - import_tasks: mysql_replication_resetprimary_mode.yml

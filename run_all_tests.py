@@ -70,12 +70,13 @@ def main():
 
     for tests in tests_matrix_yaml.get('include'):
         a = tests.get('ansible')
-        d = tests.get('db_engine_version')
+        dn = tests.get('db_engine_name')
+        dv = tests.get('db_engine_version')
         p = tests.get('python')
-        c = tests.get('connector')
-        i = tests.get('docker_image')
-        make_cmd = f'make ansible="{a}" db_engine_version="{d}" python="{p}" connector="{c}" docker_image="{i}" test-integration'
-        print(f'Run tests for: Ansible: {a}, DB: {d}, Python: {p}, Connector: {c}, Docker image: {i}')
+        cn = tests.get('connector_name')
+        cv = tests.get('connector_version')
+        make_cmd = f'make ansible="{a}" db_engine_name="{dn}" db_engine_version="{dv}" python="{p}" connector_name="{cn}" connector_version="{cv}" test-integration'
+        print(f'Run tests for: Ansible: {a}, DB: {dn} {dv}, Python: {p}, Connector: {cn} {cv}')
         os.system(make_cmd)
         # TODO, allow for CTRL+C to break the loop more easily
         # TODO, store the failures from this iteration

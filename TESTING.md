@@ -25,28 +25,109 @@ For now, the makefile only supports Podman.
 - Minimum 2GB of RAM
 
 
+### Custom ansible-test containers
+
+Our integrations tests use custom containers for ansible-test. Those images definition file are in [https://github.com/community.mysql/test-containers](https://github.com/ansible-collections/community.mysql/tree/main/test-containers) and then pushed to ghcr.io under the ansible-collection namespace: E.G.:
+`ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest`.
+
+Look in the link above for a complete list of available containers.
+
+You can also look into `[.github/workflows/ansible-test-plugins.yml](https://github.com/ansible-collections/community.mysql/tree/main/.github/workflows)` to see how those containers are built.
+
+
 ### Makefile options
 
-The Makefile accept the following options:
+The Makefile accept the following options
 
-- **local_python_version**: This option can be omitted if your system has a version supported by Ansible. You can check with `python -V`.
-- **ansible**: Mandatory version of ansible to install in a venv to run ansible-test.
-- **docker_image**:
-    The container image to use to run our tests. Those images Dockerfile are in https://github.com/community.mysql/test-containers and then pushed to quay.io: E.G.:
-    `quay.io/mws/community-mysql-test-containers-my57-py38-mysqlclient201-pymysql0711:latest`. Look in the link above for a complete list of available containers. You can also look into `.github/workflows/ansible-test-plugins.yml`
-    The container image to use to run our tests. Those images definition file are in [https://github.com/community.mysql/test-containers](https://github.com/ansible-collections/community.mysql/tree/main/test-containers) and then pushed to ghcr.io under the ansible-collection namespace: E.G.:
-    `ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest`. Look in the link above for a complete list of available containers. You can also look into `[.github/workflows/ansible-test-plugins.yml](https://github.com/ansible-collections/community.mysql/tree/main/.github/workflows)` to see how those containers are built.
-    Unfortunatly you must provide the right container_image yourself. And you still need to provides db_engine_version, python, etc... because ansible-test won't do black magic to try to detect what we expect. Explicit is better than implicit anyway.
-    To minimise the amount of images, pymysql 0.7.11 and mysqlclient are shipped together.
-- **db_engine_version**: The name of the container to use for the service containers that will host a primary database and two replicas. Either MYSQL or MariaDB. Use ':' as a separator. Do not use short version, like mysql:8 for instance. Our tests expect a full version to filter tests precisely. For instance: `when: db_version is version ('8.0.22', '>')`.
-- **connector**: The name of the python package of the connector along with its version number. Use '==' as a separator.
-- **python**: The python version to use in the controller.
-- **target** : If omitted, all test targets will run. But you can limit the tests to a single target to speed up your tests.
-- **keep_containers_alive**: This option keeps all tree databases containers and the ansible-test container alive at the end of tests or in case of failure. This is useful to enter one of the containers with `podman exec -it <container-name> bash` for debugging. Rerunning the
-test will recreate those containers.
-- **continue_on_errors**: Tells ansible-test to retry on errors and also continue on errors. This is the way the GitHub Action's workflow runs the tests. If you develop a new target, this option can be used to validate that your tests cleanup everything so a new run can restart without errors like "Failed to create database x because it already exists".
+- `local_python_version`
+  - Mandatory: false
+  - Choices:
+    - "3.8"
+    - "3.9"
+    - "3.10"
+  - Description: This option can be omitted if your system has a version supported by Ansible. You can check with `python -V` and `ls /bin/python*`.
 
-Examples:
+- `ansible`
+  - Mandatory: true
+  - Choices:
+    - "stable-2.12"
+    - "stable-2.13"
+    - "stable-2.14"
+    - "devel"
+  - Description: Version of ansible to install in a venv to run ansible-test
+
+- `docker_image`
+  - Mandatory: true
+  - Choices:
+    - "ghcr.io/ansible-collections/community.mysql/test-container-my57-py38-pymysql0711:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-my57-py38-mysqlclient201:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-my57-py38-pymysql093:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py310-mysqlclient211:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py310-pymysql102:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py38-mysqlclient201:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py38-pymysql093:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py39-mysqlclient203:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py39-pymysql093:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py38-mysqlclient201:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py38-pymysql093:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-mysqlclient203:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-pymysql093:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest"
+    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-pymysql102:latest"
+  - Description: The container image ansible-test will use. You must provide the right container_image that matches the specified `db_engine_version`, `python`, etc...
+
+- `db_engine_version`
+  - Mandatory: true
+  - Choices:
+    - "mysql:5.7.40"
+    - "mysql:8.0.31"
+    - "mariadb:10.4.24"
+    - "mariadb:10.5.18"
+    - "mariadb:10.6.11"
+  - Description: The name of the container to use for the service containers that will host a primary database and two replicas. Either MYSQL or MariaDB. Use ':' as a separator. Do not use short version, like mysql:8 for instance. Our tests expect a full version to filter tests precisely. For instance: `when: db_version is version ('8.0.22', '>')`.
+
+- `connector`
+  - Mandatory: true
+  - Choices:
+    - "pymysql==0.7.11" <- Only for MySQL 5.7
+    - "pymysql==0.9.3"
+    - "pymysql==1.0.2" <- Not working, need fix
+    - "mysqlclient==2.0.1"
+    - "mysqlclient==2.0.3"
+    - "mysqlclient==2.1.1"
+  - Description: The name of the python package of the connector along with its version number. Use '==' as a separator.
+
+- `python`
+  - Mandatory: true
+  - Choices:
+    - "3.8"
+    - "3.9"
+    - "3.10"
+  - Description: The python version to use in the controller (ansible-test container).
+
+- `target`
+  - Mandatory: false
+  - Choices:
+    - "test_mysql_db"
+    - "test_mysql_info"
+    - "test_mysql_query"
+    - "test_mysql_replication"
+    - "test_mysql_role"
+    - "test_mysql_user"
+    - "test_mysql_variables"
+  - Description: If omitted, all test targets will run. But you can limit the tests to a single target to speed up your tests.
+
+- `keep_containers_alive`
+  - Mandatory: false
+  - Description: This option keeps all tree databases containers and the ansible-test container alive at the end of tests or in case of failure. This is useful to enter one of the containers with `podman exec -it <container-name> bash` for debugging. Rerunning the
+test will recreate those containers so no need to kill it. Add any value to activate this option: `keep_containers_alive=1`
+
+- `continue_on_errors`
+  - Mandatory: false
+  - Description: Tells ansible-test to retry on errors and also continue on errors. This is the way the GitHub Action's workflow runs the tests. This can be use to catch all errors in a single run, but you'll need to scroll up to find them. Add any value to activate this option: `continue_on_errors=1`
+
+
+#### Makefile usage examples:
 
 ```sh
 # Run all targets

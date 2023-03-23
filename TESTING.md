@@ -158,7 +158,7 @@ You can look into `[.github/workflows/ansible-test-plugins.yml](https://github.c
   - Python
   - A connector: The python package to connect to the database (pymysql, mysqlclient, ...)
   - A mysql client to prepare databases before our tests starts. This client must provide both `mysql` and `mysqldump` commands.
-1. Add your version in *.github/workflows/ansible-test-plugins.yml*
+1. Add your version in the matrix of *.github/workflows/ansible-test-plugins.yml*. You can use [run_all_tests.py](run_all_tests.py) to help you see what the matrix will be. Simply comment out the line `os.system(make_cmd)` before runing the script. You can also add `print(len(matrix))` to display how many tests there will be on GitHub Action.
 1. Ask the lead maintainer to mark your new image(s) as `public` under [https://github.com/orgs/ansible-collections/packages](https://github.com/orgs/ansible-collections/packages)
 
 After pushing your commit to the remote, the container will be built and published on ghcr.io. Have a look in the "Action" tab to see if it worked. In case of error `failed to copy: io: read/write on closed pipe` re-run the workflow, this append unfortunately a lot.

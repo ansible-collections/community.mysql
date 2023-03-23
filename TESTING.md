@@ -55,27 +55,7 @@ The Makefile accept the following options
     - "devel"
   - Description: Version of ansible to install in a venv to run ansible-test
 
-- `docker_image`
-  - Mandatory: true
-  - Choices:
-    - "ghcr.io/ansible-collections/community.mysql/test-container-my57-py38-pymysql0711:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-my57-py38-mysqlclient201:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-my57-py38-pymysql093:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py310-mysqlclient211:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py310-pymysql102:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py38-mysqlclient201:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py38-pymysql093:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py39-mysqlclient203:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-my80-py39-pymysql093:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py38-mysqlclient201:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py38-pymysql093:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-mysqlclient203:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-pymysql093:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest"
-    - "ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-pymysql102:latest"
-  - Description: The container image ansible-test will use. You must provide the right container_image that matches the specified `db_engine_version`, `python`, etc...
-
-- `db_engine`
+- `db_engine_name`
   - Mandatory: true
   - Choices:
     - "mysql"

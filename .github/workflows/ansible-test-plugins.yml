@@ -435,8 +435,8 @@ jobs:
             echo -n "${{ matrix.db_engine_name }}"
             > tests/integration/db_engine_name;
 
-            echo Setting db_engine_version to
-             "${{ matrix.db_engine_version }}"...;
+            echo Setting db_engine_version to \
+            "${{ matrix.db_engine_version }}"...;
             echo -n "${{ matrix.db_engine_version }}"
             > tests/integration/db_engine_version;
 

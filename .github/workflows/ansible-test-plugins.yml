@@ -406,10 +406,10 @@ jobs:
       - name: Compute docker_image - Set db_client
         run: >
           if [[ ${{ env.db_engine_version_flat }} == 57 ]]; then
-            echo "db_client=my57" >> $GITHUB_ENV
-          else;
-            echo "db_client=$(echo ${{ matrix.connector_name }}" >> $GITHUB_ENV
-          fi;
+            echo "db_client=my57" >> $GITHUB_ENV;
+          else
+            echo "db_client=$(echo ${{ matrix.connector_name }}" >> $GITHUB_ENV;
+          fi
 
       - name: Set docker_image
         run: >

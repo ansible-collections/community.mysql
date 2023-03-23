@@ -382,8 +382,76 @@ jobs:
           docker restart -t 30 ${{ job.services.db_replica2.id }}
 
       - name: Wait for the primary to be healthy
-        run: |
-          while ! /usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" ${{ job.services.db_primary.id }} | grep healthy && [[ "$SECONDS" -lt 120 ]]; do sleep 1; done
+        run: >
+          while ! /usr/bin/docker inspect
+          --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}"
+          ${{ job.services.db_primary.id }}
+          | grep healthy && [[ "$SECONDS" -lt 120 ]]; do sleep 1; done
+
+      - name: Set db_engine_name to ${{ matrix.db_engine_name }}
+        run: >
+          echo -n "${{ matrix.db_engine_name }}"
+          > tests/integration/db_engine_name
+
+      - name: Set db_engine_version to ${{ matrix.db_engine_version }}
+        run: >
+          echo -n "${{ matrix.db_engine_version }}"
+          > tests/integration/db_engine_version
+
+      - name: Set Connector name to ${{ matrix.connector_name }}
+        run: >
+          echo -n "${{ matrix.connector_name }}"
+          > tests/integration/connector_name
+
+      - name: Set Connector name to ${{ matrix.connector_version }}
+        run: >
+          echo -n "${{ matrix.connector_version }}"
+          > tests/integration/connector_version
+
+      - name: Set Python version to ${{ matrix.python }}
+        run: >
+          echo -n "${{ matrix.python }}"
+          > tests/integration/python
+
+      - name: Set Ansible version to ${{ matrix.ansible }}
+        run: >
+          echo -n "${{ matrix.ansible }}"
+          > tests/integration/ansible;
+
+      - name: Compute docker_image - Set python_version_flat
+        run: >
+          echo "python_version_flat=$(echo ${{ matrix.python }}
+          | tr -d '.'')" >> $GITHUB_ENV
+
+      - name: Compute docker_image - Set connector_version_flat
+        run: >
+          echo "connector_version_flat=$(echo ${{ matrix.connector_version }}
+          |tr -d .)" >> $GITHUB_ENV
+
+      - name: Compute docker_image - Set db_engine_version_flat
+        run: >
+          echo "db_engine_version_flat=$(echo ${{ matrix.db_engine_version }}
+          | awk -F '.' '{print $1 $2}')" >> $GITHUB_ENV
+
+      - name: Compute docker_image - Set db_client
+        run: >
+          if [[ ${{ env.db_engine_version_flat }} == 57 ]]; then
+            db_client=my57
+          else;
+            db_client=$(echo ${{ matrix.connector_name }}"
+          fi;
+
+      - name: Set docker_image
+        run: >
+          docker_image_multiline=("
+          ghcr.io/ansible-collections/community.mysql\
+          /test-container-${{ env.db_client }}\
+          -py${{ env.python_version_flat }}\
+          -${{ matrix.connector_name }}${{ env.connector_version_flat }}\
+          :latest")
+
+          echo "docker_image=$(printf '%s' $docker_image_multiline)"
+          >> $GITHUB_ENV
 
       - name: >-
           Perform integration testing against
@@ -392,56 +460,6 @@ jobs:
         uses: ansible-community/ansible-test-gh-action@release/v1
         with:
           ansible-core-version: ${{ matrix.ansible }}
-          pre-test-cmd: >-
-            echo Setting db_engine_name to "${{ matrix.db_engine_name }}"...;
-            echo -n "${{ matrix.db_engine_name }}"
-            > tests/integration/db_engine_name;
-
-            echo Setting db_engine_version to
-             "${{ matrix.db_engine_version }}"...;
-            echo -n "${{ matrix.db_engine_version }}"
-            > tests/integration/db_engine_version;
-
-            echo Setting Connector name to "${{ matrix.connector_name }}"...;
-            echo -n "${{ matrix.connector_name }}"
-            > tests/integration/connector_name;
-
-            echo Setting Connector name to "${{ matrix.connector_version }}"...;
-            echo -n "${{ matrix.connector_version }}"
-            > tests/integration/connector_version;
-
-            echo Setting Python version to "${{ matrix.python }}"...;
-            echo -n "${{ matrix.python }}"
-            > tests/integration/python;
-
-            echo Setting Ansible version to "${{ matrix.ansible }}"...;
-            echo -n "${{ matrix.ansible }}"
-            > tests/integration/ansible;
-
-            db_engine_version_flat=$(echo ${{ matrix.db_engine_version }}
-            |awk -F '.' '{print $1 $2}')";
-
-            python_version_flat=$(echo ${{ matrix.python }}|tr -d .)";
-
-            connector_version_flat=$(echo ${{ matrix.connector_version }}
-            |tr -d .)";
-
-            if [[ ${{ env.db_engine_version_flat }} == 57 ]]; then
-              db_client=my57
-            else;
-              db_client=$(echo ${{ matrix.connector_name }}"
-            fi;
-
-            docker_image_multiline=("
-              ghcr.io/ansible-collections/community.mysql\
-              /test-container-${{ env.db_client }}\
-              -py${{ env.python_version_flat }}\
-              -${{ matrix.connector_name }}${{ env.connector_version_flat }}\
-              :latest");
-
-            echo "docker_image=$(printf '%s' $docker_image_multiline)"
-            >> $GITHUB_ENV
-
           docker-image: ${{ env.docker_image }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration

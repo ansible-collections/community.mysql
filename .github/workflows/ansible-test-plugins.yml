@@ -454,7 +454,7 @@ jobs:
 
             echo Setting Ansible version to "${{ matrix.ansible }}"...;
             echo -n "${{ matrix.ansible }}"
-            > tests/integration/ansible;
+            > tests/integration/ansible
           docker-image: ${{ env.docker_image }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration

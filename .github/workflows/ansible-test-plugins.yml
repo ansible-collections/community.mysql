@@ -388,36 +388,6 @@ jobs:
           ${{ job.services.db_primary.id }}
           | grep healthy && [[ "$SECONDS" -lt 120 ]]; do sleep 1; done
 
-      - name: Set db_engine_name to ${{ matrix.db_engine_name }}
-        run: >
-          echo -n "${{ matrix.db_engine_name }}"
-          > tests/integration/db_engine_name
-
-      - name: Set db_engine_version to ${{ matrix.db_engine_version }}
-        run: >
-          echo -n "${{ matrix.db_engine_version }}"
-          > tests/integration/db_engine_version
-
-      - name: Set Connector name to ${{ matrix.connector_name }}
-        run: >
-          echo -n "${{ matrix.connector_name }}"
-          > tests/integration/connector_name
-
-      - name: Set Connector name to ${{ matrix.connector_version }}
-        run: >
-          echo -n "${{ matrix.connector_version }}"
-          > tests/integration/connector_version
-
-      - name: Set Python version to ${{ matrix.python }}
-        run: >
-          echo -n "${{ matrix.python }}"
-          > tests/integration/python
-
-      - name: Set Ansible version to ${{ matrix.ansible }}
-        run: >
-          echo -n "${{ matrix.ansible }}"
-          > tests/integration/ansible;
-
       - name: Compute docker_image - Set python_version_flat
         run: >
           echo "python_version_flat=$(echo ${{ matrix.python }}
@@ -460,6 +430,31 @@ jobs:
         uses: ansible-community/ansible-test-gh-action@release/v1
         with:
           ansible-core-version: ${{ matrix.ansible }}
+          pre-test-cmd: >-
+            echo Setting db_engine_name to "${{ matrix.db_engine_name }}"...;
+            echo -n "${{ matrix.db_engine_name }}"
+            > tests/integration/db_engine_name;
+
+            echo Setting db_engine_version to
+             "${{ matrix.db_engine_version }}"...;
+            echo -n "${{ matrix.db_engine_version }}"
+            > tests/integration/db_engine_version;
+
+            echo Setting Connector name to "${{ matrix.connector_name }}"...;
+            echo -n "${{ matrix.connector_name }}"
+            > tests/integration/connector_name;
+
+            echo Setting Connector name to "${{ matrix.connector_version }}"...;
+            echo -n "${{ matrix.connector_version }}"
+            > tests/integration/connector_version;
+
+            echo Setting Python version to "${{ matrix.python }}"...;
+            echo -n "${{ matrix.python }}"
+            > tests/integration/python;
+
+            echo Setting Ansible version to "${{ matrix.ansible }}"...;
+            echo -n "${{ matrix.ansible }}"
+            > tests/integration/ansible;
           docker-image: ${{ env.docker_image }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration

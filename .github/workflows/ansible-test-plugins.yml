@@ -393,34 +393,55 @@ jobs:
         with:
           ansible-core-version: ${{ matrix.ansible }}
           pre-test-cmd: >-
-              echo Setting db_engine_name to "${{ matrix.db_engine_name }}"...;
-              echo -n "${{ matrix.db_engine_name }}" > tests/integration/db_engine_name;
-              echo Setting db_engine_version to "${{ matrix.db_engine_version }}"...;
-              echo -n "${{ matrix.db_engine_version }}" > tests/integration/db_engine_version;
-              echo Setting Connector name to "${{ matrix.connector_name }}"...;
-              echo -n "${{ matrix.connector_name }}" > tests/integration/connector_name;
-              echo Setting Connector name to "${{ matrix.connector_version }}"...;
-              echo -n "${{ matrix.connector_version }}" > tests/integration/connector_version;
-              echo Setting Python version to "${{ matrix.python }}"...;
-              echo -n "${{ matrix.python }}" > tests/integration/python;
-              echo Setting Ansible version to "${{ matrix.ansible }}"...;
-              echo -n "${{ matrix.ansible }}" > tests/integration/ansible
+            echo Setting db_engine_name to "${{ matrix.db_engine_name }}"...;
+            echo -n "${{ matrix.db_engine_name }}"\
+            > tests/integration/db_engine_name;
 
-              TODO: Reproduce this part of the Makefile to select the dockerimage
-              # db_ver_tuple := $(subst ., , $(db_engine_version))
-              # db_engine_version_flat := $(word 1, $(db_ver_tuple))$(word 2, $(db_ver_tuple))
+            echo Setting db_engine_version to "${{ matrix.db_engine_version }}"...;
+            echo -n "${{ matrix.db_engine_version }}"\
+            > tests/integration/db_engine_version;
 
-              # con_ver_tuple := $(subst ., , $(connector_version))
-              # connector_version_flat := $(word 1, $(con_ver_tuple))$(word 2, $(con_ver_tuple))$(word 3, $(con_ver_tuple))
+            echo Setting Connector name to "${{ matrix.connector_name }}"...;
+            echo -n "${{ matrix.connector_name }}"\
+            > tests/integration/connector_name;
 
-              # py_ver_tuple := $(subst ., , $(python))
-              # python_version_flat := $(word 1, $(py_ver_tuple))$(word 2, $(py_ver_tuple))
+            echo Setting Connector name to "${{ matrix.connector_version }}"...;
+            echo -n "${{ matrix.connector_version }}"\
+            > tests/integration/connector_version;
 
-              # ifeq ($(db_engine_version_flat), 57)
-              #   db_client := my57
-              # else
-              #   db_client := $(db_engine_name)
-              # endif
+            echo Setting Python version to "${{ matrix.python }}"...;
+            echo -n "${{ matrix.python }}"\
+            > tests/integration/python;
+
+            echo Setting Ansible version to "${{ matrix.ansible }}"...;
+            echo -n "${{ matrix.ansible }}"\
+            > tests/integration/ansible;
+
+            db_engine_version_flat=$(echo ${{ matrix.db_engine_version }}\
+            |awk -F '.' '{print $1 $2}')";
+            python_version_flat=$(echo ${{ matrix.python }}|tr -d .)";
+            connector_version_flat=$(echo ${{ matrix.connector_version }}\
+            |tr -d .)";
+
+            if [[ ${{ env.db_engine_version_flat }} == 57 ]]; then
+              db_client=my57
+            else;
+              db_client=$(echo ${{ matrix.connector_name }}"
+            fi;
+
+            docker_image_multiline=("
+              ghcr.io/ansible-collections/community.mysql\
+              /test-container-${{ env.db_client }}\
+              -py${{ env.python_version_flat }}\
+              -${{ matrix.connector_name }}${{ env.connector_version_flat }}\
+              :latest");
+
+            echo "docker_image=$(printf '%s' $docker_image_multiline)"\
+            >> $GITHUB_ENV
+
+          docker-image: ${{ env.docker_image }}
+          target-python-version: ${{ matrix.python }}
+          testing-type: integration
 
   units:
     runs-on: ubuntu-20.04

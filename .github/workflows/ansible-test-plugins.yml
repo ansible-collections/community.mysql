@@ -279,7 +279,7 @@ jobs:
       - name: Set docker_image
         run: >
           docker_image_multiline=("
-          ghcr.io/ansible-collections/community.mysql\
+          ghcr.io/laurent-indermuehle/community.mysql\
           /test-container-${{ env.db_client }}\
           -py${{ env.python_version_flat }}\
           -${{ matrix.connector_name }}${{ env.connector_version_flat }}\

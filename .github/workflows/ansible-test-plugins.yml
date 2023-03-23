@@ -391,7 +391,7 @@ jobs:
       - name: Compute docker_image - Set python_version_flat
         run: >
           echo "python_version_flat=$(echo ${{ matrix.python }}
-          | tr -d '.'')" >> $GITHUB_ENV
+          | tr -d '.')" >> $GITHUB_ENV
 
       - name: Compute docker_image - Set connector_version_flat
         run: >

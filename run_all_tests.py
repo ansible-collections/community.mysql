@@ -75,7 +75,16 @@ def main():
         p = tests.get('python')
         cn = tests.get('connector_name')
         cv = tests.get('connector_version')
-        make_cmd = f'make ansible="{a}" db_engine_name="{dn}" db_engine_version="{dv}" python="{p}" connector_name="{cn}" connector_version="{cv}" test-integration'
+        make_cmd = (
+            f'make '
+            f'ansible="{a}" '
+            f'db_engine_name="{dn}" '
+            f'db_engine_version="{dv}" '
+            f'python="{p}" '
+            f'connector_name="{cn}" '
+            f'connector_version="{cv}" '
+            f'test-integration'
+        )
         print(f'Run tests for: Ansible: {a}, DB: {dn} {dv}, Python: {p}, Connector: {cn} {cv}')
         os.system(make_cmd)
         # TODO, allow for CTRL+C to break the loop more easily

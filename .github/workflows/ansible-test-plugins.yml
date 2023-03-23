@@ -16,23 +16,23 @@ on:
 
 
 jobs:
-  # sanity:
-  #   name: "Sanity (Ansible: ${{ matrix.ansible }})"
-  #   runs-on: ubuntu-20.04
-  #   strategy:
-  #     matrix:
-  #       ansible:
-  #         - stable-2.12
-  #         - stable-2.13
-  #         - stable-2.14
-  #         - devel
-  #   steps:
-  #     - name: Perform sanity testing
-  #       uses: ansible-community/ansible-test-gh-action@release/v1
-  #       with:
-  #         ansible-core-version: ${{ matrix.ansible }}
-  #         testing-type: sanity
-  #         pull-request-change-detection: true
+  sanity:
+    name: "Sanity (Ansible: ${{ matrix.ansible }})"
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        ansible:
+          - stable-2.12
+          - stable-2.13
+          - stable-2.14
+          - devel
+    steps:
+      - name: Perform sanity testing
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          ansible-core-version: ${{ matrix.ansible }}
+          testing-type: sanity
+          pull-request-change-detection: true
 
   integration:
     name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, DB: ${{ matrix.db_engine_name }} ${{ matrix.db_engine_version }}, connector: ${{ matrix.connector_name }} ${{ matrix.connector_version }})"
@@ -59,269 +59,269 @@ jobs:
             python: '3.8'
             connector_name: pymysql
             connector_version: 0.7.11
-          # - ansible: stable-2.12
-          #   db_engine_name: mysql
-          #   db_engine_version: 5.7.40
-          #   python: '3.8'
-          #   connector_name: pymysql
-          #   connector_version: 0.9.3
-          # - ansible: stable-2.12
-          #   db_engine_name: mysql
-          #   db_engine_version: 5.7.40
-          #   python: '3.8'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.0.1
+          - ansible: stable-2.12
+            db_engine_name: mysql
+            db_engine_version: 5.7.40
+            python: '3.8'
+            connector_name: pymysql
+            connector_version: 0.9.3
+          - ansible: stable-2.12
+            db_engine_name: mysql
+            db_engine_version: 5.7.40
+            python: '3.8'
+            connector_name: mysqlclient
+            connector_version: 2.0.1
 
 
-          # # ==================================================================
-          # # mysql-client 8 + Python 3.8
-          # # ==================================================================
-          # - ansible: stable-2.12
-          #   db_engine_name: mysql
-          #   db_engine_version: 8.0.31
-          #   python: '3.8'
-          #   connector_name: pymysql
-          #   connector_version: 0.9.3
-          # - ansible: stable-2.12
-          #   db_engine_name: mysql
-          #   db_engine_version: 8.0.31
-          #   python: '3.8'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.0.1
+          # ==================================================================
+          # mysql-client 8 + Python 3.8
+          # ==================================================================
+          - ansible: stable-2.12
+            db_engine_name: mysql
+            db_engine_version: 8.0.31
+            python: '3.8'
+            connector_name: pymysql
+            connector_version: 0.9.3
+          - ansible: stable-2.12
+            db_engine_name: mysql
+            db_engine_version: 8.0.31
+            python: '3.8'
+            connector_name: mysqlclient
+            connector_version: 2.0.1
 
 
-          # # ==================================================================
-          # # mysql-client 8 + Python 3.9
-          # # ==================================================================
-          # - ansible: stable-2.13
-          #   db_engine_name: mysql
-          #   db_engine_version: 8.0.31
-          #   python: '3.9'
-          #   connector_name: pymysql
-          #   connector_version: 0.9.3
-          # - ansible: stable-2.13
-          #   db_engine_name: mysql
-          #   db_engine_version: 8.0.31
-          #   python: '3.9'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.0.3
+          # ==================================================================
+          # mysql-client 8 + Python 3.9
+          # ==================================================================
+          - ansible: stable-2.13
+            db_engine_name: mysql
+            db_engine_version: 8.0.31
+            python: '3.9'
+            connector_name: pymysql
+            connector_version: 0.9.3
+          - ansible: stable-2.13
+            db_engine_name: mysql
+            db_engine_version: 8.0.31
+            python: '3.9'
+            connector_name: mysqlclient
+            connector_version: 2.0.3
 
-          # - ansible: stable-2.14
-          #   db_engine_name: mysql
-          #   db_engine_version: 8.0.31
-          #   python: '3.9'
-          #   connector_name: pymysql
-          #   connector_version: 0.9.3
-          # - ansible: stable-2.14
-          #   db_engine_name: mysql
-          #   db_engine_version: 8.0.31
-          #   python: '3.9'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.0.3
+          - ansible: stable-2.14
+            db_engine_name: mysql
+            db_engine_version: 8.0.31
+            python: '3.9'
+            connector_name: pymysql
+            connector_version: 0.9.3
+          - ansible: stable-2.14
+            db_engine_name: mysql
+            db_engine_version: 8.0.31
+            python: '3.9'
+            connector_name: mysqlclient
+            connector_version: 2.0.3
 
 
-          # # ==================================================================
-          # # mysql-client 8 + Python 3.10
-          # # ==================================================================
-          # # - ansible: stable-2.13
-          # #   db_engine_name: mysql
-          # #   db_engine_version: 8.0.31
-          # #   python: '3.10'
-          # #   connector_name: pymysql
-          # #   connector_version: 1.0.2
+          # ==================================================================
+          # mysql-client 8 + Python 3.10
+          # ==================================================================
           # - ansible: stable-2.13
           #   db_engine_name: mysql
           #   db_engine_version: 8.0.31
           #   python: '3.10'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.1.1
+          #   connector_name: pymysql
+          #   connector_version: 1.0.2
+          - ansible: stable-2.13
+            db_engine_name: mysql
+            db_engine_version: 8.0.31
+            python: '3.10'
+            connector_name: mysqlclient
+            connector_version: 2.1.1
 
-          # # - ansible: stable-2.14
-          # #   db_engine_name: mysql
-          # #   db_engine_version: 8.0.31
-          # #   python: '3.10'
-          # #   connector_name: pymysql
-          # #   connector_version: 1.0.2
           # - ansible: stable-2.14
           #   db_engine_name: mysql
           #   db_engine_version: 8.0.31
           #   python: '3.10'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.1.1
+          #   connector_name: pymysql
+          #   connector_version: 1.0.2
+          - ansible: stable-2.14
+            db_engine_name: mysql
+            db_engine_version: 8.0.31
+            python: '3.10'
+            connector_name: mysqlclient
+            connector_version: 2.1.1
 
-          # # - ansible: devel
-          # #   db_engine_name: mysql
-          # #   db_engine_version: 8.0.31
-          # #   python: '3.10'
-          # #   connector_name: pymysql
-          # #   connector_version: 1.0.2
           # - ansible: devel
           #   db_engine_name: mysql
           #   db_engine_version: 8.0.31
           #   python: '3.10'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.1.1
+          #   connector_name: pymysql
+          #   connector_version: 1.0.2
+          - ansible: devel
+            db_engine_name: mysql
+            db_engine_version: 8.0.31
+            python: '3.10'
+            connector_name: mysqlclient
+            connector_version: 2.1.1
 
-          # # ==================================================================
-          # # mariadb-client 10.3 + Python 3.8
-          # # ==================================================================
-          # - ansible: stable-2.12
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.4.27
-          #   python: '3.8'
-          #   connector_name: pymysql
-          #   connector_version: 0.9.3
-          # - ansible: stable-2.12
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.4.27
-          #   python: '3.8'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.0.1
-          # - ansible: stable-2.12
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.5.18
-          #   python: '3.8'
-          #   connector_name: pymysql
-          #   connector_version: 0.9.3
-          # - ansible: stable-2.12
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.5.18
-          #   python: '3.8'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.0.1
-
-
-          # # ==================================================================
-          # # mariadb-client 10.3 + Python 3.9
-          # # ==================================================================
-          # - ansible: stable-2.13
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.4.27
-          #   python: '3.9'
-          #   connector_name: pymysql
-          #   connector_version: 0.9.3
-          # - ansible: stable-2.13
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.4.27
-          #   python: '3.9'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.0.3
-          # - ansible: stable-2.13
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.5.18
-          #   python: '3.9'
-          #   connector_name: pymysql
-          #   connector_version: 0.9.3
-          # - ansible: stable-2.13
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.5.18
-          #   python: '3.9'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.0.3
-
-          # - ansible: stable-2.14
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.4.27
-          #   python: '3.9'
-          #   connector_name: pymysql
-          #   connector_version: 0.9.3
-          # - ansible: stable-2.14
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.4.27
-          #   python: '3.9'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.0.3
-          # - ansible: stable-2.14
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.5.18
-          #   python: '3.9'
-          #   connector_name: pymysql
-          #   connector_version: 0.9.3
-          # - ansible: stable-2.14
-          #   db_engine_name: mariadb
-          #   db_engine_version: 10.5.18
-          #   python: '3.9'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.0.3
+          # ==================================================================
+          # mariadb-client 10.3 + Python 3.8
+          # ==================================================================
+          - ansible: stable-2.12
+            db_engine_name: mariadb
+            db_engine_version: 10.4.27
+            python: '3.8'
+            connector_name: pymysql
+            connector_version: 0.9.3
+          - ansible: stable-2.12
+            db_engine_name: mariadb
+            db_engine_version: 10.4.27
+            python: '3.8'
+            connector_name: mysqlclient
+            connector_version: 2.0.1
+          - ansible: stable-2.12
+            db_engine_name: mariadb
+            db_engine_version: 10.5.18
+            python: '3.8'
+            connector_name: pymysql
+            connector_version: 0.9.3
+          - ansible: stable-2.12
+            db_engine_name: mariadb
+            db_engine_version: 10.5.18
+            python: '3.8'
+            connector_name: mysqlclient
+            connector_version: 2.0.1
 
 
-          # # ==================================================================
-          # # mariadb-client 10.6 + Python 3.10
-          # # ==================================================================
-          # # - ansible: stable-2.13
-          # #   db_engine_name: mariadb
-          # #   db_engine_version: 10.5.18
-          # #   python: '3.10'
-          # #   connector_name: pymysql
-          # #   connector_version: 1.0.2
+          # ==================================================================
+          # mariadb-client 10.3 + Python 3.9
+          # ==================================================================
+          - ansible: stable-2.13
+            db_engine_name: mariadb
+            db_engine_version: 10.4.27
+            python: '3.9'
+            connector_name: pymysql
+            connector_version: 0.9.3
+          - ansible: stable-2.13
+            db_engine_name: mariadb
+            db_engine_version: 10.4.27
+            python: '3.9'
+            connector_name: mysqlclient
+            connector_version: 2.0.3
+          - ansible: stable-2.13
+            db_engine_name: mariadb
+            db_engine_version: 10.5.18
+            python: '3.9'
+            connector_name: pymysql
+            connector_version: 0.9.3
+          - ansible: stable-2.13
+            db_engine_name: mariadb
+            db_engine_version: 10.5.18
+            python: '3.9'
+            connector_name: mysqlclient
+            connector_version: 2.0.3
+
+          - ansible: stable-2.14
+            db_engine_name: mariadb
+            db_engine_version: 10.4.27
+            python: '3.9'
+            connector_name: pymysql
+            connector_version: 0.9.3
+          - ansible: stable-2.14
+            db_engine_name: mariadb
+            db_engine_version: 10.4.27
+            python: '3.9'
+            connector_name: mysqlclient
+            connector_version: 2.0.3
+          - ansible: stable-2.14
+            db_engine_name: mariadb
+            db_engine_version: 10.5.18
+            python: '3.9'
+            connector_name: pymysql
+            connector_version: 0.9.3
+          - ansible: stable-2.14
+            db_engine_name: mariadb
+            db_engine_version: 10.5.18
+            python: '3.9'
+            connector_name: mysqlclient
+            connector_version: 2.0.3
+
+
+          # ==================================================================
+          # mariadb-client 10.6 + Python 3.10
+          # ==================================================================
           # - ansible: stable-2.13
           #   db_engine_name: mariadb
           #   db_engine_version: 10.5.18
           #   python: '3.10'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.1.1
-          # # - ansible: stable-2.13
-          # #   db_engine_name: mariadb
-          # #   db_engine_version: 10.6.11
-          # #   python: '3.10'
-          # #   connector_name: pymysql
-          # #   connector_version: 1.0.2
+          #   connector_name: pymysql
+          #   connector_version: 1.0.2
+          - ansible: stable-2.13
+            db_engine_name: mariadb
+            db_engine_version: 10.5.18
+            python: '3.10'
+            connector_name: mysqlclient
+            connector_version: 2.1.1
           # - ansible: stable-2.13
           #   db_engine_name: mariadb
           #   db_engine_version: 10.6.11
           #   python: '3.10'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.1.1
+          #   connector_name: pymysql
+          #   connector_version: 1.0.2
+          - ansible: stable-2.13
+            db_engine_name: mariadb
+            db_engine_version: 10.6.11
+            python: '3.10'
+            connector_name: mysqlclient
+            connector_version: 2.1.1
 
-          # # - ansible: stable-2.14
-          # #   db_engine_name: mariadb
-          # #   db_engine_version: 10.5.18
-          # #   python: '3.10'
-          # #   connector_name: pymysql
-          # #   connector_version: 1.0.2
           # - ansible: stable-2.14
           #   db_engine_name: mariadb
           #   db_engine_version: 10.5.18
           #   python: '3.10'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.1.1
-          # # - ansible: stable-2.14
-          # #   db_engine_name: mariadb
-          # #   db_engine_version: 10.6.11
-          # #   python: '3.10'
-          # #   connector_name: pymysql
-          # #   connector_version: 1.0.2
+          #   connector_name: pymysql
+          #   connector_version: 1.0.2
+          - ansible: stable-2.14
+            db_engine_name: mariadb
+            db_engine_version: 10.5.18
+            python: '3.10'
+            connector_name: mysqlclient
+            connector_version: 2.1.1
           # - ansible: stable-2.14
           #   db_engine_name: mariadb
           #   db_engine_version: 10.6.11
           #   python: '3.10'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.1.1
+          #   connector_name: pymysql
+          #   connector_version: 1.0.2
+          - ansible: stable-2.14
+            db_engine_name: mariadb
+            db_engine_version: 10.6.11
+            python: '3.10'
+            connector_name: mysqlclient
+            connector_version: 2.1.1
 
-          # # - ansible: devel
-          # #   db_engine_name: mariadb
-          # #   db_engine_version: 10.5.18
-          # #   python: '3.10'
-          # #   connector_name: pymysql
-          # #   connector_version: 1.0.2
           # - ansible: devel
           #   db_engine_name: mariadb
           #   db_engine_version: 10.5.18
           #   python: '3.10'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.1.1
-          # # - ansible: devel
-          # #   db_engine_name: mariadb
-          # #   db_engine_version: 10.6.11
-          # #   python: '3.10'
-          # #   connector_name: pymysql
-          # #   connector_version: 1.0.2
+          #   connector_name: pymysql
+          #   connector_version: 1.0.2
+          - ansible: devel
+            db_engine_name: mariadb
+            db_engine_version: 10.5.18
+            python: '3.10'
+            connector_name: mysqlclient
+            connector_version: 2.1.1
           # - ansible: devel
           #   db_engine_name: mariadb
           #   db_engine_version: 10.6.11
           #   python: '3.10'
-          #   connector_name: mysqlclient
-          #   connector_version: 2.1.1
+          #   connector_name: pymysql
+          #   connector_version: 1.0.2
+          - ansible: devel
+            db_engine_name: mariadb
+            db_engine_version: 10.6.11
+            python: '3.10'
+            connector_name: mysqlclient
+            connector_version: 2.1.1
 
     services:
       db_primary:
@@ -459,39 +459,39 @@ jobs:
           target-python-version: ${{ matrix.python }}
           testing-type: integration
 
-  # units:
-  #   runs-on: ubuntu-20.04
-  #   name: Units (Ⓐ${{ matrix.ansible }})
-  #   strategy:
-  #     # As soon as the first unit test fails,
-  #     # cancel the others to free up the CI queue
-  #     fail-fast: true
-  #     matrix:
-  #       ansible:
-  #         - stable-2.12
-  #         - stable-2.13
-  #         - stable-2.14
-  #         - devel
-  #       python:
-  #         - 3.8
-  #         - 3.9
-  #       exclude:
-  #         - python: '3.8'
-  #           ansible: stable-2.13
-  #         - python: '3.8'
-  #           ansible: stable-2.14
-  #         - python: '3.8'
-  #           ansible: devel
-  #         - python: '3.9'
-  #           ansible: stable-2.12
+  units:
+    runs-on: ubuntu-20.04
+    name: Units (Ⓐ${{ matrix.ansible }})
+    strategy:
+      # As soon as the first unit test fails,
+      # cancel the others to free up the CI queue
+      fail-fast: true
+      matrix:
+        ansible:
+          - stable-2.12
+          - stable-2.13
+          - stable-2.14
+          - devel
+        python:
+          - 3.8
+          - 3.9
+        exclude:
+          - python: '3.8'
+            ansible: stable-2.13
+          - python: '3.8'
+            ansible: stable-2.14
+          - python: '3.8'
+            ansible: devel
+          - python: '3.9'
+            ansible: stable-2.12
 
-  #   steps:
-  #     - name: >-
-  #         Perform unit testing against
-  #         Ansible version ${{ matrix.ansible }}
-  #       uses: ansible-community/ansible-test-gh-action@release/v1
-  #       with:
-  #         ansible-core-version: ${{ matrix.ansible }}
-  #         target-python-version: ${{ matrix.python }}
-  #         testing-type: units
-  #         pull-request-change-detection: true
+    steps:
+      - name: >-
+          Perform unit testing against
+          Ansible version ${{ matrix.ansible }}
+        uses: ansible-community/ansible-test-gh-action@release/v1
+        with:
+          ansible-core-version: ${{ matrix.ansible }}
+          target-python-version: ${{ matrix.python }}
+          testing-type: units
+          pull-request-change-detection: true

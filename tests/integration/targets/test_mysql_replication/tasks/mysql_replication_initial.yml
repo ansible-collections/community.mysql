@@ -156,7 +156,7 @@
       assert:
         that:
           - result is changed
-          - result.queries == ["CHANGE MASTER TO MASTER_HOST='{{ mysql_host }}',MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='********',MASTER_PORT={{ mysql_primary_port }},MASTER_LOG_FILE='{{ mysql_primary_status.File }}',MASTER_LOG_POS={{ mysql_primary_status.Position }},MASTER_SSL=0,MASTER_SSL_CA=''"]
+          - result.queries == ["CHANGE MASTER TO MASTER_HOST='{{ mysql_host }}',MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='********',MASTER_PORT={{ mysql_primary_port }},MASTER_LOG_FILE='{{ mysql_primary_status.File }}',MASTER_LOG_POS={{ mysql_primary_status.Position }},MASTER_SSL_CA=''"]
 
     # Test startreplica mode:
     - name: Start replica

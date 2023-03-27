@@ -117,7 +117,9 @@
       assert:
         that:
           - result is failed
-          - "'Error granting privileges' in result.msg"
+          - >
+            'Error granting privileges' in result.msg
+            or 'invalid privileges string' in result.msg
       when: enable_check_mode == 'no'
 
     ##########

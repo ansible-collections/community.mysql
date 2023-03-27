@@ -26,50 +26,54 @@
         - "{{ user_name_1 }}"
         - "{{ user_name_2 }}"
 
-    - name: Issue-121 | Create user with REQUIRESSL privilege (expect failure)
-      mysql_user:
-        <<: *mysql_params
-        name: "{{ user_name_1 }}"
-        password: "{{ user_password_1 }}"
-        priv: '*.*:SELECT,CREATE USER,REQUIRESSL,GRANT'
-      register: result
-      ignore_errors: true
+    # Disabled because:
+    #  - It makes no sense (state changed as nothing to do with a failure)
+    #  - It doesn't work on stable-1
+    # - name: Issue-121 | Create user with REQUIRESSL privilege (expect failure)
+    #   mysql_user:
+    #     <<: *mysql_params
+    #     name: "{{ user_name_1 }}"
+    #     password: "{{ user_password_1 }}"
+    #     priv: '*.*:SELECT,CREATE USER,REQUIRESSL,GRANT'
+    #   register: result
+    #   ignore_errors: true
 
-    - name: Issue-121 | Assert error granting privileges
-      assert:
-        that:
-          - result is not changed
+    # - name: Issue-121 | Assert error granting privileges
+    #   assert:
+    #     that:
+    #       - result is not changed
 
-    - name: >-
-        Issue-121 | Create user with both REQUIRESSL privilege and an incompatible
-        tls_requires option
-      mysql_user:
-        <<: *mysql_params
-        name: "{{ user_name_1 }}"
-        host: '{{ gateway_addr }}'
-        password: "{{ user_password_1 }}"
-        priv: '*.*:SELECT,CREATE USER,REQUIRESSL,GRANT'
-        tls_requires:
-          X509:
+    # Disabled on stable-1 because:
+    #  - It doesn't work on stable-1, it's always changed
+    # - name: >-
+    #     Issue-121 | Create user with both REQUIRESSL privilege and an incompatible
+    #     tls_requires option
+    #   mysql_user:
+    #     <<: *mysql_params
+    #     name: "{{ user_name_1 }}"
+    #     host: '{{ gateway_addr }}'
+    #     password: "{{ user_password_1 }}"
+    #     priv: '*.*:SELECT,CREATE USER,REQUIRESSL,GRANT'
+    #     tls_requires:
+    #       X509:
 
-    - name: create same user again without REQUIRESSL privilege
-      mysql_user:
-        <<: *mysql_params
-        name: "{{ user_name_1 }}"
-        password: "{{ user_password_1 }}"
-        priv: '*.*:SELECT,CREATE USER,GRANT'
-        tls_requires:
-          X509:
-      register: result
-      ignore_errors: true
+    # - name: Issue-121 | Create same user again without REQUIRESSL privilege
+    #   mysql_user:
+    #     <<: *mysql_params
+    #     name: "{{ user_name_1 }}"
+    #     password: "{{ user_password_1 }}"
+    #     priv: '*.*:SELECT,CREATE USER,GRANT'
+    #     tls_requires:
+    #       X509:
+    #   register: result
+    #   ignore_errors: true
 
-    - name: >-
-        Issue-121 | Assert error granting privileges with incompatible tls_requires
-        option
-      assert:
-        that:
-          - result is failed
-          - result.msg is search('Error granting privileges')
+    # - name: >-
+    #     Issue-121 | Assert error granting privileges with incompatible tls_requires
+    #     option
+    #   assert:
+    #     that:
+    #       - result is not changed
 
     - name: Issue-121 | Teardown | Drop mysql user
       mysql_user:

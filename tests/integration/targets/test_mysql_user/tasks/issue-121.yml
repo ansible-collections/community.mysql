@@ -15,7 +15,14 @@
         dest: /tmp/cert.pem
       delegate_to: localhost
 
-    - name: Issue-121 | Drop mysql user if exists
+    - name: Issue-121 | Setup | get server version
+      mysql_info:
+        <<: *mysql_params
+        filter: version
+      register: db_version
+
+    - set_fact:
+        old_user_mgmt: "{{ db_version.version.major <= 5 and db_version.version.minor <= 6 or db_version.version.major == 10 and db_version.version.minor < 2 | bool }}"
       mysql_user:
         <<: *mysql_params
         name: '{{ item }}'

@@ -26,14 +26,14 @@
         - "{{ user_name_1 }}"
         - "{{ user_name_2 }}"
 
-    - name: create user with REQUIRESSL privilege
+    - name: Issue-121 | Create user with REQUIRESSL privilege
       mysql_user:
         <<: *mysql_params
         name: "{{ user_name_1 }}"
         password: "{{ user_password_1 }}"
         priv: '*.*:SELECT,CREATE USER,REQUIRESSL,GRANT'
 
-    - name: verify REQUIRESSL is assigned to the user
+    - name: Issue-121 | Verify REQUIRESSL is assigned to the user
       mysql_query:
         <<: *mysql_params
         query: "SHOW {{ what }} '{{ user_name_1}}'@'localhost'"
@@ -41,11 +41,12 @@
       vars:
         what: "{{ 'GRANTS FOR' if old_user_mgmt else 'CREATE USER' }}"
 
-    - assert:
+    - name: Issue-121 | Assert that requiressl is assigned to the user
+      assert:
         that:
           - result is succeeded and 'REQUIRE SSL' in (result.query_result | string)
 
-    - name: create user with equivalent ssl requirement in tls_requires (expect unchanged)
+    - name: Issue-121 | Create user with equivalent ssl requirement in tls_requires (expect unchanged)
       mysql_user:
         <<: *mysql_params
         name: "{{ user_name_1 }}"
@@ -55,11 +56,12 @@
           SSL:
       register: result
 
-    - assert:
+    - name: Issue-121 | Assert that create user with equivalent ssl is not changed
+      assert:
         that:
           - result is not changed
 
-    - name: create the same user again, with REQUIRESSL privilege once more
+    - name: Issue-121 | Create the same user again, with REQUIRESSL privilege once more
       mysql_user:
         <<: *mysql_params
         name: "{{ user_name_1 }}"

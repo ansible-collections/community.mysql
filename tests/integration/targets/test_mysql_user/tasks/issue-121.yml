@@ -15,15 +15,6 @@
         dest: /tmp/cert.pem
       delegate_to: localhost
 
-    - name: Issue-121 | Setup | get server version
-      mysql_info:
-        <<: *mysql_params
-        filter: version
-      register: db_version
-
-    - set_fact:
-        old_user_mgmt: "{{ db_version.version.major <= 5 and db_version.version.minor <= 6 or db_version.version.major == 10 and db_version.version.minor < 2 | bool }}"
-
     - name: Issue-121 | Setup | Drop mysql user if exists
       mysql_user:
         <<: *mysql_params
@@ -45,10 +36,8 @@
     - name: Issue-121 | Verify REQUIRESSL is assigned to the user
       mysql_query:
         <<: *mysql_params
-        query: "SHOW {{ what }} '{{ user_name_1}}'@'localhost'"
+        query: "SHOW CREATE USER '{{ user_name_1}}'@'localhost'"
       register: result
-      vars:
-        what: "{{ 'GRANTS FOR' if old_user_mgmt else 'CREATE USER' }}"
 
     - name: Issue-121 | Assert that requiressl is assigned to the user
       assert:

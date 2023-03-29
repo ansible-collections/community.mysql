@@ -1,3 +1,4 @@
+---
 name: Roles CI
 on:
   push:

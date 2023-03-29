@@ -1,3 +1,4 @@
+---
 name: Plugins CI
 on:
   push:
@@ -13,10 +14,6 @@ on:
   schedule:
     - cron: '0 6 * * *'
 
-
-env:
-  mysql_version_file: "tests/integration/targets/setup_mysql/defaults/main.yml"
-  connector_version_file: "tests/integration/targets/setup_mysql/vars/main.yml"
 
 jobs:
   sanity:
@@ -43,43 +40,312 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        db_engine_version:
-          - mysql_5.7.31
-          - mysql_8.0.22
-        ansible:
-          - stable-2.12
-          - stable-2.13
-          - stable-2.14
-          - devel
-        python:
-          - 3.6
-          - 3.8
-          - 3.9
-        connector:
-          - pymysql==0.7.10
-          - pymysql==0.9.3
-          - mysqlclient==2.0.1
-        exclude:
-          - db_engine_version: mysql_8.0.22
-            connector: pymysql==0.7.10
-          - python: 3.6
-            ansible: stable-2.12
-          - python: 3.6
-            ansible: stable-2.13
-          - python: 3.6
-            ansible: stable-2.14
-          - python: 3.6
-            ansible: devel
-          - python: 3.8
-            ansible: stable-2.13
-          - python: 3.8
-            ansible: stable-2.14
-          - python: 3.8
-            ansible: devel
-          - python: 3.9
-            ansible: stable-2.12
+        include:
+          # Before we can activate test with pymysql 1.0.2 we should debug the
+          # following plugins:
+          #
+          # mysql_query:
+          # test "Assert that create table IF NOT EXISTS is not changed with pymysql" failed
+          #
+          # mysql_replication:
+          # test "Assert that startreplica is not changed" failed
+
+          # ==================================================================
+          # mysql-client 5.7 + Python 3.8
+          # ==================================================================
+          - ansible: stable-2.12
+            db_engine_version: mysql:5.7.40
+            python: '3.8'
+            connector: pymysql==0.7.11
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my57-py38-pymysql0711:latest
+          - ansible: stable-2.12
+            db_engine_version: mysql:5.7.40
+            python: '3.8'
+            connector: pymysql==0.9.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my57-py38-pymysql093:latest
+          - ansible: stable-2.12
+            db_engine_version: mysql:5.7.40
+            python: '3.8'
+            connector: mysqlclient==2.0.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my57-py38-mysqlclient201:latest
+
+
+          # ==================================================================
+          # mysql-client 8 + Python 3.8
+          # ==================================================================
+          - ansible: stable-2.12
+            db_engine_version: mysql:8.0.31
+            python: '3.8'
+            connector: pymysql==0.9.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py38-pymysql093:latest
+          - ansible: stable-2.12
+            db_engine_version: mysql:8.0.31
+            python: '3.8'
+            connector: mysqlclient==2.0.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py38-mysqlclient201:latest
+
+
+          # ==================================================================
+          # mysql-client 8 + Python 3.9
+          # ==================================================================
+          - ansible: stable-2.13
+            db_engine_version: mysql:8.0.31
+            python: '3.9'
+            connector: pymysql==0.9.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py39-pymysql093:latest
+          - ansible: stable-2.13
+            db_engine_version: mysql:8.0.31
+            python: '3.9'
+            connector: mysqlclient==2.0.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py39-mysqlclient203:latest
+
+          - ansible: stable-2.14
+            db_engine_version: mysql:8.0.31
+            python: '3.9'
+            connector: pymysql==0.9.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py39-pymysql093:latest
+          - ansible: stable-2.14
+            db_engine_version: mysql:8.0.31
+            python: '3.9'
+            connector: mysqlclient==2.0.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py39-mysqlclient203:latest
+
+
+          # ==================================================================
+          # mysql-client 8 + Python 3.10
+          # ==================================================================
+          # - ansible: stable-2.13
+          #   db_engine_version: mysql:8.0.31
+          #   python: '3.10'
+          #   connector: pymysql==1.0.2
+          #   docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py310-pymysql102:latest
+          - ansible: stable-2.13
+            db_engine_version: mysql:8.0.31
+            python: '3.10'
+            connector: mysqlclient==2.1.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py310-mysqlclient211:latest
+
+          # - ansible: stable-2.14
+          #   db_engine_version: mysql:8.0.31
+          #   python: '3.10'
+          #   connector: pymysql==1.0.2
+          #   docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py310-pymysql102:latest
+          - ansible: stable-2.14
+            db_engine_version: mysql:8.0.31
+            python: '3.10'
+            connector: mysqlclient==2.1.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py310-mysqlclient211:latest
+
+          # - ansible: devel
+          #   db_engine_version: mysql:8.0.31
+          #   python: '3.10'
+          #   connector: pymysql==1.0.2
+          #   docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py310-pymysql102:latest
+          - ansible: devel
+            db_engine_version: mysql:8.0.31
+            python: '3.10'
+            connector: mysqlclient==2.1.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-my80-py310-mysqlclient211:latest
+
+          # ==================================================================
+          # mariadb-client 10.3 + Python 3.8
+          # ==================================================================
+          - ansible: stable-2.12
+            db_engine_version: mariadb:10.4.27
+            python: '3.8'
+            connector: pymysql==0.9.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py38-pymysql093:latest
+          - ansible: stable-2.12
+            db_engine_version: mariadb:10.4.27
+            python: '3.8'
+            connector: mysqlclient==2.0.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py38-mysqlclient201:latest
+          - ansible: stable-2.12
+            db_engine_version: mariadb:10.5.18
+            python: '3.8'
+            connector: pymysql==0.9.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py38-pymysql093:latest
+          - ansible: stable-2.12
+            db_engine_version: mariadb:10.5.18
+            python: '3.8'
+            connector: mysqlclient==2.0.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py38-mysqlclient201:latest
+
+
+          # ==================================================================
+          # mariadb-client 10.3 + Python 3.9
+          # ==================================================================
+          - ansible: stable-2.13
+            db_engine_version: mariadb:10.4.27
+            python: '3.9'
+            connector: pymysql==0.9.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-pymysql093:latest
+          - ansible: stable-2.13
+            db_engine_version: mariadb:10.4.27
+            python: '3.9'
+            connector: mysqlclient==2.0.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-mysqlclient203:latest
+          - ansible: stable-2.13
+            db_engine_version: mariadb:10.5.18
+            python: '3.9'
+            connector: pymysql==0.9.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-pymysql093:latest
+          - ansible: stable-2.13
+            db_engine_version: mariadb:10.5.18
+            python: '3.9'
+            connector: mysqlclient==2.0.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-mysqlclient203:latest
+
+          - ansible: stable-2.14
+            db_engine_version: mariadb:10.4.27
+            python: '3.9'
+            connector: pymysql==0.9.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-pymysql093:latest
+          - ansible: stable-2.14
+            db_engine_version: mariadb:10.4.27
+            python: '3.9'
+            connector: mysqlclient==2.0.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-mysqlclient203:latest
+          - ansible: stable-2.14
+            db_engine_version: mariadb:10.5.18
+            python: '3.9'
+            connector: pymysql==0.9.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-pymysql093:latest
+          - ansible: stable-2.14
+            db_engine_version: mariadb:10.5.18
+            python: '3.9'
+            connector: mysqlclient==2.0.3
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb103-py39-mysqlclient203:latest
+
+
+          # ==================================================================
+          # mariadb-client 10.6 + Python 3.10
+          # ==================================================================
+          # - ansible: stable-2.13
+          #   db_engine_version: mariadb:10.5.18
+          #   python: '3.10'
+          #   connector: pymysql==1.0.2
+          #   docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-pymysql102:latest
+          - ansible: stable-2.13
+            db_engine_version: mariadb:10.5.18
+            python: '3.10'
+            connector: mysqlclient==2.1.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest
+          # - ansible: stable-2.13
+          #   db_engine_version: mariadb:10.6.11
+          #   python: '3.10'
+          #   connector: pymysql==1.0.2
+          #   docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-pymysql102:latest
+          - ansible: stable-2.13
+            db_engine_version: mariadb:10.6.11
+            python: '3.10'
+            connector: mysqlclient==2.1.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest
+
+          # - ansible: stable-2.14
+          #   db_engine_version: mariadb:10.5.18
+          #   python: '3.10'
+          #   connector: pymysql==1.0.2
+          #   docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-pymysql102:latest
+          - ansible: stable-2.14
+            db_engine_version: mariadb:10.5.18
+            python: '3.10'
+            connector: mysqlclient==2.1.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest
+          # - ansible: stable-2.14
+          #   db_engine_version: mariadb:10.6.11
+          #   python: '3.10'
+          #   connector: pymysql==1.0.2
+          #   docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-pymysql102:latest
+          - ansible: stable-2.14
+            db_engine_version: mariadb:10.6.11
+            python: '3.10'
+            connector: mysqlclient==2.1.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest
+
+          # - ansible: devel
+          #   db_engine_version: mariadb:10.5.18
+          #   python: '3.10'
+          #   connector: pymysql==1.0.2
+          #   docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-pymysql102:latest
+          - ansible: devel
+            db_engine_version: mariadb:10.5.18
+            python: '3.10'
+            connector: mysqlclient==2.1.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest
+          # - ansible: devel
+          #   db_engine_version: mariadb:10.6.11
+          #   python: '3.10'
+          #   connector: pymysql==1.0.2
+          #   docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-pymysql102:latest
+          - ansible: devel
+            db_engine_version: mariadb:10.6.11
+            python: '3.10'
+            connector: mysqlclient==2.1.1
+            docker_image: ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest
+
+    services:
+      db_primary:
+        image: docker.io/library/${{ matrix.db_engine_version }}
+        env:
+          MARIADB_ROOT_PASSWORD: msandbox
+          MYSQL_ROOT_PASSWORD: msandbox
+        ports:
+          - 3307:3306
+        # We write our own health-cmd because the mariadb container does not
+        # provide a healthcheck
+        options: >-
+          --health-cmd "mysqladmin ping -P 3306 -pmsandbox |grep alive || exit 1"
+          --health-start-period 10s
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 6
+
+      db_replica1:
+        image: docker.io/library/${{ matrix.db_engine_version }}
+        env:
+          MARIADB_ROOT_PASSWORD: msandbox
+          MYSQL_ROOT_PASSWORD: msandbox
+        ports:
+          - 3308:3306
+        options: >-
+          --health-cmd "mysqladmin ping -P 3306 -pmsandbox |grep alive || exit 1"
+          --health-start-period 10s
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 6
+
+      db_replica2:
+        image: docker.io/library/${{ matrix.db_engine_version }}
+        env:
+          MARIADB_ROOT_PASSWORD: msandbox
+          MYSQL_ROOT_PASSWORD: msandbox
+        ports:
+          - 3309:3306
+        options: >-
+          --health-cmd "mysqladmin ping -P 3306 -pmsandbox |grep alive || exit 1"
+          --health-start-period 10s
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 6
 
     steps:
+
+      # No need to check for service health. GitHub Action took care of it.
+
+      - name: Restart MySQL server with settings for replication
+        run: |
+          docker exec ${{ job.services.db_primary.id }} bash -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'
+          docker exec ${{ job.services.db_replica1.id }} bash -c 'echo -e [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
+          docker exec ${{ job.services.db_replica2.id }} bash -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
+          docker restart -t 30 ${{ job.services.db_primary.id }}
+          docker restart -t 30 ${{ job.services.db_replica1.id }}
+          docker restart -t 30 ${{ job.services.db_replica2.id }}
+
+      - name: Wait for the primary to be healthy
+        run: |
+          while ! /usr/bin/docker inspect --format="{{if .Config.Healthcheck}}{{print .State.Health.Status}}{{end}}" ${{ job.services.db_primary.id }} | grep healthy && [[ "$SECONDS" -lt 120 ]]; do sleep 1; done
+
       - name: >-
           Perform integration testing against
           Ansible version ${{ matrix.ansible }}
@@ -88,22 +354,17 @@ jobs:
         with:
           ansible-core-version: ${{ matrix.ansible }}
           pre-test-cmd: >-
-            DB_ENGINE=$(echo '${{ matrix.db_engine_version }}' | awk -F_ '{print $1}');
-            DB_VERSION=$(echo '${{ matrix.db_engine_version }}' | awk -F_ '{print $2}');
-            DB_ENGINE_PRETTY=$([[ "${DB_ENGINE}" == 'mysql' ]] && echo 'MySQL' || echo 'MariaDB');
-            >&2 echo Matrix factor for the DB is ${{ matrix.db_engine_version }}...;
-            >&2 echo Setting ${DB_ENGINE_PRETTY} version to ${DB_VERSION}...;
-            sed -i -e "s/^${DB_ENGINE}_version:.*/${DB_ENGINE}_version: $DB_VERSION/g" '${{ env.mysql_version_file }}';
-            if [[ ${{ matrix.db_engine_version }} == mariadb* ]];
-            then
-              echo Set MariaDB install flag...; sed -i -e "s/^mariadb_install: false/mariadb_install: true/g" '${{ env.mysql_version_file }}';
-              echo Set MariaDB v10.8.3 URL sub dir...; sed -i -e "s/^mariadb_url_subdir:.*/mariadb_url_subdir: linux-systemd/g" '${{ env.connector_version_file }}';
-            fi;
-            >&2 echo Setting Connector version to ${{ matrix.connector }}...;
-            sed -i 's/^python_packages:.*/python_packages: [${{ matrix.connector }}]/' ${{ env.connector_version_file }}
+              echo Setting db_engine_version to "${{ matrix.db_engine_version }}"...;
+              echo -n "${{ matrix.db_engine_version }}" > tests/integration/db_engine_version;
+              echo Setting Connector version to "${{ matrix.connector }}"...;
+              echo -n "${{ matrix.connector }}" > tests/integration/connector;
+              echo Setting Python version to "${{ matrix.python }}"...;
+              echo -n "${{ matrix.python }}" > tests/integration/python;
+              echo Setting Ansible version to "${{ matrix.ansible }}"...;
+              echo -n "${{ matrix.ansible }}" > tests/integration/ansible
+          docker-image: ${{ matrix.docker_image }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration
-          pull-request-change-detection: true
 
   units:
     runs-on: ubuntu-20.04
@@ -122,13 +383,13 @@ jobs:
           - 3.8
           - 3.9
         exclude:
-          - python: 3.8
+          - python: '3.8'
             ansible: stable-2.13
-          - python: 3.8
+          - python: '3.8'
             ansible: stable-2.14
-          - python: 3.8
+          - python: '3.8'
             ansible: devel
-          - python: 3.9
+          - python: '3.9'
             ansible: stable-2.12
 
     steps:

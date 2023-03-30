@@ -8,12 +8,22 @@
 - name: "{{ role_name }} | Setvars | Set Fact"
   ansible.builtin.set_fact:
     gateway_addr: "{{ ip_route_output.stdout }}"
-    connector_name_version: >-
+    connector_name_lookup: >-
       {{ lookup(
         'file',
-        '/root/ansible_collections/community/mysql/tests/integration/connector'
+        '/root/ansible_collections/community/mysql/tests/integration/connector_name'
       ) }}
-    db_engine_version: >-
+    connector_version_lookup: >-
+      {{ lookup(
+        'file',
+        '/root/ansible_collections/community/mysql/tests/integration/connector_version'
+      ) }}
+    db_engine_name_lookup: >-
+      {{ lookup(
+        'file',
+        '/root/ansible_collections/community/mysql/tests/integration/db_engine_name'
+      ) }}
+    db_engine_version_lookup: >-
       {{ lookup(
         'file',
         '/root/ansible_collections/community/mysql/tests/integration/db_engine_version'
@@ -31,10 +41,10 @@
 
 - name: "{{ role_name }} | Setvars | Set Fact using above facts"
   ansible.builtin.set_fact:
-    connector_name: "{{ connector_name_version.split('=')[0].strip() }}"
-    connector_version: "{{ connector_name_version.split('=')[2].strip() }}"
-    db_engine: "{{ db_engine_version.split(':')[0].strip() }}"
-    db_version: "{{ db_engine_version.split(':')[1].strip() }}"
+    connector_name: "{{ connector_name_lookup.strip() }}"
+    connector_version: "{{ connector_version_lookup.strip() }}"
+    db_engine: "{{ db_engine_name_lookup.strip() }}"
+    db_version: "{{ db_engine_version_lookup.strip() }}"
     python_version: "{{ python_version_lookup.strip() }}"
     test_ansible_version: >-
       {%- if ansible_version_lookup == 'devel' -%}

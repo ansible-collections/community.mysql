@@ -7,6 +7,8 @@ on:
       - 'test-containers/my57-py38-pymysql0711/**'
       - '.github/workflows/docker-image-my57-py38-pymysql0711.yml'
       - '.github/workflows/build-docker-image.yml'
+    branches-ignore:
+      - stable-*
 
 jobs:
 

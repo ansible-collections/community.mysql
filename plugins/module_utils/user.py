@@ -808,6 +808,15 @@ def get_resource_limits(cursor, user, host):
         'MAX_CONNECTIONS_PER_HOUR': res[2],
         'MAX_USER_CONNECTIONS': res[3],
     }
+
+    cursor.execute("SELECT VERSION()")
+    if 'mariadb' in cursor.fetchone()[0].lower():
+        query = ('SELECT max_statement_time AS MAX_STATEMENT_TIME '
+                 'FROM mysql.user WHERE User = %s AND Host = %s')
+        cursor.execute(query, (user, host))
+        res_max_statement_time = cursor.fetchone()
+        current_limits['MAX_STATEMENT_TIME'] = res_max_statement_time[0]
+
     return current_limits
 
 
@@ -863,6 +872,11 @@ def limit_resources(module, cursor, user, host, resource_limits, check_mode):
     if not server_supports_alter_user(cursor):
         module.fail_json(msg="The server version does not match the requirements "
                              "for resource_limits parameter. See module's documentation.")
+
+    cursor.execute("SELECT VERSION()")
+    if 'mariadb' not in cursor.fetchone()[0].lower():
+        if 'MAX_STATEMENT_TIME' in resource_limits:
+            module.fail_json(msg="MAX_STATEMENT_TIME resource limit is only supported by MariaDB.")
 
     current_limits = get_resource_limits(cursor, user, host)
 

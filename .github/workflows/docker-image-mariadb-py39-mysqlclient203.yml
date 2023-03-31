@@ -7,6 +7,8 @@ on:
       - 'test-containers/mariadb-py39-mysqlclient203/**'
       - '.github/workflows/docker-image-mariadb-py39-mysqlclient203.yml'
       - '.github/workflows/build-docker-image.yml'
+    branches-ignore:
+      - stable-*
 
 jobs:
 

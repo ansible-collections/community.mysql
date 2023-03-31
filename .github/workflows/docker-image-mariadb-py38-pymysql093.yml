@@ -7,6 +7,8 @@ on:
       - 'test-containers/mariadb-py38-pymysql093/**'
       - '.github/workflows/docker-image-mariadb-py38-pymysql093.yml'
       - '.github/workflows/build-docker-image.yml'
+    branches-ignore:
+      - stable-*
 
 jobs:
 

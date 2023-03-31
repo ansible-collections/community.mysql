@@ -7,6 +7,8 @@ on:
       - 'test-containers/mysql-py310-pymysql102/**'
       - '.github/workflows/docker-image-mysql-py310-pymysql102.yml'
       - '.github/workflows/build-docker-image.yml'
+    branches-ignore:
+      - stable-*
 
 jobs:
 

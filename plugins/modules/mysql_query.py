@@ -22,6 +22,9 @@ options:
     description:
     - SQL query to run. Multiple queries can be passed using YAML list syntax.
     - Must be a string or YAML list containing strings.
+    - If you use I(named_args) or I(positional_args) any C(%) will be interpreted
+      as a formatting character. All literal C(%) characters in the query should be
+      escaped as C(%%).
     - Note that if you use the C(IF EXISTS/IF NOT EXISTS) clauses in your query
       and C(mysqlclient) connector, the module will report that
       the state has been changed even if it has not. If it is important in your

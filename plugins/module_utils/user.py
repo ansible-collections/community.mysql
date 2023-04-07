@@ -753,33 +753,6 @@ def convert_priv_dict_to_str(priv):
     return '/'.join(priv_list)
 
 
-# Alter user is supported since MySQL 5.6 and MariaDB 10.2.0
-def server_supports_alter_user(cursor):
-    """Check if the server supports ALTER USER statement or doesn't.
-
-    Args:
-        cursor (cursor): DB driver cursor object.
-
-    Returns: True if supports, False otherwise.
-    """
-    cursor.execute("SELECT VERSION()")
-    version_str = cursor.fetchone()[0]
-    version = version_str.split('.')
-
-    if 'mariadb' in version_str.lower():
-        # MariaDB 10.2 and later
-        if int(version[0]) * 1000 + int(version[1]) >= 10002:
-            return True
-        else:
-            return False
-    else:
-        # MySQL 5.6 and later
-        if int(version[0]) * 1000 + int(version[1]) >= 5006:
-            return True
-        else:
-            return False
-
-
 def get_resource_limits(cursor, user, host):
     """Get user resource limits.
 
@@ -808,6 +781,15 @@ def get_resource_limits(cursor, user, host):
         'MAX_CONNECTIONS_PER_HOUR': res[2],
         'MAX_USER_CONNECTIONS': res[3],
     }
+
+    cursor.execute("SELECT VERSION()")
+    if 'mariadb' in cursor.fetchone()[0].lower():
+        query = ('SELECT max_statement_time AS MAX_STATEMENT_TIME '
+                 'FROM mysql.user WHERE User = %s AND Host = %s')
+        cursor.execute(query, (user, host))
+        res_max_statement_time = cursor.fetchone()
+        current_limits['MAX_STATEMENT_TIME'] = res_max_statement_time[0]
+
     return current_limits
 
 
@@ -860,9 +842,14 @@ def limit_resources(module, cursor, user, host, resource_limits, check_mode):
 
     Returns: True, if changed, False otherwise.
     """
-    if not server_supports_alter_user(cursor):
+    if not impl.server_supports_alter_user(cursor):
         module.fail_json(msg="The server version does not match the requirements "
                              "for resource_limits parameter. See module's documentation.")
+
+    cursor.execute("SELECT VERSION()")
+    if 'mariadb' not in cursor.fetchone()[0].lower():
+        if 'MAX_STATEMENT_TIME' in resource_limits:
+            module.fail_json(msg="MAX_STATEMENT_TIME resource limit is only supported by MariaDB.")
 
     current_limits = get_resource_limits(cursor, user, host)
 

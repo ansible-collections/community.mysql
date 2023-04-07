@@ -145,7 +145,7 @@ options:
     description:
       - Limit the user for certain server resources. Provided since MySQL 5.6 / MariaDB 10.2.
       - "Available options are C(MAX_QUERIES_PER_HOUR: num), C(MAX_UPDATES_PER_HOUR: num),
-        C(MAX_CONNECTIONS_PER_HOUR: num), C(MAX_USER_CONNECTIONS: num)."
+        C(MAX_CONNECTIONS_PER_HOUR: num), C(MAX_USER_CONNECTIONS: num), C(MAX_STATEMENT_TIME: num) (supported only for MariaDB since collection version 3.7.0)."
       - Used when I(state=present), ignored otherwise.
     type: dict
     version_added: '0.1.0'

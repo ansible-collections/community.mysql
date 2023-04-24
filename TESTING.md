@@ -127,7 +127,7 @@ test will recreate those containers so no need to kill it. Add any value to acti
 make ansible="stable-2.12" db_engine_name="mysql" db_engine_version="5.7.40" python="3.8" connector_name="pymysql" connector_version="0.7.11"
 
 # A single target
-make ansible="stable-2.14" db_engine_name="mysql" db_engine_version="5.7.40" python="3.8" connector_name="pymysql" connector_version="0.7.11"
+make ansible="stable-2.14" db_engine_name="mysql" db_engine_version="5.7.40" python="3.8" connector_name="pymysql" connector_version="0.7.11" target="test_mysql_info"
 
 # Keep databases and ansible tests containers alives
 # A single target and continue on errors

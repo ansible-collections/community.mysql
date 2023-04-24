@@ -131,7 +131,7 @@ make ansible="stable-2.14" db_engine_name="mysql" db_engine_version="5.7.40" pyt
 
 # Keep databases and ansible tests containers alives
 # A single target and continue on errors
-make ansible="stable-2.14" db_engine_name="mysql" db_engine_version="8.0.31" python="3.9" connector_name="mysqlclient" connector_version="2.0.3"
+make ansible="stable-2.14" db_engine_name="mysql" db_engine_version="8.0.31" python="3.9" connector_name="mysqlclient" connector_version="2.0.3" target="test_mysql_query" keep_containers_alive=1 continue_on_errors=1
 
 # If your system has an usupported version of Python:
 make local_python_version="3.8" ansible="stable-2.14" db_engine_name="mariadb" db_engine_version="10.6.11" python="3.9" connector_name="pymysql" connector_version="0.9.3"

@@ -77,7 +77,7 @@ The Makefile accept the following options
   - Choices:
     - "pymysql
     - "mysqlclient"
-  - Description: The python package of the connector to use. This value is used to filter tests meant for other connectors.
+  - Description: The python package of the connector to use. In addition to selecting the test container, this value is also used for tests filtering: `when: connector_name == 'pymysql'`.
 
 - `connector_version`
   - Mandatory: true
@@ -113,11 +113,11 @@ The Makefile accept the following options
 - `keep_containers_alive`
   - Mandatory: false
   - Description: This option keeps all tree databases containers and the ansible-test container alive at the end of tests or in case of failure. This is useful to enter one of the containers with `podman exec -it <container-name> bash` for debugging. Rerunning the
-test will recreate those containers so no need to kill it. Add any value to activate this option: `keep_containers_alive=1`
+tests will recreate those containers so no need to kill them in advance. Add any value to activate this option: `keep_containers_alive=1`
 
 - `continue_on_errors`
   - Mandatory: false
-  - Description: Tells ansible-test to retry on errors and also continue on errors. This is the way the GitHub Action's workflow runs the tests. This can be use to catch all errors in a single run, but you'll need to scroll up to find them. Add any value to activate this option: `continue_on_errors=1`
+  - Description: Tells ansible-test to retry on errors and also continue on errors. This is the way the GitHub Action's workflow runs the tests. This can be used to catch all errors in a single run, but you'll need to scroll up to find them. Add any value to activate this option: `continue_on_errors=1`
 
 
 #### Makefile usage examples:

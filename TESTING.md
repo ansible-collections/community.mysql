@@ -82,12 +82,12 @@ The Makefile accept the following options
 - `connector_version`
   - Mandatory: true
   - Choices:
-    - "0.7.11" <- Only for MySQL 5.7
-    - "0.9.3"
-    - "1.0.2" <- Not working, need fix
-    - "2.0.1"
-    - "2.0.3"
-    - "2.1.1"
+    - "0.7.11" <- pymysql (Only for MySQL 5.7)
+    - "0.9.3" <- pymysql
+    - "1.0.2" <- pymysql (Not working, need fix)
+    - "2.0.1" <- mysqlclient
+    - "2.0.3" <- mysqlclient
+    - "2.1.1" <- mysqlclient
   - Description: The version of the python package of the connector to use. This value is used to filter tests meant for other connectors.
 
 - `python`

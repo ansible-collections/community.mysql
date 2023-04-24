@@ -222,7 +222,8 @@ def main():
                     # When something is run with IF NOT EXISTS
                     # and there's "already exists" MySQL warning,
                     # set the flag as True.
-                    # PyMySQL throws the warning, mysqlclinet does NOT.
+                    # PyMySQL < 0.10.0 throws the warning, mysqlclient
+                    # and PyMySQL 0.10.0+ does NOT.
                     already_exists = True
 
         except Exception as e:

@@ -64,15 +64,7 @@ jobs:
         connector_version:
           - 0.7.11
           - 0.9.3
-          # Before we can activate test with pymysql 1.0.2 we should debug the
-          # following plugins:
-          #
-          # mysql_query:
-          # test "Assert that create table IF NOT EXISTS is not changed with pymysql" failed
-          #
-          # mysql_replication:
-          # test "Assert that startreplica is not changed" failed
-          # - 1.0.2
+          - 1.0.2
           - 2.0.1
           - 2.0.3
           - 2.1.1

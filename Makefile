@@ -86,12 +86,20 @@ test-integration:
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
 	mkdir -p .venv/$(ansible)
 	python$(local_python_version) -m venv .venv/$(ansible)
-	source .venv/$(ansible)/bin/activate
-	python$(local_python_version) -m ensurepip
-	python$(local_python_version) -m pip install --disable-pip-version-check https://github.com/ansible/ansible/archive/$(ansible).tar.gz
-	-set -x; ansible-test integration $(target) -v --color --coverage --diff \
-		--docker ghcr.io/ansible-collections/community.mysql/test-container-$(db_client)-py$(python_version_flat)-$(connector_name)$(connector_version_flat):latest \
-		--docker-network podman $(_continue_on_errors) $(_keep_containers_alive) --python $(python); set +x
+
+	# Start venv (use `; \` to keep the same shell)
+	source .venv/$(ansible)/bin/activate; \
+	python$(local_python_version) -m ensurepip; \
+	python$(local_python_version) -m pip install --disable-pip-version-check \
+	https://github.com/ansible/ansible/archive/$(ansible).tar.gz; \
+	set -x; \
+	ansible-test integration $(target) -v --color --coverage --diff \
+	--docker ghcr.io/ansible-collections/community.mysql/test-container\
+	-$(db_client)-py$(python_version_flat)-$(connector_name)$(connector_version_flat):latest \
+	--docker-network podman $(_continue_on_errors) $(_keep_containers_alive) --python $(python); \
+	set +x
+	# End of venv
+
 	rm tests/integration/db_engine_name
 	rm tests/integration/db_engine_version
 	rm tests/integration/connector_name

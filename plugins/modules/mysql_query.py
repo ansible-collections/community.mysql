@@ -26,9 +26,9 @@ options:
       as a formatting character. All literal C(%) characters in the query should be
       escaped as C(%%).
     - Note that if you use the C(IF EXISTS/IF NOT EXISTS) clauses in your query
-      and C(mysqlclient) connector, the module will report that
-      the state has been changed even if it has not. If it is important in your
-      workflow, use the C(PyMySQL) connector instead.
+      and C(mysqlclient) or C(PyMySQL 0.10.0+) connectors, the module will report
+      that the state has been changed even if it has not. If it is important in your
+      workflow, use the C(PyMySQL 0.9.3) connector instead.
     type: raw
     required: true
   positional_args:

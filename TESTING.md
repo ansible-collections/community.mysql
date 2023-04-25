@@ -113,7 +113,7 @@ The Makefile accept the following options
 - `keep_containers_alive`
   - Mandatory: false
   - Description: This option keeps all tree databases containers and the ansible-test container alive at the end of tests or in case of failure. This is useful to enter one of the containers with `podman exec -it <container-name> bash` for debugging. Rerunning the
-tests will recreate those containers so no need to kill them in advance. Add any value to activate this option: `keep_containers_alive=1`
+tests will overwrite the 3 databases containers so no need to kill them in advance. But nothing will kill the ansible-test container. You must do that using `podman stop` and `podman rm`. Add any value to activate this option: `keep_containers_alive=1`
 
 - `continue_on_errors`
   - Mandatory: false

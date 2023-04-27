@@ -77,17 +77,17 @@ The Makefile accept the following options
   - Choices:
     - "pymysql
     - "mysqlclient"
-  - Description: The python package of the connector to use. This value is used to filter tests meant for other connectors.
+  - Description: The python package of the connector to use. In addition to selecting the test container, this value is also used for tests filtering: `when: connector_name == 'pymysql'`.
 
 - `connector_version`
   - Mandatory: true
   - Choices:
-    - "0.7.11" <- Only for MySQL 5.7
-    - "0.9.3"
-    - "1.0.2" <- Not working, need fix
-    - "2.0.1"
-    - "2.0.3"
-    - "2.1.1"
+    - "0.7.11" <- pymysql (Only for MySQL 5.7)
+    - "0.9.3" <- pymysql
+    - "1.0.2" <- pymysql (Not working, need fix)
+    - "2.0.1" <- mysqlclient
+    - "2.0.3" <- mysqlclient
+    - "2.1.1" <- mysqlclient
   - Description: The version of the python package of the connector to use. This value is used to filter tests meant for other connectors.
 
 - `python`
@@ -113,11 +113,11 @@ The Makefile accept the following options
 - `keep_containers_alive`
   - Mandatory: false
   - Description: This option keeps all tree databases containers and the ansible-test container alive at the end of tests or in case of failure. This is useful to enter one of the containers with `podman exec -it <container-name> bash` for debugging. Rerunning the
-test will recreate those containers so no need to kill it. Add any value to activate this option: `keep_containers_alive=1`
+tests will overwrite the 3 databases containers so no need to kill them in advance. But nothing will kill the ansible-test container. You must do that using `podman stop` and `podman rm`. Add any value to activate this option: `keep_containers_alive=1`
 
 - `continue_on_errors`
   - Mandatory: false
-  - Description: Tells ansible-test to retry on errors and also continue on errors. This is the way the GitHub Action's workflow runs the tests. This can be use to catch all errors in a single run, but you'll need to scroll up to find them. Add any value to activate this option: `continue_on_errors=1`
+  - Description: Tells ansible-test to retry on errors and also continue on errors. This is the way the GitHub Action's workflow runs the tests. This can be used to catch all errors in a single run, but you'll need to scroll up to find them. Add any value to activate this option: `continue_on_errors=1`
 
 
 #### Makefile usage examples:
@@ -127,11 +127,11 @@ test will recreate those containers so no need to kill it. Add any value to acti
 make ansible="stable-2.12" db_engine_name="mysql" db_engine_version="5.7.40" python="3.8" connector_name="pymysql" connector_version="0.7.11"
 
 # A single target
-make ansible="stable-2.14" db_engine_name="mysql" db_engine_version="5.7.40" python="3.8" connector_name="pymysql" connector_version="0.7.11"
+make ansible="stable-2.14" db_engine_name="mysql" db_engine_version="5.7.40" python="3.8" connector_name="pymysql" connector_version="0.7.11" target="test_mysql_info"
 
 # Keep databases and ansible tests containers alives
 # A single target and continue on errors
-make ansible="stable-2.14" db_engine_name="mysql" db_engine_version="8.0.31" python="3.9" connector_name="mysqlclient" connector_version="2.0.3"
+make ansible="stable-2.14" db_engine_name="mysql" db_engine_version="8.0.31" python="3.9" connector_name="mysqlclient" connector_version="2.0.3" target="test_mysql_query" keep_containers_alive=1 continue_on_errors=1
 
 # If your system has an usupported version of Python:
 make local_python_version="3.8" ansible="stable-2.14" db_engine_name="mariadb" db_engine_version="10.6.11" python="3.9" connector_name="pymysql" connector_version="0.9.3"

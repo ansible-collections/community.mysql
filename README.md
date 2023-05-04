@@ -85,7 +85,7 @@ For MariaDB, only Long Term releases are tested.
 
 - pymysql 0.7.11 (Only tested with MySQL 5.7)
 - pymysql 0.9.3
-- pymysql 1.0.2 (only collection version >= ???) !!! Unsuported until future release !!!
+- pymysql 1.0.2 (only collection version >= 3.6.1)
 - mysqlclient 2.0.1
 - mysqlclient 2.0.3 (only collection version >= 3.5.2)
 - mysqlclient 2.1.1 (only collection version >= 3.5.2)

@@ -32,7 +32,7 @@ v2.4.0
 Release Summary
 ---------------
 
-This is a bugfix release of the ``community.mysql`` collection.
+This is a minor release of the ``community.mysql`` collection.
 This changelog contains all changes to the modules and plugins in this collection
 that have been made after the previous release.
 

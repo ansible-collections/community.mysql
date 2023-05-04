@@ -5,13 +5,34 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
-v1.5.0
-=======
+v1.5.1
+======
 
 Release Summary
 ---------------
 
-This is a minor release of the ``community.mysql`` collection.
+Final maintenance release of ``community.mysql`` major version 1.
+
+Major Changes
+-------------
+
+- The ``community.mysql`` 1.x.y release stream is now effectively End of Life. No more releases will be made. This follows the decision to support each major release for two years. See L(this discussion,https://github.com/ansible-collections/community.mysql/discussions/537) for more info
+
+Minor Changes
+-------------
+
+- Integration tests - Add more versions of MariaDB
+- Integration tests - Add tools to test locally the same as on GHA by using same containers and virtualenv. Custom test containers are published in ghcr.io by this repo's workflows. MySQL/MariaDB are official Docker Hub images.
+- Integration tests - Carefully verify every component of the tests in the new target 'setup_controller' to ensure expected versions are correct Python, Ansible, connector and MySQL/MariaDB.
+- Integration tests - New name for many tasks to makes it easier to find failing tests. Rename duplicates. Add name for tasks which doesn't had one, refactor some tests files to better group tests by subject, ...
+
+v1.5.0
+======
+
+Release Summary
+---------------
+
+This is bugfix release of the ``community.mysql`` collection.
 This changelog contains all changes to the modules and plugins in this collection
 that have been made after the previous release.
 

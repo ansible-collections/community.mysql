@@ -524,8 +524,7 @@ releases:
       major_changes:
       - The ``community.mysql`` 2.x.y release stream is now effectively End of Life.
         No more releases will be made. This follows the decision to support each major
-        release for two years.This decision stems from this discussion (https://github.com/ansible-collections/community.mysql/discussions/537)
-        for more informations.
+        release for two years. This decision stems from this discussion (https://github.com/ansible-collections/community.mysql/discussions/537)
       minor_changes:
       - Integration tests - Add more versions of MariaDB
       - Integration tests - Add tools to test locally the same as on GHA by using

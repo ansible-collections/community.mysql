@@ -18,13 +18,6 @@ Major Changes
 
 - The ``community.mysql`` 2.x.y release stream is now effectively End of Life. No more releases will be made. This follows the decision to support each major release for two years. This decision stems from this discussion (https://github.com/ansible-collections/community.mysql/discussions/537)
 
-Minor Changes
--------------
-
-- Integration tests - Add more versions of MariaDB
-- Integration tests - Add tools to test locally the same as on GHA by using same containers and virtualenv. Custom test containers are published in ghcr.io by this repo's workflows. MySQL/MariaDB are official Docker Hub images.
-- Integration tests - Carefully verify every component of the tests in the new target 'setup_controller' to ensure expected versions are correct Python, Ansible, connector and MySQL/MariaDB.
-- Integration tests - New name for many tasks to makes it easier to find failing tests. Rename duplicates. Add name for tasks which doesn't had one, refactor some tests files to better group tests by subject, ...
 
 v2.4.0
 ======

@@ -62,7 +62,7 @@ Every voice is important and every idea is valuable. If you have something on yo
 
 ## Releases Support Timeline
 
-In https://github.com/ansible-collections/community.mysql/discussions/537 it has been decided to maintain each major release (1.x.y, 2.x.y, ...) for two years after the release date.
+It has been [decided](https://github.com/ansible-collections/community.mysql/discussions/537) to maintain each major release (1.x.y, 2.x.y, ...) for two years after the next major version is released.
 
 Here is the table for the support timeline:
 

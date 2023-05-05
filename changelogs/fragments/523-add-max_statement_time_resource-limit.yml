@@ -1,2 +1,0 @@
-minor_changes:
-  - mysql_user - add ``MAX_STATEMENT_TIME`` support for mariadb to the ``resource_limits`` argument (https://github.com/ansible-collections/community.mysql/issues/211).

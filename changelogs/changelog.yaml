@@ -522,7 +522,7 @@ releases:
   2.4.1:
     changes:
       release_summary: 'Maintenance release of ``community.mysql`` major version
-        2. Only contains changes to the CI. There is no functionnal difference
+        2. Only contains changes to the CI. There is no functional difference
         between 2.4.0 and 2.4.1.'
     fragments:
     - 2.4.1.yml

@@ -12,7 +12,7 @@ Release Summary
 ---------------
 
 Maintenance release of ``community.mysql`` major version 2.
-Only contains changes to the CI. There is no functionnal difference between 2.4.0 and 2.4.1.
+Only contains changes to the CI. There is no functional difference between 2.4.0 and 2.4.1.
 
 
 v2.4.0

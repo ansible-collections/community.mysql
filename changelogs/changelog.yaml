@@ -519,3 +519,15 @@ releases:
     - 2.3.11.yml
     - 497_mysql_info_returns_connector_name_and_version.yml
     release_date: '2023-02-08'
+  2.4.1:
+    changes:
+      major_changes:
+      - The ``community.mysql`` 2.x.y release stream is now effectively End of Life.
+        No more releases will be made. This follows the decision to support each major
+        release for two years. This decision stems from this discussion (https://github.com/ansible-collections/community.mysql/discussions/537)
+      release_summary: Final maintenance release of ``community.mysql`` major version
+        2.
+    fragments:
+    - 2.4.1.yml
+    - 490_refactor_integration_tests.yml
+    release_date: '2023-05-04'

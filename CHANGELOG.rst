@@ -5,8 +5,22 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v1.5.1
+======
+
+Release Summary
+---------------
+
+Final maintenance release of ``community.mysql`` major version 1.
+
+Major Changes
+-------------
+
+- The ``community.mysql`` 1.x.y release stream is now effectively End of Life. No more releases will be made. This follows the decision to support each major release for two years. This decision stems from this discussion (https://github.com/ansible-collections/community.mysql/discussions/537)
+
+
 v1.5.0
-=======
+======
 
 Release Summary
 ---------------

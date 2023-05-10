@@ -59,6 +59,19 @@ Every voice is important and every idea is valuable. If you have something on yo
   - [mysql_user](https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_user_module.html)
   - [mysql_variables](https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_variables_module.html)
 
+
+## Releases Support Timeline
+
+It has been [decided](https://github.com/ansible-collections/community.mysql/discussions/537) to maintain each major release (1.x.y, 2.x.y, ...) for two years after the next major version is released.
+
+Here is the table for the support timeline:
+
+- 1.x.y: released 2020-08-17, EOL
+- 2.x.y: released 2021-04-15, supported until 2023-12-01
+- 3.x.y: released 2021-12-01, current
+- 4.x.y: To be released
+
+
 ## Tested with
 
 ### ansible-core

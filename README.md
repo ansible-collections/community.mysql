@@ -67,7 +67,7 @@ It has been [decided](https://github.com/ansible-collections/community.mysql/dis
 Here is the table for the support timeline:
 
 - 1.x.y: released 2020-08-17, EOL
-- 2.x.y: released 2021-04-15, supported until 2021-12-01
+- 2.x.y: released 2021-04-15, supported until 2023-12-01
 - 3.x.y: released 2021-12-01, current
 - 4.x.y: To be released
 

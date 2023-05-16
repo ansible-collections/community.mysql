@@ -143,9 +143,17 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
 
     if _mysql_cursor_param == 'cursor':
         # In case of PyMySQL driver:
+        if mysql_driver.version_info[0] < 1:
+            # for PyMySQL < 1.0.0, use 'db' instead of 'database'
+            config['db'] = config['database']
+            del config['database']
         db_connection = mysql_driver.connect(autocommit=autocommit, **config)
     else:
         # In case of MySQLdb driver
+        if mysql_driver.version_info[0] < 2 or mysql_driver.version_info[1] < 1:
+            # for MySQLdb < 2.1.0, use 'db' instead of 'database'
+            config['db'] = config['database']
+            del config['database']
         db_connection = mysql_driver.connect(**config)
         if autocommit:
             db_connection.autocommit(True)

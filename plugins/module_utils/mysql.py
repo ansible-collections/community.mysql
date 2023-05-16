@@ -145,15 +145,17 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
         # In case of PyMySQL driver:
         if mysql_driver.version_info[0] < 1:
             # for PyMySQL < 1.0.0, use 'db' instead of 'database'
-            config['db'] = config.get('database')
-            del config['database']
+            if 'database' in config:
+                config['db'] = config['database']
+                del config['database']
         db_connection = mysql_driver.connect(autocommit=autocommit, **config)
     else:
         # In case of MySQLdb driver
-        if mysql_driver.version_info[0] < 2 or mysql_driver.version_info[1] < 1:
+        if mysql_driver.version_info[0] < 2 and mysql_driver.version_info[1] < 1:
             # for MySQLdb < 2.1.0, use 'db' instead of 'database'
-            config['db'] = config.get('database')
-            del config['database']
+            if 'database' in config:
+                config['db'] = config['database']
+                del config['database']
         db_connection = mysql_driver.connect(**config)
         if autocommit:
             db_connection.autocommit(True)

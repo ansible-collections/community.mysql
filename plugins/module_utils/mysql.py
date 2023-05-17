@@ -134,14 +134,14 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
     if connect_timeout is not None:
         config['connect_timeout'] = connect_timeout
     if check_hostname is not None:
-        if mysql_driver.__name__ == "pymysql":
+        if get_connector_name(mysql_driver) == 'pymysql':
             version_tuple = (n for n in mysql_driver.__version__.split('.') if n != 'None')
             if reduce(lambda x, y: int(x) * 100 + int(y), version_tuple) >= 711:
                 config['ssl']['check_hostname'] = check_hostname
             else:
                 module.fail_json(msg='To use check_hostname, pymysql >= 0.7.11 is required on the target host')
 
-    if _mysql_cursor_param == 'cursor':
+    if get_connector_name(mysql_driver) == 'pymysql':
         # In case of PyMySQL driver:
         if mysql_driver.version_info[0] < 1:
             # for PyMySQL < 1.0.0, use 'db' instead of 'database' and 'passwd' instead of 'password'

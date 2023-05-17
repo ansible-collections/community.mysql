@@ -11,12 +11,8 @@ v2.4.1
 Release Summary
 ---------------
 
-Final maintenance release of ``community.mysql`` major version 2.
-
-Major Changes
--------------
-
-- The ``community.mysql`` 2.x.y release stream is now effectively End of Life. No more releases will be made. This follows the decision to support each major release for two years. This decision stems from this discussion (https://github.com/ansible-collections/community.mysql/discussions/537)
+Maintenance release of ``community.mysql`` major version 2.
+Only contains changes to the CI. There is no functional difference between 2.4.0 and 2.4.1.
 
 
 v2.4.0

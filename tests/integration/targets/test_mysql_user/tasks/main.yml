@@ -213,35 +213,55 @@
     # ============================================================
     # Assert create user with SELECT privileges, attempt to create database and update privileges to create database
     #
-    - include_tasks: test_privs.yml current_privilege=SELECT current_append_privs=no
+    - include_tasks: test_privs.yml
+      vars:
+        current_privilege: SELECT
+        current_append_privs: no
 
     # ============================================================
     # Assert creating user with SELECT privileges, attempt to create database and append privileges to create database
     #
-    - include_tasks: test_privs.yml current_privilege=DROP current_append_privs=yes
+    - include_tasks: test_privs.yml
+      vars:
+        current_privilege: DROP
+        current_append_privs: yes
 
     # ============================================================
     # Assert create user with SELECT privileges, attempt to create database and update privileges to create database
     #
-    - include_tasks: test_privs.yml current_privilege='UPDATE,ALTER' current_append_privs=no
+    - include_tasks: test_privs.yml
+      vars:
+        current_privilege: 'UPDATE,ALTER'
+        current_append_privs: no
 
     # ============================================================
     # Assert creating user with SELECT privileges, attempt to create database and append privileges to create database
     #
-    - include_tasks: test_privs.yml current_privilege='INSERT,DELETE' current_append_privs=yes
+    - include_tasks: test_privs.yml
+      vars:
+        current_privilege: 'INSERT,DELETE'
+        current_append_privs: yes
 
     # Tests for the priv parameter with dict value (https://github.com/ansible/ansible/issues/57533)
     - include_tasks: test_priv_dict.yml
 
     # Test that append_privs will not attempt to make a change where current privileges are a superset of new privileges
     # (https://github.com/ansible-collections/community.mysql/issues/69)
-    - include_tasks: test_priv_append.yml enable_check_mode=no
-    - include_tasks: test_priv_append.yml enable_check_mode=yes
+    - include_tasks: test_priv_append.yml
+      vars:
+        enable_check_mode: no
+    - include_tasks: test_priv_append.yml
+      vars:
+        enable_check_mode: yes
 
     # Test that subtract_privs will only revoke the grants given by priv
     # (https://github.com/ansible-collections/community.mysql/issues/331)
-    - include_tasks: test_priv_subtract.yml enable_check_mode=no
-    - include_tasks: test_priv_subtract.yml enable_check_mode=yes
+    - include_tasks: test_priv_subtract.yml
+      vars:
+        enable_check_mode: no
+    - include_tasks: test_priv_subtract.yml
+      vars:
+        enable_check_mode: yes
 
     - import_tasks: test_privs_issue_465.yml
       tags:

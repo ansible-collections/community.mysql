@@ -110,4 +110,7 @@ notes:
    - Alternatively, to avoid using I(login_unix_socket) argument on each invocation you can specify the socket path
      using the `socket` option in your MySQL config file (usually C(~/.my.cnf)) on the destination host, for
      example C(socket=/var/lib/mysql/mysql.sock).
+attributes:
+  check_mode:
+    description: Can run in check_mode and return changed status prediction without modifying target.
 '''

@@ -125,7 +125,10 @@ notes:
   - Pay attention that the module runs C(SET DEFAULT ROLE ALL TO)
     all the I(members) passed by default when the state has changed.
     If you want to avoid this behavior, set I(set_default_role_all) to C(no).
-  - Supports C(check_mode).
+
+attributes:
+  check_mode:
+    support: full
 
 seealso:
   - module: community.mysql.mysql_user

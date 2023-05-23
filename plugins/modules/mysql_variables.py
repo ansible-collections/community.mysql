@@ -44,8 +44,9 @@ options:
     default: global
     version_added: '0.1.0'
 
-notes:
-- Does not support C(check_mode).
+attributes:
+  check_mode:
+    support: none
 
 seealso:
 - module: community.mysql.mysql_info

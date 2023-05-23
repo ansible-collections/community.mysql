@@ -31,7 +31,7 @@
         that:
           - result is changed
 
-    - include: utils/assert_user.yml user_name={{ user_name_1 }} user_host=localhost
+    - include_tasks: utils/assert_user.yml user_name={{ user_name_1 }} user_host=localhost
 
     # Test user removal
     - name: Issue-265 | remove mysql user {{ user_name_1 }}
@@ -86,7 +86,7 @@
         that:
           - result is not changed
 
-    - include: utils/assert_no_user.yml user_name={{user_name_1}}
+    - include_tasks: utils/assert_no_user.yml user_name={{user_name_1}}
 
     # Tests with force_context: no
     # Test user creation
@@ -114,7 +114,7 @@
         that:
           - result is changed
 
-    - include: utils/assert_user.yml user_name={{ user_name_1 }} user_host=localhost
+    - include_tasks: utils/assert_user.yml user_name={{ user_name_1 }} user_host=localhost
 
     # Test user removal
     - name: Issue-265 | Remove mysql user {{ user_name_1 }}
@@ -168,4 +168,4 @@
         that:
           - result is not changed
 
-    - include: utils/assert_no_user.yml user_name={{ user_name_1 }}
+    - include_tasks: utils/assert_no_user.yml user_name={{ user_name_1 }}

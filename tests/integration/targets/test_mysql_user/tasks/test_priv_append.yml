@@ -131,4 +131,4 @@
         - data1
         - data2
 
-    - include: utils/remove_user.yml user_name={{ user_name_4 }}
+    - include_tasks: utils/remove_user.yml user_name={{ user_name_4 }}

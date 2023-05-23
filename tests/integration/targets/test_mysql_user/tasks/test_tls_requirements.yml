@@ -23,7 +23,7 @@
         that:
           - result is changed
 
-    - include: utils/assert_no_user.yml user_name={{user_name_1}}
+    - include_tasks: utils/assert_no_user.yml user_name={{user_name_1}}
 
     - name: Tls reqs | Create user with TLS requirements state=present (expect changed=true)
       mysql_user:
@@ -172,14 +172,14 @@
       assert:
         that: "'REQUIRE ' not in result.stdout or 'REQUIRE NONE' in result.stdout"
 
-    - include: utils/remove_user.yml user_name={{user_name_1}}
+    - include_tasks: utils/remove_user.yml user_name={{user_name_1}}
 
-    - include: utils/remove_user.yml user_name={{user_name_2}}
+    - include_tasks: utils/remove_user.yml user_name={{user_name_2}}
 
-    - include: utils/remove_user.yml user_name={{user_name_3}}
+    - include_tasks: utils/remove_user.yml user_name={{user_name_3}}
 
-    - include: utils/assert_no_user.yml user_name={{user_name_1}}
+    - include_tasks: utils/assert_no_user.yml user_name={{user_name_1}}
 
-    - include: utils/assert_no_user.yml user_name={{user_name_2}}
+    - include_tasks: utils/assert_no_user.yml user_name={{user_name_2}}
 
-    - include: utils/assert_no_user.yml user_name={{user_name_3}}
+    - include_tasks: utils/assert_no_user.yml user_name={{user_name_3}}

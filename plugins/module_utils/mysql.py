@@ -154,7 +154,7 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
         db_connection = mysql_driver.connect(autocommit=autocommit, **config)
     else:
         # In case of MySQLdb driver
-        if mysql_driver.version_info[0] < 2 and mysql_driver.version_info[1] < 1:
+        if mysql_driver.version_info[0] < 2 or (mysql_driver.version_info[0] == 2 and mysql_driver.version_info[1] < 1):
             # for MySQLdb < 2.1.0, use 'db' instead of 'database' and 'passwd' instead of 'password'
             if 'database' in config:
                 config['db'] = config['database']

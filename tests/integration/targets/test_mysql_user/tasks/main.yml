@@ -54,11 +54,20 @@
         state: present
       register: result
 
-    - include_tasks: utils/assert_user.yml user_name={{ user_name_1 }} user_host=localhost priv=USAGE
+    - include_tasks: utils/assert_user.yml
+      vars:
+        user_name: "{{ user_name_1 }}"
+        user_host: localhost
+        priv: USAGE
 
-    - include_tasks: utils/remove_user.yml user_name={{ user_name_1 }}
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ user_name_1 }}"
 
-    - include_tasks: utils/assert_no_user.yml user_name={{ user_name_1 }}
+    - include_tasks: utils/assert_no_user.yml
+      vars:
+        user_name: "{{ user_name_1 }}"
+
 
     # ============================================================
     # Create user with select privileges and verify select privileges are assign
@@ -72,11 +81,20 @@
         priv: '*.*:SELECT'
       register: result
 
-    - include_tasks: utils/assert_user.yml user_name={{ user_name_2 }} user_host=localhost priv=SELECT
+    - include_tasks: utils/assert_user.yml
+      vars:
+        user_name: "{{ user_name_2 }}"
+        user_host: localhost
+        priv: SELECT
 
-    - include_tasks: utils/remove_user.yml user_name={{ user_name_2 }}
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ user_name_2 }}"
 
-    - include_tasks: utils/assert_no_user.yml user_name={{ user_name_2 }}
+    - include_tasks: utils/assert_no_user.yml
+      vars:
+        user_name: "{{ user_name_2 }}"
+
 
     # ============================================================
     # Assert user has access to multiple databases
@@ -112,9 +130,13 @@
           - "'{{ item }}' in result.stdout"
       with_items: "{{db_names}}"
 
-    - include_tasks: utils/remove_user.yml user_name={{ user_name_1 }}
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ user_name_1 }}"
 
-    - include_tasks: utils/remove_user.yml user_name={{ user_name_2 }}
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ user_name_2 }}"
 
     - name: Give user SELECT access to database via wildcard
       mysql_user:
@@ -172,7 +194,9 @@
           - "'%db' in result.stdout"
           - "'INSERT' in result.stdout"
 
-    - include_tasks: utils/remove_user.yml user_name={{user_name_1}}
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{user_name_1}}"
 
     # ============================================================
     # Test plaintext and encrypted password scenarios.

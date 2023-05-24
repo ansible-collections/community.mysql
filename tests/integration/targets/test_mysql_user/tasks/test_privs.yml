@@ -37,7 +37,11 @@
         state: present
       when: current_append_privs ==  "yes"
 
-    - include: utils/assert_user.yml user_name={{ user_name_2 }} user_host=% priv='SELECT'
+    - include_tasks: utils/assert_user.yml
+      vars:
+        user_name: "{{ user_name_2 }}"
+        user_host: "%"
+        priv: 'SELECT'
       when: current_append_privs ==  "yes"
 
     - name: Privs | Create user with current privileges (expect changed=true)
@@ -132,7 +136,7 @@
         priv: '*.*:ALL'
         state: present
 
-    # - include: utils/assert_user.yml user_name={{user_name_2}} user_host=% priv='ALL PRIVILEGES'
+    # - include_tasks: utils/assert_user.yml user_name={{user_name_2}} user_host=% priv='ALL PRIVILEGES'
 
     - name: Privs | Create database using user {{ user_name_2 }}
       mysql_db:
@@ -188,7 +192,9 @@
         that:
           - result is not changed
 
-    - include: utils/remove_user.yml user_name="{{ user_name_2 }}"
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ user_name_2 }}"
 
     # ============================================================
     - name: Privs | Grant all privileges with grant option
@@ -259,4 +265,6 @@
           - result is failed
           - "'Error granting privileges' in result.msg"
 
-    - include: utils/remove_user.yml user_name="{{ user_name_2 }}"
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ user_name_2 }}"

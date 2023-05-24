@@ -35,13 +35,13 @@
 
   block:
 
-    - include: issue-121.yml
+    - include_tasks: issue-121.yml
 
-    - include: issue-28.yml
+    - include_tasks: issue-28.yml
 
-    - include: test_resource_limits.yml
+    - include_tasks: test_resource_limits.yml
 
-    - include: test_idempotency.yml
+    - include_tasks: test_idempotency.yml
 
     # ============================================================
     # Create user with no privileges and verify default privileges are assign
@@ -54,11 +54,20 @@
         state: present
       register: result
 
-    - include: utils/assert_user.yml user_name={{ user_name_1 }} user_host=localhost priv=USAGE
+    - include_tasks: utils/assert_user.yml
+      vars:
+        user_name: "{{ user_name_1 }}"
+        user_host: localhost
+        priv: USAGE
 
-    - include: utils/remove_user.yml user_name={{ user_name_1 }}
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ user_name_1 }}"
 
-    - include: utils/assert_no_user.yml user_name={{ user_name_1 }}
+    - include_tasks: utils/assert_no_user.yml
+      vars:
+        user_name: "{{ user_name_1 }}"
+
 
     # ============================================================
     # Create user with select privileges and verify select privileges are assign
@@ -72,11 +81,20 @@
         priv: '*.*:SELECT'
       register: result
 
-    - include: utils/assert_user.yml user_name={{ user_name_2 }} user_host=localhost priv=SELECT
+    - include_tasks: utils/assert_user.yml
+      vars:
+        user_name: "{{ user_name_2 }}"
+        user_host: localhost
+        priv: SELECT
 
-    - include: utils/remove_user.yml user_name={{ user_name_2 }}
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ user_name_2 }}"
 
-    - include: utils/assert_no_user.yml user_name={{ user_name_2 }}
+    - include_tasks: utils/assert_no_user.yml
+      vars:
+        user_name: "{{ user_name_2 }}"
+
 
     # ============================================================
     # Assert user has access to multiple databases
@@ -112,9 +130,13 @@
           - "'{{ item }}' in result.stdout"
       with_items: "{{db_names}}"
 
-    - include: utils/remove_user.yml user_name={{ user_name_1 }}
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ user_name_1 }}"
 
-    - include: utils/remove_user.yml user_name={{ user_name_2 }}
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ user_name_2 }}"
 
     - name: Give user SELECT access to database via wildcard
       mysql_user:
@@ -172,59 +194,81 @@
           - "'%db' in result.stdout"
           - "'INSERT' in result.stdout"
 
-    - include: utils/remove_user.yml user_name={{user_name_1}}
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{user_name_1}}"
 
     # ============================================================
     # Test plaintext and encrypted password scenarios.
     #
-    - include: test_user_password.yml
+    - include_tasks: test_user_password.yml
 
     # ============================================================
     # Test plugin authentication scenarios.
     #
     # FIXME: mariadb sql syntax for create/update user is not compatible
-    - include: test_user_plugin_auth.yml
+    - include_tasks: test_user_plugin_auth.yml
       when: db_engine == 'mysql'
 
     # ============================================================
     # Assert create user with SELECT privileges, attempt to create database and update privileges to create database
     #
-    - include: test_privs.yml current_privilege=SELECT current_append_privs=no
+    - include_tasks: test_privs.yml
+      vars:
+        current_privilege: SELECT
+        current_append_privs: no
 
     # ============================================================
     # Assert creating user with SELECT privileges, attempt to create database and append privileges to create database
     #
-    - include: test_privs.yml current_privilege=DROP current_append_privs=yes
+    - include_tasks: test_privs.yml
+      vars:
+        current_privilege: DROP
+        current_append_privs: yes
 
     # ============================================================
     # Assert create user with SELECT privileges, attempt to create database and update privileges to create database
     #
-    - include: test_privs.yml current_privilege='UPDATE,ALTER' current_append_privs=no
+    - include_tasks: test_privs.yml
+      vars:
+        current_privilege: 'UPDATE,ALTER'
+        current_append_privs: no
 
     # ============================================================
     # Assert creating user with SELECT privileges, attempt to create database and append privileges to create database
     #
-    - include: test_privs.yml current_privilege='INSERT,DELETE' current_append_privs=yes
+    - include_tasks: test_privs.yml
+      vars:
+        current_privilege: 'INSERT,DELETE'
+        current_append_privs: yes
 
     # Tests for the priv parameter with dict value (https://github.com/ansible/ansible/issues/57533)
-    - include: test_priv_dict.yml
+    - include_tasks: test_priv_dict.yml
 
     # Test that append_privs will not attempt to make a change where current privileges are a superset of new privileges
     # (https://github.com/ansible-collections/community.mysql/issues/69)
-    - include: test_priv_append.yml enable_check_mode=no
-    - include: test_priv_append.yml enable_check_mode=yes
+    - include_tasks: test_priv_append.yml
+      vars:
+        enable_check_mode: no
+    - include_tasks: test_priv_append.yml
+      vars:
+        enable_check_mode: yes
 
     # Test that subtract_privs will only revoke the grants given by priv
     # (https://github.com/ansible-collections/community.mysql/issues/331)
-    - include: test_priv_subtract.yml enable_check_mode=no
-    - include: test_priv_subtract.yml enable_check_mode=yes
+    - include_tasks: test_priv_subtract.yml
+      vars:
+        enable_check_mode: no
+    - include_tasks: test_priv_subtract.yml
+      vars:
+        enable_check_mode: yes
 
     - import_tasks: test_privs_issue_465.yml
       tags:
         - issue_465
 
     # Tests for the TLS requires dictionary
-    - include: test_tls_requirements.yml
+    - include_tasks: test_tls_requirements.yml
 
     - import_tasks: issue-29511.yaml
       tags:
@@ -236,9 +280,9 @@
 
     # Test that mysql_user still works with force_context enabled (database set to "mysql")
     # (https://github.com/ansible-collections/community.mysql/issues/265)
-    - include: issue-265.yml
+    - include_tasks: issue-265.yml
 
     # https://github.com/ansible-collections/community.mysql/issues/231
-    - include: test_user_grants_with_roles_applied.yml
+    - include_tasks: test_user_grants_with_roles_applied.yml
 
-    - include: test_revoke_only_grant.yml
+    - include_tasks: test_revoke_only_grant.yml

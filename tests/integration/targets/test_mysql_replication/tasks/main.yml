@@ -10,7 +10,7 @@
 - import_tasks: mysql_replication_initial.yml
 
 # Tests of replication filters and force_context
-- include: issue-265.yml
+- include_tasks: issue-265.yml
 
 # Tests of primary_delay parameter:
 - import_tasks: mysql_replication_primary_delay.yml
@@ -24,4 +24,4 @@
 # Tests of resetprimary mode:
 - import_tasks: mysql_replication_resetprimary_mode.yml
 
-- include: issue-28.yml
+- include_tasks: issue-28.yml

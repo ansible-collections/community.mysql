@@ -196,7 +196,6 @@ attributes:
     support: full
 extends_documentation_fragment:
 - community.mysql.mysql
-
 '''
 
 EXAMPLES = r'''

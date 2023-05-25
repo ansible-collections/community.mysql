@@ -332,3 +332,17 @@ releases:
     - 3.7.1.yml
     - 551-fix_connection_arguments_driver_compatability.yaml
     release_date: '2023-05-22'
+  3.7.2:
+    changes:
+      bugfixes:
+      - mysql module utils - use the connection arguments ``db`` instead of ``database``
+        and ``passwd`` instead of ``password`` when running with MySQLdb < 2.0.0 (https://github.com/ansible-collections/community.mysql/pull/553).
+      release_summary: 'This is a patch release of the community.mysql collection.
+
+        This changelog contains all changes to the modules and plugins in this collection
+
+        that have been made after the previous release.'
+    fragments:
+    - 3.7.2.yml
+    - 553_fix_connection_arguemnts_for_old_mysqldb_driver.yaml
+    release_date: '2023-05-25'

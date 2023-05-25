@@ -6,6 +6,21 @@ Community MySQL Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.7.2
+======
+
+Release Summary
+---------------
+
+This is a patch release of the community.mysql collection.
+This changelog contains all changes to the modules and plugins in this collection
+that have been made after the previous release.
+
+Bugfixes
+--------
+
+- mysql module utils - use the connection arguments ``db`` instead of ``database`` and ``passwd`` instead of ``password`` when running with MySQLdb < 2.0.0 (https://github.com/ansible-collections/community.mysql/pull/553).
+
 v3.7.1
 ======
 

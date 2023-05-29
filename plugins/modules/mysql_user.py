@@ -163,7 +163,10 @@ notes:
      2) drop a C(~/.my.cnf) file containing the new root credentials.
      Subsequent runs of the playbook will then succeed by reading the new credentials from the file."
    - Currently, there is only support for the C(mysql_native_password) encrypted password hash module.
-   - Supports (check_mode).
+
+attributes:
+  check_mode:
+    support: full
 
 seealso:
 - module: community.mysql.mysql_info
@@ -180,7 +183,6 @@ author:
 - Lukasz Tomaszkiewicz (@tomaszkiewicz)
 extends_documentation_fragment:
 - community.mysql.mysql
-
 '''
 
 EXAMPLES = r'''

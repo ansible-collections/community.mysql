@@ -188,13 +188,14 @@ requirements:
    - mysql (command line binary)
    - mysqldump (command line binary)
 notes:
-   - Supports C(check_mode).
    - Requires the mysql and mysqldump binaries on the remote host.
    - This module is B(not idempotent) when I(state) is C(import),
      and will import the dump file each time if run more than once.
+attributes:
+  check_mode:
+    support: full
 extends_documentation_fragment:
 - community.mysql.mysql
-
 '''
 
 EXAMPLES = r'''

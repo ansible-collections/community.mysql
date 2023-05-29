@@ -47,7 +47,10 @@ options:
 notes:
 - Calculating the size of a database might be slow, depending on the number and size of tables in it.
   To avoid this, use I(exclude_fields=db_size).
-- Supports C(check_mode).
+
+attributes:
+  check_mode:
+    support: full
 
 seealso:
 - module: community.mysql.mysql_variables

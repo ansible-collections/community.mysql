@@ -194,9 +194,12 @@ options:
 notes:
 - If an empty value for the parameter of string type is needed, use an empty string.
 
+attributes:
+  check_mode:
+    support: none
+
 extends_documentation_fragment:
 - community.mysql.mysql
-
 
 seealso:
 - module: community.mysql.mysql_info

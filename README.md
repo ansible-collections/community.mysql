@@ -3,8 +3,11 @@
 
 This collection is a part of the Ansible package.
 
-Ansible `community.mysql` collection community mission is to produce simple, flexible,
-and powerful open-source software for automating MySQL- and MariaDB-related tasks.
+## Our mission
+
+The Ansible `community.mysql` collection goals are to produce and maintain simple,
+flexible, and powerful open-source software for automating MySQL and MariaDB related tasks
+providing good documentation for easy deployment and use.
 
 ## Code of Conduct
 

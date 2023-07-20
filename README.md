@@ -3,6 +3,12 @@
 
 This collection is a part of the Ansible package.
 
+## Our mission
+
+The Ansible `community.mysql` collection goals are to produce and maintain simple,
+flexible, and powerful open-source software for automating MySQL and MariaDB related tasks
+providing good documentation for easy deployment and use.
+
 ## Code of Conduct
 
 We follow the [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html) in all our interactions within this project.
@@ -17,7 +23,7 @@ We are actively accepting new contributors.
 
 Any kind of contribution is very welcome.
 
-You don't know how to start? Refer to our [contribution guide](https://github.com/ansible-collections/community.mysql/blob/main/CONTRIBUTING.md)!
+You don't know how to start? Refer to our [contribution guide](https://github.com/ansible-collections/community.mysql/blob/main/CONTRIBUTING.md) or ask us in the [#mysql:ansible.com room](https://matrix.to/#/#mysql:ansible.com) on [Matrix](https://docs.ansible.com/ansible/devel/community/communication.html#ansible-community-on-matrix)!
 
 ## Collection maintenance
 

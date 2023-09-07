@@ -1,0 +1,2 @@
+minor_changes:
+  - mysql_db - Implement `check_hostname` parameter for state dump and import.

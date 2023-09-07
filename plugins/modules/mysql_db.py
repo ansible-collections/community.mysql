@@ -371,7 +371,7 @@ def db_delete(cursor, db):
 
 
 def db_dump(module, host, user, password, db_name, target, all_databases, port,
-            config_file, socket=None, ssl_cert=None, ssl_key=None, ssl_ca=None,
+            config_file, socket=None, check_hostname=False, ssl_cert=None, ssl_key=None, ssl_ca=None,
             single_transaction=None, quick=None, ignore_tables=None, hex_blob=None,
             encoding=None, force=False, master_data=0, skip_lock_tables=False,
             dump_extra_args=None, unsafe_password=False, restrict_config_file=False,
@@ -396,6 +396,8 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
             else:
                 cmd += " --password=%s" % password
 
+    if check_hostname:
+        cmd += " --ssl"
     if ssl_cert is not None:
         cmd += " --ssl-cert=%s" % shlex_quote(ssl_cert)
     if ssl_key is not None:
@@ -460,7 +462,7 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
 
 
 def db_import(module, host, user, password, db_name, target, all_databases, port, config_file,
-              socket=None, ssl_cert=None, ssl_key=None, ssl_ca=None, encoding=None, force=False,
+              socket=None, check_hostname=False, ssl_cert=None, ssl_key=None, ssl_ca=None, encoding=None, force=False,
               use_shell=False, unsafe_password=False, restrict_config_file=False,
               check_implicit_admin=False):
     if not os.path.exists(target):
@@ -486,6 +488,8 @@ def db_import(module, host, user, password, db_name, target, all_databases, port
             else:
                 cmd.append("--password=%s" % password)
 
+    if check_hostname:
+        cmd.append("--ssl")
     if ssl_cert is not None:
         cmd.append("--ssl-cert=%s" % shlex_quote(ssl_cert))
     if ssl_key is not None:
@@ -729,7 +733,7 @@ def main():
             module.exit_json(changed=True, db=db_name, db_list=db)
         rc, stdout, stderr = db_dump(module, login_host, login_user,
                                      login_password, db, target, all_databases,
-                                     login_port, config_file, socket, ssl_cert, ssl_key,
+                                     login_port, config_file, socket, check_hostname, ssl_cert, ssl_key,
                                      ssl_ca, single_transaction, quick, ignore_tables,
                                      hex_blob, encoding, force, master_data, skip_lock_tables,
                                      dump_extra_args, unsafe_login_password, restrict_config_file,
@@ -751,7 +755,7 @@ def main():
                                        login_password, db, target,
                                        all_databases,
                                        login_port, config_file,
-                                       socket, ssl_cert, ssl_key, ssl_ca,
+                                       socket, check_hostname, ssl_cert, ssl_key, ssl_ca,
                                        encoding, force, use_shell, unsafe_login_password,
                                        restrict_config_file, check_implicit_admin)
         if rc != 0:

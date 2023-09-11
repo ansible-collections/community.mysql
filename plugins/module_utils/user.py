@@ -107,13 +107,16 @@ def get_tls_requires(cursor, user, host):
 def get_grants(module, cursor, user, host):
     cursor.execute("SHOW GRANTS FOR %s@%s", (user, host))
     try:
-        grants_line = list(filter(lambda x: "ON *.*" in x[0], cursor.fetchall()))[0]
+        c = cursor.fetchall()
+        # grants_line = list(filter(lambda x: "ON *.*" in x[0], cursor.fetchall()))[0]
+        module.warn("%s" % c)
     except Exception as e:
         module.fail_json(msg="Error %s" % e)
 
-    pattern = r"(?<=\bGRANT\b)(.*?)(?=(?:\bON\b))"
-    grants = re.search(pattern, grants_line[0]).group().strip()
-    return grants.split(", ")
+    # pattern = r"(?<=\bGRANT\b)(.*?)(?=(?:\bON\b))"
+    # grants = re.search(pattern, grants_line[0]).group().strip()
+    # return grants.split(", ")
+    return "test"
 
 
 def get_existing_authentication(cursor, user):

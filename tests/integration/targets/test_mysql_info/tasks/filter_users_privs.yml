@@ -1,0 +1,13 @@
+---
+
+- name: Collect info about users_privs
+  community.mysql.mysql_info:
+    login_user: '{{ mysql_user }}'
+    login_password: '{{ mysql_password }}'
+    login_host: '{{ mysql_host }}'
+    login_port: '{{ mysql_primary_port }}'
+    filter:
+      - users_privs
+  register: result
+
+- debug: var=result

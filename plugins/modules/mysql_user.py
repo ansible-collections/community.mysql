@@ -525,7 +525,7 @@ def main():
                 if subtract_privs:
                     priv = None  # avoid granting unwanted privileges
                 reuse_existing_password = update_password == 'on_new_username'
-                result = user_add(cursor, user, host, host_all, password, encrypted,
+                result = user_add(module, cursor, user, host, host_all, password, encrypted,
                                   plugin, plugin_hash_string, plugin_auth_string,
                                   priv, tls_requires, module.check_mode, reuse_existing_password)
                 changed = result['changed']

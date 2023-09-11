@@ -19,7 +19,7 @@ options:
     description:
     - Limit the collected information by comma separated string or YAML list.
     - Allowable values are C(version), C(databases), C(settings), C(global_status),
-      C(users), C(engines), C(master_status), C(slave_status), C(slave_hosts).
+      C(users), C(users_privs), C(engines), C(master_status), C(slave_status), C(slave_hosts).
     - By default, collects all subsets.
     - You can use '!' before value (for example, C(!settings)) to exclude it from the information.
     - If you pass including and excluding values to the filter, for example, I(filter=!settings,version),
@@ -73,6 +73,9 @@ EXAMPLES = r'''
 
 # Display only databases and users info:
 # ansible mysql-hosts -m mysql_info -a 'filter=databases,users'
+
+# Display all users privileges:
+# ansible mysql-hosts -m mysql_info -a 'filter=users_privs'
 
 # Display only slave status:
 # ansible standby -m mysql_info -a 'filter=slave_status'
@@ -186,6 +189,12 @@ users:
   type: dict
   sample:
   - { "localhost": { "root": { "Alter_priv": "Y", "Alter_routine_priv": "Y" } } }
+users_privs:
+  description: Users privileges.
+  returned: if not excluded by filter
+  type: dict
+  sample:
+  - { "name": "user1", "host": "host.com", "priv": 'db1.*':'ALL' 'db2.tb1':'SELECT', pass_hash: '*1234567', resource_limits: { MAX_USER_CONNECTIONS: 100 } }
 engines:
   description: Information about the server's storage engines.
   returned: if not excluded by filter
@@ -237,6 +246,10 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_driver_fail_msg,
     get_connector_name,
     get_connector_version,
+    get_server_version,
+)
+from ansible_collections.community.mysql.plugins.module_utils.user import (
+    get_grants,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -274,6 +287,7 @@ class MySQL_Info(object):
             'global_status': {},
             'engines': {},
             'users': {},
+            'users_privs': {},
             'master_status': {},
             'slave_hosts': {},
             'slave_status': {},
@@ -341,6 +355,9 @@ class MySQL_Info(object):
 
         if 'users' in wanted:
             self.__get_users()
+
+        if 'users_privs' in wanted:
+            self.__get_users_privs()
 
         if 'master_status' in wanted:
             self.__get_master_status()
@@ -479,6 +496,29 @@ class MySQL_Info(object):
                 for vname, val in iteritems(line):
                     if vname not in ('Host', 'User'):
                         self.info['users'][host][user][vname] = self.__convert(val)
+
+    def __get_users_privs(self):
+        """Get user privileges."""
+        try:
+            user = self.__exec_sql('SELECT * FROM mysql.user')
+        except Exception as e:
+            self.fail_json(
+                msg="mysql_info failed to retrieve the users: %s" % e)
+
+        for line in user:
+            u = line['User']
+            h = line['Host']
+            key = u + '_' + h
+
+            privs = get_grants(self.module, self.cursor, u, h)
+
+            if not privs:
+                self.module.warn(
+                    'Fail to get privileges for user %s on host %s.' % (u, h))
+                privs = {}
+
+            self.info['users_privs'][key] = {
+                'user': u, 'host': h, 'privs': privs}
 
     def __get_databases(self, exclude_fields, return_empty_dbs):
         """Get info about databases."""

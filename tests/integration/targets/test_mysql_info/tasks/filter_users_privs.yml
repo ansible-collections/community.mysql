@@ -60,7 +60,7 @@
             'users_privs_db.t1': 'SELECT,INSERT,UPDATE'
         - user: users_privs_col
           privs:
-            'users_privs_db.t1': 'SELECT(id)'
+            'users_privs_db.t1': 'SELECT (id)'
         - user: users_privs_proc
           privs:
             'PROCEDURE users_privs_db.get_all_items': 'EXECUTE'

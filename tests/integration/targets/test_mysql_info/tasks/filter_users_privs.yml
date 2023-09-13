@@ -1,13 +1,100 @@
 ---
 
-- name: Collect info about users_privs
-  community.mysql.mysql_info:
-    login_user: '{{ mysql_user }}'
-    login_password: '{{ mysql_password }}'
-    login_host: '{{ mysql_host }}'
-    login_port: '{{ mysql_primary_port }}'
-    filter:
-      - users_privs
-  register: result
+- module_defaults:
+    community.mysql.mysql_db: &mysql_defaults
+      login_user: "{{ mysql_user }}"
+      login_password: "{{ mysql_password }}"
+      login_host: "{{ mysql_host }}"
+      login_port: "{{ mysql_primary_port }}"
+    community.mysql.mysql_query: *mysql_defaults
+    community.mysql.mysql_info: *mysql_defaults
+    community.mysql.mysql_user: *mysql_defaults
 
-- debug: var=result
+  block:
+
+    # ================================ Prepare ==============================
+    - name: Mysql_info users_privs | Create databases
+      community.mysql.mysql_db:
+        name: users_privs_db
+        state: present
+
+    - name: Mysql_info users_privs | Create tables
+      community.mysql.mysql_query:
+        query:
+          - >
+            CREATE TABLE IF NOT EXISTS users_privs_db.t1
+            (id int, name varchar(9))
+
+    # I failed to create a procedure using community.mysql.mysql_query.
+    # Maybe it's because we must changed the delimiter.
+    - name: Mysql_info users_privs | Create procedure SQL file
+      ansible.builtin.template:
+        src: files/users_privs_create_procedure.sql
+        dest: /root/create_procedure.sql
+        owner: root
+        group: root
+        mode: '0700'
+
+    - name: Mysql_info users_privs | Create a procedure
+      community.mysql.mysql_db:
+        name: all
+        state: import
+        target: /root/create_procedure.sql
+
+    - name: Mysql_info users_privs | Prepare tests users
+      community.mysql.mysql_user:
+        name: "{{ item.user }}"
+        host: "users_privs.com"
+        password: "msandbox"
+        priv: "{{ item.privs }}"
+        state: present
+      loop:
+        - user: users_privs_adm
+          privs:
+            '*.*': 'ALL,GRANT'
+        - user: users_privs_schema
+          privs:
+            'users_privs_db.*': 'SELECT,INSERT,UPDATE,DELETE'
+        - user: users_privs_table
+          privs:
+            'users_privs_db.t1': 'SELECT,INSERT,UPDATE'
+        - user: users_privs_col
+          privs:
+            'users_privs_db.t1': 'SELECT(id)'
+        - user: users_privs_proc
+          privs:
+            'PROCEDURE users_privs_db.get_all_items': 'EXECUTE'
+
+    # ================================== Tests ==============================
+
+    - name: Mysql_info users_privs | Collect users_privs
+      community.mysql.mysql_info:
+        filter:
+          - users_privs
+      register: result
+
+    - debug: var=result
+
+    # ================================== Cleanup ============================
+
+    - name: Mysql_info users_privs | Cleanup databases
+      community.mysql.mysql_db:
+        name: users_privs_db
+        state: absent
+
+    - name: Mysql_info users_privs | Cleanup users_privs
+      community.mysql.mysql_user:
+        name: "{{ item }}"
+        host: "users_privs.com"
+        state: absent
+      loop:
+        - users_privs_adm
+        - users_privs_schema
+        - users_privs_table
+        - users_privs_col
+        - users_privs_proc
+
+    - name: Mysql_info users_privs | Cleanup sql file for the procedure
+      ansible.builtin.file:
+        path: /root/create_procedure.sql
+        state: absent

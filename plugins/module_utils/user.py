@@ -481,9 +481,9 @@ def privileges_get(module, cursor, user, host, maria_role=False):
 
     for grant in grants:
         if not maria_role:
-            res = re.match("""GRANT (.+) ON (.+) TO (['`"]).*\\3@(['`"]).*\\4( IDENTIFIED BY PASSWORD (['`"]).+\\6)? ?(.*)""", grant[0])
+            res = re.match("""GRANT (.+) ON (.+) TO (['`"]).*\\3@(['`"]).*\\4( IDENTIFIED BY PASSWORD (['`"]).+\\6)? ?(.*)""", grant)
         else:
-            res = re.match("""GRANT (.+) ON (.+) TO (['`"]).*\\3""", grant[0])
+            res = re.match("""GRANT (.+) ON (.+) TO (['`"]).*\\3""", grant)
 
         if res is None:
             # If a user has roles assigned, we'll have one of priv tuples looking like
@@ -491,11 +491,11 @@ def privileges_get(module, cursor, user, host, maria_role=False):
             # which will result None as res value.
             # As we use the mysql_role module to manipulate roles
             # we just ignore such privs below:
-            res = re.match("""GRANT (.+) TO (['`"]).*""", grant[0])
+            res = re.match("""GRANT (.+) TO (['`"]).*""", grant)
             if not maria_role and res:
                 continue
 
-            raise InvalidPrivsError('unable to parse the MySQL grant string: %s' % grant[0])
+            raise InvalidPrivsError('unable to parse the MySQL grant string: %s' % grant)
 
         privileges = res.group(1).split(",")
         privileges = [pick(x.strip()) for x in privileges]

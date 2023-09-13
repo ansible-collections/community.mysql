@@ -324,7 +324,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
         # Handle privileges
         if new_priv is not None:
-            curr_priv = privileges_get(cursor, user, host, maria_role)
+            curr_priv = privileges_get(module, cursor, user, host, maria_role)
 
             # If the user has privileges on a db.table that doesn't appear at all in
             # the new specification, then revoke all privileges on it.
@@ -396,7 +396,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                         privileges_grant(cursor, user, host, db_table, grant_privs, tls_requires, maria_role)
 
             # after privilege manipulation, compare privileges from before and now
-            after_priv = privileges_get(cursor, user, host, maria_role)
+            after_priv = privileges_get(module, cursor, user, host, maria_role)
             changed = changed or (curr_priv != after_priv)
 
         if role:
@@ -455,7 +455,7 @@ def user_get_hostnames(cursor, user):
     return hostnames
 
 
-def privileges_get(cursor, user, host, maria_role=False):
+def privileges_get(module, cursor, user, host, maria_role=False):
     """ MySQL doesn't have a better method of getting privileges aside from the
     SHOW GRANTS query syntax, which requires us to then parse the returned string.
     Here's an example of the string that is returned from MySQL:
@@ -467,9 +467,10 @@ def privileges_get(cursor, user, host, maria_role=False):
     """
     output = {}
     if not maria_role:
-        cursor.execute("SHOW GRANTS FOR %s@%s", (user, host))
+        query = "SHOW GRANTS FOR '%s'@'%s'" % (user, host)
     else:
-        cursor.execute("SHOW GRANTS FOR %s", (user,))
+        query = "SHOW GRANTS FOR '%s'" % user
+    cursor.execute(query)
     grants = cursor.fetchall()
 
     def pick(x):

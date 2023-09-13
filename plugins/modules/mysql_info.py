@@ -249,7 +249,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     get_server_version,
 )
 from ansible_collections.community.mysql.plugins.module_utils.user import (
-    get_grants,
+    privileges_get,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -510,15 +510,20 @@ class MySQL_Info(object):
             h = line['Host']
             key = u + '_' + h
 
-            privs = get_grants(self.module, self.cursor, u, h)
+            user_priv = privileges_get(self.module, self.cursor, u, h)
 
-            if not privs:
-                self.module.warn(
-                    'Fail to get privileges for user %s on host %s.' % (u, h))
-                privs = {}
+            if not user_priv:
+                self.module.warn("No privileges found for %s on host %s" % (u, h))
+                continue
+
+
+            # if not privs:
+                # self.module.warn(
+                #     'Fail to get privileges for user %s on host %s.' % (u, h))
+                # privs = {}
 
             self.info['users_privs'][key] = {
-                'user': u, 'host': h, 'privs': privs}
+                'user': u, 'host': h, 'privs': user_priv}
 
     def __get_databases(self, exclude_fields, return_empty_dbs):
         """Get info about databases."""

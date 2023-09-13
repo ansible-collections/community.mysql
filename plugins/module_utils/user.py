@@ -104,19 +104,13 @@ def get_tls_requires(cursor, user, host):
         return requires or None
 
 
-def get_grants(module, cursor, user, host):
+def get_grants(cursor, user, host):
     cursor.execute("SHOW GRANTS FOR %s@%s", (user, host))
-    try:
-        c = cursor.fetchall()
-        # grants_line = list(filter(lambda x: "ON *.*" in x[0], cursor.fetchall()))[0]
-        module.warn("%s" % c)
-    except Exception as e:
-        module.fail_json(msg="Error %s" % e)
+    grants_line = list(filter(lambda x: "ON *.*" in x[0], cursor.fetchall()))[0]
 
-    # pattern = r"(?<=\bGRANT\b)(.*?)(?=(?:\bON\b))"
-    # grants = re.search(pattern, grants_line[0]).group().strip()
-    # return grants.split(", ")
-    return "test"
+    pattern = r"(?<=\bGRANT\b)(.*?)(?=(?:\bON\b))"
+    grants = re.search(pattern, grants_line[0]).group().strip()
+    return grants.split(", ")
 
 
 def get_existing_authentication(cursor, user):
@@ -139,7 +133,7 @@ def get_existing_authentication(cursor, user):
     return None
 
 
-def user_add(module, cursor, user, host, host_all, password, encrypted,
+def user_add(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
              tls_requires, check_mode, reuse_existing_password):
     # we cannot create users without a proper hostname
@@ -194,7 +188,7 @@ def user_add(module, cursor, user, host, host_all, password, encrypted,
         for db_table, priv in iteritems(new_priv):
             privileges_grant(cursor, user, host, db_table, priv, tls_requires)
     if tls_requires is not None:
-        privileges_grant(cursor, user, host, "*.*", get_grants(module, cursor, user, host), tls_requires)
+        privileges_grant(cursor, user, host, "*.*", get_grants(cursor, user, host), tls_requires)
     return {'changed': True, 'password_changed': not used_existing_password}
 
 

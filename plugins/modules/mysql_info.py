@@ -498,14 +498,31 @@ class MySQL_Info(object):
                         self.info['users'][host][user][vname] = self.__convert(val)
 
     def __get_users_privs(self):
-        """Get user privileges."""
+        """Get user privileges.
+
+        Query the server to get all the users and return a string
+        of privileges that can be used with the mysql_user plugin.
+        For instance:
+
+        "users_privs": {
+            "users_privs_adm_users_privs.com": {
+                "host": "users_privs.com",
+                "privs": "*.*: ALL,GRANT",
+                "user": "users_privs_adm"
+            },
+            "users_privs_multi_users_privs.com": {
+                "host": "users_privs.com",
+                "privs": "`mysql`.*: SELECT/`users_privs_db`.*: SELECT",
+                "user": "users_privs_multi"
+            }
+        """
         try:
-            user = self.__exec_sql('SELECT * FROM mysql.user')
+            users = self.__exec_sql('SELECT * FROM mysql.user')
         except Exception as e:
             self.fail_json(
                 msg="mysql_info failed to retrieve the users: %s" % e)
 
-        for line in user:
+        for line in users:
             u = line['User']
             h = line['Host']
             key = u + '_' + h
@@ -516,14 +533,15 @@ class MySQL_Info(object):
                 self.module.warn("No privileges found for %s on host %s" % (u, h))
                 continue
 
+            priv_string = list()
+            for db_table, priv in user_priv.items():
+                if db_table == '*.*' and priv == 'USAGE':
+                    continue
 
-            # if not privs:
-                # self.module.warn(
-                #     'Fail to get privileges for user %s on host %s.' % (u, h))
-                # privs = {}
+                priv_string.append("'%s': '%s'" % (db_table, ','.join(priv)))
 
             self.info['users_privs'][key] = {
-                'user': u, 'host': h, 'privs': user_priv}
+                'user': u, 'host': h, 'privs': '/'.join(priv_string)}
 
     def __get_databases(self, exclude_fields, return_empty_dbs):
         """Get info about databases."""

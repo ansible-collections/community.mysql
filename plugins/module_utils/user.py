@@ -122,12 +122,14 @@ def get_existing_authentication(cursor, user):
         # when using mysql_native_password
         cursor.execute("""select plugin, auth from (
             select plugin, password as auth from mysql.user where user=%(user)s
+            and host=%(host)s
             union select plugin, authentication_string as auth from mysql.user where user=%(user)s
-            ) x group by plugin, auth limit 2
-        """, {'user': user})
+            and host=%(host)s) x group by plugin, auth limit 2
+        """, {'user': user, 'host': host})
     else:
-        cursor.execute("""select plugin, authentication_string as auth from mysql.user where user=%(user)s
-            group by plugin, authentication_string limit 2""", {'user': user})
+        cursor.execute("""select plugin, authentication_string as auth
+            from mysql.user where user=%(user)s and host=%(host)s
+            group by plugin, authentication_string limit 2""", {'user': user, 'host': host})
     rows = cursor.fetchall()
 
     if isinstance(rows[0], tuple):

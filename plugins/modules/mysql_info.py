@@ -538,7 +538,14 @@ class MySQL_Info(object):
                 if db_table == '*.*' and priv == 'USAGE':
                     continue
 
-                priv_string.append("'%s': '%s'" % (db_table, ','.join(priv)))
+                # privileges_get returns "'''@''': 'PROXY,GRANT'". The % is missing
+                # and there is too many quotes. So we rewrite this.
+                if priv == ['PROXY', 'GRANT'] and u == 'root':
+                    priv_string.append("'``@`%`: 'PROXY,GRANT'")
+                    continue
+
+                unquote_db_table = db_table.replace('`', '').replace("'", '')
+                priv_string.append("'%s': '%s'" % (unquote_db_table, ','.join(priv)))
 
             self.info['users_privs'][key] = {
                 'user': u, 'host': h, 'privs': '/'.join(priv_string)}

@@ -79,6 +79,17 @@
 
     - debug: var=result
 
+    - name: Insert the users privileges as input of mysql_user
+      community.mysql.mysql_user:
+        name: "{{ item.user }}"
+        host: "{{ item.host }}"
+        password: "{{ item.password }}"
+        encrypted: true
+        priv: "{{ item.priv | default(omit) }}"
+        resource_limits: "{{ item.resource_limits | default(omit) }}"
+        state: present
+      loop: "{{ result.users_privs }}"
+
     # ================================== Cleanup ============================
 
     - name: Mysql_info users_privs | Cleanup databases

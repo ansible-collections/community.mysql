@@ -535,7 +535,7 @@ class MySQL_Info(object):
 
             priv_string = list()
             for db_table, priv in user_priv.items():
-                if db_table == '*.*' and priv == 'USAGE':
+                if db_table == '*.*' and priv == ['USAGE']:
                     continue
 
                 # privileges_get returns "'''@''': 'PROXY,GRANT'". The % is missing

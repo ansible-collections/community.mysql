@@ -64,6 +64,10 @@
         - user: users_privs_proc
           privs:
             'PROCEDURE users_privs_db.get_all_items': 'EXECUTE'
+        - user: users_privs_multi
+          privs:
+            'mysql.*': 'SELECT'
+            'users_privs_db.*': 'SELECT'
 
     # ================================== Tests ==============================
 

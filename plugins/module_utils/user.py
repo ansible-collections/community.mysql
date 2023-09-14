@@ -116,8 +116,8 @@ def get_grants(cursor, user, host):
 
 def get_existing_authentication(cursor, user):
     # Return the plugin and auth_string if there is exactly one distinct existing plugin and auth_string.
-    cursor.execute("SELECT VERSION()")
-    if 'mariadb' in cursor.fetchone()[0].lower():
+
+    if get_server_type(cursor) == 'mariadb':
         # before MariaDB 10.2.19 and 10.3.11, "password" and "authentication_string" can differ
         # when using mysql_native_password
         cursor.execute("""select plugin, auth from (
@@ -129,8 +129,13 @@ def get_existing_authentication(cursor, user):
         cursor.execute("""select plugin, authentication_string as auth from mysql.user where user=%(user)s
             group by plugin, authentication_string limit 2""", {'user': user})
     rows = cursor.fetchall()
-    if len(rows) == 1:
+
+    if isinstance(rows[0], tuple):
         return {'plugin': rows[0][0], 'auth_string': rows[0][1]}
+
+    if isinstance(rows[0], dict):
+        return {'plugin': rows[0].get('plugin'), 'auth_string': rows[0].get('auth')}
+
     return None
 
 

@@ -251,6 +251,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
 from ansible_collections.community.mysql.plugins.module_utils.user import (
     privileges_get,
     get_resource_limits,
+    get_existing_authentication,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -552,12 +553,16 @@ class MySQL_Info(object):
 
             resource_limits = get_resource_limits(self.module, self.cursor, user, host)
 
+            authentications = get_existing_authentication(self.cursor, user, host)
+
             copy_ressource_limits = dict.copy(resource_limits)
             output_dict = {
                 'user': user,
                 'host': host,
+                'password': 'msandbox',
                 'privs': '/'.join(priv_string),
-                'resource_limits': copy_ressource_limits
+                'resource_limits': copy_ressource_limits,
+                'authentications': authentications
             }
 
             # Prevent returning a resource limit if there is no value

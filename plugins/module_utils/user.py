@@ -763,7 +763,7 @@ def convert_priv_dict_to_str(priv):
     return '/'.join(priv_list)
 
 
-def get_resource_limits(cursor, user, host):
+def get_resource_limits(module, cursor, user, host):
     """Get user resource limits.
 
     Args:
@@ -774,33 +774,36 @@ def get_resource_limits(cursor, user, host):
     Returns: Dictionary containing current resource limits.
     """
 
-    query = ('SELECT max_questions AS MAX_QUERIES_PER_HOUR, '
-             'max_updates AS MAX_UPDATES_PER_HOUR, '
-             'max_connections AS MAX_CONNECTIONS_PER_HOUR, '
-             'max_user_connections AS MAX_USER_CONNECTIONS '
-             'FROM mysql.user WHERE User = %s AND Host = %s')
+    srv_type = get_server_type(cursor)
+    if srv_type == 'mysql':
+        query = ('SELECT max_questions AS MAX_QUERIES_PER_HOUR, '
+                 'max_updates AS MAX_UPDATES_PER_HOUR, '
+                 'max_connections AS MAX_CONNECTIONS_PER_HOUR, '
+                 'max_user_connections AS MAX_USER_CONNECTIONS '
+                 'FROM mysql.user WHERE User = %s AND Host = %s')
+    elif srv_type == 'mariadb':
+        query = ('SELECT max_questions AS MAX_QUERIES_PER_HOUR, '
+                 'max_updates AS MAX_UPDATES_PER_HOUR, '
+                 'max_connections AS MAX_CONNECTIONS_PER_HOUR, '
+                 'max_user_connections AS MAX_USER_CONNECTIONS '
+                 'max_statement_time AS MAX_STATEMENT_TIME '
+                 'FROM mysql.user WHERE User = %s AND Host = %s')
+    else:
+        msg = "Error detecting if the server is MariaDB or MySQL is %s" % srv_type
+
+        module.fail_json(msg=msg)
+
     cursor.execute(query, (user, host))
     res = cursor.fetchone()
 
     if not res:
         return None
 
-    current_limits = {
-        'MAX_QUERIES_PER_HOUR': res[0],
-        'MAX_UPDATES_PER_HOUR': res[1],
-        'MAX_CONNECTIONS_PER_HOUR': res[2],
-        'MAX_USER_CONNECTIONS': res[3],
-    }
+    # If all resources are at zero, then the user as no resources limits
+    if all(value == 0 for value in res.values()):
+        return None
 
-    cursor.execute("SELECT VERSION()")
-    if 'mariadb' in cursor.fetchone()[0].lower():
-        query = ('SELECT max_statement_time AS MAX_STATEMENT_TIME '
-                 'FROM mysql.user WHERE User = %s AND Host = %s')
-        cursor.execute(query, (user, host))
-        res_max_statement_time = cursor.fetchone()
-        current_limits['MAX_STATEMENT_TIME'] = res_max_statement_time[0]
-
-    return current_limits
+    return res
 
 
 def match_resource_limits(module, current, desired):

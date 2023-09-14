@@ -194,6 +194,16 @@ def mysql_common_argument_spec():
     )
 
 
+def get_server_type(cursor):
+    """ Return MySQL or MariaDB after quering the server
+    using SELECT VERSION()"""
+    srv_ver = get_server_version(cursor)
+    if 'mariadb' in srv_ver.lower():
+        return "mariadb"
+    else:
+        return "mysql"
+
+
 def get_server_version(cursor):
     """Returns a string representation of the server version."""
     cursor.execute("SELECT VERSION() AS version")

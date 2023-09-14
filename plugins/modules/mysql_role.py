@@ -305,7 +305,8 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_connect,
     mysql_driver,
     mysql_driver_fail_msg,
-    mysql_common_argument_spec
+    mysql_common_argument_spec,
+    get_server_type
 )
 from ansible_collections.community.mysql.plugins.module_utils.user import (
     convert_priv_dict_to_str,
@@ -407,9 +408,7 @@ class DbServer():
         Returns:
             library: Depending on a server type (MySQL or MariaDB).
         """
-        self.cursor.execute("SELECT VERSION()")
-
-        if 'mariadb' in self.cursor.fetchone()[0].lower():
+        if get_server_type(cursor) == 'mariadb':
             import ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb.role as role_impl
         else:
             import ansible_collections.community.mysql.plugins.module_utils.implementations.mysql.role as role_impl

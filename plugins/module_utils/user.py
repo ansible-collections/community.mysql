@@ -16,6 +16,7 @@ from ansible.module_utils.six import iteritems
 
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_driver,
+    get_server_type,
 )
 
 
@@ -883,8 +884,8 @@ def limit_resources(module, cursor, user, host, resource_limits, check_mode):
 
 def get_impl(cursor):
     global impl
-    cursor.execute("SELECT VERSION()")
-    if 'mariadb' in cursor.fetchone()[0].lower():
+
+    if get_server_type(cursor) == 'mariadb':
         from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import user as mariauser
         impl = mariauser
     else:

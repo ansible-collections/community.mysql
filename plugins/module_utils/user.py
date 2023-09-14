@@ -799,11 +799,31 @@ def get_resource_limits(module, cursor, user, host):
     if not res:
         return None
 
-    # If all resources are at zero, then the user as no resources limits
-    if all(value == 0 for value in res.values()):
-        return None
+    if isinstance(res, tuple):
+        current_limits = {
+            'MAX_QUERIES_PER_HOUR': res[0],
+            'MAX_UPDATES_PER_HOUR': res[1],
+            'MAX_CONNECTIONS_PER_HOUR': res[2],
+            'MAX_USER_CONNECTIONS': res[3],
+        }
 
-    return res
+        if srv_type == 'mariadb':
+            current_limits['MAX_STATEMENT_TIME'] = res[4]
+
+    # I'm not sure this is useful. Maybe fetchone() always return a
+    # tuple? But I go so many KeyError 0 errors that I haded this.
+    if isinstance(res, dict):
+        current_limits = {
+            'MAX_QUERIES_PER_HOUR': res.get('MAX_QUERIES_PER_HOUR'),
+            'MAX_UPDATES_PER_HOUR': res.get('MAX_UPDATES_PER_HOUR'),
+            'MAX_CONNECTIONS_PER_HOUR': res.get('MAX_CONNECTIONS_PER_HOUR'),
+            'MAX_USER_CONNECTIONS': res.get('MAX_USER_CONNECTIONS'),
+        }
+
+        if srv_type == 'mariadb':
+            current_limits['MAX_STATEMENT_TIME'] = res.get('MAX_STATEMENT_TIME')
+
+    return current_limits
 
 
 def match_resource_limits(module, current, desired):
@@ -859,12 +879,11 @@ def limit_resources(module, cursor, user, host, resource_limits, check_mode):
         module.fail_json(msg="The server version does not match the requirements "
                              "for resource_limits parameter. See module's documentation.")
 
-    cursor.execute("SELECT VERSION()")
-    if 'mariadb' not in cursor.fetchone()[0].lower():
+    if get_server_type(cursor) != 'mariadb':
         if 'MAX_STATEMENT_TIME' in resource_limits:
             module.fail_json(msg="MAX_STATEMENT_TIME resource limit is only supported by MariaDB.")
 
-    current_limits = get_resource_limits(cursor, user, host)
+    current_limits = get_resource_limits(module, cursor, user, host)
 
     needs_to_change = match_resource_limits(module, current_limits, resource_limits)
 

@@ -250,6 +250,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
 )
 from ansible_collections.community.mysql.plugins.module_utils.user import (
     privileges_get,
+    get_resource_limits,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -522,15 +523,15 @@ class MySQL_Info(object):
             self.fail_json(
                 msg="mysql_info failed to retrieve the users: %s" % e)
 
+        output = list()
         for line in users:
-            u = line['User']
-            h = line['Host']
-            key = u + '_' + h
+            user = line['User']
+            host = line['Host']
 
-            user_priv = privileges_get(self.module, self.cursor, u, h)
+            user_priv = privileges_get(self.module, self.cursor, user, host)
 
             if not user_priv:
-                self.module.warn("No privileges found for %s on host %s" % (u, h))
+                self.module.warn("No privileges found for %s on host %s" % (user, host))
                 continue
 
             priv_string = list()
@@ -539,16 +540,33 @@ class MySQL_Info(object):
                     continue
 
                 # privileges_get returns "'''@''': 'PROXY,GRANT'". The % is missing
-                # and there is too many quotes. So we rewrite this.
-                if priv == ['PROXY', 'GRANT'] and u == 'root':
+                # and there is too many quotes. So we rewrite this. Also because we
+                # wrap the db_table between single quotes, I use backticks to
+                # indicate an empty string.
+                if priv == ['PROXY', 'GRANT'] and user == 'root':
                     priv_string.append("'``@`%`: 'PROXY,GRANT'")
                     continue
 
                 unquote_db_table = db_table.replace('`', '').replace("'", '')
                 priv_string.append("'%s': '%s'" % (unquote_db_table, ','.join(priv)))
 
-            self.info['users_privs'][key] = {
-                'user': u, 'host': h, 'privs': '/'.join(priv_string)}
+            resource_limits = get_resource_limits(self.module, self.cursor, user, host)
+
+            output_dict = {
+                'user': user,
+                'host': host,
+                'privs': '/'.join(priv_string),
+                'resource_limits': resource_limits
+            }
+
+            if not resource_limits:
+                del output_dict['resource_limits']
+
+            output.append(output_dict)
+
+            # TODO: Return passwords
+
+        self.info['users_privs'] = output
 
     def __get_databases(self, exclude_fields, return_empty_dbs):
         """Get info about databases."""

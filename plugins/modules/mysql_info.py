@@ -573,6 +573,10 @@ class MySQL_Info(object):
             authentications = get_existing_authentication(self.cursor, user, host)
             output_dict.update(authentications)
 
+            # TODO password_option
+            # TODO lock_option
+            # but both are not supported by mysql_user atm. So no point yet.
+
             output.append(output_dict)
 
         self.info['users_privs'] = output

@@ -114,7 +114,7 @@ def get_grants(cursor, user, host):
     return grants.split(", ")
 
 
-def get_existing_authentication(cursor, user):
+def get_existing_authentication(cursor, user, host):
     # Return the plugin and auth_string if there is exactly one distinct existing plugin and auth_string.
 
     if get_server_type(cursor) == 'mariadb':
@@ -158,7 +158,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
 
     used_existing_password = False
     if reuse_existing_password:
-        existing_auth = get_existing_authentication(cursor, user)
+        existing_auth = get_existing_authentication(cursor, user, host)
         if existing_auth:
             plugin = existing_auth['plugin']
             plugin_hash_string = existing_auth['auth_string']

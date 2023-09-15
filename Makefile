@@ -77,7 +77,7 @@ test-integration:
 # 	podman exec replica1 bash -c 'echo -e [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
 # 	podman exec replica2 bash -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
 # 	# Don't restart a container unless it is healthy
-# 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
+	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
 # 	podman restart -t 30 primary
 # 	while ! podman healthcheck run replica1 && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
 # 	podman restart -t 30 replica1
@@ -87,7 +87,7 @@ test-integration:
 # 	mkdir -p .venv/$(ansible)
 # 	python$(local_python_version) -m venv .venv/$(ansible)
 
-	# Start venv (use `; \` to keep the same shell)
+# 	# Start venv (use `; \` to keep the same shell)
 # 	source .venv/$(ansible)/bin/activate; \
 # 	python$(local_python_version) -m ensurepip; \
 # 	python$(local_python_version) -m pip install --disable-pip-version-check \

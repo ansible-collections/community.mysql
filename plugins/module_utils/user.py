@@ -792,12 +792,11 @@ def get_resource_limits(module, cursor, user, host):
         query = ('SELECT max_questions AS MAX_QUERIES_PER_HOUR, '
                  'max_updates AS MAX_UPDATES_PER_HOUR, '
                  'max_connections AS MAX_CONNECTIONS_PER_HOUR, '
-                 'max_user_connections AS MAX_USER_CONNECTIONS '
+                 'max_user_connections AS MAX_USER_CONNECTIONS, '
                  'max_statement_time AS MAX_STATEMENT_TIME '
                  'FROM mysql.user WHERE User = %s AND Host = %s')
     else:
         msg = "Error detecting if the server is MariaDB or MySQL is %s" % srv_type
-
         module.fail_json(msg=msg)
 
     cursor.execute(query, (user, host))

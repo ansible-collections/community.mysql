@@ -108,7 +108,6 @@ def get_tls_requires(cursor, user, host):
 def get_grants(cursor, user, host):
     cursor.execute("SHOW GRANTS FOR %s@%s", (user, host))
     grants_line = list(filter(lambda x: "ON *.*" in x[0], cursor.fetchall()))[0]
-
     pattern = r"(?<=\bGRANT\b)(.*?)(?=(?:\bON\b))"
     grants = re.search(pattern, grants_line[0]).group().strip()
     return grants.split(", ")

@@ -100,7 +100,6 @@ test-integration:
 	set +x
 	# End of venv
 
-
 	rm tests/integration/db_engine_name
 	rm tests/integration/db_engine_version
 	rm tests/integration/connector_name

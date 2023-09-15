@@ -190,7 +190,7 @@ users:
   sample:
   - { "localhost": { "root": { "Alter_priv": "Y", "Alter_routine_priv": "Y" } } }
 users_privs:
-  description: Users privileges.
+  description: Information about users accounts. The output can be used as an input of the mysql_user plugin. Useful when migrating accounts to a new server or to create an inventory.
   returned: if not excluded by filter
   type: dict
   sample:

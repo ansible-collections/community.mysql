@@ -545,7 +545,7 @@ class MySQL_Info(object):
                 # and there is too many quotes. So we rewrite this. Also because we
                 # wrap the db_table between single quotes, I use backticks to
                 # indicate an empty string.
-                if priv == ['PROXY', 'GRANT'] and user == 'root':
+                if set(priv) == {'PROXY', 'GRANT'} and user == 'root':
                     priv_string.append("'``@`%`: 'PROXY,GRANT'")
                     continue
 

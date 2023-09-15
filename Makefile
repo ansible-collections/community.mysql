@@ -50,63 +50,56 @@ test-integration:
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
 		docker.io/library/$(db_engine_name):$(db_engine_version) \
 		mysqld
-# 	podman run \
-# 		--detach \
-# 		--replace \
-# 		--name replica1 \
-# 		--env MARIADB_ROOT_PASSWORD=msandbox \
-# 		--env MYSQL_ROOT_PASSWORD=msandbox \
-# 		--network podman \
-# 		--publish 3308:3306 \
-# 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
-# 		docker.io/library/$(db_engine_name):$(db_engine_version) \
-# 		mysqld
-# 	podman run \
-# 		--detach \
-# 		--replace \
-# 		--name replica2 \
-# 		--env MARIADB_ROOT_PASSWORD=msandbox \
-# 		--env MYSQL_ROOT_PASSWORD=msandbox \
-# 		--network podman \
-# 		--publish 3309:3306 \
-# 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
-# 		docker.io/library/$(db_engine_name):$(db_engine_version) \
-# 		mysqld
-# 	# Setup replication and restart containers
-# 	podman exec primary bash -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'
-# 	podman exec replica1 bash -c 'echo -e [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
-# 	podman exec replica2 bash -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
-# 	# Don't restart a container unless it is healthy
+	podman run \
+		--detach \
+		--replace \
+		--name replica1 \
+		--env MARIADB_ROOT_PASSWORD=msandbox \
+		--env MYSQL_ROOT_PASSWORD=msandbox \
+		--network podman \
+		--publish 3308:3306 \
+		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
+		docker.io/library/$(db_engine_name):$(db_engine_version) \
+		mysqld
+	podman run \
+		--detach \
+		--replace \
+		--name replica2 \
+		--env MARIADB_ROOT_PASSWORD=msandbox \
+		--env MYSQL_ROOT_PASSWORD=msandbox \
+		--network podman \
+		--publish 3309:3306 \
+		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
+		docker.io/library/$(db_engine_name):$(db_engine_version) \
+		mysqld
+	# Setup replication and restart containers
+	podman exec primary bash -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'
+	podman exec replica1 bash -c 'echo -e [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
+	podman exec replica2 bash -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
+	# Don't restart a container unless it is healthy
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
-# 	podman restart -t 30 primary
-# 	while ! podman healthcheck run replica1 && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
-# 	podman restart -t 30 replica1
-# 	while ! podman healthcheck run replica2 && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
-# 	podman restart -t 30 replica2
-# 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
-# 	mkdir -p .venv/$(ansible)
-# 	python$(local_python_version) -m venv .venv/$(ansible)
+	podman restart -t 30 primary
+	while ! podman healthcheck run replica1 && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
+	podman restart -t 30 replica1
+	while ! podman healthcheck run replica2 && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
+	podman restart -t 30 replica2
+	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
+	mkdir -p .venv/$(ansible)
+	python$(local_python_version) -m venv .venv/$(ansible)
 
-# 	# Start venv (use `; \` to keep the same shell)
-# 	source .venv/$(ansible)/bin/activate; \
-# 	python$(local_python_version) -m ensurepip; \
-# 	python$(local_python_version) -m pip install --disable-pip-version-check \
-# 	https://github.com/ansible/ansible/archive/$(ansible).tar.gz; \
-# 	set -x; \
-# 	ansible-test integration $(target) -v --color --coverage --diff \
-# 	--docker ghcr.io/ansible-collections/community.mysql/test-container\
-# 	-$(db_client)-py$(python_version_flat)-$(connector_name)$(connector_version_flat):latest \
-# 	--docker-network podman $(_continue_on_errors) $(_keep_containers_alive) --python $(python); \
-# 	set +x
-	# End of venv
-
+	# Start venv (use `; \` to keep the same shell)
 	source .venv/$(ansible)/bin/activate; \
+	python$(local_python_version) -m ensurepip; \
+	python$(local_python_version) -m pip install --disable-pip-version-check \
+	https://github.com/ansible/ansible/archive/$(ansible).tar.gz; \
 	set -x; \
 	ansible-test integration $(target) -v --color --coverage --diff \
 	--docker ghcr.io/ansible-collections/community.mysql/test-container\
 	-$(db_client)-py$(python_version_flat)-$(connector_name)$(connector_version_flat):latest \
 	--docker-network podman $(_continue_on_errors) $(_keep_containers_alive) --python $(python); \
 	set +x
+	# End of venv
+
 
 	rm tests/integration/db_engine_name
 	rm tests/integration/db_engine_version

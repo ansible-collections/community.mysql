@@ -150,8 +150,6 @@
           - users_privs
       register: result
 
-    - debug: var=result
-
     - name: Recreate users from mysql_info users_privs result
       community.mysql.mysql_user:
         name: "{{ item.user }}"

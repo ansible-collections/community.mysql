@@ -194,7 +194,7 @@ users_privs:
   returned: if not excluded by filter
   type: dict
   sample:
-  - { "name": "user1", "host": "host.com", "priv": 'db1.*':'ALL' 'db2.tb1':'SELECT', pass_hash: '*1234567', resource_limits: { MAX_USER_CONNECTIONS: 100 } }
+  - { auth_string: '*1234567', "name": "user1", "host": "host.com", "plugin": "mysql_native_password", "privs": "'db1.*': 'SELECT'/'db2.*': 'SELECT'", resource_limits: { MAX_USER_CONNECTIONS: 100 } }
 engines:
   description: Information about the server's storage engines.
   returned: if not excluded by filter

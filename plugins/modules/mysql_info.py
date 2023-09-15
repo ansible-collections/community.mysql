@@ -559,7 +559,6 @@ class MySQL_Info(object):
             output_dict = {
                 'user': user,
                 'host': host,
-                'password': 'msandbox',
                 'privs': '/'.join(priv_string),
                 'resource_limits': copy_ressource_limits,
                 'authentications': authentications
@@ -574,8 +573,6 @@ class MySQL_Info(object):
                     del output_dict['resource_limits']
 
             output.append(output_dict)
-
-            # TODO: Return passwords
 
         self.info['users_privs'] = output
 

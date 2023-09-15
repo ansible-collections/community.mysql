@@ -506,17 +506,18 @@ class MySQL_Info(object):
         of privileges that can be used with the mysql_user plugin.
         For instance:
 
-        "users_privs": {
-            "users_privs_adm_users_privs.com": {
+        "users_privs": [
+            {
                 "host": "users_privs.com",
                 "privs": "*.*: ALL,GRANT",
                 "user": "users_privs_adm"
             },
-            "users_privs_multi_users_privs.com": {
+            {
                 "host": "users_privs.com",
                 "privs": "`mysql`.*: SELECT/`users_privs_db`.*: SELECT",
                 "user": "users_privs_multi"
             }
+        ]
         """
         try:
             users = self.__exec_sql('SELECT * FROM mysql.user')

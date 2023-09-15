@@ -487,7 +487,8 @@ def privileges_get(module, cursor, user, host, maria_role=False):
             return x
 
     for grant in grants:
-        grant = list(grant.values())
+        if isinstance(grant, dict):
+            grant = list(grant.values())
 
         if not maria_role:
             res = re.match("""GRANT (.+) ON (.+) TO (['`"]).*\\3@(['`"]).*\\4( IDENTIFIED BY PASSWORD (['`"]).+\\6)? ?(.*)""", grant[0])

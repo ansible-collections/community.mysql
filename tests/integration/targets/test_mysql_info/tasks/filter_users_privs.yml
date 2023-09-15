@@ -152,20 +152,22 @@
 
     - debug: var=result
 
-    - name: Insert the users privileges as input of mysql_user
+    - name: Recreate users from mysql_info users_privs result
       community.mysql.mysql_user:
         name: "{{ item.user }}"
         host: "{{ item.host }}"
-        password: "{{ item.password | default(omit) }}"
-        encrypted: "{{ item.encrypted | default(omit) }}"
         plugin: "{{ item.plugin | default(omit) }}"
-        plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
-        plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
+        plugin_auth_string: "{{ item.auth_string | default(omit) }}"
         tls_require: "{{ item.tls_require | default(omit) }}"
         priv: "{{ item.priv | default(omit) }}"
         resource_limits: "{{ item.resource_limits | default(omit) }}"
         state: present
       loop: "{{ result.users_privs }}"
+      loop_control:
+        label: "{{ item.user }}@{{ item.host }}"
+      register: recreate_users_result
+      failed_when: recreate_users_result is changed
+
 
     # ================================== Cleanup ============================
 

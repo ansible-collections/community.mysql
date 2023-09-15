@@ -408,7 +408,7 @@ class DbServer():
         Returns:
             library: Depending on a server type (MySQL or MariaDB).
         """
-        if get_server_type(cursor) == 'mariadb':
+        if get_server_type(self.cursor) == 'mariadb':
             import ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb.role as role_impl
         else:
             import ansible_collections.community.mysql.plugins.module_utils.implementations.mysql.role as role_impl

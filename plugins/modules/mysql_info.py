@@ -554,24 +554,24 @@ class MySQL_Info(object):
 
             resource_limits = get_resource_limits(self.module, self.cursor, user, host)
 
-            authentications = get_existing_authentication(self.cursor, user, host)
-
             copy_ressource_limits = dict.copy(resource_limits)
             output_dict = {
                 'user': user,
                 'host': host,
                 'privs': '/'.join(priv_string),
                 'resource_limits': copy_ressource_limits,
-                'authentications': authentications
             }
 
-            # Prevent returning a resource limit if there is no value
+            # Prevent returning a resource limit if empty
             if resource_limits:
                 for key, value in resource_limits.items():
                     if value == 0:
                         del output_dict['resource_limits'][key]
                 if len(output_dict['resource_limits']) == 0:
                     del output_dict['resource_limits']
+
+            authentications = get_existing_authentication(self.cursor, user, host)
+            output_dict.update(authentications)
 
             output.append(output_dict)
 

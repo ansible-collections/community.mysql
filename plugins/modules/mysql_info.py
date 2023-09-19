@@ -552,7 +552,13 @@ class MySQL_Info(object):
                 # and there is too many quotes. So we rewrite this. Also because we
                 # wrap the db_table between single quotes, I use backticks to
                 # indicate an empty string.
-                if set(priv) == {'PROXY', 'GRANT'} and user == 'root':
+                #
+                # TODO: when dropping support of ansible-core 2.12, change:
+                #   set((x for x in priv))
+                # into:
+                #   set(priv)
+                # This is because the Sanity test for 2.12 uses Python 2.6!!!
+                if set((x for x in priv)) == {'PROXY', 'GRANT'} and user == 'root':
                     priv_string.append("'``@`%`: 'PROXY,GRANT'")
                     continue
 

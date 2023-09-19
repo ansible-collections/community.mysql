@@ -554,11 +554,11 @@ class MySQL_Info(object):
                 # indicate an empty string.
                 #
                 # TODO: when dropping support of ansible-core 2.12, change:
-                #   set((x for x in priv))
+                #   set([x for x in priv]) == set(['PROXY', 'GRANT'])
                 # into:
-                #   set(priv)
+                #   set(priv) == {'PROXY', 'GRANT'}
                 # This is because the Sanity test for 2.12 uses Python 2.6!!!
-                if set((x for x in priv)) == {'PROXY', 'GRANT'} and user == 'root':
+                if set([x for x in priv]) == set(['PROXY', 'GRANT']) and user == 'root':
                     priv_string.append("'``@`%`: 'PROXY,GRANT'")
                     continue
 

@@ -25,7 +25,6 @@ except ImportError:
     try:
         # mysqlclient is called MySQLdb
         import MySQLdb as mysql_driver
-        import MySQLdb.cursors
         _mysql_cursor_param = 'cursorclass'
     except ImportError:
         mysql_driver = None

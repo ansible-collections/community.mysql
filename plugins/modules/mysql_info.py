@@ -201,7 +201,7 @@ users_privs:
       "name": "user1",
       "host": "host.com",
       "plugin": "mysql_native_password",
-      "privs": "'db1.*': 'SELECT'/'db2.*': 'SELECT'",
+      "priv": "'db1.*': 'SELECT'/'db2.*': 'SELECT'",
       "resource_limits": { MAX_USER_CONNECTIONS: 100 } }
 engines:
   description: Information about the server's storage engines.
@@ -516,12 +516,12 @@ class MySQL_Info(object):
         "users_privs": [
             {
                 "host": "users_privs.com",
-                "privs": "*.*: ALL,GRANT",
+                "priv": "*.*: ALL,GRANT",
                 "user": "users_privs_adm"
             },
             {
                 "host": "users_privs.com",
-                "privs": "`mysql`.*: SELECT/`users_privs_db`.*: SELECT",
+                "priv": "`mysql`.*: SELECT/`users_privs_db`.*: SELECT",
                 "user": "users_privs_multi"
             }
         ]
@@ -571,7 +571,7 @@ class MySQL_Info(object):
             output_dict = {
                 'user': user,
                 'host': host,
-                'privs': '/'.join(priv_string),
+                'priv': '/'.join(priv_string),
                 'resource_limits': copy_ressource_limits,
             }
 

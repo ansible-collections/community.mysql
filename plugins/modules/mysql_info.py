@@ -517,12 +517,12 @@ class MySQL_Info(object):
             {
                 "host": "users_privs.com",
                 "priv": "*.*: ALL,GRANT",
-                "user": "users_privs_adm"
+                "name": "users_privs_adm"
             },
             {
                 "host": "users_privs.com",
                 "priv": "`mysql`.*: SELECT/`users_privs_db`.*: SELECT",
-                "user": "users_privs_multi"
+                "name": "users_privs_multi"
             }
         ]
         """
@@ -569,7 +569,7 @@ class MySQL_Info(object):
 
             copy_ressource_limits = dict.copy(resource_limits)
             output_dict = {
-                'user': user,
+                'name': user,
                 'host': host,
                 'priv': '/'.join(priv_string),
                 'resource_limits': copy_ressource_limits,

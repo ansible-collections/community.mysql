@@ -25,7 +25,7 @@ options:
     - Module operating mode. Could be
       C(changeprimary) (CHANGE MASTER TO),
       C(getprimary) (SHOW MASTER STATUS),
-      C(getreplica) (SHOW REPLICA),
+      C(getreplica) (SHOW REPLICA STATUS),
       C(startreplica) (START REPLICA),
       C(stopreplica) (STOP REPLICA),
       C(resetprimary) (RESET MASTER) - supported since community.mysql 0.1.0,

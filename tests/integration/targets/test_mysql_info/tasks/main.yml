@@ -220,6 +220,6 @@
         that:
           - result.databases.allviews.size == 0
 
-    - name: Inport tasks file to tests users_privs filter
+    - name: Import tasks file to tests users_privs filter
       ansible.builtin.import_tasks:
         file: filter_users_privs.yml

@@ -218,7 +218,7 @@ users_privs:
   description:
     Information about users accounts. The output can be used as an input of the
     mysql_user plugin. Useful when migrating accounts to a new server or to
-    create an inventory.
+    create an inventory. Does not support proxy privileges.
   returned: if not excluded by filter
   type: dict
   sample:
@@ -570,18 +570,16 @@ class MySQL_Info(object):
 
             priv_string = list()
             for db_table, priv in user_priv.items():
-                # privileges_get returns "'''@''': 'PROXY,GRANT'". The % is missing
-                # and there is too many quotes. So we rewrite this. Also because we
-                # wrap the db_table between single quotes, I use backticks to
-                # indicate an empty string.
+                # Proxy privileges are hard to work with because of different quotes or
+                # backticks like ''@'', ''@'%' or even ``@``. In addition, MySQL will
+                # forbid you to grant a proxy privileges through TCP.
                 #
                 # TODO: when dropping support of ansible-core 2.12, change:
                 #   set(['PROXY', 'GRANT'])
                 # into:
                 #   {'PROXY', 'GRANT'}
                 # This is because the Sanity test for 2.12 uses Python 2.6!!!
-                if set(priv) == set(['PROXY', 'GRANT']) and user == 'root':
-                    priv_string.append('``@`%`:PROXY,GRANT')
+                if set(priv) == set(['PROXY', 'GRANT']) or set(priv) == set(['PROXY']):
                     continue
 
                 unquote_db_table = db_table.replace('`', '').replace("'", '')

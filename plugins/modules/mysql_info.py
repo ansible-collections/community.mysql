@@ -559,11 +559,11 @@ class MySQL_Info(object):
                 #   {'PROXY', 'GRANT'}
                 # This is because the Sanity test for 2.12 uses Python 2.6!!!
                 if set(priv) == set(['PROXY', 'GRANT']) and user == 'root':
-                    priv_string.append("'``@`%`: 'PROXY,GRANT'")
+                    priv_string.append('``@`%`:PROXY,GRANT')
                     continue
 
                 unquote_db_table = db_table.replace('`', '').replace("'", '')
-                priv_string.append("'%s': '%s'" % (unquote_db_table, ','.join(priv)))
+                priv_string.append('%s:%s' % (unquote_db_table, ','.join(priv)))
 
             resource_limits = get_resource_limits(self.module, self.cursor, user, host)
 

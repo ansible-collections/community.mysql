@@ -125,6 +125,31 @@ EXAMPLES = r'''
     - databases
     exclude_fields: db_size
     return_empty_dbs: true
+
+- name: Clone users on another server - Step 1
+  delegate_to: server_source
+  community.mysql.mysql_info:
+    filter:
+      - users_privs
+  register: result
+
+- name: Clone users on another server - Step 2
+  community.mysql.mysql_user:
+    name: "{{ item.name }}"
+    host: "{{ item.host }}"
+    plugin: "{{ item.plugin | default(omit) }}"
+    plugin_auth_string: "{{ item.auth_string | default(omit) }}"
+    tls_require: "{{ item.tls_require | default(omit) }}"
+    priv: "{{ item.priv | default(omit) }}"
+    resource_limits: "{{ item.resource_limits | default(omit) }}"
+    state: present
+  loop: "{{ result.users_privs }}"
+  loop_control:
+    label: "{{ item.name }}@{{ item.host }}"
+  when:
+    - item.name != 'root'  # In case you don't want to import admin accounts
+    - item.name != 'mariadb.sys'
+    - item.name != 'mysql'
 '''
 
 RETURN = r'''

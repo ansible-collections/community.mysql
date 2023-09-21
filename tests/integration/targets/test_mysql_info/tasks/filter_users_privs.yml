@@ -167,15 +167,15 @@
       loop_control:
         label: "{{ item.name }}@{{ item.host }}"
       register: recreate_users_result
-      failed_when: recreate_users_result is changed
+      failed_when:
+        - recreate_users_result is changed
+      when:
+        - item.name != 'root'
+        - item.name != 'mariadb.sys'
+        - item.name != 'mysql'
 
 
     # ================================== Cleanup ============================
-
-    - name: Mysql_info users_privs | Cleanup databases
-      community.mysql.mysql_db:
-        name: users_privs_db
-        state: absent
 
     - name: Mysql_info users_privs | Cleanup users_privs
       community.mysql.mysql_user:

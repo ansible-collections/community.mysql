@@ -552,17 +552,15 @@ def privileges_get(module, cursor, user, host, maria_role=False):
             if "WITH GRANT OPTION" in res.group(7):
                 privileges.append('GRANT')
 
-        # Prevent to output 'ALL', 'ALL' because mysql 8 display all privileges
-        # with two lines as you can see in variable mysql8_all_privileges.
-        if (
-            'ALL' in privileges
-            and (['ALL'] in output.values() or ['ALL', 'GRANT'] in output.values())
-        ):
-            continue
-
         output.setdefault(db, []).extend(privileges)
 
-    return output
+    # Prevent to output 'ALL', 'ALL' because mysql 8 display all privileges
+    # with two lines as you can see in variable mysql8_all_privileges.
+    output_deduplicates = {}
+    for k, v in output.items():
+        output_deduplicates[k] = list(set(v))
+
+    return output_deduplicates
 
 
 def normalize_col_grants(privileges):

@@ -15,7 +15,10 @@
     # ================================ Prepare ==============================
     - name: Mysql_info users_privs | Create databases
       community.mysql.mysql_db:
-        name: users_privs_db
+        name:
+          - users_privs_db
+          - users_privs_db2
+          - users_privs_db3
         state: present
 
     - name: Mysql_info users_privs | Create tables
@@ -74,7 +77,9 @@
         - name: users_privs_multi
           priv:
             'mysql.*': 'SELECT'
-            'users_privs_db.*': 'SELECT'
+            'users_privs_db.*': 'ALL'
+            'users_privs_db2.*': 'ALL'
+            'users_privs_db3.*': 'ALL'
         - name: users_privs_usage_only
           priv:
             '*.*': 'USAGE'
@@ -194,7 +199,10 @@
 
     - name: Mysql_info users_privs | Cleanup databases
       community.mysql.mysql_db:
-        name: users_privs_db
+        name:
+          - users_privs_db
+          - users_privs_db2
+          - users_privs_db3
         state: absent
 
     - name: Mysql_info users_privs | Cleanup sql file for the procedure

@@ -545,9 +545,6 @@ class MySQL_Info(object):
 
             priv_string = list()
             for db_table, priv in user_priv.items():
-                if db_table == '*.*' and priv == ['USAGE']:
-                    continue
-
                 # privileges_get returns "'''@''': 'PROXY,GRANT'". The % is missing
                 # and there is too many quotes. So we rewrite this. Also because we
                 # wrap the db_table between single quotes, I use backticks to
@@ -564,6 +561,10 @@ class MySQL_Info(object):
 
                 unquote_db_table = db_table.replace('`', '').replace("'", '')
                 priv_string.append('%s:%s' % (unquote_db_table, ','.join(priv)))
+
+            # Only keep *.* USAGE if it's the only user privilege given
+            if len(priv_string) > 1 and '*.*:USAGE' in priv_string:
+                priv_string.remove('*.*:USAGE')
 
             resource_limits = get_resource_limits(self.module, self.cursor, user, host)
 

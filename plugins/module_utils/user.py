@@ -486,6 +486,32 @@ def privileges_get(module, cursor, user, host, maria_role=False):
         else:
             return x
 
+    mysql8_all_privileges = [sorted([
+        'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'RELOAD',
+        'SHUTDOWN', 'PROCESS', 'FILE', 'REFERENCES', 'INDEX', 'ALTER',
+        'SHOW DATABASES', 'SUPER', 'CREATE TEMPORARY TABLES',
+        'LOCK TABLES', 'EXECUTE', 'REPLICATION SLAVE',
+        'REPLICATION CLIENT', 'CREATE VIEW', 'SHOW VIEW', 'CREATE ROUTINE',
+        'ALTER ROUTINE', 'CREATE USER', 'EVENT', 'TRIGGER',
+        'CREATE TABLESPACE', 'CREATE ROLE', 'DROP ROLE'
+        ]), sorted([
+        'APPLICATION_PASSWORD_ADMIN', 'AUDIT_ABORT_EXEMPT', 'AUDIT_ADMIN',
+        'AUTHENTICATION_POLICY_ADMIN', 'BACKUP_ADMIN', 'BINLOG_ADMIN',
+        'BINLOG_ENCRYPTION_ADMIN', 'CLONE_ADMIN', 'CONNECTION_ADMIN',
+        'ENCRYPTION_KEY_ADMIN', 'FIREWALL_EXEMPT', 'FLUSH_OPTIMIZER_COSTS',
+        'FLUSH_STATUS', 'FLUSH_TABLES', 'FLUSH_USER_RESOURCES',
+        'GROUP_REPLICATION_ADMIN', 'GROUP_REPLICATION_STREAM',
+        'INNODB_REDO_LOG_ARCHIVE', 'INNODB_REDO_LOG_ENABLE',
+        'PASSWORDLESS_USER_ADMIN', 'PERSIST_RO_VARIABLES_ADMIN',
+        'REPLICATION_APPLIER', 'REPLICATION_SLAVE_ADMIN',
+        'RESOURCE_GROUP_ADMIN', 'RESOURCE_GROUP_USER', 'ROLE_ADMIN',
+        'SENSITIVE_VARIABLES_OBSERVER', 'SERVICE_CONNECTION_ADMIN',
+        'SESSION_VARIABLES_ADMIN', 'SET_USER_ID', 'SHOW_ROUTINE',
+        'SYSTEM_USER', 'SYSTEM_VARIABLES_ADMIN', 'TABLE_ENCRYPTION_ADMIN',
+        'XA_RECOVER_ADMIN'
+        ])]
+
+
     for grant in grants:
         if isinstance(grant, dict):
             grant = list(grant.values())
@@ -507,8 +533,8 @@ def privileges_get(module, cursor, user, host, maria_role=False):
 
             raise InvalidPrivsError('unable to parse the MySQL grant string: %s' % grant[0])
 
-        privileges = res.group(1).split(",")
-        privileges = [pick(x.strip()) for x in privileges]
+        privileges = [x.strip() for x in res.group(1).split(",")]
+        privileges = [pick(x) for x in privileges]
 
         # Handle cases when there's privs like GRANT SELECT (colA, ...) in privs.
         # To this point, the privileges list can look like
@@ -517,11 +543,25 @@ def privileges_get(module, cursor, user, host, maria_role=False):
         # Determine if there's a case similar to the above:
         privileges = normalize_col_grants(privileges)
 
+        db = res.group(2)
+
+        if sorted(privileges) in mysql8_all_privileges:
+            privileges = ['ALL']
+
         if not maria_role:
             if "WITH GRANT OPTION" in res.group(7):
                 privileges.append('GRANT')
-        db = res.group(2)
+
+        # Prevent to output 'ALL', 'ALL' because mysql 8 display all privileges
+        # with two lines as you can see in variable mysql8_all_privileges.
+        if (
+            'ALL' in privileges
+            and (['ALL'] in output.values() or ['ALL', 'GRANT'] in output.values())
+        ):
+            continue
+
         output.setdefault(db, []).extend(privileges)
+
     return output
 
 

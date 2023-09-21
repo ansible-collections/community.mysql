@@ -171,8 +171,10 @@
         - recreate_users_result is changed
       when:
         - item.name != 'root'
-        - item.name != 'mariadb.sys'
         - item.name != 'mysql'
+        - item.name != 'mariadb.sys'
+        - item.name != 'mysql.sys'
+        - item.name != 'mysql.infoschema'
 
 
     # ================================== Cleanup ============================

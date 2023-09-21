@@ -190,6 +190,11 @@
         - users_privs_proc
         - users_privs_usage_only
 
+    - name: Mysql_info users_privs | Cleanup databases
+      community.mysql.mysql_db:
+        name: users_privs_db
+        state: absent
+
     - name: Mysql_info users_privs | Cleanup sql file for the procedure
       ansible.builtin.file:
         path: /root/create_procedure.sql

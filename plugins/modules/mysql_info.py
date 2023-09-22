@@ -133,6 +133,7 @@ EXAMPLES = r'''
       - users_privs
   register: result
 
+# Don't work with sha256_password and cache_sha2_password
 - name: Clone users on another server - Step 2
   community.mysql.mysql_user:
     name: "{{ item.name }}"
@@ -219,7 +220,8 @@ users_privs:
   description:
     Information about users accounts. The output can be used as an input of the
     mysql_user plugin. Useful when migrating accounts to a new server or to
-    create an inventory. Does not support proxy privileges.
+    create an inventory. Does not support proxy privileges. Cause issue with
+    authentications plugins sha256_password and caching_sha2_password.
   returned: if not excluded by filter
   type: dict
   sample:

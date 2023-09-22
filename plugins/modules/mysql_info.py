@@ -138,7 +138,8 @@ EXAMPLES = r'''
     name: "{{ item.name }}"
     host: "{{ item.host }}"
     plugin: "{{ item.plugin | default(omit) }}"
-    plugin_auth_string: "{{ item.auth_string | default(omit) }}"
+    plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
+    plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
     tls_require: "{{ item.tls_require | default(omit) }}"
     priv: "{{ item.priv | default(omit) }}"
     resource_limits: "{{ item.resource_limits | default(omit) }}"
@@ -222,7 +223,7 @@ users_privs:
   returned: if not excluded by filter
   type: dict
   sample:
-  - { "auth_string": '*1234567',
+  - { "plugin_auth_string": '*1234567',
       "name": "user1",
       "host": "host.com",
       "plugin": "mysql_native_password",

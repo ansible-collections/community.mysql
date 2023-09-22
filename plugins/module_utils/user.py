@@ -114,7 +114,7 @@ def get_grants(cursor, user, host):
 
 
 def get_existing_authentication(cursor, user, host):
-    # Return the plugin and auth_string if there is exactly one distinct existing plugin and auth_string.
+    # Return the plugin and plugin_auth_string if there is exactly one distinct existing plugin and plugin_auth_string.
 
     if get_server_type(cursor) == 'mariadb':
         # before MariaDB 10.2.19 and 10.3.11, "password" and "authentication_string" can differ
@@ -132,10 +132,10 @@ def get_existing_authentication(cursor, user, host):
     rows = cursor.fetchall()
 
     if isinstance(rows[0], tuple):
-        return {'plugin': rows[0][0], 'auth_string': rows[0][1]}
+        return {'plugin': rows[0][0], 'plugin_auth_string': rows[0][1]}
 
     if isinstance(rows[0], dict):
-        return {'plugin': rows[0].get('plugin'), 'auth_string': rows[0].get('auth')}
+        return {'plugin': rows[0].get('plugin'), 'plugin_auth_string': rows[0].get('auth')}
 
     return None
 
@@ -160,7 +160,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         existing_auth = get_existing_authentication(cursor, user, host)
         if existing_auth:
             plugin = existing_auth['plugin']
-            plugin_hash_string = existing_auth['auth_string']
+            plugin_hash_string = existing_auth['plugin_auth_string']
             password = None
             used_existing_password = True
     if password and encrypted:
@@ -308,7 +308,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
             if plugin_auth_string and current_plugin[1] != plugin_auth_string:
                 # this case can cause more updates than expected,
-                # as plugin can hash auth_string in any way it wants
+                # as plugin can hash plugin_auth_string in any way it wants
                 # and there's no way to figure it out for
                 # a check, so I prefer to update more often than never
                 update = True

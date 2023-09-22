@@ -227,8 +227,8 @@ users_privs:
       "name": "user1",
       "host": "host.com",
       "plugin": "mysql_native_password",
-      "priv": "'db1.*': 'SELECT'/'db2.*': 'SELECT'",
-      "resource_limits": { MAX_USER_CONNECTIONS: 100 } }
+      "priv": "db1.*:SELECT/db2.*:SELECT",
+      "resource_limits": { "MAX_USER_CONNECTIONS": 100 } }
 engines:
   description: Information about the server's storage engines.
   returned: if not excluded by filter

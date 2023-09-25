@@ -197,10 +197,7 @@ def get_server_type(cursor):
     """ Return MySQL or MariaDB after quering the server
     using SELECT VERSION()"""
     srv_ver = get_server_version(cursor)
-    if 'mariadb' in srv_ver.lower():
-        return "mariadb"
-    else:
-        return "mysql"
+    return 'mariadb' if 'mariadb' in srv_ver.lower() else "mysql"
 
 
 def get_server_version(cursor):

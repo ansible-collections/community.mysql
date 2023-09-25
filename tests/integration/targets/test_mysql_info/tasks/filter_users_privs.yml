@@ -24,9 +24,12 @@
     - name: Mysql_info users_privs | Create tables
       community.mysql.mysql_query:
         query:
-          - >
+          - >-
             CREATE TABLE IF NOT EXISTS users_privs_db.t1
             (id int, name varchar(9))
+          - >-
+            CREATE TABLE IF NOT EXISTS users_privs_db.T_UPPER
+            (id int, name1 varchar(9), NAME2 varchar(9), Name3 varchar(9))
 
     # I failed to create a procedure using community.mysql.mysql_query.
     # Maybe it's because we must changed the delimiter.
@@ -44,45 +47,78 @@
         state: import
         target: /root/create_procedure.sql
 
+    # Use a query instead of mysql_user, because we want to caches differences
+    # at the end and a bug in mysql_user would be invisible to this tests
     - name: Mysql_info users_privs | Prepare common tests users
-      community.mysql.mysql_user:
-        name: "{{ item.name }}"
-        host: "users_privs.com"
-        plugin: "mysql_native_password"
-        plugin_hash_string: '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
-        priv: "{{ item.priv }}"
-        resource_limits: "{{ item.resource_limits | default(omit) }}"
-        state: present
-      loop:
-        - name: users_privs_adm
-          priv:
-            '*.*': 'ALL,GRANT'
-        - name: users_privs_schema
-          priv:
-            'users_privs_db.*': 'SELECT,INSERT,UPDATE,DELETE'
-        - name: users_privs_table
-          priv:
-            'users_privs_db.t1': 'SELECT,INSERT,UPDATE'
-        - name: users_privs_col
-          priv:
-            'users_privs_db.t1': 'SELECT (id)'
-          resource_limits:
-            MAX_USER_CONNECTIONS: 100
-        - name: users_privs_proc
-          priv:
-            'PROCEDURE users_privs_db.get_all_items': 'EXECUTE'
-          resource_limits:
-            MAX_USER_CONNECTIONS: 2
-            MAX_CONNECTIONS_PER_HOUR: 60
-        - name: users_privs_multi
-          priv:
-            'mysql.*': 'SELECT'
-            'users_privs_db.*': 'ALL'
-            'users_privs_db2.*': 'ALL'
-            'users_privs_db3.*': 'ALL'
-        - name: users_privs_usage_only
-          priv:
-            '*.*': 'USAGE'
+      community.mysql.mysql_query:
+        query:
+          - >-
+            CREATE USER users_privs_adm@'users_privs.com' IDENTIFIED WITH
+            mysql_native_password AS '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
+          - >
+            GRANT ALL ON *.* to users_privs_adm@'users_privs.com' WITH GRANT
+            OPTION
+
+          - >-
+            CREATE USER users_privs_schema@'users_privs.com' IDENTIFIED WITH
+            mysql_native_password AS '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
+          - >-
+            GRANT SELECT, INSERT, UPDATE, DELETE ON users_privs_db.* TO
+            users_privs_schema@'users_privs.com'
+
+          - >-
+            CREATE USER users_privs_table@'users_privs.com' IDENTIFIED WITH
+            mysql_native_password AS '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
+          - >-
+            GRANT SELECT, INSERT, UPDATE ON users_privs_db.t1 TO
+            users_privs_table@'users_privs.com'
+
+          - >-
+            CREATE USER users_privs_col@'users_privs.com' IDENTIFIED WITH
+            mysql_native_password AS '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
+            WITH MAX_USER_CONNECTIONS 100
+          - >-
+            GRANT SELECT (id) ON users_privs_db.t1 TO
+            users_privs_col@'users_privs.com'
+
+          - >-
+            CREATE USER users_privs_proc@'users_privs.com' IDENTIFIED WITH
+            mysql_native_password AS '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
+            WITH MAX_USER_CONNECTIONS 2 MAX_CONNECTIONS_PER_HOUR 60
+          - >-
+            GRANT EXECUTE ON PROCEDURE users_privs_db.get_all_items TO
+            users_privs_proc@'users_privs.com'
+
+          - >-
+            CREATE USER users_privs_multi@'users_privs.com' IDENTIFIED WITH
+            mysql_native_password AS '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
+          - >-
+            GRANT SELECT ON mysql.* TO
+            users_privs_multi@'users_privs.com'
+          - >-
+            GRANT ALL ON users_privs_db.* TO
+            users_privs_multi@'users_privs.com'
+          - >-
+            GRANT ALL ON users_privs_db2.* TO
+            users_privs_multi@'users_privs.com'
+          - >-
+            GRANT ALL ON users_privs_db3.* TO
+            users_privs_multi@'users_privs.com'
+
+          - >-
+            CREATE USER users_privs_usage_only@'users_privs.com' IDENTIFIED WITH
+            mysql_native_password AS '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
+          - >-
+            GRANT USAGE ON *.* TO
+            users_privs_usage_only@'users_privs.com'
+
+          - >-
+            CREATE USER users_privs_columns_uppercase@'users_privs.com'
+            IDENTIFIED WITH mysql_native_password AS
+            '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
+          - >-
+            GRANT SELECT,UPDATE(name1,NAME2,Name3) ON users_privs_db.T_UPPER TO
+            users_privs_columns_uppercase@'users_privs.com'
 
     - name: Mysql_info users_privs | Prepare tests users for MariaDB
       community.mysql.mysql_user:
@@ -193,6 +229,7 @@
         - users_privs_col
         - users_privs_proc
         - users_privs_usage_only
+        - users_privs_columns_uppercase
 
     - name: Mysql_info users_privs | Cleanup databases
       community.mysql.mysql_db:

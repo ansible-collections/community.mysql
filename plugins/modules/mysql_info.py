@@ -221,7 +221,7 @@ users_privs:
     Information about users accounts. The output can be used as an input of the
     mysql_user plugin. Useful when migrating accounts to a new server or to
     create an inventory. Does not support proxy privileges. Cause issue with
-    authentications plugins sha256_password and caching_sha2_password.
+    authentications plugins C(sha256_password) and C(caching_sha2_password).
   returned: if not excluded by filter
   type: dict
   sample:

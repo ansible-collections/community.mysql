@@ -1,0 +1,5 @@
+---
+
+minor_changes:
+
+  - mysql_replication - fix incorrect use of PRIMARY in example SQL queries

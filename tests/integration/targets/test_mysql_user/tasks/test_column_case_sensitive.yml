@@ -1,0 +1,84 @@
+---
+
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: '{{ mysql_host }}'
+      login_port: '{{ mysql_primary_port }}'
+
+  block:
+
+    # ========================= Prepare =======================================
+    # We use query to prevent our module of changing the case
+    - name: Mysql_user Column case sensitive | Create a test table
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        query:
+          - CREATE DATABASE mysql_user_column_case
+          - >-
+            CREATE TABLE mysql_user_column_case.t1
+            (a int, B int, cC int, Dd int)
+          - >-
+            INSERT INTO mysql_user_column_case.t1
+            (a, B, cC, Dd) VALUES (1,2,3,4)
+
+    # ================= Reproduce failure =====================================
+
+    - name: Mysql_user Column case sensitive | Create users
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: column_case_sensitive
+        host: '%'
+        password: 'msandbox'
+        priv:
+          'mysql_user_column_case.t1': 'SELECT(a, B, cC, Dd)'
+
+    - name: Mysql_user Column case sensitive | Assert user privileges are all caps
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        query:
+          - SHOW GRANTS FOR column_case_sensitive@'%'
+      register: column_case_insensitive_grants
+      failed_when:
+        - >-
+          column_case_insensitive_grants.query_result[0][1]
+          is not search("`A`, `B`, `CC`, `DD`")
+
+    # ======================== Test fix  ======================================
+
+    - name: Mysql_user Column case sensitive | Create users with case sensitive
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: column_case_sensitive
+        host: '%'
+        password: 'msandbox'
+        priv:
+          'mysql_user_column_case.t1': 'SELECT(a, B, cC, Dd)'
+        column_case_sensitive: true
+
+    - name: Mysql_user Column case sensitive | Assert user privileges are case sensitive
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        query:
+          - SHOW GRANTS FOR column_case_sensitive@'%'
+      register: column_case_sensitive_grants
+      failed_when:
+        - >-
+          column_case_sensitive_grants.query_result[0][1]
+          is not search("`B`, `Dd`, `a`, `cC`")
+
+    # ========================= Teardown ======================================
+
+    - name: Mysql_user Column case sensitive | Delete test users
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: column_case_sensitive
+        host_all: true
+        state: absent
+
+    - name: Mysql_user Column case sensitive | Delete test database
+      community.mysql.mysql_db:
+        <<: *mysql_params
+        name: mysql_user_column_case
+        state: absent

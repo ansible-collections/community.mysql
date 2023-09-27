@@ -1,0 +1,142 @@
+---
+
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: '{{ mysql_host }}'
+      login_port: '{{ mysql_primary_port }}'
+
+  block:
+
+    # ========================= Prepare =======================================
+    # We use query to prevent our module of changing the case
+    - name: Mysql_role Column case sensitive | Create a test table
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        query:
+          - CREATE DATABASE mysql_role_column_case
+          - >-
+            CREATE TABLE mysql_role_column_case.t1
+            (a int, B int, cC int, Dd int)
+          - >-
+            INSERT INTO mysql_role_column_case.t1
+            (a, B, cC, Dd) VALUES (1,2,3,4)
+
+    - name: Mysql_role Column case sensitive | Create users
+      community.mysql.mysql_role:
+        <<: *mysql_params
+        name: column_case_sensitive
+        host: '%'
+        password: 'msandbox'
+
+    # ================= Reproduce failure =====================================
+
+    - name: Mysql_role Column case sensitive | Create role
+      community.mysql.mysql_role:
+        <<: *mysql_params
+        name: 'role_column_case_sensitive'
+        state: present
+        members:
+          - 'column_case_sensitive@%'
+        priv:
+          'mysql_role_column_case.t1': 'SELECT(a, B, cC, Dd)'
+
+    - name: Mysql_role Column case sensitive | Select columns a
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        login_user: column_case_sensitive
+        query:
+          - SELECT a FROM mysql_role_column_case.t1
+      register: assert_failure_read_lower_a
+      failed_when:
+        - assert_failure_read_lower_a is succeeded
+
+    - name: Mysql_role Column case sensitive | Select columns b
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        login_user: column_case_sensitive
+        query:
+          - SELECT B FROM mysql_role_column_case.t1
+
+    - name: Mysql_role Column case sensitive | Select columns cC
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        login_user: column_case_sensitive
+        query:
+          - SELECT cC FROM mysql_role_column_case.t1
+      register: assert_failure_read_lower_cc
+      failed_when:
+        - assert_failure_read_lower_cc is succeeded
+
+    - name: Mysql_role Column case sensitive | Select columns Dd
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        login_user: column_case_sensitive
+        query:
+          - SELECT Dd FROM mysql_role_column_case.t1
+      register: assert_failure_read_lower_dd
+      failed_when:
+        - assert_failure_read_lower_dd is succeeded
+
+    # ====================== Test the fix =====================================
+
+    - name: Mysql_role Column case sensitive | Create role with case sensitive
+      community.mysql.mysql_role:
+        <<: *mysql_params
+        name: 'role_column_case_sensitive'
+        state: present
+        members:
+          - 'column_case_sensitive@%'
+        priv:
+          'mysql_role_column_case.t1': 'SELECT(a, B, cC, Dd)'
+        column_case_sensitive: true
+
+    - name: Mysql_role Column case sensitive | Select columns a
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        login_user: column_case_sensitive
+        query:
+          - SELECT a FROM mysql_role_column_case.t1
+
+    - name: Mysql_role Column case sensitive | Select columns b
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        login_user: column_case_sensitive
+        query:
+          - SELECT B FROM mysql_role_column_case.t1
+
+    - name: Mysql_role Column case sensitive | Select columns cC
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        login_user: column_case_sensitive
+        query:
+          - SELECT cC FROM mysql_role_column_case.t1
+
+    - name: Mysql_role Column case sensitive | Select columns Dd
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        login_user: column_case_sensitive
+        query:
+          - SELECT Dd FROM mysql_role_column_case.t1
+
+    # ========================= Teardown ======================================
+
+    - name: Mysql_role Column case sensitive | Delete test users
+      community.mysql.mysql_role:
+        <<: *mysql_params
+        name: column_case_sensitive
+        host_all: true
+        state: absent
+
+    - name: Mysql_role Column case sensitive | Delete role
+      community.mysql.mysql_role:
+        <<: *mysql_params
+        name: 'role_column_case_sensitive'
+        state: absent
+
+    - name: Mysql_role Column case sensitive | Delete test database
+      community.mysql.mysql_db:
+        <<: *mysql_params
+        name: mysql_role_column_case
+        state: absent

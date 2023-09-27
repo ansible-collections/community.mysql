@@ -22,8 +22,6 @@ jobs:
     strategy:
       matrix:
         ansible:
-          - stable-2.12
-          - stable-2.13
           - stable-2.14
           - stable-2.15
           - stable-2.16
@@ -43,8 +41,6 @@ jobs:
       fail-fast: false
       matrix:
         ansible:
-          - stable-2.12
-          - stable-2.13
           - stable-2.14
           - stable-2.15
           - stable-2.16
@@ -116,9 +112,6 @@ jobs:
             python: '3.10'
 
           - db_engine_version: 5.7.40
-            ansible: stable-2.13
-
-          - db_engine_version: 5.7.40
             ansible: stable-2.14
 
           - db_engine_version: 5.7.40
@@ -182,9 +175,6 @@ jobs:
             connector_version: 2.0.3
 
           - python: '3.8'
-            ansible: stable-2.13
-
-          - python: '3.8'
             ansible: stable-2.14
 
           - python: '3.8'
@@ -197,9 +187,6 @@ jobs:
             ansible: devel
 
           - python: '3.9'
-            ansible: stable-2.12
-
-          - python: '3.9'
             ansible: stable-2.15
 
           - python: '3.9'
@@ -207,9 +194,6 @@ jobs:
 
           - python: '3.9'
             ansible: devel
-
-          - python: '3.10'
-            ansible: stable-2.12
 
     services:
       db_primary:
@@ -356,8 +340,6 @@ jobs:
       fail-fast: true
       matrix:
         ansible:
-          - stable-2.12
-          - stable-2.13
           - stable-2.14
           - stable-2.15
           - stable-2.16
@@ -367,8 +349,6 @@ jobs:
           - 3.9
         exclude:
           - python: '3.8'
-            ansible: stable-2.13
-          - python: '3.8'
             ansible: stable-2.14
           - python: '3.8'
             ansible: stable-2.15
@@ -376,8 +356,6 @@ jobs:
             ansible: stable-2.16
           - python: '3.8'
             ansible: devel
-          - python: '3.9'
-            ansible: stable-2.12
 
     steps:
       - name: >-

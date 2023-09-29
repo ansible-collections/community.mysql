@@ -42,46 +42,52 @@
         priv:
           'mysql_role_column_case.t1': 'SELECT(a, B, cC, Dd)'
 
-    - name: Mysql_role Column case sensitive | Select columns a
+    - name: Mysql_role Column case sensitive | Assert role privileges are all caps
       community.mysql.mysql_query:
         <<: *mysql_params
-        login_user: column_case_sensitive
         query:
-          - SELECT a FROM mysql_role_column_case.t1
-      register: assert_failure_read_lower_a
+          - SHOW GRANTS FOR role_column_case_sensitive
+      register: column_case_insensitive_grants
       failed_when:
-        - assert_failure_read_lower_a is succeeded
+        # Column order may vary, thus test each separately
+        - >-
+          column_case_insensitive_grants.query_result[0][1]
+          is not search("`A`", ignorecase=false)
+          or column_case_insensitive_grants.query_result[0][1]
+          is not search("`B`", ignorecase=false)
+          or column_case_insensitive_grants.query_result[0][1]
+          is not search("`CC`", ignorecase=false)
+          or column_case_insensitive_grants.query_result[0][1]
+          is not search("`DD`", ignorecase=false)
 
-    - name: Mysql_role Column case sensitive | Select columns b
+    - name: Mysql_role Column case sensitive | Assert 1 column is accessible on MySQL
       community.mysql.mysql_query:
         <<: *mysql_params
         login_user: column_case_sensitive
         query:
-          - SELECT B FROM mysql_role_column_case.t1
-
-    - name: Mysql_role Column case sensitive | Select columns cC
-      community.mysql.mysql_query:
-        <<: *mysql_params
-        login_user: column_case_sensitive
-        query:
-          - SELECT cC FROM mysql_role_column_case.t1
-      register: assert_failure_read_lower_cc
+          - DESC mysql_role_column_case.t1
+      register: assert_1_col_accessible
       failed_when:
-        - assert_failure_read_lower_cc is succeeded
+        - assert_1_col_accessible.rowcount[0] | int != 1
+      when:
+        - db_engine == 'mysql'
 
-    - name: Mysql_role Column case sensitive | Select columns Dd
+    - name: Mysql_role Column case sensitive | Assert 4 column are accessible on MariaDB
       community.mysql.mysql_query:
         <<: *mysql_params
         login_user: column_case_sensitive
         query:
-          - SELECT Dd FROM mysql_role_column_case.t1
-      register: assert_failure_read_lower_dd
+          - SET ROLE role_column_case_sensitive
+          - DESC mysql_role_column_case.t1
+      register: assert_4_col_accessible
       failed_when:
-        - assert_failure_read_lower_dd is succeeded
+        - assert_4_col_accessible.rowcount[1] | int != 4
+      when:
+        - db_engine == 'mariadb'
 
     # ====================== Test the fix =====================================
 
-    - name: Mysql_role Column case sensitive | Create role with case sensitive
+    - name: Mysql_role Column case sensitive | Recreate role with case sensitive
       community.mysql.mysql_role:
         <<: *mysql_params
         name: 'role_column_case_sensitive'
@@ -92,33 +98,34 @@
           'mysql_role_column_case.t1': 'SELECT(a, B, cC, Dd)'
         column_case_sensitive: true
 
-    - name: Mysql_role Column case sensitive | Select columns a
+    - name: Mysql_role Column case sensitive | Assert role privileges are case sensitive
       community.mysql.mysql_query:
         <<: *mysql_params
-        login_user: column_case_sensitive
         query:
-          - SELECT a FROM mysql_role_column_case.t1
+          - SHOW GRANTS FOR role_column_case_sensitive
+      register: column_case_sensitive_grants
+      failed_when:
+        # Column order may vary, thus test each separately
+        - >-
+          column_case_sensitive_grants.query_result[0][1]
+          is not search("`a`", ignorecase=false)
+          or column_case_sensitive_grants.query_result[0][1]
+          is not search("`B`", ignorecase=false)
+          or column_case_sensitive_grants.query_result[0][1]
+          is not search("`cC`", ignorecase=false)
+          or column_case_sensitive_grants.query_result[0][1]
+          is not search("`Dd`", ignorecase=false)
 
-    - name: Mysql_role Column case sensitive | Select columns b
+    - name: Mysql_role Column case sensitive | Assert 4 columns are accessible
       community.mysql.mysql_query:
         <<: *mysql_params
         login_user: column_case_sensitive
         query:
-          - SELECT B FROM mysql_role_column_case.t1
-
-    - name: Mysql_role Column case sensitive | Select columns cC
-      community.mysql.mysql_query:
-        <<: *mysql_params
-        login_user: column_case_sensitive
-        query:
-          - SELECT cC FROM mysql_role_column_case.t1
-
-    - name: Mysql_role Column case sensitive | Select columns Dd
-      community.mysql.mysql_query:
-        <<: *mysql_params
-        login_user: column_case_sensitive
-        query:
-          - SELECT Dd FROM mysql_role_column_case.t1
+          - SET ROLE role_column_case_sensitive
+          - DESC mysql_role_column_case.t1
+      register: assert_4_col_accessible
+      failed_when:
+        - assert_4_col_accessible.rowcount[1] | int != 4
 
     # ========================= Teardown ======================================
 

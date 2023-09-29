@@ -41,9 +41,22 @@
           - SHOW GRANTS FOR column_case_sensitive@'%'
       register: column_case_insensitive_grants
       failed_when:
+        # Column order may vary, thus test each separately
         - >-
           column_case_insensitive_grants.query_result[0][1]
-          is not search("`A`, `B`, `CC`, `DD`")
+          is not search("`A`", ignorecase=false)
+          or column_case_insensitive_grants.query_result[0][1]
+          is not search("`B`", ignorecase=false)
+          or column_case_insensitive_grants.query_result[0][1]
+          is not search("`CC`", ignorecase=false)
+          or column_case_insensitive_grants.query_result[0][1]
+          is not search("`DD`", ignorecase=false)
+      when:
+        # MySQL 5.7 returns the column name without the backticks.
+        # Searching for a single character doesn't make sense. So we skip the
+        # the test for MySQL 5.7
+        - (db_engine == 'mysql' and db_version is version('8.0', '>'))
+          or (db_engine == 'mariadb')
 
     # ======================== Test fix  ======================================
 
@@ -64,9 +77,22 @@
           - SHOW GRANTS FOR column_case_sensitive@'%'
       register: column_case_sensitive_grants
       failed_when:
+        # Column order may vary, thus test each separately
         - >-
           column_case_sensitive_grants.query_result[0][1]
-          is not search("`B`, `Dd`, `a`, `cC`")
+          is not search("`a`", ignorecase=false)
+          or column_case_sensitive_grants.query_result[0][1]
+          is not search("`B`", ignorecase=false)
+          or column_case_sensitive_grants.query_result[0][1]
+          is not search("`cC`", ignorecase=false)
+          or column_case_sensitive_grants.query_result[0][1]
+          is not search("`Dd`", ignorecase=false)
+      when:
+        # MySQL 5.7 returns the column name without the backticks.
+        # Searching for a single character doesn't make sense. So we skip the
+        # the test for MySQL 5.7
+        - (db_engine == 'mysql' and db_version is version('8.0', '>'))
+          or (db_engine == 'mariadb')
 
     # ========================= Teardown ======================================
 

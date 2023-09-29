@@ -24,7 +24,7 @@
             (a, B, cC, Dd) VALUES (1,2,3,4)
 
     - name: Mysql_role Column case sensitive | Create users
-      community.mysql.mysql_role:
+      community.mysql.mysql_user:
         <<: *mysql_params
         name: column_case_sensitive
         host: '%'
@@ -123,7 +123,7 @@
     # ========================= Teardown ======================================
 
     - name: Mysql_role Column case sensitive | Delete test users
-      community.mysql.mysql_role:
+      community.mysql.mysql_user:
         <<: *mysql_params
         name: column_case_sensitive
         host_all: true

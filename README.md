@@ -82,9 +82,11 @@ Here is the table for the support timeline:
 
 ### ansible-core
 
-- 2.12
-- 2.13
-- 2.14
+- stable-2.12
+- stable-2.13
+- stable-2.14
+- stable-2.15
+- stable-2.16
 - current development version
 
 ### Databases

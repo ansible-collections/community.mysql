@@ -411,6 +411,7 @@ def main():
         resource_limits=dict(type='dict'),
         force_context=dict(type='bool', default=False),
         session_vars=dict(type='dict'),
+        column_case_sensitive=dict(type='bool', default=False)
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -446,6 +447,7 @@ def main():
     plugin_auth_string = module.params["plugin_auth_string"]
     resource_limits = module.params["resource_limits"]
     session_vars = module.params["session_vars"]
+    column_case_sensitive = module.params["column_case_sensitive"]
 
     if priv and not isinstance(priv, (str, dict)):
         module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
@@ -485,7 +487,7 @@ def main():
             mode = get_mode(cursor)
         except Exception as e:
             module.fail_json(msg=to_native(e))
-        priv = privileges_unpack(priv, mode, ensure_usage=not subtract_privs)
+        priv = privileges_unpack(priv, mode, column_case_sensitive, ensure_usage=not subtract_privs)
     password_changed = False
     if state == "present":
         if user_exists(cursor, user, host, host_all):

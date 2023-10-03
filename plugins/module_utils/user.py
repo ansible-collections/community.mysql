@@ -627,7 +627,7 @@ def sort_column_order(statement):
     return '%s(%s)' % (priv_name, ', '.join(columns))
 
 
-def privileges_unpack(priv, mode, ensure_usage=True):
+def privileges_unpack(priv, mode, column_case_sensitive, ensure_usage=True):
     """ Take a privileges string, typically passed as a parameter, and unserialize
     it into a dictionary, the same format as privileges_get() above. We have this
     custom format to avoid using YAML/JSON strings inside YAML playbooks. Example

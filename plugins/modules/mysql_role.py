@@ -967,7 +967,8 @@ def main():
         detach_members=dict(type='bool', default=False),
         check_implicit_admin=dict(type='bool', default=False),
         set_default_role_all=dict(type='bool', default=True),
-        members_must_exist=dict(type='bool', default=True)
+        members_must_exist=dict(type='bool', default=True),
+        column_case_sensitive=dict(type='bool', default=False)
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -1002,6 +1003,7 @@ def main():
     db = ''
     set_default_role_all = module.params['set_default_role_all']
     members_must_exist = module.params['members_must_exist']
+    column_case_sensitive = module.params['column_case_sensitive']
 
     if priv and not isinstance(priv, (str, dict)):
         msg = ('The "priv" parameter must be str or dict '
@@ -1051,7 +1053,7 @@ def main():
             module.fail_json(msg=to_native(e))
 
         try:
-            priv = privileges_unpack(priv, mode, ensure_usage=not subtract_privs)
+            priv = privileges_unpack(priv, mode, column_case_sensitive, ensure_usage=not subtract_privs)
         except Exception as e:
             module.fail_json(msg='Invalid privileges string: %s' % to_native(e))
 

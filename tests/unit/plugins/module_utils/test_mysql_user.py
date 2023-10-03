@@ -9,7 +9,8 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     handle_grant_on_col,
     has_grant_on_col,
     normalize_col_grants,
-    sort_column_order
+    sort_column_order,
+    privileges_unpack
 )
 
 
@@ -92,3 +93,21 @@ def test_handle_grant_on_col(privileges, start, end, output):
 def test_normalize_col_grants(input_, expected):
     """Tests normalize_col_grants function."""
     assert normalize_col_grants(input_) == expected
+
+
+@pytest.mark.parametrize(
+    'priv,expected,mode,column_case_sensitive,ensure_usage',
+    [
+        ('mydb.*:SELECT', {'"mydb".*': ['SELECT']}, 'ANSI', False, False),
+        ('mydb.*:SELECT', {'`mydb`.*': ['SELECT']}, 'NOTANSI', False, False),
+        ('mydb.*:SELECT', {'"mydb".*': ['SELECT'], '*.*': ['USAGE']}, 'ANSI', False, True),
+        ('mydb.*:SELECT', {'`mydb`.*': ['SELECT'], '*.*': ['USAGE']}, 'NOTANSI', False, True),
+        ('mydb.*:SELECT (a)', {'`mydb`.*': ['SELECT (A)']}, 'NOTANSI', False, False),
+        ('mydb.*:UPDATE (b, a)', {'`mydb`.*': ['UPDATE (a, b)']}, 'NOTANSI', True, False),
+        ('mydb.*:SELECT (b, a, c)', {'`mydb`.*': ['SELECT (A, B, C)']}, 'NOTANSI', False, False),
+        ('mydb.*:SELECT (b, a, c)', {'`mydb`.*': ['SELECT (a, b, c)']}, 'NOTANSI', True, False),
+    ]
+)
+def test_privileges_unpack(priv, mode, column_case_sensitive, ensure_usage, expected):
+    """Tests privileges_unpack function."""
+    assert privileges_unpack(priv, mode, column_case_sensitive, ensure_usage) == expected

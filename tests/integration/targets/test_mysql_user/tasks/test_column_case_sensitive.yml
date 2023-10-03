@@ -44,19 +44,37 @@
         # Column order may vary, thus test each separately
         - >-
           column_case_insensitive_grants.query_result[0][1]
-          is not search("`A`", ignorecase=false)
+          is not search("A", ignorecase=false)
           or column_case_insensitive_grants.query_result[0][1]
-          is not search("`B`", ignorecase=false)
+          is not search("B", ignorecase=false)
           or column_case_insensitive_grants.query_result[0][1]
-          is not search("`CC`", ignorecase=false)
+          is not search("CC", ignorecase=false)
           or column_case_insensitive_grants.query_result[0][1]
-          is not search("`DD`", ignorecase=false)
+          is not search("DD", ignorecase=false)
+
+    - name: Mysql_user Column case sensitive | Assert 1 column is accessible on MySQL
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        login_user: column_case_sensitive
+        query:
+          - DESC mysql_user_column_case.t1
+      register: assert_1_col_accessible
+      failed_when:
+        - assert_1_col_accessible.rowcount[0] | int != 1
       when:
-        # MySQL 5.7 returns the column name without the backticks.
-        # Searching for a single character doesn't make sense. So we skip the
-        # the test for MySQL 5.7
-        - (db_engine == 'mysql' and db_version is version('8.0', '>'))
-          or (db_engine == 'mariadb')
+        - db_engine == 'mysql'
+
+    - name: Mysql_user Column case sensitive | Assert 4 column are accessible on MariaDB
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        login_user: column_case_sensitive
+        query:
+          - DESC mysql_user_column_case.t1
+      register: assert_4_col_accessible
+      failed_when:
+        - assert_4_col_accessible.rowcount[0] | int != 4
+      when:
+        - db_engine == 'mariadb'
 
     # ======================== Test fix  ======================================
 
@@ -80,19 +98,23 @@
         # Column order may vary, thus test each separately
         - >-
           column_case_sensitive_grants.query_result[0][1]
-          is not search("`a`", ignorecase=false)
+          is not search("a", ignorecase=false)
           or column_case_sensitive_grants.query_result[0][1]
-          is not search("`B`", ignorecase=false)
+          is not search("B", ignorecase=false)
           or column_case_sensitive_grants.query_result[0][1]
-          is not search("`cC`", ignorecase=false)
+          is not search("cC", ignorecase=false)
           or column_case_sensitive_grants.query_result[0][1]
-          is not search("`Dd`", ignorecase=false)
-      when:
-        # MySQL 5.7 returns the column name without the backticks.
-        # Searching for a single character doesn't make sense. So we skip the
-        # the test for MySQL 5.7
-        - (db_engine == 'mysql' and db_version is version('8.0', '>'))
-          or (db_engine == 'mariadb')
+          is not search("Dd", ignorecase=false)
+
+    - name: Mysql_user Column case sensitive | Assert 4 columns are accessible
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        login_user: column_case_sensitive
+        query:
+          - DESC mysql_user_column_case.t1
+      register: assert_4_col_accessible
+      failed_when:
+        - assert_4_col_accessible.rowcount[0] | int != 4
 
     # ========================= Teardown ======================================
 

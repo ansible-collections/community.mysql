@@ -52,13 +52,13 @@
         # Column order may vary, thus test each separately
         - >-
           column_case_insensitive_grants.query_result[0][1]
-          is not search("`A`", ignorecase=false)
+          is not search("A", ignorecase=false)
           or column_case_insensitive_grants.query_result[0][1]
-          is not search("`B`", ignorecase=false)
+          is not search("B", ignorecase=false)
           or column_case_insensitive_grants.query_result[0][1]
-          is not search("`CC`", ignorecase=false)
+          is not search("CC", ignorecase=false)
           or column_case_insensitive_grants.query_result[0][1]
-          is not search("`DD`", ignorecase=false)
+          is not search("DD", ignorecase=false)
 
     - name: Mysql_role Column case sensitive | Assert 1 column is accessible on MySQL
       community.mysql.mysql_query:
@@ -108,13 +108,13 @@
         # Column order may vary, thus test each separately
         - >-
           column_case_sensitive_grants.query_result[0][1]
-          is not search("`a`", ignorecase=false)
+          is not search("a", ignorecase=false)
           or column_case_sensitive_grants.query_result[0][1]
-          is not search("`B`", ignorecase=false)
+          is not search("B", ignorecase=false)
           or column_case_sensitive_grants.query_result[0][1]
-          is not search("`cC`", ignorecase=false)
+          is not search("cC", ignorecase=false)
           or column_case_sensitive_grants.query_result[0][1]
-          is not search("`Dd`", ignorecase=false)
+          is not search("Dd", ignorecase=false)
 
     - name: Mysql_role Column case sensitive | Assert 4 columns are accessible
       community.mysql.mysql_query:

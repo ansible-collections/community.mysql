@@ -1,0 +1,10 @@
+---
+
+major_changes:
+
+  - mysql_user - add ``column_case_sensitive`` option to prevent field names
+    from being uppercased
+    (https://github.com/ansible-collections/community.mysql/pull/569).
+  - mysql_role - add ``column_case_sensitive`` option to prevent field names
+    from being uppercased
+    (https://github.com/ansible-collections/community.mysql/pull/569).

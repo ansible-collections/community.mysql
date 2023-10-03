@@ -155,7 +155,7 @@ options:
       - Cannot be used to set global variables, use the M(community.mysql.mysql_variables) module instead.
     type: dict
     version_added: '3.6.0'
-  
+
   column_case_sensitive:
     description:
       - When C(true), the module won't uppercase the field names in the privileges.

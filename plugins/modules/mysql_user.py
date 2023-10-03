@@ -155,6 +155,16 @@ options:
       - Cannot be used to set global variables, use the M(community.mysql.mysql_variables) module instead.
     type: dict
     version_added: '3.6.0'
+  
+  column_case_sensitive:
+    description:
+      - When C(true), the module won't uppercase the field names in the privileges.
+      - When C(false), the field names will be upper cased. This is the default
+      - This feature was introduced because MySQL 8 and above uses case sensitive
+        fields names in privileges.
+    type: bool
+    default: false
+    version_added: '3.8.0'
 
 notes:
    - "MySQL server installs with default I(login_user) of C(root) and no password.

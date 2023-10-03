@@ -285,7 +285,7 @@
     # https://github.com/ansible-collections/community.mysql/issues/231
     - include_tasks: test_user_grants_with_roles_applied.yml
 
-    - include: test_revoke_only_grant.yml
+    - include_tasks: test_revoke_only_grant.yml
 
     - name: Mysql_user - test column case sensitive
       ansible.builtin.import_tasks:

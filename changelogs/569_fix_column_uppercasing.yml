@@ -14,7 +14,7 @@ major_changes:
     set this to false explicitly
     (https://github.com/ansible-collections/community.mysql/issues/577).
   - mysql_role - the ``column_case_sensitive`` argument's default value will be
-    changed to ``true`` in community.mysql 4.0.0. If your playbook expectd the
+    changed to ``true`` in community.mysql 4.0.0. If your playbook expected the
     column to be automatically uppercased for your roles privileges, you should
     set this to false explicitly
     (https://github.com/ansible-collections/community.mysql/issues/578).

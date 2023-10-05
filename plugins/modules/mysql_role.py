@@ -968,7 +968,7 @@ def main():
         check_implicit_admin=dict(type='bool', default=False),
         set_default_role_all=dict(type='bool', default=True),
         members_must_exist=dict(type='bool', default=True),
-        column_case_sensitive=dict(type='bool', default=False)
+        column_case_sensitive=dict(type='bool', default=False),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,

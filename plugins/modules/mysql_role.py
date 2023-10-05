@@ -149,6 +149,8 @@ seealso:
 author:
   - Andrew Klychkov (@Andersson007)
   - Felix Hamme (@betanummeric)
+  - kmarse (@kmarse)
+  - Laurent Indermühle (@laurent-indermuehle)
 
 extends_documentation_fragment:
   - community.mysql.mysql

@@ -191,6 +191,9 @@ author:
 - Jonathan Mainguy (@Jmainguy)
 - Benjamin Malynovytch (@bmalynovytch)
 - Lukasz Tomaszkiewicz (@tomaszkiewicz)
+- kmarse (@kmarse)
+- Laurent Indermühle (@laurent-indermuehle)
+
 extends_documentation_fragment:
 - community.mysql.mysql
 '''

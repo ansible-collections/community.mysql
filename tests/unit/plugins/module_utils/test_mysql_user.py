@@ -10,7 +10,7 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     has_grant_on_col,
     normalize_col_grants,
     sort_column_order,
-    privileges_unpack
+    privileges_unpack,
 )
 
 

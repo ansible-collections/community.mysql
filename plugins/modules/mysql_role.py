@@ -126,7 +126,7 @@ options:
       - When C(true), the module won't uppercase the field in the privileges.
       - When C(false), the field names will be upper cased. This was the default before this
         feature was introduced but since MySQL/MariaDB is case sensitive you should set this
-        to true in most cases.
+        to C(true) in most cases.
     type: bool
     default: false
     version_added: '3.8.0'

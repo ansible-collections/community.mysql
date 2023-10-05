@@ -1090,7 +1090,7 @@ def main():
                 # TODO Release 4.0.0 : Remove this warning or change the message.
                 if not column_case_sensitive and "(" in str(priv):
                     module.warn("column_case_sensitive set to False, column's name will be uppercased")
-                
+
                 if subtract_privs:
                     priv = None  # avoid granting unwanted privileges
                 if detach_members:

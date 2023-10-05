@@ -490,6 +490,10 @@ def main():
             mode = get_mode(cursor)
         except Exception as e:
             module.fail_json(msg=to_native(e))
+
+        # TODO Release 4.0.0 : Remove this warning or change the message.
+        if not column_case_sensitive and "(" in str(priv):
+            module.warn("column_case_sensitive set to False, column's name will be uppercased")
         priv = privileges_unpack(priv, mode, column_case_sensitive, ensure_usage=not subtract_privs)
     password_changed = False
     if state == "present":

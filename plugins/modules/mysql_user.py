@@ -158,8 +158,9 @@ options:
 
   column_case_sensitive:
     description:
-      - When C(true), the module won't uppercase the field names in the privileges.
-      - When C(false), the field names will be upper cased. This is the default
+      - The default is C(false).
+      - When C(true), the module will not uppercase the field names in the privileges.
+      - When C(false), the field names will be upper-cased. This is the default
       - This feature was introduced because MySQL 8 and above uses case sensitive
         fields names in privileges.
     type: bool

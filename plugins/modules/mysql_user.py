@@ -480,7 +480,9 @@ def main():
     # TODO Release 4.0.0 : Remove this test and variable assignation
     if column_case_sensitive is None:
         column_case_sensitive = False
-        module.warn("Option column_case_sensitive not provided, column's name will be uppercased")
+        module.warn("Option column_case_sensitive is not provided. "
+                    "The default is now false, so the column's name will be uppercased. "
+                    "The default will be changed to true in community.mysql 4.0.0.")
 
     if not sql_log_bin:
         cursor.execute("SET SQL_LOG_BIN=0;")

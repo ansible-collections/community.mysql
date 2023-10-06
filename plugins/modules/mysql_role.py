@@ -128,7 +128,6 @@ options:
         feature was introduced but since MySQL/MariaDB is case sensitive you should set this
         to C(true) in most cases.
     type: bool
-    default: false
     version_added: '3.8.0'
 
 notes:
@@ -970,7 +969,7 @@ def main():
         check_implicit_admin=dict(type='bool', default=False),
         set_default_role_all=dict(type='bool', default=True),
         members_must_exist=dict(type='bool', default=True),
-        column_case_sensitive=dict(type='bool', default=False),
+        column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -1017,6 +1016,11 @@ def main():
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
+
+    # TODO Release 4.0.0 : Remove this test and variable assignation
+    if column_case_sensitive is None:
+        column_case_sensitive = False
+        module.warn("Option column_case_sensitive not provided, column's name will be uppercased")
 
     cursor = None
     try:
@@ -1087,10 +1091,6 @@ def main():
     try:
         if state == 'present':
             if not role.exists:
-                # TODO Release 4.0.0 : Remove this warning or change the message.
-                if not column_case_sensitive and "(" in str(priv):
-                    module.warn("column_case_sensitive set to False, column's name will be uppercased")
-
                 if subtract_privs:
                     priv = None  # avoid granting unwanted privileges
                 if detach_members:

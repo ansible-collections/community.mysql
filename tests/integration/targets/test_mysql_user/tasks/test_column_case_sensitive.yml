@@ -25,7 +25,7 @@
 
     # ================= Reproduce failure =====================================
 
-    - name: Mysql_user Column case sensitive | Create users
+    - name: Mysql_user Column case sensitive | Create test user
       community.mysql.mysql_user:
         <<: *mysql_params
         name: column_case_sensitive

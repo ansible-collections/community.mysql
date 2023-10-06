@@ -163,7 +163,6 @@ options:
       - This feature was introduced because MySQL 8 and above uses case sensitive
         fields names in privileges.
     type: bool
-    default: false
     version_added: '3.8.0'
 
 notes:
@@ -414,7 +413,7 @@ def main():
         resource_limits=dict(type='dict'),
         force_context=dict(type='bool', default=False),
         session_vars=dict(type='dict'),
-        column_case_sensitive=dict(type='bool', default=False)
+        column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -477,6 +476,11 @@ def main():
         module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "
                              "Exception message: %s" % (config_file, to_native(e)))
 
+    # TODO Release 4.0.0 : Remove this test and variable assignation
+    if column_case_sensitive is None:
+        column_case_sensitive = False
+        module.warn("Option column_case_sensitive not provided, column's name will be uppercased")
+
     if not sql_log_bin:
         cursor.execute("SET SQL_LOG_BIN=0;")
 
@@ -491,9 +495,6 @@ def main():
         except Exception as e:
             module.fail_json(msg=to_native(e))
 
-        # TODO Release 4.0.0 : Remove this warning or change the message.
-        if not column_case_sensitive and "(" in str(priv):
-            module.warn("column_case_sensitive set to False, column's name will be uppercased")
         priv = privileges_unpack(priv, mode, column_case_sensitive, ensure_usage=not subtract_privs)
     password_changed = False
     if state == "present":

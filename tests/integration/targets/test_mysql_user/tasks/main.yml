@@ -286,3 +286,7 @@
     - include_tasks: test_user_grants_with_roles_applied.yml
 
     - include_tasks: test_revoke_only_grant.yml
+
+    - name: Mysql_user - test column case sensitive
+      ansible.builtin.import_tasks:
+        file: test_column_case_sensitive.yml

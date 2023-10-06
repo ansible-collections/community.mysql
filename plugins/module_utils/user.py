@@ -627,7 +627,7 @@ def sort_column_order(statement):
     return '%s(%s)' % (priv_name, ', '.join(columns))
 
 
-def privileges_unpack(priv, mode, ensure_usage=True):
+def privileges_unpack(priv, mode, column_case_sensitive, ensure_usage=True):
     """ Take a privileges string, typically passed as a parameter, and unserialize
     it into a dictionary, the same format as privileges_get() above. We have this
     custom format to avoid using YAML/JSON strings inside YAML playbooks. Example
@@ -663,9 +663,14 @@ def privileges_unpack(priv, mode, ensure_usage=True):
         pieces[0] = object_type + '.'.join(dbpriv)
 
         if '(' in pieces[1]:
-            output[pieces[0]] = re.split(r',\s*(?=[^)]*(?:\(|$))', pieces[1].upper())
-            for i in output[pieces[0]]:
-                privs.append(re.sub(r'\s*\(.*\)', '', i))
+            if column_case_sensitive is True:
+                output[pieces[0]] = re.split(r',\s*(?=[^)]*(?:\(|$))', pieces[1])
+                for i in output[pieces[0]]:
+                    privs.append(re.sub(r'\s*\(.*\)', '', i))
+            else:
+                output[pieces[0]] = re.split(r',\s*(?=[^)]*(?:\(|$))', pieces[1].upper())
+                for i in output[pieces[0]]:
+                    privs.append(re.sub(r'\s*\(.*\)', '', i))
         else:
             output[pieces[0]] = pieces[1].upper().split(',')
             privs = output[pieces[0]]

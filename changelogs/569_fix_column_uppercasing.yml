@@ -1,0 +1,21 @@
+---
+minor_changes:
+
+  - mysql_user - add ``column_case_sensitive`` option to prevent field names
+    from being uppercased
+    (https://github.com/ansible-collections/community.mysql/pull/569).
+  - mysql_role - add ``column_case_sensitive`` option to prevent field names
+    from being uppercased
+    (https://github.com/ansible-collections/community.mysql/pull/569).
+
+major_changes:
+  - mysql_user - the ``column_case_sensitive`` argument's default value will be
+    changed to ``true`` in community.mysql 4.0.0. If your playbook expected the
+    column to be automatically uppercased for your users privileges, you should
+    set this to false explicitly
+    (https://github.com/ansible-collections/community.mysql/issues/577).
+  - mysql_role - the ``column_case_sensitive`` argument's default value will be
+    changed to ``true`` in community.mysql 4.0.0. If your playbook expected the
+    column to be automatically uppercased for your roles privileges, you should
+    set this to false explicitly
+    (https://github.com/ansible-collections/community.mysql/issues/578).

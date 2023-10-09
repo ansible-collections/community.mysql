@@ -486,16 +486,16 @@ def privileges_get(module, cursor, user, host, maria_role=False):
         else:
             return x
 
-    mysql8_all_privileges = [
-        sorted([
+    mysql8_all_privileges = {
+        'all_privs_base': [
             'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'RELOAD',
             'SHUTDOWN', 'PROCESS', 'FILE', 'REFERENCES', 'INDEX', 'ALTER',
             'SHOW DATABASES', 'SUPER', 'CREATE TEMPORARY TABLES',
             'LOCK TABLES', 'EXECUTE', 'REPLICATION SLAVE',
             'REPLICATION CLIENT', 'CREATE VIEW', 'SHOW VIEW', 'CREATE ROUTINE',
             'ALTER ROUTINE', 'CREATE USER', 'EVENT', 'TRIGGER',
-            'CREATE TABLESPACE', 'CREATE ROLE', 'DROP ROLE']
-        ), sorted([
+            'CREATE TABLESPACE', 'CREATE ROLE', 'DROP ROLE'],
+        'all_privs_extended': [
             'APPLICATION_PASSWORD_ADMIN', 'AUDIT_ABORT_EXEMPT', 'AUDIT_ADMIN',
             'AUTHENTICATION_POLICY_ADMIN', 'BACKUP_ADMIN', 'BINLOG_ADMIN',
             'BINLOG_ENCRYPTION_ADMIN', 'CLONE_ADMIN', 'CONNECTION_ADMIN',
@@ -510,8 +510,7 @@ def privileges_get(module, cursor, user, host, maria_role=False):
             'SESSION_VARIABLES_ADMIN', 'SET_USER_ID', 'SHOW_ROUTINE',
             'SYSTEM_USER', 'SYSTEM_VARIABLES_ADMIN', 'TABLE_ENCRYPTION_ADMIN',
             'XA_RECOVER_ADMIN']
-        )
-    ]
+    }
 
     for grant in grants:
         if isinstance(grant, dict):
@@ -546,7 +545,7 @@ def privileges_get(module, cursor, user, host, maria_role=False):
 
         db = res.group(2)
 
-        if sorted(privileges) in mysql8_all_privileges:
+        if sorted(privileges) in sorted(mysql8_all_privileges.values()):
             privileges = ['ALL']
 
         if not maria_role:

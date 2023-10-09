@@ -144,6 +144,7 @@ EXAMPLES = r'''
     tls_require: "{{ item.tls_require | default(omit) }}"
     priv: "{{ item.priv | default(omit) }}"
     resource_limits: "{{ item.resource_limits | default(omit) }}"
+    column_case_sensitive: true
     state: present
   loop: "{{ result.users_privs }}"
   loop_control:

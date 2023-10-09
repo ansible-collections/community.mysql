@@ -539,7 +539,7 @@ class MySQL_Info(object):
         """Get user privileges.
 
         Query the server to get all the users and return a string
-        of privileges that can be used with the mysql_user plugin.
+        of privileges that can be used by the mysql_user plugin.
         For instance:
 
         "users_privs": [

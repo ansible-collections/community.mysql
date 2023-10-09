@@ -130,6 +130,7 @@
         tls_require: "{{ item.tls_require | default(omit) }}"
         priv: "{{ item.priv }}"
         resource_limits: "{{ item.resource_limits | default(omit) }}"
+        column_case_sensitive: true
         state: present
       loop:
         - name: users_privs_socket  # Only for MariaDB
@@ -149,6 +150,7 @@
         tls_require: "{{ item.tls_require | default(omit) }}"
         priv: "{{ item.priv }}"
         resource_limits: "{{ item.resource_limits | default(omit) }}"
+        column_case_sensitive: true
         state: present
       loop:
         - name: users_privs_sha256  # Only for MySQL
@@ -170,6 +172,7 @@
         tls_require: "{{ item.tls_require | default(omit) }}"
         priv: "{{ item.priv }}"
         resource_limits: "{{ item.resource_limits | default(omit) }}"
+        column_case_sensitive: true
         state: present
       loop:
         - name: users_privs_caching_sha2  # Only for MySQL 8+
@@ -222,6 +225,7 @@
       community.mysql.mysql_user:
         name: "{{ item }}"
         host: "users_privs.com"
+        column_case_sensitive: true
         state: absent
       loop:
         - users_privs_adm

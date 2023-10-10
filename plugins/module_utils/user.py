@@ -487,7 +487,7 @@ def privileges_get(module, cursor, user, host, maria_role=False):
             return x
 
     mysql8_all_privileges = {
-        'all_privs_base': [
+        'static_privileges': [
             'SELECT', 'INSERT', 'UPDATE', 'DELETE', 'CREATE', 'DROP', 'RELOAD',
             'SHUTDOWN', 'PROCESS', 'FILE', 'REFERENCES', 'INDEX', 'ALTER',
             'SHOW DATABASES', 'SUPER', 'CREATE TEMPORARY TABLES',
@@ -495,7 +495,7 @@ def privileges_get(module, cursor, user, host, maria_role=False):
             'REPLICATION CLIENT', 'CREATE VIEW', 'SHOW VIEW', 'CREATE ROUTINE',
             'ALTER ROUTINE', 'CREATE USER', 'EVENT', 'TRIGGER',
             'CREATE TABLESPACE', 'CREATE ROLE', 'DROP ROLE'],
-        'all_privs_extended': [
+        'dynamic_privileges': [
             'APPLICATION_PASSWORD_ADMIN', 'AUDIT_ABORT_EXEMPT', 'AUDIT_ADMIN',
             'AUTHENTICATION_POLICY_ADMIN', 'BACKUP_ADMIN', 'BINLOG_ADMIN',
             'BINLOG_ENCRYPTION_ADMIN', 'CLONE_ADMIN', 'CONNECTION_ADMIN',

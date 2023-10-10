@@ -533,8 +533,8 @@ def privileges_get(module, cursor, user, host, maria_role=False):
 
             raise InvalidPrivsError('unable to parse the MySQL grant string: %s' % grant[0])
 
-        privileges = [x.strip() for x in res.group(1).split(",")]
-        privileges = [pick(x) for x in privileges]
+        privileges = res.group(1).split(",")
+        privileges = [pick(x.strip()) for x in privileges]
 
         # Handle cases when there's privs like GRANT SELECT (colA, ...) in privs.
         # To this point, the privileges list can look like

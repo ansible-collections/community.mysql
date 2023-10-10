@@ -850,7 +850,7 @@ def get_resource_limits(module, cursor, user, host):
             current_limits['MAX_STATEMENT_TIME'] = res[4]
 
     # I'm not sure this is useful. Maybe fetchone() always return a
-    # tuple? But I go so many KeyError 0 errors that I haded this.
+    # tuple? But I got so many KeyError 0 that I added this to fix the issue.
     if isinstance(res, dict):
         current_limits = {
             'MAX_QUERIES_PER_HOUR': res.get('MAX_QUERIES_PER_HOUR'),

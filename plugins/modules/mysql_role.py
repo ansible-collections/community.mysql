@@ -121,16 +121,6 @@ options:
     type: bool
     default: true
 
-  column_case_sensitive:
-    description:
-      - The default is C(false).
-      - When C(true), the module will not uppercase the field in the privileges.
-      - When C(false), the field names will be upper-cased. This was the default before this
-        feature was introduced but since MySQL/MariaDB is case sensitive you should set this
-        to C(true) in most cases.
-    type: bool
-    version_added: '3.8.0'
-
 notes:
   - Pay attention that the module runs C(SET DEFAULT ROLE ALL TO)
     all the I(members) passed by default when the state has changed.
@@ -149,8 +139,6 @@ seealso:
 author:
   - Andrew Klychkov (@Andersson007)
   - Felix Hamme (@betanummeric)
-  - kmarse (@kmarse)
-  - Laurent Indermühle (@laurent-indermuehle)
 
 extends_documentation_fragment:
   - community.mysql.mysql
@@ -968,8 +956,7 @@ def main():
         detach_members=dict(type='bool', default=False),
         check_implicit_admin=dict(type='bool', default=False),
         set_default_role_all=dict(type='bool', default=True),
-        members_must_exist=dict(type='bool', default=True),
-        column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
+        members_must_exist=dict(type='bool', default=True)
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -1004,7 +991,6 @@ def main():
     db = ''
     set_default_role_all = module.params['set_default_role_all']
     members_must_exist = module.params['members_must_exist']
-    column_case_sensitive = module.params['column_case_sensitive']
 
     if priv and not isinstance(priv, (str, dict)):
         msg = ('The "priv" parameter must be str or dict '
@@ -1016,13 +1002,6 @@ def main():
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
-
-    # TODO Release 4.0.0 : Remove this test and variable assignation
-    if column_case_sensitive is None:
-        column_case_sensitive = False
-        module.warn("Option column_case_sensitive is not provided. "
-                    "The default is now false, so the column's name will be uppercased. "
-                    "The default will be changed to true in community.mysql 4.0.0.")
 
     cursor = None
     try:
@@ -1061,7 +1040,7 @@ def main():
             module.fail_json(msg=to_native(e))
 
         try:
-            priv = privileges_unpack(priv, mode, column_case_sensitive, ensure_usage=not subtract_privs)
+            priv = privileges_unpack(priv, mode, ensure_usage=not subtract_privs)
         except Exception as e:
             module.fail_json(msg='Invalid privileges string: %s' % to_native(e))
 

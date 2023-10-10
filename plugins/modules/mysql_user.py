@@ -156,16 +156,6 @@ options:
     type: dict
     version_added: '3.6.0'
 
-  column_case_sensitive:
-    description:
-      - The default is C(false).
-      - When C(true), the module will not uppercase the field names in the privileges.
-      - When C(false), the field names will be upper-cased. This is the default
-      - This feature was introduced because MySQL 8 and above uses case sensitive
-        fields names in privileges.
-    type: bool
-    version_added: '3.8.0'
-
 notes:
    - "MySQL server installs with default I(login_user) of C(root) and no password.
      To secure this user as part of an idempotent playbook, you must create at least two tasks:
@@ -191,9 +181,6 @@ author:
 - Jonathan Mainguy (@Jmainguy)
 - Benjamin Malynovytch (@bmalynovytch)
 - Lukasz Tomaszkiewicz (@tomaszkiewicz)
-- kmarse (@kmarse)
-- Laurent Indermühle (@laurent-indermuehle)
-
 extends_documentation_fragment:
 - community.mysql.mysql
 '''
@@ -414,7 +401,6 @@ def main():
         resource_limits=dict(type='dict'),
         force_context=dict(type='bool', default=False),
         session_vars=dict(type='dict'),
-        column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -450,7 +436,6 @@ def main():
     plugin_auth_string = module.params["plugin_auth_string"]
     resource_limits = module.params["resource_limits"]
     session_vars = module.params["session_vars"]
-    column_case_sensitive = module.params["column_case_sensitive"]
 
     if priv and not isinstance(priv, (str, dict)):
         module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
@@ -477,13 +462,6 @@ def main():
         module.fail_json(msg="unable to connect to database, check login_user and login_password are correct or %s has the credentials. "
                              "Exception message: %s" % (config_file, to_native(e)))
 
-    # TODO Release 4.0.0 : Remove this test and variable assignation
-    if column_case_sensitive is None:
-        column_case_sensitive = False
-        module.warn("Option column_case_sensitive is not provided. "
-                    "The default is now false, so the column's name will be uppercased. "
-                    "The default will be changed to true in community.mysql 4.0.0.")
-
     if not sql_log_bin:
         cursor.execute("SET SQL_LOG_BIN=0;")
 
@@ -497,8 +475,7 @@ def main():
             mode = get_mode(cursor)
         except Exception as e:
             module.fail_json(msg=to_native(e))
-
-        priv = privileges_unpack(priv, mode, column_case_sensitive, ensure_usage=not subtract_privs)
+        priv = privileges_unpack(priv, mode, ensure_usage=not subtract_privs)
     password_changed = False
     if state == "present":
         if user_exists(cursor, user, host, host_all):

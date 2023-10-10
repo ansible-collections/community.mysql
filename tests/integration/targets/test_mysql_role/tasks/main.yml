@@ -18,7 +18,3 @@
 - include_tasks: test_priv_subtract.yml
   vars:
     enable_check_mode: yes
-
-- name: Test column case sensitive
-  ansible.builtin.import_tasks:
-    file: test_column_case_sensitive.yml

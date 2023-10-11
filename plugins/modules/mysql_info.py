@@ -566,7 +566,7 @@ class MySQL_Info(object):
             user = line['User']
             host = line['Host']
 
-            user_priv = privileges_get(self.module, self.cursor, user, host, summarize_all=True)
+            user_priv = privileges_get(self.module, self.cursor, user, host, maria_role=False, summarize_all=True)
 
             if not user_priv:
                 self.module.warn("No privileges found for %s on host %s" % (user, host))

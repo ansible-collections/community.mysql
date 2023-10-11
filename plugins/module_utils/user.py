@@ -16,6 +16,7 @@ from ansible.module_utils.six import iteritems
 
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_driver,
+    get_server_type,
 )
 
 

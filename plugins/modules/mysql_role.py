@@ -789,8 +789,7 @@ class Role():
         if privs:
             for db_table, priv in iteritems(privs):
                 privileges_grant(self.cursor, self.name, self.host,
-                                 db_table, priv, tls_requires=None,
-                                 maria_role=self.is_mariadb)
+                                 db_table, priv, tls_requires=None)
 
         return True
 
@@ -932,7 +931,7 @@ class Role():
             result = user_mod(self.cursor, self.name, self.host,
                               None, None, None, None, None, None,
                               privs, append_privs, subtract_privs, None,
-                              self.module, role=True, maria_role=self.is_mariadb)
+                              self.module, role=True)
             changed = result['changed']
 
         if admin:

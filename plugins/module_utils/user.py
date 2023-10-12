@@ -115,7 +115,13 @@ def get_grants(cursor, user, host):
 def get_existing_authentication(cursor, user):
     # Return the plugin and auth_string if there is exactly one distinct existing plugin and auth_string.
     cursor.execute("SELECT VERSION()")
-    if 'mariadb' in cursor.fetchone()[0].lower():
+    srv_type = cursor.fetchone()
+    # Mysql_info use a DictCursor so we must convert back to a list
+    # otherwise we get KeyError 0
+    if isinstance(srv_type, dict):
+        srv_type = list(srv_type.values())
+
+    if 'mariadb' in srv_type[0].lower():
         # before MariaDB 10.2.19 and 10.3.11, "password" and "authentication_string" can differ
         # when using mysql_native_password
         cursor.execute("""select plugin, auth from (
@@ -127,8 +133,17 @@ def get_existing_authentication(cursor, user):
         cursor.execute("""select plugin, authentication_string as auth from mysql.user where user=%(user)s
             group by plugin, authentication_string limit 2""", {'user': user})
     rows = cursor.fetchall()
-    if len(rows) == 1:
-        return {'plugin': rows[0][0], 'auth_string': rows[0][1]}
+
+    # Mysql_info use a DictCursor so we must convert back to a list
+    # otherwise we get KeyError 0
+    if isinstance(rows, dict):
+        rows = list(rows.values())
+
+    if isinstance(rows[0], tuple):
+        return {'plugin': rows[0][0], 'plugin_auth_string': rows[0][1]}
+
+    if isinstance(rows[0], dict):
+        return {'plugin': rows[0].get('plugin'), 'plugin_auth_string': rows[0].get('auth')}
     return None
 
 
@@ -478,6 +493,12 @@ def privileges_get(cursor, user, host, maria_role=False):
             return x
 
     for grant in grants:
+
+        # Mysql_info use a DictCursor so we must convert back to a list
+        # otherwise we get KeyError 0
+        if isinstance(grant, dict):
+            grant = list(grant.values())
+
         if not maria_role:
             res = re.match("""GRANT (.+) ON (.+) TO (['`"]).*\\3@(['`"]).*\\4( IDENTIFIED BY PASSWORD (['`"]).+\\6)? ?(.*)""", grant[0])
         else:
@@ -777,6 +798,11 @@ def get_resource_limits(cursor, user, host):
     cursor.execute(query, (user, host))
     res = cursor.fetchone()
 
+    # Mysql_info use a DictCursor so we must convert back to a list
+    # otherwise we get KeyError 0
+    if isinstance(res, dict):
+        res = list(res.values())
+
     if not res:
         return None
 
@@ -788,11 +814,22 @@ def get_resource_limits(cursor, user, host):
     }
 
     cursor.execute("SELECT VERSION()")
-    if 'mariadb' in cursor.fetchone()[0].lower():
+    srv_type = cursor.fetchone()
+    # Mysql_info use a DictCursor so we must convert back to a list
+    # otherwise we get KeyError 0
+    if isinstance(srv_type, dict):
+        srv_type = list(srv_type.values())
+
+    if 'mariadb' in srv_type[0].lower():
         query = ('SELECT max_statement_time AS MAX_STATEMENT_TIME '
                  'FROM mysql.user WHERE User = %s AND Host = %s')
         cursor.execute(query, (user, host))
         res_max_statement_time = cursor.fetchone()
+
+        # Mysql_info use a DictCursor so we must convert back to a list
+        # otherwise we get KeyError 0
+        if isinstance(res_max_statement_time, dict):
+            res_max_statement_time = list(res_max_statement_time.values())
         current_limits['MAX_STATEMENT_TIME'] = res_max_statement_time[0]
 
     return current_limits

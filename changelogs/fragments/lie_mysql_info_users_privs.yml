@@ -1,0 +1,5 @@
+---
+
+minor_changes:
+
+  - mysql_info - add filter ``users_privs`` (https://github.com/ansible-collections/community.mysql/pull/572).

@@ -19,7 +19,7 @@ options:
     description:
     - Limit the collected information by comma separated string or YAML list.
     - Allowable values are C(version), C(databases), C(settings), C(global_status),
-      C(users), C(engines), C(master_status), C(slave_status), C(slave_hosts).
+      C(users), C(users_privs), C(engines), C(master_status), C(slave_status), C(slave_hosts).
     - By default, collects all subsets.
     - You can use '!' before value (for example, C(!settings)) to exclude it from the information.
     - If you pass including and excluding values to the filter, for example, I(filter=!settings,version),
@@ -74,6 +74,9 @@ EXAMPLES = r'''
 # Display only databases and users info:
 # ansible mysql-hosts -m mysql_info -a 'filter=databases,users'
 
+# Display all users privileges:
+# ansible mysql-hosts -m mysql_info -a 'filter=users_privs'
+
 # Display only slave status:
 # ansible standby -m mysql_info -a 'filter=slave_status'
 
@@ -122,6 +125,35 @@ EXAMPLES = r'''
     - databases
     exclude_fields: db_size
     return_empty_dbs: true
+
+- name: Clone users on another server - Step 1
+  delegate_to: server_source
+  community.mysql.mysql_info:
+    filter:
+      - users_privs
+  register: result
+
+# Don't work with sha256_password and cache_sha2_password
+- name: Clone users on another server - Step 2
+  community.mysql.mysql_user:
+    name: "{{ item.name }}"
+    host: "{{ item.host }}"
+    plugin: "{{ item.plugin | default(omit) }}"
+    plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
+    plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
+    tls_require: "{{ item.tls_require | default(omit) }}"
+    priv: "{{ item.priv | default(omit) }}"
+    resource_limits: "{{ item.resource_limits | default(omit) }}"
+    column_case_sensitive: true
+    state: present
+  loop: "{{ result.users_privs }}"
+  loop_control:
+    label: "{{ item.name }}@{{ item.host }}"
+  when:
+    - item.name != 'root'  # In case you don't want to import admin accounts
+    - item.name != 'mariadb.sys'
+    - item.name != 'mysql'
+
 '''
 
 RETURN = r'''
@@ -186,6 +218,21 @@ users:
   type: dict
   sample:
   - { "localhost": { "root": { "Alter_priv": "Y", "Alter_routine_priv": "Y" } } }
+users_privs:
+  description:
+    Information about users accounts. The output can be used as an input of the
+    mysql_user plugin. Useful when migrating accounts to a new server or to
+    create an inventory. Does not support proxy privileges. Cause issue with
+    authentications plugins C(sha256_password) and C(caching_sha2_password).
+  returned: if not excluded by filter
+  type: dict
+  sample:
+  - { "plugin_auth_string": '*1234567',
+      "name": "user1",
+      "host": "host.com",
+      "plugin": "mysql_native_password",
+      "priv": "db1.*:SELECT/db2.*:SELECT",
+      "resource_limits": { "MAX_USER_CONNECTIONS": 100 } }
 engines:
   description: Information about the server's storage engines.
   returned: if not excluded by filter

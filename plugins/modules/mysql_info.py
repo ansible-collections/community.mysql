@@ -223,10 +223,14 @@ users:
   - { "localhost": { "root": { "Alter_priv": "Y", "Alter_routine_priv": "Y" } } }
 users_privs:
   description:
-    Information about users accounts. The output can be used as an input of the
-    mysql_user plugin. Useful when migrating accounts to a new server or to
-    create an inventory. Does not support proxy privileges. Cause issue with
-    authentications plugins C(sha256_password) and C(caching_sha2_password).
+    - Information about users accounts.
+    - The output can be used as an input of the M(community.mysql.mysql_user) plugin.
+    - Useful when migrating accounts to another server or to create an inventory.
+    - Does not support proxy privileges. If an account has proxy privileges, they won't appear in the output.
+    - Causes issues with authentications plugins C(sha256_password) and C(caching_sha2_password).
+      If the output is fed to M(community.mysql.mysql_user), the
+      ``plugin_auth_string`` will most likely be unreadable due to non-binary
+      characters.
   returned: if not excluded by filter
   type: dict
   sample:

@@ -285,6 +285,12 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     get_connector_name,
     get_connector_version,
 )
+
+from ansible_collections.community.mysql.plugins.module_utils.user import (
+    privileges_get,
+    get_resource_limits,
+    get_existing_authentication,
+)
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
 
@@ -321,6 +327,7 @@ class MySQL_Info(object):
             'global_status': {},
             'engines': {},
             'users': {},
+            'users_privs': {},
             'master_status': {},
             'slave_hosts': {},
             'slave_status': {},
@@ -388,6 +395,9 @@ class MySQL_Info(object):
 
         if 'users' in wanted:
             self.__get_users()
+
+        if 'users_privs' in wanted:
+            self.__get_users_privs()
 
         if 'master_status' in wanted:
             self.__get_master_status()
@@ -526,6 +536,86 @@ class MySQL_Info(object):
                 for vname, val in iteritems(line):
                     if vname not in ('Host', 'User'):
                         self.info['users'][host][user][vname] = self.__convert(val)
+
+    def __get_users_privs(self):
+        """Get user privileges.
+
+        Query the server to get all the users and return a string
+        of privileges that can be used by the mysql_user plugin.
+        For instance:
+
+        "users_privs": [
+            {
+                "host": "users_privs.com",
+                "priv": "*.*: ALL,GRANT",
+                "name": "users_privs_adm"
+            },
+            {
+                "host": "users_privs.com",
+                "priv": "`mysql`.*: SELECT/`users_privs_db`.*: SELECT",
+                "name": "users_privs_multi"
+            }
+        ]
+        """
+        res = self.__exec_sql('SELECT * FROM mysql.user')
+        if not res:
+            return None
+
+        output = list()
+        for line in res:
+            user = line['User']
+            host = line['Host']
+
+            user_priv = privileges_get(self.cursor, user, host)
+
+            if not user_priv:
+                self.module.warn("No privileges found for %s on host %s" % (user, host))
+                continue
+
+            priv_string = list()
+            for db_table, priv in user_priv.items():
+                # Proxy privileges are hard to work with because of different quotes or
+                # backticks like ''@'', ''@'%' or even ``@``. In addition, MySQL will
+                # forbid you to grant a proxy privileges through TCP.
+                if set(priv) == {'PROXY', 'GRANT'} or set(priv) == {'PROXY'}:
+                    continue
+
+                unquote_db_table = db_table.replace('`', '').replace("'", '')
+                priv_string.append('%s:%s' % (unquote_db_table, ','.join(priv)))
+
+            # Only keep *.* USAGE if it's the only user privilege given
+            if len(priv_string) > 1 and '*.*:USAGE' in priv_string:
+                priv_string.remove('*.*:USAGE')
+
+            resource_limits = get_resource_limits(self.cursor, user, host)
+
+            copy_ressource_limits = dict.copy(resource_limits)
+            output_dict = {
+                'name': user,
+                'host': host,
+                'priv': '/'.join(priv_string),
+                'resource_limits': copy_ressource_limits,
+            }
+
+            # Prevent returning a resource limit if empty
+            if resource_limits:
+                for key, value in resource_limits.items():
+                    if value == 0:
+                        del output_dict['resource_limits'][key]
+                if len(output_dict['resource_limits']) == 0:
+                    del output_dict['resource_limits']
+
+            authentications = get_existing_authentication(self.cursor, user)
+            if authentications:
+                output_dict.update(authentications)
+
+            # TODO password_option
+            # TODO lock_option
+            # but both are not supported by mysql_user atm. So no point yet.
+
+            output.append(output_dict)
+
+        self.info['users_privs'] = output
 
     def __get_databases(self, exclude_fields, return_empty_dbs):
         """Get info about databases."""

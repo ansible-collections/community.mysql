@@ -605,7 +605,7 @@ class MySQL_Info(object):
                 if len(output_dict['resource_limits']) == 0:
                     del output_dict['resource_limits']
 
-            authentications = get_existing_authentication(self.cursor, user)
+            authentications = get_existing_authentication(self.cursor, user, host)
             if authentications:
                 output_dict.update(authentications)
 

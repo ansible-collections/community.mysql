@@ -120,6 +120,33 @@
             GRANT SELECT,UPDATE(name1,NAME2,Name3) ON users_privs_db.T_UPPER TO
             users_privs_columns_uppercase@'users_privs.com'
 
+          - >-
+            CREATE USER users_privs_multi_hosts@'%'
+            IDENTIFIED WITH mysql_native_password AS
+            '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
+          - GRANT SELECT ON users_privs_db.* TO users_privs_multi_hosts@'%'
+
+          - >-
+            CREATE USER users_privs_multi_hosts@'localhost'
+            IDENTIFIED WITH mysql_native_password AS
+            '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
+          - >-
+            GRANT SELECT ON users_privs_db.* TO
+            users_privs_multi_hosts@'localhost'
+
+          - >-
+            CREATE USER users_privs_multi_hosts@'host1'
+            IDENTIFIED WITH mysql_native_password AS
+            '*6C387FC3893DBA1E3BA155E74754DA6682D04747'
+          - GRANT SELECT ON users_privs_db.* TO users_privs_multi_hosts@'host1'
+
+          # Different password than the others users_privs_multi_hosts
+          - >-
+            CREATE USER users_privs_multi_hosts@'host2'
+            IDENTIFIED WITH mysql_native_password AS
+            '*CB3326D5279DE7915FE5D743232165EE887883CA'
+          - GRANT SELECT ON users_privs_db.* TO users_privs_multi_hosts@'host2'
+
     - name: Mysql_info users_privs | Prepare tests users for MariaDB
       community.mysql.mysql_user:
         name: "{{ item.name }}"

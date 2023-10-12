@@ -112,7 +112,7 @@ def get_grants(cursor, user, host):
     return grants.split(", ")
 
 
-def get_existing_authentication(cursor, user):
+def get_existing_authentication(cursor, user, host):
     # Return the plugin and auth_string if there is exactly one distinct existing plugin and auth_string.
     cursor.execute("SELECT VERSION()")
     srv_type = cursor.fetchone()
@@ -126,12 +126,14 @@ def get_existing_authentication(cursor, user):
         # when using mysql_native_password
         cursor.execute("""select plugin, auth from (
             select plugin, password as auth from mysql.user where user=%(user)s
+            and host=%(host)s
             union select plugin, authentication_string as auth from mysql.user where user=%(user)s
-            ) x group by plugin, auth limit 2
-        """, {'user': user})
+            and host=%(host)s) x group by plugin, auth limit 2
+        """, {'user': user, 'host': host})
     else:
-        cursor.execute("""select plugin, authentication_string as auth from mysql.user where user=%(user)s
-            group by plugin, authentication_string limit 2""", {'user': user})
+        cursor.execute("""select plugin, authentication_string as auth
+            from mysql.user where user=%(user)s and host=%(host)s
+            group by plugin, authentication_string limit 2""", {'user': user, 'host': host})
     rows = cursor.fetchall()
 
     # Mysql_info use a DictCursor so we must convert back to a list
@@ -164,7 +166,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
 
     used_existing_password = False
     if reuse_existing_password:
-        existing_auth = get_existing_authentication(cursor, user)
+        existing_auth = get_existing_authentication(cursor, user, host)
         if existing_auth:
             plugin = existing_auth['plugin']
             plugin_hash_string = existing_auth['auth_string']

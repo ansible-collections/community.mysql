@@ -19,7 +19,7 @@ options:
     description:
     - Limit the collected information by comma separated string or YAML list.
     - Allowable values are C(version), C(databases), C(settings), C(global_status),
-      C(users), C(users_privs), C(engines), C(master_status), C(slave_status), C(slave_hosts).
+      C(users), C(user_accounts), C(engines), C(master_status), C(slave_status), C(slave_hosts).
     - By default, collects all subsets.
     - You can use '!' before value (for example, C(!settings)) to exclude it from the information.
     - If you pass including and excluding values to the filter, for example, I(filter=!settings,version),
@@ -75,7 +75,7 @@ EXAMPLES = r'''
 # ansible mysql-hosts -m mysql_info -a 'filter=databases,users'
 
 # Display all users privileges:
-# ansible mysql-hosts -m mysql_info -a 'filter=users_privs'
+# ansible mysql-hosts -m mysql_info -a 'filter=user_accounts'
 
 # Display only slave status:
 # ansible standby -m mysql_info -a 'filter=slave_status'
@@ -133,7 +133,7 @@ EXAMPLES = r'''
     delegate_to: server_source
     community.mysql.mysql_info:
       filter:
-        - users_privs
+        - user_accounts
     register: result
 
   # Step 2
@@ -150,7 +150,7 @@ EXAMPLES = r'''
       resource_limits: "{{ item.resource_limits | default(omit) }}"
       column_case_sensitive: true
       state: present
-    loop: "{{ result.users_privs }}"
+    loop: "{{ result.user_accounts }}"
     loop_control:
       label: "{{ item.name }}@{{ item.host }}"
     when:
@@ -221,7 +221,7 @@ users:
   type: dict
   sample:
   - { "localhost": { "root": { "Alter_priv": "Y", "Alter_routine_priv": "Y" } } }
-users_privs:
+user_accounts:
   description:
     - Information about users accounts.
     - The output can be used as an input of the M(community.mysql.mysql_user) plugin.
@@ -334,7 +334,7 @@ class MySQL_Info(object):
             'global_status': {},
             'engines': {},
             'users': {},
-            'users_privs': {},
+            'user_accounts': {},
             'master_status': {},
             'slave_hosts': {},
             'slave_status': {},
@@ -403,8 +403,8 @@ class MySQL_Info(object):
         if 'users' in wanted:
             self.__get_users()
 
-        if 'users_privs' in wanted:
-            self.__get_users_privs()
+        if 'user_accounts' in wanted:
+            self.__get_user_accounts()
 
         if 'master_status' in wanted:
             self.__get_master_status()
@@ -544,23 +544,23 @@ class MySQL_Info(object):
                     if vname not in ('Host', 'User'):
                         self.info['users'][host][user][vname] = self.__convert(val)
 
-    def __get_users_privs(self):
-        """Get user privileges.
+    def __get_user_accounts(self):
+        """Get user privileges, passwords, resources_limits, ...
 
         Query the server to get all the users and return a string
         of privileges that can be used by the mysql_user plugin.
         For instance:
 
-        "users_privs": [
+        "user_accounts": [
             {
-                "host": "users_privs.com",
+                "host": "user_accounts.com",
                 "priv": "*.*: ALL,GRANT",
-                "name": "users_privs_adm"
+                "name": "user_accounts_adm"
             },
             {
-                "host": "users_privs.com",
-                "priv": "`mysql`.*: SELECT/`users_privs_db`.*: SELECT",
-                "name": "users_privs_multi"
+                "host": "user_accounts.com",
+                "priv": "`mysql`.*: SELECT/`user_accounts_db`.*: SELECT",
+                "name": "user_accounts_multi"
             }
         ]
         """
@@ -622,7 +622,7 @@ class MySQL_Info(object):
 
             output.append(output_dict)
 
-        self.info['users_privs'] = output
+        self.info['user_accounts'] = output
 
     def __get_databases(self, exclude_fields, return_empty_dbs):
         """Get info about databases."""

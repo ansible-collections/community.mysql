@@ -23,12 +23,12 @@ options:
   mode:
     description:
     - Module operating mode. Could be
-      C(changeprimary) (CHANGE PRIMARY TO),
-      C(getprimary) (SHOW PRIMARY STATUS),
-      C(getreplica) (SHOW REPLICA),
+      C(changeprimary) (CHANGE MASTER TO),
+      C(getprimary) (SHOW MASTER STATUS),
+      C(getreplica) (SHOW REPLICA STATUS),
       C(startreplica) (START REPLICA),
       C(stopreplica) (STOP REPLICA),
-      C(resetprimary) (RESET PRIMARY) - supported since community.mysql 0.1.0,
+      C(resetprimary) (RESET MASTER) - supported since community.mysql 0.1.0,
       C(resetreplica) (RESET REPLICA),
       C(resetreplicaall) (RESET REPLICA ALL).
     type: str

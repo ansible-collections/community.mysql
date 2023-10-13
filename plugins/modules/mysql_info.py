@@ -216,7 +216,7 @@ global_status:
   sample:
   - { "Innodb_buffer_pool_read_requests": 123, "Innodb_buffer_pool_reads": 32 }
 users:
-  description: Users information.
+  description: Return a dictionnary of users grouped by host and with global privileges only.
   returned: if not excluded by filter
   type: dict
   sample:

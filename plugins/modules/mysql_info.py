@@ -240,6 +240,7 @@ user_accounts:
       "plugin": "mysql_native_password",
       "priv": "db1.*:SELECT/db2.*:SELECT",
       "resource_limits": { "MAX_USER_CONNECTIONS": 100 } }
+  version_added: '3.8.0'
 engines:
   description: Information about the server's storage engines.
   returned: if not excluded by filter

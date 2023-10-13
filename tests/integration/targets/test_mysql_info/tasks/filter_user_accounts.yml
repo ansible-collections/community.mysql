@@ -251,7 +251,7 @@
     - name: Mysql_info user_accounts | Cleanup user_accounts
       community.mysql.mysql_user:
         name: "{{ item }}"
-        host: "user_accounts.com"
+        host_all: true
         column_case_sensitive: true
         state: absent
       loop:
@@ -260,8 +260,11 @@
         - user_accounts_table
         - user_accounts_col
         - user_accounts_proc
+        - user_accounts_multi
+        - user_accounts_db
         - user_accounts_usage_only
         - user_accounts_columns_uppercase
+        - user_accounts_multi_hosts
 
     - name: Mysql_info user_accounts | Cleanup databases
       community.mysql.mysql_db:

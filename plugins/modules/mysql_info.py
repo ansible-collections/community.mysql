@@ -19,7 +19,7 @@ options:
     description:
     - Limit the collected information by comma separated string or YAML list.
     - Allowable values are C(version), C(databases), C(settings), C(global_status),
-      C(users), C(engines), C(master_status), C(slave_status), C(slave_hosts).
+      C(users), C(users_info), C(engines), C(master_status), C(slave_status), C(slave_hosts).
     - By default, collects all subsets.
     - You can use '!' before value (for example, C(!settings)) to exclude it from the information.
     - If you pass including and excluding values to the filter, for example, I(filter=!settings,version),
@@ -74,6 +74,9 @@ EXAMPLES = r'''
 # Display only databases and users info:
 # ansible mysql-hosts -m mysql_info -a 'filter=databases,users'
 
+# Display all users privileges:
+# ansible mysql-hosts -m mysql_info -a 'filter=users_info'
+
 # Display only slave status:
 # ansible standby -m mysql_info -a 'filter=slave_status'
 
@@ -122,6 +125,38 @@ EXAMPLES = r'''
     - databases
     exclude_fields: db_size
     return_empty_dbs: true
+
+- name: Clone users from one server to another
+  block:
+  # Step 1
+  - name: Fetch information from a source server
+    delegate_to: server_source
+    community.mysql.mysql_info:
+      filter:
+        - users_info
+    register: result
+
+  # Step 2
+  # Don't work with sha256_password and cache_sha2_password
+  - name: Clone users fetched in a previous task to a target server
+    community.mysql.mysql_user:
+      name: "{{ item.name }}"
+      host: "{{ item.host }}"
+      plugin: "{{ item.plugin | default(omit) }}"
+      plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
+      plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
+      tls_require: "{{ item.tls_require | default(omit) }}"
+      priv: "{{ item.priv | default(omit) }}"
+      resource_limits: "{{ item.resource_limits | default(omit) }}"
+      column_case_sensitive: true
+      state: present
+    loop: "{{ result.users_info }}"
+    loop_control:
+      label: "{{ item.name }}@{{ item.host }}"
+    when:
+      - item.name != 'root'  # In case you don't want to import admin accounts
+      - item.name != 'mariadb.sys'
+      - item.name != 'mysql'
 '''
 
 RETURN = r'''
@@ -181,11 +216,31 @@ global_status:
   sample:
   - { "Innodb_buffer_pool_read_requests": 123, "Innodb_buffer_pool_reads": 32 }
 users:
-  description: Users information.
+  description: Return a dictionnary of users grouped by host and with global privileges only.
   returned: if not excluded by filter
   type: dict
   sample:
   - { "localhost": { "root": { "Alter_priv": "Y", "Alter_routine_priv": "Y" } } }
+users_info:
+  description:
+    - Information about users accounts.
+    - The output can be used as an input of the M(community.mysql.mysql_user) plugin.
+    - Useful when migrating accounts to another server or to create an inventory.
+    - Does not support proxy privileges. If an account has proxy privileges, they won't appear in the output.
+    - Causes issues with authentications plugins C(sha256_password) and C(caching_sha2_password).
+      If the output is fed to M(community.mysql.mysql_user), the
+      ``plugin_auth_string`` will most likely be unreadable due to non-binary
+      characters.
+  returned: if not excluded by filter
+  type: dict
+  sample:
+  - { "plugin_auth_string": '*1234567',
+      "name": "user1",
+      "host": "host.com",
+      "plugin": "mysql_native_password",
+      "priv": "db1.*:SELECT/db2.*:SELECT",
+      "resource_limits": { "MAX_USER_CONNECTIONS": 100 } }
+  version_added: '3.8.0'
 engines:
   description: Information about the server's storage engines.
   returned: if not excluded by filter
@@ -238,6 +293,12 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     get_connector_name,
     get_connector_version,
 )
+
+from ansible_collections.community.mysql.plugins.module_utils.user import (
+    privileges_get,
+    get_resource_limits,
+    get_existing_authentication,
+)
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
 
@@ -274,6 +335,7 @@ class MySQL_Info(object):
             'global_status': {},
             'engines': {},
             'users': {},
+            'users_info': {},
             'master_status': {},
             'slave_hosts': {},
             'slave_status': {},
@@ -341,6 +403,9 @@ class MySQL_Info(object):
 
         if 'users' in wanted:
             self.__get_users()
+
+        if 'users_info' in wanted:
+            self.__get_users_info()
 
         if 'master_status' in wanted:
             self.__get_master_status()
@@ -479,6 +544,86 @@ class MySQL_Info(object):
                 for vname, val in iteritems(line):
                     if vname not in ('Host', 'User'):
                         self.info['users'][host][user][vname] = self.__convert(val)
+
+    def __get_users_info(self):
+        """Get user privileges, passwords, resources_limits, ...
+
+        Query the server to get all the users and return a string
+        of privileges that can be used by the mysql_user plugin.
+        For instance:
+
+        "users_info": [
+            {
+                "host": "users_info.com",
+                "priv": "*.*: ALL,GRANT",
+                "name": "users_info_adm"
+            },
+            {
+                "host": "users_info.com",
+                "priv": "`mysql`.*: SELECT/`users_info_db`.*: SELECT",
+                "name": "users_info_multi"
+            }
+        ]
+        """
+        res = self.__exec_sql('SELECT * FROM mysql.user')
+        if not res:
+            return None
+
+        output = list()
+        for line in res:
+            user = line['User']
+            host = line['Host']
+
+            user_priv = privileges_get(self.cursor, user, host)
+
+            if not user_priv:
+                self.module.warn("No privileges found for %s on host %s" % (user, host))
+                continue
+
+            priv_string = list()
+            for db_table, priv in user_priv.items():
+                # Proxy privileges are hard to work with because of different quotes or
+                # backticks like ''@'', ''@'%' or even ``@``. In addition, MySQL will
+                # forbid you to grant a proxy privileges through TCP.
+                if set(priv) == {'PROXY', 'GRANT'} or set(priv) == {'PROXY'}:
+                    continue
+
+                unquote_db_table = db_table.replace('`', '').replace("'", '')
+                priv_string.append('%s:%s' % (unquote_db_table, ','.join(priv)))
+
+            # Only keep *.* USAGE if it's the only user privilege given
+            if len(priv_string) > 1 and '*.*:USAGE' in priv_string:
+                priv_string.remove('*.*:USAGE')
+
+            resource_limits = get_resource_limits(self.cursor, user, host)
+
+            copy_ressource_limits = dict.copy(resource_limits)
+            output_dict = {
+                'name': user,
+                'host': host,
+                'priv': '/'.join(priv_string),
+                'resource_limits': copy_ressource_limits,
+            }
+
+            # Prevent returning a resource limit if empty
+            if resource_limits:
+                for key, value in resource_limits.items():
+                    if value == 0:
+                        del output_dict['resource_limits'][key]
+                if len(output_dict['resource_limits']) == 0:
+                    del output_dict['resource_limits']
+
+            authentications = get_existing_authentication(self.cursor, user, host)
+            if authentications:
+                output_dict.update(authentications)
+
+            # TODO password_option
+            # TODO lock_option
+            # but both are not supported by mysql_user atm. So no point yet.
+
+            output.append(output_dict)
+
+        self.info['users_info'] = output
 
     def __get_databases(self, exclude_fields, return_empty_dbs):
         """Get info about databases."""

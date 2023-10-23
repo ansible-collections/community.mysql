@@ -219,3 +219,7 @@
       assert:
         that:
           - result.databases.allviews.size == 0
+
+    - name: Import tasks file to tests users_info filter
+      ansible.builtin.import_tasks:
+        file: filter_users_info.yml

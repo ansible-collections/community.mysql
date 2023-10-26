@@ -743,6 +743,14 @@ def privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_rol
     priv_string = ",".join([p for p in priv if p not in ('GRANT', )])
     query = ["GRANT %s ON %s" % (priv_string, db_table)]
 
+    # MySQL and MariaDB don't store roles in the user table the same manner:
+    # select user, host from mysql.user;
+    # +------------------+-----------+
+    # | user             | host      |
+    # +------------------+-----------+
+    # | role_foo         | %         | <- MySQL
+    # | role_foo         |           | <- MariaDB
+    # +------------------+-----------+
     if not maria_role:
         query.append("TO %s@%s")
         params = (user, host)

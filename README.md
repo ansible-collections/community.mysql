@@ -72,7 +72,6 @@ Every voice is important and every idea is valuable. If you have something on yo
 - 2.12
 - 2.13
 - 2.14
-- current development version
 
 ### Databases
 

@@ -25,7 +25,6 @@ jobs:
           - stable-2.12
           - stable-2.13
           - stable-2.14
-          - devel
     steps:
       - name: Perform sanity testing
         uses: ansible-community/ansible-test-gh-action@release/v1
@@ -44,7 +43,6 @@ jobs:
           - stable-2.12
           - stable-2.13
           - stable-2.14
-          - devel
         db_engine_name:
           - mysql
           - mariadb
@@ -125,9 +123,6 @@ jobs:
           - db_engine_version: 5.7.40
             ansible: stable-2.14
 
-          - db_engine_version: 5.7.40
-            ansible: devel
-
           - db_engine_version: 8.0.31
             python: '3.8'
 
@@ -136,9 +131,6 @@ jobs:
 
           - db_engine_version: 10.4.27
             python: '3.10'
-
-          - db_engine_version: 10.4.27
-            ansible: devel
 
           - db_engine_version: 10.6.11
             python: '3.8'
@@ -179,14 +171,8 @@ jobs:
           - python: '3.8'
             ansible: stable-2.14
 
-          - python: '3.8'
-            ansible: devel
-
           - python: '3.9'
             ansible: stable-2.12
-
-          - python: '3.9'
-            ansible: devel
 
           - python: '3.10'
             ansible: stable-2.12
@@ -339,7 +325,6 @@ jobs:
           - stable-2.12
           - stable-2.13
           - stable-2.14
-          - devel
         python:
           - 3.8
           - 3.9
@@ -348,8 +333,6 @@ jobs:
             ansible: stable-2.13
           - python: '3.8'
             ansible: stable-2.14
-          - python: '3.8'
-            ansible: devel
           - python: '3.9'
             ansible: stable-2.12
 

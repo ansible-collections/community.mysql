@@ -52,7 +52,6 @@ The Makefile accept the following options
     - "stable-2.12"
     - "stable-2.13"
     - "stable-2.14"
-    - "devel"
   - Description: Version of ansible to install in a venv to run ansible-test
 
 - `db_engine_name`

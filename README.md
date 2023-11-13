@@ -40,9 +40,21 @@ They also should be subscribed to Ansible's [The Bullhorn newsletter](https://do
 
 ## Communication
 
+> The `GitHub Discussions` feature is disabled in this repository. Use the `mysql` tag on the forum in the [Project Discussions](https://forum.ansible.com/new-topic?title=topic%20title&body=topic%20body&category=project&tags=mysql) or [Get Help](https://forum.ansible.com/new-topic?title=topic%20title&body=topic%20body&category=help&tags=mysql) category instead.
+
 We announce releases and important changes through Ansible's [The Bullhorn newsletter](https://eepurl.com/gZmiEP). Be sure you are subscribed.
 
-Join us on Matrix in the `#mysql:ansible.com` [room](https://matrix.to/#/#mysql:ansible.com), the `#users:ansible.com` [room](https://matrix.to/#/#users:ansible.com) (general use questions and support), `#ansible-community:ansible.com` [room](https://matrix.to/#/#community:ansible.com) (community and collection development questions), and other Matrix rooms or corresponding bridged Libera.Chat channels. See the [Ansible Communication Guide](https://docs.ansible.com/ansible/devel/community/communication.html) for details.
+Join [our team](https://forum.ansible.com/g/MySQLTeam) on:
+* The Ansible forums:
+    * [News & Announcements](https://forum.ansible.com/c/news/5/none)
+    * [Get Help](https://forum.ansible.com/c/help/6/none)
+    * [Social Spaces](https://forum.ansible.com/c/chat/4)
+    * [Posts tagged 'mysql'](https://forum.ansible.com/tag/mysql)
+* Matrix:
+    * `#mysql:ansible.com` [room](https://matrix.to/#/#mysql:ansible.com): questions on how to contribute and use this collection.
+    * `#users:ansible.com` [room](https://matrix.to/#/#users:ansible.com): general use questions and support.
+    * `#ansible-community:ansible.com` [room](https://matrix.to/#/#community:ansible.com): community and collection development questions.
+    * other Matrix rooms; see the [Ansible Communication Guide](https://docs.ansible.com/ansible/devel/community/communication.html) for details.
 
 We take part in the global quarterly [Ansible Contributor Summit](https://github.com/ansible/community/wiki/Contributor-Summit) virtually or in-person. Track [The Bullhorn newsletter](https://eepurl.com/gZmiEP) and join us.
 
@@ -50,9 +62,11 @@ For more information about communication, refer to the [Ansible Communication gu
 
 ## Governance
 
+We, [the MySQL team](https://forum.ansible.com/g/MySQLTeam), use [the forum](https://forum.ansible.com/tag/mysql) posts tagged with `mysql` for general announcements and discussions.
+
 The process of decision making in this collection is based on discussing and finding consensus among participants.
 
-Every voice is important and every idea is valuable. If you have something on your mind, create an issue or dedicated discussion and let's discuss it!
+Every voice is important and every idea is valuable. If you have something on your mind, create an issue or dedicated forum [discussion](https://forum.ansible.com/new-topic?title=topic%20title&body=topic%20body&category=project&tags=mysql) and let's discuss it!
 
 ## Included content
 
@@ -68,7 +82,7 @@ Every voice is important and every idea is valuable. If you have something on yo
 
 ## Releases Support Timeline
 
-It has been [decided](https://github.com/ansible-collections/community.mysql/discussions/537) to maintain each major release (1.x.y, 2.x.y, ...) for two years after the next major version is released.
+We maintain each major release (1.x.y, 2.x.y, ...) for two years after the next major version is released.
 
 Here is the table for the support timeline:
 

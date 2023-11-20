@@ -412,7 +412,6 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s", (user, host, plugin)
 
                 cursor.execute(*query_with_args)
-                password_changed = True
                 changed = True
 
         # Handle privileges

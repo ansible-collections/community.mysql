@@ -162,13 +162,11 @@ options:
       - C(interval) password will expire in days which is defined in I(password_expire_interval)
     type: str
     choices: [ never, default, interval ]
-    default: never
   password_expire_interval:
     description:
       - number of days password will expire. Used with I(password_expire)
       - if C(password_expire_interval <= 0) password will expire immediately.
     type: int
-    default: None
 
   column_case_sensitive:
     description:
@@ -429,8 +427,8 @@ def main():
         force_context=dict(type='bool', default=False),
         session_vars=dict(type='dict'),
         column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
-        password_expire=dict(type='str', choices=['never', 'default', 'interval'], default=None, no_log=True),
-        password_expire_interval=dict(type='int', default=None, no_log=True),
+        password_expire=dict(type='str', choices=['never', 'default', 'interval'], no_log=True),
+        password_expire_interval=dict(type='int', no_log=True),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -478,7 +476,7 @@ def main():
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
-    
+
     if password_expire == "interval" and not password_expire_interval:
         module.fail_json(msg="password_expire value interval \
                          should be used with password_expire_interval")

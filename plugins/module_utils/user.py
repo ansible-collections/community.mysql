@@ -201,11 +201,11 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     query_with_args_and_tls_requires = query_with_args + (tls_requires,)
     cursor.execute(*mogrify(*query_with_args_and_tls_requires))
 
-    if password_expire and impl.supports_identified_by_password(cursor):
+    if password_expire:
+        if not impl.supports_identified_by_password(cursor):
+            module.fail_json(msg="The server version does not match the requirements "
+                             "for password_expire parameter. See module's documentation.")
         set_password_expire(cursor, user, host, password_expire, password_expire_interval)
-    else:
-        module.fail_json(msg="The server version does not match the requirements "
-                         "for password_expire parameter. See module's documentation.")
 
     if new_priv is not None:
         for db_table, priv in iteritems(new_priv):

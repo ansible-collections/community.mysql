@@ -16,11 +16,15 @@
           - version
       register: primary_info
 
+    - set_fact:
+        registred_db_version: "'{{ primary_info.version.major }}.{{ primary_info.version.minor }}\
+          .{{ primary_info.version.release }}'"
+        db_version_value: "'{{ db_version }}'"
+
     - name: Assert that test container runs the expected MySQL/MariaDB version
       assert:
         that:
-          - "'{{ primary_info.version.major }}.{{ primary_info.version.minor }}\
-          .{{ primary_info.version.release }}' == '{{ db_version }}'"
+          - registred_db_version == db_version_value
 
     - name: Assert that mysql_info module used the expected version of pymysql
       assert:

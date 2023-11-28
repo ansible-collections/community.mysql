@@ -165,7 +165,7 @@ options:
     choices: [ now, never, default, interval ]
   password_expire_interval:
     description:
-      - number of days password will expire. Used with I(password_expire: iterval)
+      - number of days password will expire. Used when I(password_expire=interval).
     type: int
 
   column_case_sensitive:

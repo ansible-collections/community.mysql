@@ -319,7 +319,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 # Check if changes needed to be applied.
                 if not ((current_password_policy == -1 and password_expire == "default") or
                         (current_password_policy == 0 and password_expire == "never") or
-                        (current_password_policy == password_expire_interval and password_expire == "interval") or 
+                        (current_password_policy == password_expire_interval and password_expire == "interval") or
                         (password_expire == 'now' and password_expired)):
 
                     update = True
@@ -977,10 +977,10 @@ def set_password_expire(cursor, user, host, password_expire, password_expire_int
     if host:
         params = (user, host)
         query = ["ALTER USER %s@%s"]
-    else: 
+    else:
         params = (user,)
         query = ["ALTER USER %s"]
-        
+
     query.append(statment)
     query = ' '.join(query)
     cursor.execute(query, params)
@@ -1028,6 +1028,7 @@ def is_password_expired(cursor, user, host):
     if str(expired) == "Y":
         return True
     return False
+
 
 def get_impl(cursor):
     global impl

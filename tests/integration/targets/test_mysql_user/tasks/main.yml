@@ -119,8 +119,10 @@
     - name: Assert grant access for user1 on multiple database
       assert:
         that:
-          - "'{{ item }}' in result.stdout"
+          - db_name in result.stdout
       with_items: "{{ db_names }}"
+      vars:
+        db_name: "{{ item }}"
 
     - name: Show grants access for user2 on multiple database
       command: "{{ mysql_command }} -e \"SHOW GRANTS FOR '{{ user_name_2 }}'@'localhost'\""
@@ -129,8 +131,10 @@
     - name: Assert grant access for user2 on multiple database
       assert:
         that:
-          - "'{{ item }}' in result.stdout"
+          - db_name in result.stdout
       with_items: "{{db_names}}"
+      vars:
+        db_name: "{{ item }}"
 
     - include_tasks: utils/remove_user.yml
       vars:

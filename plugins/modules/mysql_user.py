@@ -159,13 +159,13 @@ options:
     description:
       - C(never) password will never expire.
       - C(default) password is defined ussing global system varaiable I(default_password_lifetime) setting.
-      - C(interval) password will expire in days which is defined in I(password_expire_interval)
+      - C(interval) password will expire in days which is defined in I(password_expire_interval).
+      - C(now) password will expire immediately.
     type: str
-    choices: [ never, default, interval ]
+    choices: [ now, never, default, interval ]
   password_expire_interval:
     description:
-      - number of days password will expire. Used with I(password_expire)
-      - if C(password_expire_interval <= 0) password will expire immediately.
+      - number of days password will expire. Used with I(password_expire: iterval)
     type: int
 
   column_case_sensitive:
@@ -427,7 +427,7 @@ def main():
         force_context=dict(type='bool', default=False),
         session_vars=dict(type='dict'),
         column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
-        password_expire=dict(type='str', choices=['never', 'default', 'interval'], no_log=True),
+        password_expire=dict(type='str', choices=['now', 'never', 'default', 'interval'], no_log=True),
         password_expire_interval=dict(type='int', no_log=True),
     )
     module = AnsibleModule(
@@ -480,6 +480,11 @@ def main():
     if password_expire == "interval" and not password_expire_interval:
         module.fail_json(msg="password_expire value interval \
                          should be used with password_expire_interval")
+
+    if password_expire_interval:
+        if password_expire_interval < 1:
+            module.fail_json(msg="password_expire_interval value \
+                             should be positive number")
 
     cursor = None
     try:

@@ -43,6 +43,8 @@
 
     - include_tasks: test_idempotency.yml
 
+    - include_tasks: test_password_expire.yml
+
     # ============================================================
     # Create user with no privileges and verify default privileges are assign
     #

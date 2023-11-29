@@ -974,12 +974,9 @@ def set_password_expire(cursor, user, host, password_expire, password_expire_int
         statment = "PASSWORD EXPIRE INTERVAL %d DAY" % (password_expire_interval)
     elif password_expire.lower() == "now":
         statment = "PASSWORD EXPIRE"
-    if host:
-        params = (user, host)
-        query = ["ALTER USER %s@%s"]
-    else:
-        params = (user,)
-        query = ["ALTER USER %s"]
+
+    params = (user, host)
+    query = ["ALTER USER %s@%s"]
 
     query.append(statment)
     query = ' '.join(query)

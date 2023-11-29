@@ -339,7 +339,9 @@
   assert:
     that:
       - result is changed
-      - "result.db =='{{ db_name }}'"
+      - result.db == db_name_value
+  vars:
+    db_name_value: "{{ db_name }}"
 
 # - name: Dump and Import | Assert database was backed up successfully
 #   command: "file {{ db_file_name }}"

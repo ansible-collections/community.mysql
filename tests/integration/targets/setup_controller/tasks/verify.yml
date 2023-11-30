@@ -56,8 +56,9 @@
     - name: Assert that we run the expected ansible version
       assert:
         that:
-          - >
-            "{{ ansible_version.major }}.{{ ansible_version.minor }}"
-            is version(test_ansible_version, '==')
+          - ansible_running_version == test_ansible_version
+      vars:
+        ansible_running_version:
+          "{{ ansible_version.major }}.{{ ansible_version.minor }}"
       when:
         - test_ansible_version != 'devel'  # Devel will change overtime

@@ -84,10 +84,6 @@
         mysql_primary_port_value: '{{ mysql_primary_port }}'
         test_channel_value: '{{ test_channel }}'
       when: mysql8022_and_higher == false
-      vars:
-        mysql_host_value: '{{ mysql_host }}'
-        mysql_primary_port_value: '{{ mysql_primary_port }}'
-        test_channel_value: '{{ test_channel }}'
 
     - assert:
         that:
@@ -104,10 +100,6 @@
         mysql_primary_port_value: '{{ mysql_primary_port }}'
         test_channel_value: '{{ test_channel }}'
       when: mysql8022_and_higher == true
-      vars:
-        mysql_host_value: '{{ mysql_host }}'
-        mysql_primary_port_value: '{{ mysql_primary_port }}'
-        test_channel_value: '{{ test_channel }}'
 
 
     # Test stopreplica mode:

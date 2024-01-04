@@ -511,9 +511,9 @@ class MySQL_Info(object):
 
     def __get_slave_status(self):
         """Get slave status if the instance is a slave."""
-        if(self.is_mariadb()):
+        if self.is_mariadb():
             res = self.__exec_sql('SHOW ALL SLAVES STATUS')
-        else:    
+        else:
             res = self.__exec_sql('SHOW SLAVE STATUS')
         if res:
             for line in res:
@@ -757,9 +757,9 @@ def main():
 
     cursor.execute("SELECT VERSION()")
     if 'mariadb' in cursor.fetchone()[0].lower():
-        server_implementation="mariadb"
+        server_implementation = "mariadb"
     else:
-        server_implementation="mysql"
+        server_implementation = "mysql"
 
     ###############################
     # Create object and do main job

@@ -16,10 +16,10 @@ from ansible_collections.community.mysql.plugins.modules.mysql_info import MySQL
 @pytest.mark.parametrize(
     'suffix,cursor_output,server_implementation',
     [
-        ('mysql', '5.5.1-mysql','mysql'),
-        ('log', '5.7.31-log','mysql'),
-        ('mariadb', '10.5.0-mariadb','mariadb'),
-        ('', '8.0.22','mysql'),
+        ('mysql', '5.5.1-mysql', 'mysql'),
+        ('log', '5.7.31-log', 'mysql'),
+        ('mariadb', '10.5.0-mariadb', 'mariadb'),
+        ('', '8.0.22', 'mysql'),
     ]
 )
 def test_get_info_suffix(suffix, cursor_output, server_implementation):

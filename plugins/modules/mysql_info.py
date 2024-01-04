@@ -756,7 +756,7 @@ def main():
         module.fail_json(msg)
 
     cursor.execute("SELECT VERSION()")
-    if 'mariadb' in cursor.fetchone()[0].lower():
+    if 'mariadb' in cursor.fetchone()["VERSION()"].lower():
         server_implementation = "mariadb"
     else:
         server_implementation = "mysql"

@@ -155,7 +155,6 @@ options:
       - Cannot be used to set global variables, use the M(community.mysql.mysql_variables) module instead.
     type: dict
     version_added: '3.6.0'
-
   column_case_sensitive:
     description:
       - The default is C(false).
@@ -165,6 +164,13 @@ options:
         fields names in privileges.
     type: bool
     version_added: '3.8.0'
+  attributes:
+    description:
+      - Create, update, or delete user attributes (arbitrary "key: value" comments) for the user.
+      - MySQL server must support the INFORMATION_SCHEMA.USER_ATTRIBUTES table. Provided since MySQL 8.0.
+      - To delete an existing attribute, set its value to False.
+    type: dict
+    version_added: '3.9.0'
 
 notes:
    - "MySQL server installs with default I(login_user) of C(root) and no password.
@@ -256,6 +262,13 @@ EXAMPLES = r'''
     priv:
       FUNCTION my_db.my_function: EXECUTE
     state: present
+
+- name: Modify user attributes, creating the attribute 'foo' and removing the attribute 'bar'
+  community.mysql.mysql_user:
+    name: bob
+    attributes:
+      foo: "foo"
+      bar: False
 
 - name: Modify user to require TLS connection with a valid client certificate
   community.mysql.mysql_user:
@@ -405,6 +418,7 @@ def main():
         tls_requires=dict(type='dict'),
         append_privs=dict(type='bool', default=False),
         subtract_privs=dict(type='bool', default=False),
+        attributes=dict(type='dict'),
         check_implicit_admin=dict(type='bool', default=False),
         update_password=dict(type='str', default='always', choices=['always', 'on_create', 'on_new_username'], no_log=False),
         sql_log_bin=dict(type='bool', default=True),
@@ -437,6 +451,7 @@ def main():
     append_privs = module.boolean(module.params["append_privs"])
     subtract_privs = module.boolean(module.params['subtract_privs'])
     update_password = module.params['update_password']
+    attributes = module.params['attributes']
     ssl_cert = module.params["client_cert"]
     ssl_key = module.params["client_key"]
     ssl_ca = module.params["ca_cert"]
@@ -500,21 +515,23 @@ def main():
 
         priv = privileges_unpack(priv, mode, column_case_sensitive, ensure_usage=not subtract_privs)
     password_changed = False
+    final_attributes = {}
     if state == "present":
         if user_exists(cursor, user, host, host_all):
             try:
                 if update_password == "always":
                     result = user_mod(cursor, user, host, host_all, password, encrypted,
                                       plugin, plugin_hash_string, plugin_auth_string,
-                                      priv, append_privs, subtract_privs, tls_requires, module)
+                                      priv, append_privs, subtract_privs, attributes, tls_requires, module)
 
                 else:
                     result = user_mod(cursor, user, host, host_all, None, encrypted,
                                       None, None, None,
-                                      priv, append_privs, subtract_privs, tls_requires, module)
+                                      priv, append_privs, subtract_privs, attributes, tls_requires, module)
                 changed = result['changed']
                 msg = result['msg']
                 password_changed = result['password_changed']
+                final_attributes = result['attributes']
 
             except (SQLParseError, InvalidPrivsError, mysql_driver.Error) as e:
                 module.fail_json(msg=to_native(e))
@@ -527,9 +544,10 @@ def main():
                 reuse_existing_password = update_password == 'on_new_username'
                 result = user_add(cursor, user, host, host_all, password, encrypted,
                                   plugin, plugin_hash_string, plugin_auth_string,
-                                  priv, tls_requires, module.check_mode, reuse_existing_password)
+                                  priv, attributes, tls_requires, reuse_existing_password, module)
                 changed = result['changed']
                 password_changed = result['password_changed']
+                final_attributes = result['attributes']
                 if changed:
                     msg = "User added"
 
@@ -546,7 +564,7 @@ def main():
         else:
             changed = False
             msg = "User doesn't exist"
-    module.exit_json(changed=changed, user=user, msg=msg, password_changed=password_changed)
+    module.exit_json(changed=changed, user=user, msg=msg, password_changed=password_changed, attributes=final_attributes)
 
 
 if __name__ == '__main__':

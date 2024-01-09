@@ -481,9 +481,8 @@ def main():
         module.fail_json(msg="password_expire value interval \
                          should be used with password_expire_interval")
 
-    if password_expire_interval:
-        if password_expire_interval < 1:
-            module.fail_json(msg="password_expire_interval value \
+    if password_expire_interval and password_expire_interval < 1:
+        module.fail_json(msg="password_expire_interval value \
                              should be positive number")
 
     cursor = None

@@ -166,7 +166,7 @@ options:
     version_added: '3.8.0'
   attributes:
     description:
-      - Create, update, or delete user attributes (arbitrary "key: value" comments) for the user.
+      - "Create, update, or delete user attributes (arbitrary 'key: value' comments) for the user."
       - MySQL server must support the INFORMATION_SCHEMA.USER_ATTRIBUTES table. Provided since MySQL 8.0.
       - To delete an existing attribute, set its value to False.
     type: dict

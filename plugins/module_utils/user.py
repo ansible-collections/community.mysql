@@ -155,10 +155,10 @@ def user_add(cursor, user, host, host_all, password, encrypted,
              attributes, tls_requires, reuse_existing_password, module):
     # we cannot create users without a proper hostname
     if host_all:
-        return {'changed': False, 'password_changed': False}
+        return {'changed': False, 'password_changed': False, 'attributes': {}}
 
     if module.check_mode:
-        return {'changed': True, 'password_changed': None}
+        return {'changed': True, 'password_changed': None, 'attributes': {}}
 
     # If attributes are set, perform a sanity check to ensure server supports user attributes before creating user
     if attributes and not get_attribute_support(cursor):
@@ -417,6 +417,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                             privileges_revoke(cursor, user, host, db_table, revoke_privs, grant_option, maria_role)
                         if len(grant_privs) > 0:
                             privileges_grant(cursor, user, host, db_table, grant_privs, tls_requires, maria_role)
+                    else:
+                        changed = True
 
             # after privilege manipulation, compare privileges from before and now
             after_priv = privileges_get(cursor, user, host, maria_role)
@@ -969,10 +971,11 @@ def get_attribute_support(cursor):
         # information_schema.tables does not hold the tables within information_schema itself
         cursor.execute("SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES LIMIT 0")
         cursor.fetchone()
-    except mysql_driver.OperationalError:
+    except mysql_driver.Error:
         return False
 
     return True
+
 
 def attributes_get(cursor, user, host):
     """Get attributes for a given user.
@@ -998,6 +1001,7 @@ def attributes_get(cursor, user, host):
             return {}
 
     return None
+
 
 def get_impl(cursor):
     global impl

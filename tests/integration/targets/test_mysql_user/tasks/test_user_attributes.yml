@@ -1,0 +1,244 @@
+---
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: '{{ mysql_host }}'
+      login_port: '{{ mysql_primary_port }}'
+
+  block:
+
+    - when: db_engine == 'mariadb'
+      block:
+
+      - name: Attributes | Attempt to create user with attributes with mariadb in check mode
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          password: '{{ user_password_2 }}'
+          attributes:
+            key1: "value1"
+        ignore_errors: yes
+        register: result
+        check_mode: yes
+
+      - name: Attributes | Assert that creating user with attributes fails with mariadb
+        assert:
+          that:
+            - result is failed
+
+      - name: Attributes | Attempt to create user with attributes with mariadb
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          password: '{{ user_password_2 }}'
+          attributes:
+            key1: "value1"
+        ignore_errors: yes
+        register: result
+
+      - name: Attributes | Assert that creating user with attributes fails with mariadb
+        assert:
+          that:
+            - result is failed
+
+    - when: db_engine == 'mysql'
+      block:
+
+      # Create user with attributes
+      - name: Attributes | Test creating a user with attributes in check mode
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          password: '{{ user_password_2 }}'
+          attributes:
+            key1: "value1"
+        register: result
+        check_mode: yes
+
+      - name: Attributes | Assert that user would have been created with attributes
+        assert:
+          that:
+            - result is changed
+            - result.attributes.key1 == "value1"
+
+      - name: Attributes | Test creating a user with attributes
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          password: '{{ user_password_2 }}'
+          attributes:
+            key1: "value1"
+        register: result
+
+      - name: Attributes | Assert that user was created with attributes
+        assert:
+          that:
+            - result is changed
+            - result.attributes.key1 == "value1"
+
+      # Append attributes on an existing user
+      - name: Attributes | Test appending attributes to an existing user in check mode
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key2: "value2"
+        register: result
+        check_mode: yes
+
+      - name: Attributes | Assert that attribute would have been appended and existing attribute stays
+        assert:
+          that:
+            - result is changed
+            - result.attributes.key1 == "value1"
+            - result.attributes.key2 == "value2"
+
+      - name: Attributes | Test appending attributes to an existing user
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key2: "value2"
+        register: result
+
+      - name: Attributes | Assert that new attribute was appended and existing attribute stays
+        assert:
+          that:
+            - result is changed
+            - result.attributes.key1 == "value1"
+            - result.attributes.key2 == "value2"
+
+      # Test updating existing attributes
+      - name: Attributes | Test updating attributes on an existing user in check mode
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key2: "new_value2"
+        check_mode: yes
+        register: result
+
+      - name: Attributes | Assert that attribute would have been updated
+        assert:
+          that:
+            - result is changed
+            - result.attributes.key2 == "new_value2"
+
+      - name: Attributes | Test updating attributes on an existing user
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key2: "new_value2"
+        register: result
+
+      - name: Attributes | Assert that attribute was updated
+        assert:
+          that:
+            - result is changed
+            - result.attributes.key2 == "new_value2"
+
+      # Test deleting attributes
+      - name: Attributes | Test deleting attributes on an existing user in check mode
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key2: False
+        register: result
+        check_mode: yes
+
+      - name: Attributes | Assert that attribute would have been deleted
+        assert:
+          that:
+            - result is changed
+            - "'key2' not in result.attributes"
+
+      - name: Attributes | Test deleting attributes on an existing user
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key2: False
+        register: result
+
+      - name: Attributes | Assert that attribute was deleted
+        assert:
+          that:
+            - result is changed
+            - "'key2' not in result.attributes"
+
+      # Test attribute idempotency
+      - name: Attributes | Test attribute idempotency by trying to change an already correct attribute in check mode
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key1: "value1"
+        register: result
+        check_mode: yes
+
+      - name: Attributes | Assert that attribute would not have been updated
+        assert:
+          that:
+            - result is not changed
+            - result.attributes.key1 == "value1"
+
+      - name: Attributes | Test attribute idempotency by trying to change an already correct attribute
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key1: "value1"
+        register: result
+
+      - name: Attributes | Assert that attribute was not updated
+        assert:
+          that:
+            - result is not changed
+            - result.attributes.key1 == "value1"
+
+      - name: Attributes | Test attribute idempotency by not specifying attribute parameter in check mode
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+        register: result
+        check_mode: yes
+
+      - name: Attributes | Assert that attribute is returned in check mode
+        assert:
+          that:
+            - result is not changed
+            - result.attributes.key1 == "value1"
+
+      - name: Attributes | Test attribute idempotency by not specifying attribute parameter
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+        register: result
+
+      - name: Attributes | Assert that attribute is returned
+        assert:
+          that:
+            - result is not changed
+            - result.attributes.key1 == "value1"
+
+      # Cleanup
+      - include_tasks: utils/remove_user.yml
+        vars:
+          user_name: "{{ user_name_2 }}"

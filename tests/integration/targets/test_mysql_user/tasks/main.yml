@@ -267,6 +267,9 @@
       tags:
         - issue_465
 
+    # Tests for user attributes
+    - include_tasks: test_user_attributes.yml
+
     # Tests for the TLS requires dictionary
     - include_tasks: test_tls_requirements.yml
 

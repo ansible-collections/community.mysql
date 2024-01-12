@@ -168,7 +168,7 @@ options:
     description:
       - "Create, update, or delete user attributes (arbitrary 'key: value' comments) for the user."
       - MySQL server must support the INFORMATION_SCHEMA.USER_ATTRIBUTES table. Provided since MySQL 8.0.
-      - To delete an existing attribute, set its value to False.
+      - To delete an existing attribute, set its value to null.
     type: dict
     version_added: '3.9.0'
 
@@ -268,7 +268,7 @@ EXAMPLES = r'''
     name: bob
     attributes:
       foo: "foo"
-      bar: False
+      bar: null
 
 - name: Modify user to require TLS connection with a valid client certificate
   community.mysql.mysql_user:

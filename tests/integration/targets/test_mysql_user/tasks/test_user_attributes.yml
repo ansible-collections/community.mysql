@@ -11,6 +11,11 @@
     - when: db_engine == 'mariadb'
       block:
 
+      # ============================================================
+      # Fail creating a user with mariadb
+      #
+
+      # Check mode
       - name: Attributes | Attempt to create user with attributes with mariadb in check mode
         mysql_user:
           <<: *mysql_params
@@ -20,14 +25,23 @@
           attributes:
             key1: "value1"
         ignore_errors: yes
-        register: result
+        register: result_module
         check_mode: yes
 
-      - name: Attributes | Assert that creating user with attributes fails with mariadb
+      - name: Attributes | Run query to verify user creation with attributes fails with mariadb in check mode
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT user FROM mysql.user WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        ignore_errors: yes
+        register: result_query
+
+      - name: Attributes | Assert that creating user with attributes fails with mariadb in check mode
         assert:
           that:
-            - result is failed
+            - result_module is failed
+            - not result_query.query_result[0]
 
+      # Real mode
       - name: Attributes | Attempt to create user with attributes with mariadb
         mysql_user:
           <<: *mysql_params
@@ -37,17 +51,28 @@
           attributes:
             key1: "value1"
         ignore_errors: yes
-        register: result
+        register: result_module
+
+      - name: Attributes | Run query to verify user creation with attributes fails with mariadb
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT user FROM mysql.user WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that creating user with attributes fails with mariadb
         assert:
           that:
-            - result is failed
+            - result_module is failed
+            - not result_query.query_result[0]
 
     - when: db_engine == 'mysql'
       block:
 
+      # ============================================================
       # Create user with attributes
+      #
+
+      # Check mode
       - name: Attributes | Test creating a user with attributes in check mode
         mysql_user:
           <<: *mysql_params
@@ -56,15 +81,23 @@
           password: '{{ user_password_2 }}'
           attributes:
             key1: "value1"
-        register: result
+        register: result_module
         check_mode: yes
+
+      - name: Attributes | Run query to verify user creation did not take place in check mode
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT user FROM mysql.user WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that user would have been created with attributes
         assert:
           that:
-            - result is changed
-            - result.attributes.key1 == "value1"
+            - result_module is changed
+            - result_module.attributes.key1 == "value1"
+            - not result_query.query_result[0]
 
+      # Real mode
       - name: Attributes | Test creating a user with attributes
         mysql_user:
           <<: *mysql_params
@@ -73,15 +106,26 @@
           password: '{{ user_password_2 }}'
           attributes:
             key1: "value1"
-        register: result
+        register: result_module
+
+      - name: Attributes | Run query to verify created user attributes
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that user was created with attributes
         assert:
           that:
-            - result is changed
-            - result.attributes.key1 == "value1"
+            - result_module is changed
+            - result_module.attributes.key1 == "value1"
+            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key1'] == "value1"
 
+      # ============================================================
       # Append attributes on an existing user
+      #
+
+      # Check mode
       - name: Attributes | Test appending attributes to an existing user in check mode
         mysql_user:
           <<: *mysql_params
@@ -89,16 +133,24 @@
           host: '%'
           attributes:
             key2: "value2"
-        register: result
+        register: result_module
         check_mode: yes
+
+      - name: Attributes | Run query to check appended attributes in check mode
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that attribute would have been appended and existing attribute stays
         assert:
           that:
-            - result is changed
-            - result.attributes.key1 == "value1"
-            - result.attributes.key2 == "value2"
+            - result_module is changed
+            - result_module.attributes.key1 == "value1"
+            - result_module.attributes.key2 == "value2"
+            - "'key2' not in result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml"
 
+      # Real mode
       - name: Attributes | Test appending attributes to an existing user
         mysql_user:
           <<: *mysql_params
@@ -106,16 +158,28 @@
           host: '%'
           attributes:
             key2: "value2"
-        register: result
+        register: result_module
+
+      - name: Attributes | Run query to check appended attributes
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that new attribute was appended and existing attribute stays
         assert:
           that:
-            - result is changed
-            - result.attributes.key1 == "value1"
-            - result.attributes.key2 == "value2"
+            - result_module is changed
+            - result_module.attributes.key1 == "value1"
+            - result_module.attributes.key2 == "value2"
+            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key1'] == "value1"
+            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key2'] == "value2"
 
+      # ============================================================
       # Test updating existing attributes
+      #
+
+      # Check mode
       - name: Attributes | Test updating attributes on an existing user in check mode
         mysql_user:
           <<: *mysql_params
@@ -124,14 +188,22 @@
           attributes:
             key2: "new_value2"
         check_mode: yes
-        register: result
+        register: result_module
+
+      - name: Attributes | Run query to verify updated attribute in check mode
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that attribute would have been updated
         assert:
           that:
-            - result is changed
-            - result.attributes.key2 == "new_value2"
+            - result_module is changed
+            - result_module.attributes.key2 == "new_value2"
+            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key2'] == "value2"
 
+      # Real mode
       - name: Attributes | Test updating attributes on an existing user
         mysql_user:
           <<: *mysql_params
@@ -139,47 +211,77 @@
           host: '%'
           attributes:
             key2: "new_value2"
-        register: result
+        register: result_module
+
+      - name: Attributes | Run query to verify updated attribute
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that attribute was updated
         assert:
           that:
-            - result is changed
-            - result.attributes.key2 == "new_value2"
+            - result_module is changed
+            - result_module.attributes.key2 == "new_value2"
+            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key2'] == "new_value2"
 
+      # ============================================================
       # Test deleting attributes
+      #
+
+      # Check mode
       - name: Attributes | Test deleting attributes on an existing user in check mode
         mysql_user:
           <<: *mysql_params
           name: '{{ user_name_2 }}'
           host: '%'
           attributes:
-            key2: False
-        register: result
+            key2: null
+        register: result_module
         check_mode: yes
+
+      - name: Attributes | Run query to verify deleted attribute in check mode
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that attribute would have been deleted
         assert:
           that:
-            - result is changed
-            - "'key2' not in result.attributes"
+            - result_module is changed
+            - "'key2' not in result_module.attributes"
+            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key2'] == "new_value2"
 
+      # Real mode
       - name: Attributes | Test deleting attributes on an existing user
         mysql_user:
           <<: *mysql_params
           name: '{{ user_name_2 }}'
           host: '%'
           attributes:
-            key2: False
-        register: result
+            key2: null
+        register: result_module
+
+      - name: Attributes | Run query to verify deleted attribute
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that attribute was deleted
         assert:
           that:
-            - result is changed
-            - "'key2' not in result.attributes"
+            - result_module is changed
+            - "'key2' not in result_module.attributes"
+            - "'key2' not in result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml"
 
-      # Test attribute idempotency
+      # ============================================================
+      # Test attribute idempotency when specifying attributes
+      #
+
+      # Check mode
       - name: Attributes | Test attribute idempotency by trying to change an already correct attribute in check mode
         mysql_user:
           <<: *mysql_params
@@ -187,15 +289,23 @@
           host: '%'
           attributes:
             key1: "value1"
-        register: result
+        register: result_module
         check_mode: yes
+
+      - name: Attributes | Run query to verify idempotency of already correct attribute in check mode
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that attribute would not have been updated
         assert:
           that:
-            - result is not changed
-            - result.attributes.key1 == "value1"
+            - result_module is not changed
+            - result_module.attributes.key1 == "value1"
+            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key1'] == "value1"
 
+      # Real mode
       - name: Attributes | Test attribute idempotency by trying to change an already correct attribute
         mysql_user:
           <<: *mysql_params
@@ -203,42 +313,71 @@
           host: '%'
           attributes:
             key1: "value1"
-        register: result
+        register: result_module
+
+      - name: Attributes | Run query to verify idempotency of already correct attribute
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that attribute was not updated
         assert:
           that:
-            - result is not changed
-            - result.attributes.key1 == "value1"
+            - result_module is not changed
+            - result_module.attributes.key1 == "value1"
+            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key1'] == "value1"
 
+      # ============================================================
+      # Test attribute idempotency when not specifying attribute parameter
+      #
+
+      # Check mode
       - name: Attributes | Test attribute idempotency by not specifying attribute parameter in check mode
         mysql_user:
           <<: *mysql_params
           name: '{{ user_name_2 }}'
           host: '%'
-        register: result
+        register: result_module
         check_mode: yes
+
+      - name: Attributes | Run query to verify idempotency when not specifying attribute parameter in check mode
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that attribute is returned in check mode
         assert:
           that:
-            - result is not changed
-            - result.attributes.key1 == "value1"
+            - result_module is not changed
+            - result_module.attributes.key1 == "value1"
+            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key1'] == "value1"
 
+      # Real mode
       - name: Attributes | Test attribute idempotency by not specifying attribute parameter
         mysql_user:
           <<: *mysql_params
           name: '{{ user_name_2 }}'
           host: '%'
-        register: result
+        register: result_module
+
+      - name: Attributes | Run query to verify idempotency when not specifying attribute parameter
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
 
       - name: Attributes | Assert that attribute is returned
         assert:
           that:
-            - result is not changed
-            - result.attributes.key1 == "value1"
+            - result_module is not changed
+            - result_module.attributes.key1 == "value1"
+            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key1'] == "value1"
 
+      # ============================================================
       # Cleanup
+      #
       - include_tasks: utils/remove_user.yml
         vars:
           user_name: "{{ user_name_2 }}"

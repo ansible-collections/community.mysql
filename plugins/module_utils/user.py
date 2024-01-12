@@ -155,7 +155,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
              attributes, tls_requires, reuse_existing_password, module):
     # If attributes are set, perform a sanity check to ensure server supports user attributes before creating user
     if attributes and not get_attribute_support(cursor):
-        module.fail_json(msg="user attributes were specified but the mysql server does not support user attributes")
+        module.fail_json(msg="user attributes were specified but the server does not support user attributes")
 
     # we cannot create users without a proper hostname
     if host_all:
@@ -431,15 +431,14 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
         if attributes:
             if not attribute_support:
-                module.fail_json(msg="user attributes were specified but the mysql server does not support user attributes")
+                module.fail_json(msg="user attributes were specified but the server does not support user attributes")
             else:
                 current_attributes = attributes_get(cursor, user, host)
                 attributes_to_change = {}
 
                 for key, value in attributes.items():
                     if key not in current_attributes or current_attributes[key] != value:
-                        # The mysql null value (None in python) is used to delete an attribute; we use False to represent None in the attributes parameter
-                        attributes_to_change[key] = None if not value else value
+                        attributes_to_change[key] = value
 
                 if attributes_to_change:
                     msg = "Attributes updated: %s" % (", ".join(["%s: %s" % (key, value) for key, value in attributes_to_change.items()]))
@@ -451,7 +450,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     else:
                         # Final if statements excludes items whose values are None in attributes_to_change, i.e. attributes that will be deleted
                         final_attributes = {k: v for d in (current_attributes, attributes_to_change) for k, v in d.items() if k not in attributes_to_change or
-                                            attributes_to_change[k]}
+                                            attributes_to_change[k] is not None}
                     changed = True
                 else:
                     final_attributes = current_attributes

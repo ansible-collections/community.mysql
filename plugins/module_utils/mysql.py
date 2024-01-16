@@ -220,6 +220,7 @@ def is_mariadb(implementation):
     else:
         return False
 
+
 def is_mysql(implementation):
     if implementation == "mysql":
         return True

@@ -1,2 +1,2 @@
 bugfixes:
-  - slave_status - The mysql_info returns an empty list for slave_status when using MariaDB with multiple named replication channels/sources. Fix now returns all replication channels/sources on MariaDB by running `SHOW ALL SLAVES STATUS` when the server is MariaDB (https://github.com/ansible-collections/community.mysql/issues/603).
+  - mysql_info - The `slave_status` filter was returning an empty list on MariaDB with multiple replication channels. It now returns all channels by running `SHOW ALL SLAVES STATUS` for MariaDB servers. (https://github.com/ansible-collections/community.mysql/issues/603).

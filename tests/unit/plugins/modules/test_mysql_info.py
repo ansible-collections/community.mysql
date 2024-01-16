@@ -35,33 +35,3 @@ def test_get_info_suffix(suffix, cursor_output, server_implementation):
     info = MySQL_Info(MagicMock(), cursor, server_implementation)
 
     assert info.get_info([], [], False)['version']['suffix'] == suffix
-
-
-@pytest.mark.parametrize(
-    'server_implementation',
-    [
-        ('mysql'),
-        ('mariadb'),
-    ]
-)
-def test_is_mariadb(server_implementation):
-    cursor = MagicMock()
-
-    info = MySQL_Info(MagicMock(), cursor, server_implementation)
-
-    assert info.is_mariadb() == (server_implementation == "mariadb")
-
-
-@pytest.mark.parametrize(
-    'server_implementation',
-    [
-        ('mysql'),
-        ('mariadb'),
-    ]
-)
-def test_is_mysql(server_implementation):
-    cursor = MagicMock()
-
-    info = MySQL_Info(MagicMock(), cursor, server_implementation)
-
-    assert info.is_mysql() == (server_implementation == "mysql")

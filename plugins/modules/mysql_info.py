@@ -293,6 +293,8 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_driver_fail_msg,
     get_connector_name,
     get_connector_version,
+    get_server_implementation,
+    is_mariadb,
 )
 
 from ansible_collections.community.mysql.plugins.module_utils.user import (
@@ -388,18 +390,6 @@ class MySQL_Info(object):
         else:
             self.__collect(exclude_fields, return_empty_dbs, set(self.info))
             return self.info
-
-    def is_mariadb(self):
-        if self.server_implementation == "mariadb":
-            return True
-        else:
-            return False
-
-    def is_mysql(self):
-        if self.server_implementation == "mysql":
-            return True
-        else:
-            return False
 
     def __collect(self, exclude_fields, return_empty_dbs, wanted):
         """Collect all possible subsets."""
@@ -511,7 +501,7 @@ class MySQL_Info(object):
 
     def __get_slave_status(self):
         """Get slave status if the instance is a slave."""
-        if self.is_mariadb():
+        if is_mariadb(self.server_implementation):
             res = self.__exec_sql('SHOW ALL SLAVES STATUS')
         else:
             res = self.__exec_sql('SHOW SLAVE STATUS')
@@ -755,11 +745,7 @@ def main():
                'Exception message: %s' % (connector_name, connector_version, config_file, to_native(e)))
         module.fail_json(msg)
 
-    cursor.execute("SELECT VERSION()")
-    if 'mariadb' in cursor.fetchone()["VERSION()"].lower():
-        server_implementation = "mariadb"
-    else:
-        server_implementation = "mysql"
+    server_implementation = get_server_implementation(cursor)
 
     ###############################
     # Create object and do main job

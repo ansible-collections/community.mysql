@@ -45,12 +45,12 @@ def test_is_mysql():
     """
     Test that server is_mysql return expect results
     """
-    assert is_mysql("mysql") == True
-    assert is_mysql("mariadb") == False
+    assert is_mysql("mysql") is True
+    assert is_mysql("mariadb") is False
 
 def test_is_mariadb():
     """
     Test that server is_mariadb return expect results
     """
-    assert is_mariadb("mariadb") == True
-    assert is_mariadb("mysql") == False
+    assert is_mariadb("mariadb") is True
+    assert is_mariadb("mysql") is False

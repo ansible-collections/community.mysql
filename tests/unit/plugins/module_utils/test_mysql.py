@@ -24,6 +24,7 @@ def test_get_server_version(cursor_return_version, cursor_return_type):
     cursor = dummy_cursor_class(cursor_return_version, cursor_return_type)
     assert get_server_version(cursor) == cursor_return_version
 
+
 @pytest.mark.parametrize(
     'cursor_return_version,cursor_return_type,server_implementation',
     [
@@ -41,12 +42,14 @@ def test_get_server_implamentation(cursor_return_version, cursor_return_type, se
 
     assert get_server_implementation(cursor) == server_implementation
 
+
 def test_is_mysql():
     """
     Test that server is_mysql return expect results
     """
     assert is_mysql("mysql") is True
     assert is_mysql("mariadb") is False
+
 
 def test_is_mariadb():
     """

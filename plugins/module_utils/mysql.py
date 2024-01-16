@@ -206,11 +206,13 @@ def get_server_version(cursor):
 
     return version_str
 
+
 def get_server_implementation(cursor):
     if 'mariadb' in get_server_version(cursor).lower():
         return "mariadb"
     else:
         return "mysql"
+
 
 def is_mariadb(implementation):
     if implementation == "mariadb":
@@ -223,6 +225,7 @@ def is_mysql(implementation):
         return True
     else:
         return False
+
 
 def set_session_vars(module, cursor, session_vars):
     """Set session vars."""

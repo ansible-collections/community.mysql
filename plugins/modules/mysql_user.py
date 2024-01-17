@@ -515,7 +515,7 @@ def main():
 
         priv = privileges_unpack(priv, mode, column_case_sensitive, ensure_usage=not subtract_privs)
     password_changed = False
-    final_attributes = {}
+    final_attributes = None
     if state == "present":
         if user_exists(cursor, user, host, host_all):
             try:

@@ -69,6 +69,60 @@
       block:
 
       # ============================================================
+      # Create user with no attributes (test attributes return type)
+      #
+
+      # Check mode
+      - name: Attributes | Test creating a user with no attributes in check mode
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          password: '{{ user_password_2 }}'
+        register: result_module
+        check_mode: yes
+
+      - name: Attributes | Run query to verify user creation with no attributes did not take place in check mode
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT user FROM mysql.user WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
+
+      - name: Attributes | Assert that user would have been created without attributes
+        assert:
+          that:
+            - result_module is changed
+            - result_module.attributes is none
+            - not result_query.query_result[0]
+
+      # Real mode
+      - name: Attributes | Test creating a user with no attributes
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          password: '{{ user_password_2 }}'
+        register: result_module
+
+      - name: Attributes | Run query to verify created user without attributes
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
+
+      - name: Attributes | Assert that user was created without attributes
+        assert:
+          that:
+            - result_module is changed
+            - result_module.attributes is none
+            - result_query.query_result[0][0]['ATTRIBUTE'] is none
+
+      # Clean up user to allow it to be recreated with attributes
+      - include_tasks: utils/remove_user.yml
+        vars:
+          user_name: "{{ user_name_2 }}"
+
+      # ============================================================
       # Create user with attributes
       #
 
@@ -227,57 +281,6 @@
             - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key2'] == "new_value2"
 
       # ============================================================
-      # Test deleting attributes
-      #
-
-      # Check mode
-      - name: Attributes | Test deleting attributes on an existing user in check mode
-        mysql_user:
-          <<: *mysql_params
-          name: '{{ user_name_2 }}'
-          host: '%'
-          attributes:
-            key2: null
-        register: result_module
-        check_mode: yes
-
-      - name: Attributes | Run query to verify deleted attribute in check mode
-        mysql_query:
-          <<: *mysql_params
-          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
-        register: result_query
-
-      - name: Attributes | Assert that attribute would have been deleted
-        assert:
-          that:
-            - result_module is changed
-            - "'key2' not in result_module.attributes"
-            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key2'] == "new_value2"
-
-      # Real mode
-      - name: Attributes | Test deleting attributes on an existing user
-        mysql_user:
-          <<: *mysql_params
-          name: '{{ user_name_2 }}'
-          host: '%'
-          attributes:
-            key2: null
-        register: result_module
-
-      - name: Attributes | Run query to verify deleted attribute
-        mysql_query:
-          <<: *mysql_params
-          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
-        register: result_query
-
-      - name: Attributes | Assert that attribute was deleted
-        assert:
-          that:
-            - result_module is changed
-            - "'key2' not in result_module.attributes"
-            - "'key2' not in result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml"
-
-      # ============================================================
       # Test attribute idempotency when specifying attributes
       #
 
@@ -374,6 +377,94 @@
             - result_module is not changed
             - result_module.attributes.key1 == "value1"
             - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key1'] == "value1"
+
+      # ============================================================
+      # Test deleting attributes
+      #
+
+      # Check mode
+      - name: Attributes | Test deleting attributes on an existing user in check mode
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key2: null
+        register: result_module
+        check_mode: yes
+
+      - name: Attributes | Run query to verify deleted attribute in check mode
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
+
+      - name: Attributes | Assert that attribute would have been deleted
+        assert:
+          that:
+            - result_module is changed
+            - "'key2' not in result_module.attributes"
+            - (result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml)['key2'] == "new_value2"
+
+      # Real mode
+      - name: Attributes | Test deleting attributes on an existing user
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key2: null
+        register: result_module
+
+      - name: Attributes | Run query to verify deleted attribute
+        mysql_query:
+          <<: *mysql_params
+          query: 'SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = "{{ user_name_2 }}" AND host = "%"'
+        register: result_query
+
+      - name: Attributes | Assert that attribute was deleted
+        assert:
+          that:
+            - result_module is changed
+            - "'key2' not in result_module.attributes"
+            - "'key2' not in result_query.query_result[0][0]['ATTRIBUTE'] | from_yaml"
+
+      # ============================================================
+      # Test attribute return value when no attributes exist
+      #
+
+      # Check mode
+      - name: Attributes | Test attributes return value when no attributes exist in check mode
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key1: null
+        register: result_module
+        check_mode: yes
+
+      - name: Attributes | Assert attributes return value when no attributes exist in check mode
+        assert:
+          that:
+            - result_module is changed
+            - result_module.attributes is none
+
+      # Real mode
+      - name: Attributes | Test attributes return value when no attributes exist
+        mysql_user:
+          <<: *mysql_params
+          name: '{{ user_name_2 }}'
+          host: '%'
+          attributes:
+            key1: null
+        register: result_module
+
+      - name: Attributes | Assert attributes return value when no attributes exist
+        assert:
+          that:
+            - result_module is changed
+            - result_module.attributes is none
 
       # ============================================================
       # Cleanup

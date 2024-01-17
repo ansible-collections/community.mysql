@@ -211,7 +211,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     if tls_requires is not None:
         privileges_grant(cursor, user, host, "*.*", get_grants(cursor, user, host), tls_requires)
 
-    final_attributes = {}
+    final_attributes = None
 
     if attributes:
         cursor.execute("ALTER USER %s@%s ATTRIBUTE %s", (user, host, json.dumps(attributes)))
@@ -434,6 +434,10 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 module.fail_json(msg="user attributes were specified but the server does not support user attributes")
             else:
                 current_attributes = attributes_get(cursor, user, host)
+
+                if current_attributes is None:
+                    current_attributes = {}
+
                 attributes_to_change = {}
 
                 for key, value in attributes.items():
@@ -451,6 +455,9 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                         # Final if statements excludes items whose values are None in attributes_to_change, i.e. attributes that will be deleted
                         final_attributes = {k: v for d in (current_attributes, attributes_to_change) for k, v in d.items() if k not in attributes_to_change or
                                             attributes_to_change[k] is not None}
+
+                        # Convert empty dict to None per return value requirements
+                        final_attributes = final_attributes if final_attributes else None
                     changed = True
                 else:
                     final_attributes = current_attributes
@@ -974,7 +981,6 @@ def get_attribute_support(cursor):
     Returns:
         True if attributes are supported, False if they are not.
     """
-
     try:
         # information_schema.tables does not hold the tables within information_schema itself
         cursor.execute("SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES LIMIT 0")
@@ -994,21 +1000,16 @@ def attributes_get(cursor, user, host):
         host (str): User host name.
 
     Returns:
-        None if the user does not exist, otherwise a dict of attributes set on the user
+        None if the user does not exist or the user has no attributes set, otherwise a dict of attributes set on the user
     """
     cursor.execute("SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = %s AND host = %s", (user, host))
 
     r = cursor.fetchone()
+    # convert JSON string stored in row into a dict - mysql enforces that user_attributes entires are in JSON format
+    j = json.loads(r[0]) if r and r[0] else None
 
-    if r:
-        attributes = r[0]
-        # convert JSON string stored in row into a dict - mysql enforces that user_attributes entires are in JSON format
-        if attributes:
-            return json.loads(attributes)
-        else:
-            return {}
-
-    return None
+    # if the attributes dict is empty, return None instead
+    return j if j else None
 
 
 def get_impl(cursor):

@@ -6,18 +6,6 @@ Community MySQL Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
-v3.9.0
-======
-
-This is the minor release of the ``community.mysql`` collection.
-This changelog contains all changes to the modules and plugins in this
-collection that have been made after the previous release.
-
-Minor Changes
--------------
-
-- mysql_user - add user attribute support via the ``attributes`` parameter and return value (https://github.com/ansible-collections/community.mysql/pull/604).
-
 v3.8.0
 ======
 

@@ -294,7 +294,6 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     get_connector_name,
     get_connector_version,
     get_server_implementation,
-    is_mariadb,
 )
 
 from ansible_collections.community.mysql.plugins.module_utils.user import (
@@ -501,7 +500,7 @@ class MySQL_Info(object):
 
     def __get_slave_status(self):
         """Get slave status if the instance is a slave."""
-        if is_mariadb(self.server_implementation):
+        if self.server_implementation == "mariadb":
             res = self.__exec_sql('SHOW ALL SLAVES STATUS')
         else:
             res = self.__exec_sql('SHOW SLAVE STATUS')

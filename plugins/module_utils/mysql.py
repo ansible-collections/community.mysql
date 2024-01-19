@@ -214,20 +214,6 @@ def get_server_implementation(cursor):
         return "mysql"
 
 
-def is_mariadb(implementation):
-    if implementation == "mariadb":
-        return True
-    else:
-        return False
-
-
-def is_mysql(implementation):
-    if implementation == "mysql":
-        return True
-    else:
-        return False
-
-
 def set_session_vars(module, cursor, session_vars):
     """Set session vars."""
     for var, value in session_vars.items():

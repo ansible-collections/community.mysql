@@ -4,7 +4,7 @@ __metaclass__ = type
 
 import pytest
 
-from ansible_collections.community.mysql.plugins.module_utils.mysql import get_server_version, get_server_implementation, is_mariadb, is_mysql
+from ansible_collections.community.mysql.plugins.module_utils.mysql import get_server_version, get_server_implementation
 from ..utils import dummy_cursor_class
 
 
@@ -41,19 +41,3 @@ def test_get_server_implamentation(cursor_return_version, cursor_return_type, se
     cursor = dummy_cursor_class(cursor_return_version, cursor_return_type)
 
     assert get_server_implementation(cursor) == server_implementation
-
-
-def test_is_mysql():
-    """
-    Test that server is_mysql return expect results
-    """
-    assert is_mysql("mysql") is True
-    assert is_mysql("mariadb") is False
-
-
-def test_is_mariadb():
-    """
-    Test that server is_mariadb return expect results
-    """
-    assert is_mariadb("mariadb") is True
-    assert is_mariadb("mysql") is False

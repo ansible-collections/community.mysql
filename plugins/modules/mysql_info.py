@@ -5,6 +5,7 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
 DOCUMENTATION = r'''
@@ -292,6 +293,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_driver_fail_msg,
     get_connector_name,
     get_connector_version,
+    get_server_implementation,
 )
 
 from ansible_collections.community.mysql.plugins.module_utils.user import (
@@ -325,9 +327,10 @@ class MySQL_Info(object):
         5. add info about the new subset with an example to RETURN block
     """
 
-    def __init__(self, module, cursor):
+    def __init__(self, module, cursor, server_implementation):
         self.module = module
         self.cursor = cursor
+        self.server_implementation = server_implementation
         self.info = {
             'version': {},
             'databases': {},
@@ -497,7 +500,10 @@ class MySQL_Info(object):
 
     def __get_slave_status(self):
         """Get slave status if the instance is a slave."""
-        res = self.__exec_sql('SHOW SLAVE STATUS')
+        if self.server_implementation == "mariadb":
+            res = self.__exec_sql('SHOW ALL SLAVES STATUS')
+        else:
+            res = self.__exec_sql('SHOW SLAVE STATUS')
         if res:
             for line in res:
                 host = line['Master_Host']
@@ -738,10 +744,12 @@ def main():
                'Exception message: %s' % (connector_name, connector_version, config_file, to_native(e)))
         module.fail_json(msg)
 
+    server_implementation = get_server_implementation(cursor)
+
     ###############################
     # Create object and do main job
 
-    mysql = MySQL_Info(module, cursor)
+    mysql = MySQL_Info(module, cursor, server_implementation)
 
     module.exit_json(changed=False,
                      connector_name=connector_name,

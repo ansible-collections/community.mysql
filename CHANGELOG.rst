@@ -5,15 +5,26 @@ Community MySQL Collection Release Notes
 .. contents:: Topics
 
 
+v2.4.2
+======
+
+Release Summary
+---------------
+
+Maintenance release of ``community.mysql`` to inform users that the collection version 2 is EOL. There were no functional changes made in this release.
+
+Major Changes
+-------------
+
+- Collection version 2.*.* is EOL, no more bugfixes will be backported. Please consider upgrading to the latest version.
+
 v2.4.1
 ======
 
 Release Summary
 ---------------
 
-Maintenance release of ``community.mysql`` major version 2.
-Only contains changes to the CI. There is no functional difference between 2.4.0 and 2.4.1.
-
+Maintenance release of ``community.mysql`` major version 2. Only contains changes to the CI. There is no functional difference between 2.4.0 and 2.4.1.
 
 v2.4.0
 ======
@@ -21,7 +32,7 @@ v2.4.0
 Release Summary
 ---------------
 
-This is a minor release of the ``community.mysql`` collection.
+This is a bugfix release of the ``community.mysql`` collection.
 This changelog contains all changes to the modules and plugins in this collection
 that have been made after the previous release.
 

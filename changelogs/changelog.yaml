@@ -521,10 +521,22 @@ releases:
     release_date: '2023-02-08'
   2.4.1:
     changes:
-      release_summary: 'Maintenance release of ``community.mysql`` major version
-        2. Only contains changes to the CI. There is no functional difference
-        between 2.4.0 and 2.4.1.'
+      release_summary: Maintenance release of ``community.mysql`` major version 2.
+        Only contains changes to the CI. There is no functional difference between
+        2.4.0 and 2.4.1.
     fragments:
     - 2.4.1.yml
     - 490_refactor_integration_tests.yml
     release_date: '2023-05-04'
+  2.4.2:
+    changes:
+      major_changes:
+      - Collection version 2.*.* is EOL, no more bugfixes will be backported. Please
+        consider upgrading to the latest version.
+      release_summary: Maintenance release of ``community.mysql`` to inform users
+        that the collection version 2 is EOL. There were no functional changes made
+        in this release.
+    fragments:
+    - 0-stable-2-eol.yml
+    - 2.4.2.yml
+    release_date: '2024-01-22'

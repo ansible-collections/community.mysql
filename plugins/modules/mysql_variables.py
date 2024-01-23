@@ -176,7 +176,7 @@ def setvariable(cursor, mysqlvar, value, mode='global'):
 def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
-        variable=dict(type='str'),
+        variable=dict(type='str', required=True),
         value=dict(type='str'),
         mode=dict(type='str', choices=['global', 'persist', 'persist_only'], default='global'),
     )

@@ -36,6 +36,7 @@ options:
     - List of values to be passed as positional arguments to the query.
     - Mutually exclusive with I(named_args).
     type: list
+    elements: raw
   named_args:
     description:
     - Dictionary of key-value arguments to pass to the query.
@@ -141,7 +142,7 @@ def main():
     argument_spec.update(
         query=dict(type='raw', required=True),
         login_db=dict(type='str'),
-        positional_args=dict(type='list'),
+        positional_args=dict(type='list', elements='raw'),
         named_args=dict(type='dict'),
         single_transaction=dict(type='bool', default=False),
     )

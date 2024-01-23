@@ -698,8 +698,8 @@ def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
         login_db=dict(type='str'),
-        filter=dict(type='list'),
-        exclude_fields=dict(type='list'),
+        filter=dict(type='list', elements='str'),
+        exclude_fields=dict(type='list', elements='str'),
         return_empty_dbs=dict(type='bool', default=False),
     )
 

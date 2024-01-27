@@ -196,7 +196,7 @@
         name: acme
         state: absent
 
-    - include: issue-28.yml
+    - include_tasks: issue-28.yml
 
     # https://github.com/ansible-collections/community.mysql/issues/204
     - name: Create database containing only views

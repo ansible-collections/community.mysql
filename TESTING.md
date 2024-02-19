@@ -77,7 +77,7 @@ The Makefile accept the following options
 - `connector_name`
   - Mandatory: true
   - Choices:
-    - "pymysql
+    - "pymysql"
     - "mysqlclient"
   - Description: The python package of the connector to use. In addition to selecting the test container, this value is also used for tests filtering: `when: connector_name == 'pymysql'`.
 
@@ -153,7 +153,7 @@ python run_all_tests.py
 
 ### Add a new Python, Connector or Database version
 
-You can look into `[.github/workflows/ansible-test-plugins.yml](https://github.com/ansible-collections/community.mysql/tree/main/.github/workflows)` to see how those containers are built using [build-docker-image.yml](https://github.com/ansible-collections/community.mysql/blob/main/.github/workflows/build-docker-image.yml) and all [docker-image-xxx.yml](https://github.com/ansible-collections/community.mysql/blob/main/.github/workflows/docker-image-mariadb103-py38-mysqlclient201.yml) files.
+You can look into [.github/workflows/ansible-test-plugins.yml](https://github.com/ansible-collections/community.mysql/tree/main/.github/workflows) to see how those containers are built using [build-docker-image.yml](https://github.com/ansible-collections/community.mysql/blob/main/.github/workflows/build-docker-image.yml) and all [docker-image-xxx.yml](https://github.com/ansible-collections/community.mysql/blob/main/.github/workflows/docker-image-mariadb103-py38-mysqlclient201.yml) files.
 
 1. Add a workflow in [.github/workflows/](.github/workflows)
 1. Add a new folder in [test-containers](test-containers) containing a new Dockerfile. Your container must contains 3 things:

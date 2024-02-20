@@ -311,27 +311,26 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
         # Handle password expiration
         if bool(password_expire):
-            if impl.server_supports_password_expire(cursor):
-                update = False
-                mariadb_role = True if "mariadb" in str(impl.__name__) else False
-                current_password_policy = get_password_expiration_policy(cursor, user, host, maria_role=mariadb_role)
-                password_expired = is_password_expired(cursor, user, host)
-                # Check if changes needed to be applied.
-                if not ((current_password_policy == -1 and password_expire == "default") or
-                        (current_password_policy == 0 and password_expire == "never") or
-                        (current_password_policy == password_expire_interval and password_expire == "interval") or
-                        (password_expire == 'now' and password_expired)):
-
-                    update = True
-
-                    if module.check_mode:
-                        return {'changed': True, 'msg': msg, 'password_changed': password_changed}
-                    set_password_expire(cursor, user, host, password_expire, password_expire_interval)
-                    password_changed = True
-                    changed = True
-            else:
+            if not impl.server_supports_password_expire(cursor):
                 module.fail_json(msg="The server version does not match the requirements "
-                                 "for password_expire parameter. See module's documentation.")
+                                     "for password_expire parameter. See module's documentation.")
+            update = False
+            mariadb_role = True if "mariadb" in str(impl.__name__) else False
+            current_password_policy = get_password_expiration_policy(cursor, user, host, maria_role=mariadb_role)
+            password_expired = is_password_expired(cursor, user, host)
+            # Check if changes needed to be applied.
+            if not ((current_password_policy == -1 and password_expire == "default") or
+                    (current_password_policy == 0 and password_expire == "never") or
+                    (current_password_policy == password_expire_interval and password_expire == "interval") or
+                    (password_expire == 'now' and password_expired)):
+
+                update = True
+
+                if module.check_mode:
+                    return {'changed': True, 'msg': msg, 'password_changed': password_changed}
+                set_password_expire(cursor, user, host, password_expire, password_expire_interval)
+                password_changed = True
+                changed = True               
 
         # Handle plugin authentication
         if plugin and not role:

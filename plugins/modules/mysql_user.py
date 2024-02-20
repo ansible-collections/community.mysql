@@ -166,7 +166,7 @@ options:
     version_added: '3.9.0'
   password_expire_interval:
     description:
-      - number of days password will expire. Used when I(password_expire=interval).
+      - Number of days I(password) will expire. Requires I(password_expire=interval).
     type: int
     version_added: '3.9.0'
 

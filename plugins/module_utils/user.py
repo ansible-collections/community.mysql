@@ -974,12 +974,7 @@ def set_password_expire(cursor, user, host, password_expire, password_expire_int
     elif password_expire.lower() == "now":
         statement = "PASSWORD EXPIRE"
 
-    params = (user, host)
-    query = ["ALTER USER %s@%s"]
-
-    query.append(statment)
-    query = ' '.join(query)
-    cursor.execute(query, params)
+    cursor.execute("ALTER USER %s@%s " + statement, (user, host))
 
 
 def get_password_expiration_policy(cursor, user, host, maria_role=False):

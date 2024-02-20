@@ -966,13 +966,13 @@ def set_password_expire(cursor, user, host, password_expire, password_expire_int
         password_expire_days (int): Invterval of days password expires.
     """
     if password_expire.lower() == "never":
-        statment = "PASSWORD EXPIRE NEVER"
+        statement = "PASSWORD EXPIRE NEVER"
     elif password_expire.lower() == "default":
-        statment = "PASSWORD EXPIRE DEFAULT"
+        statement = "PASSWORD EXPIRE DEFAULT"
     elif password_expire.lower() == "interval":
-        statment = "PASSWORD EXPIRE INTERVAL %d DAY" % (password_expire_interval)
+        statement = "PASSWORD EXPIRE INTERVAL %d DAY" % (password_expire_interval)
     elif password_expire.lower() == "now":
-        statment = "PASSWORD EXPIRE"
+        statement = "PASSWORD EXPIRE"
 
     params = (user, host)
     query = ["ALTER USER %s@%s"]

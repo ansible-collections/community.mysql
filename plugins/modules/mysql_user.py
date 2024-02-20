@@ -157,10 +157,10 @@ options:
     version_added: '3.6.0'
   password_expire:
     description:
-      - C(never) password will never expire.
-      - C(default) password is defined using global system variable I(default_password_lifetime) setting.
-      - C(interval) password will expire in days which is defined in I(password_expire_interval).
-      - C(now) password will expire immediately.
+      - C(never) - I(password) will never expire.
+      - C(default) - I(password) is defined using global system variable I(default_password_lifetime) setting.
+      - C(interval) - I(password) will expire in days which is defined in I(password_expire_interval).
+      - C(now) - I(password) will expire immediately.
     type: str
     choices: [ now, never, default, interval ]
     version_added: '3.9.0'

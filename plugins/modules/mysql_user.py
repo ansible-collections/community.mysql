@@ -163,6 +163,7 @@ options:
       - C(now) password will expire immediately.
     type: str
     choices: [ now, never, default, interval ]
+    version_added: '3.9.0'
   password_expire_interval:
     description:
       - number of days password will expire. Used when I(password_expire=interval).

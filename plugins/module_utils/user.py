@@ -990,13 +990,13 @@ def get_password_expiration_policy(cursor, user, host, maria_role=False):
         policy (int): Current users password policy.
     """
     if not maria_role:
-        statment = "SELECT IFNULL(password_lifetime, -1) FROM mysql.user \
+        statement = "SELECT IFNULL(password_lifetime, -1) FROM mysql.user \
             WHERE User = %s AND Host = %s", (user, host)
     else:
-        statment = "SELECT JSON_EXTRACT(Priv, '$.password_lifetime') AS password_lifetime \
+        statement = "SELECT JSON_EXTRACT(Priv, '$.password_lifetime') AS password_lifetime \
             FROM mysql.global_priv \
             WHERE User = %s AND Host = %s", (user, host)
-    cursor.execute(*statment)
+    cursor.execute(*statement)
     policy = cursor.fetchone()[0]
     return int(policy)
 
@@ -1012,9 +1012,9 @@ def is_password_expired(cursor, user, host):
     Returns:
         expired (bool): True if expired, else False.
     """
-    statment = "SELECT password_expired FROM mysql.user \
+    statement = "SELECT password_expired FROM mysql.user \
             WHERE User = %s AND Host = %s", (user, host)
-    cursor.execute(*statment)
+    cursor.execute(*statement)
     expired = cursor.fetchone()[0]
     if str(expired) == "Y":
         return True

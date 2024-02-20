@@ -168,6 +168,7 @@ options:
     description:
       - number of days password will expire. Used when I(password_expire=interval).
     type: int
+    version_added: '3.9.0'
 
   column_case_sensitive:
     description:

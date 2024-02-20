@@ -430,7 +430,7 @@ def main():
         session_vars=dict(type='dict'),
         column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
         password_expire=dict(type='str', choices=['now', 'never', 'default', 'interval']),
-        password_expire_interval=dict(type='int'),
+        password_expire_interval=dict(type='int', required_if=[('password_expire', 'interval', True)]),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -478,10 +478,6 @@ def main():
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
-
-    if password_expire == "interval" and not password_expire_interval:
-        module.fail_json(msg="password_expire value interval \
-                         should be used with password_expire_interval")
 
     if password_expire_interval and password_expire_interval < 1:
         module.fail_json(msg="password_expire_interval value \

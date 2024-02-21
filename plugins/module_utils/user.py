@@ -10,6 +10,7 @@ __metaclass__ = type
 # Simplified BSD License (see simplified_bsd.txt or https://opensource.org/licenses/BSD-2-Clause)
 
 import string
+import json
 import re
 
 from ansible.module_utils.six import iteritems
@@ -151,14 +152,14 @@ def get_existing_authentication(cursor, user, host):
 
 def user_add(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             tls_requires, module, reuse_existing_password,
+             attributes, tls_requires, module, reuse_existing_password,
              password_expire, password_expire_interval):
     # we cannot create users without a proper hostname
     if host_all:
-        return {'changed': False, 'password_changed': False}
+        return {'changed': False, 'password_changed': False, 'attributes': attributes}
 
     if module.check_mode:
-        return {'changed': True, 'password_changed': None}
+        return {'changed': True, 'password_changed': None, 'attributes': attributes}
 
     # Determine what user management method server uses
     old_user_mgmt = impl.use_old_user_mgmt(cursor)
@@ -212,7 +213,14 @@ def user_add(cursor, user, host, host_all, password, encrypted,
             privileges_grant(cursor, user, host, db_table, priv, tls_requires)
     if tls_requires is not None:
         privileges_grant(cursor, user, host, "*.*", get_grants(cursor, user, host), tls_requires)
-    return {'changed': True, 'password_changed': not used_existing_password}
+
+    final_attributes = None
+
+    if attributes:
+        cursor.execute("ALTER USER %s@%s ATTRIBUTE %s", (user, host, json.dumps(attributes)))
+        final_attributes = attributes_get(cursor, user, host)
+
+    return {'changed': True, 'password_changed': not used_existing_password, 'attributes': final_attributes}
 
 
 def is_hash(password):
@@ -225,7 +233,7 @@ def is_hash(password):
 
 def user_mod(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             append_privs, subtract_privs, tls_requires, module,
+             append_privs, subtract_privs, attributes, tls_requires, module,
              password_expire, password_expire_interval, role=False, maria_role=False):
     changed = False
     msg = "User unchanged"
@@ -286,27 +294,26 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 if current_pass_hash != encrypted_password:
                     password_changed = True
                     msg = "Password updated"
-                    if module.check_mode:
-                        return {'changed': True, 'msg': msg, 'password_changed': password_changed}
-                    if old_user_mgmt:
-                        cursor.execute("SET PASSWORD FOR %s@%s = %s", (user, host, encrypted_password))
-                        msg = "Password updated (old style)"
-                    else:
-                        try:
-                            cursor.execute("ALTER USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, encrypted_password))
-                            msg = "Password updated (new style)"
-                        except (mysql_driver.Error) as e:
-                            # https://stackoverflow.com/questions/51600000/authentication-string-of-root-user-on-mysql
-                            # Replacing empty root password with new authentication mechanisms fails with error 1396
-                            if e.args[0] == 1396:
-                                cursor.execute(
-                                    "UPDATE mysql.user SET plugin = %s, authentication_string = %s, Password = '' WHERE User = %s AND Host = %s",
-                                    ('mysql_native_password', encrypted_password, user, host)
-                                )
-                                cursor.execute("FLUSH PRIVILEGES")
-                                msg = "Password forced update"
-                            else:
-                                raise e
+                    if not module.check_mode:
+                        if old_user_mgmt:
+                            cursor.execute("SET PASSWORD FOR %s@%s = %s", (user, host, encrypted_password))
+                            msg = "Password updated (old style)"
+                        else:
+                            try:
+                                cursor.execute("ALTER USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, encrypted_password))
+                                msg = "Password updated (new style)"
+                            except (mysql_driver.Error) as e:
+                                # https://stackoverflow.com/questions/51600000/authentication-string-of-root-user-on-mysql
+                                # Replacing empty root password with new authentication mechanisms fails with error 1396
+                                if e.args[0] == 1396:
+                                    cursor.execute(
+                                        "UPDATE mysql.user SET plugin = %s, authentication_string = %s, Password = '' WHERE User = %s AND Host = %s",
+                                        ('mysql_native_password', encrypted_password, user, host)
+                                    )
+                                    cursor.execute("FLUSH PRIVILEGES")
+                                    msg = "Password forced update"
+                                else:
+                                    raise e
                     changed = True
 
         # Handle password expiration
@@ -383,9 +390,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     if db_table not in new_priv:
                         if user != "root" and "PROXY" not in priv:
                             msg = "Privileges updated"
-                            if module.check_mode:
-                                return {'changed': True, 'msg': msg, 'password_changed': password_changed}
-                            privileges_revoke(cursor, user, host, db_table, priv, grant_option, maria_role)
+                            if not module.check_mode:
+                                privileges_revoke(cursor, user, host, db_table, priv, grant_option, maria_role)
                             changed = True
 
             # If the user doesn't currently have any privileges on a db.table, then
@@ -394,9 +400,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 for db_table, priv in iteritems(new_priv):
                     if db_table not in curr_priv:
                         msg = "New privileges granted"
-                        if module.check_mode:
-                            return {'changed': True, 'msg': msg, 'password_changed': password_changed}
-                        privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_role)
+                        if not module.check_mode:
+                            privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_role)
                         changed = True
 
             # If the db.table specification exists in both the user's current privileges
@@ -435,16 +440,57 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
                 if len(grant_privs) + len(revoke_privs) > 0:
                     msg = "Privileges updated: granted %s, revoked %s" % (grant_privs, revoke_privs)
-                    if module.check_mode:
-                        return {'changed': True, 'msg': msg, 'password_changed': password_changed}
-                    if len(revoke_privs) > 0:
-                        privileges_revoke(cursor, user, host, db_table, revoke_privs, grant_option, maria_role)
-                    if len(grant_privs) > 0:
-                        privileges_grant(cursor, user, host, db_table, grant_privs, tls_requires, maria_role)
+                    if not module.check_mode:
+                        if len(revoke_privs) > 0:
+                            privileges_revoke(cursor, user, host, db_table, revoke_privs, grant_option, maria_role)
+                        if len(grant_privs) > 0:
+                            privileges_grant(cursor, user, host, db_table, grant_privs, tls_requires, maria_role)
+                    else:
+                        changed = True
 
             # after privilege manipulation, compare privileges from before and now
             after_priv = privileges_get(cursor, user, host, maria_role)
             changed = changed or (curr_priv != after_priv)
+
+        # Handle attributes
+        attribute_support = get_attribute_support(cursor)
+        final_attributes = {}
+
+        if attributes:
+            if not attribute_support:
+                module.fail_json(msg="user attributes were specified but the server does not support user attributes")
+            else:
+                current_attributes = attributes_get(cursor, user, host)
+
+                if current_attributes is None:
+                    current_attributes = {}
+
+                attributes_to_change = {}
+
+                for key, value in attributes.items():
+                    if key not in current_attributes or current_attributes[key] != value:
+                        attributes_to_change[key] = value
+
+                if attributes_to_change:
+                    msg = "Attributes updated: %s" % (", ".join(["%s: %s" % (key, value) for key, value in attributes_to_change.items()]))
+
+                    # Calculate final attributes by re-running attributes_get when not in check mode, and merge dictionaries when in check mode
+                    if not module.check_mode:
+                        cursor.execute("ALTER USER %s@%s ATTRIBUTE %s", (user, host, json.dumps(attributes_to_change)))
+                        final_attributes = attributes_get(cursor, user, host)
+                    else:
+                        # Final if statements excludes items whose values are None in attributes_to_change, i.e. attributes that will be deleted
+                        final_attributes = {k: v for d in (current_attributes, attributes_to_change) for k, v in d.items() if k not in attributes_to_change or
+                                            attributes_to_change[k] is not None}
+
+                        # Convert empty dict to None per return value requirements
+                        final_attributes = final_attributes if final_attributes else None
+                    changed = True
+                else:
+                    final_attributes = current_attributes
+        else:
+            if attribute_support:
+                final_attributes = attributes_get(cursor, user, host)
 
         if role:
             continue
@@ -453,24 +499,23 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
         current_requires = get_tls_requires(cursor, user, host)
         if current_requires != tls_requires:
             msg = "TLS requires updated"
-            if module.check_mode:
-                return {'changed': True, 'msg': msg, 'password_changed': password_changed}
-            if not old_user_mgmt:
-                pre_query = "ALTER USER"
-            else:
-                pre_query = "GRANT %s ON *.* TO" % ",".join(get_grants(cursor, user, host))
+            if not module.check_mode:
+                if not old_user_mgmt:
+                    pre_query = "ALTER USER"
+                else:
+                    pre_query = "GRANT %s ON *.* TO" % ",".join(get_grants(cursor, user, host))
 
-            if tls_requires is not None:
-                query = " ".join((pre_query, "%s@%s"))
-                query_with_args = mogrify_requires(query, (user, host), tls_requires)
-            else:
-                query = " ".join((pre_query, "%s@%s REQUIRE NONE"))
-                query_with_args = query, (user, host)
+                if tls_requires is not None:
+                    query = " ".join((pre_query, "%s@%s"))
+                    query_with_args = mogrify_requires(query, (user, host), tls_requires)
+                else:
+                    query = " ".join((pre_query, "%s@%s REQUIRE NONE"))
+                    query_with_args = query, (user, host)
 
-            cursor.execute(*query_with_args)
+                cursor.execute(*query_with_args)
             changed = True
 
-    return {'changed': changed, 'msg': msg, 'password_changed': password_changed}
+    return {'changed': changed, 'msg': msg, 'password_changed': password_changed, 'attributes': final_attributes}
 
 
 def user_delete(cursor, user, host, host_all, check_mode):
@@ -1019,6 +1064,41 @@ def is_password_expired(cursor, user, host):
     if str(expired) == "Y":
         return True
     return False
+
+def get_attribute_support(cursor):
+    """Checks if the MySQL server supports user attributes.
+
+    Args:
+        cursor (cursor): DB driver cursor object.
+    Returns:
+        True if attributes are supported, False if they are not.
+    """
+    try:
+        # information_schema.tables does not hold the tables within information_schema itself
+        cursor.execute("SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES LIMIT 0")
+        cursor.fetchone()
+    except mysql_driver.Error:
+        return False
+
+    return True
+
+
+def attributes_get(cursor, user, host):
+    """Get attributes for a given user.
+
+        host (str): User host name.
+
+    Returns:
+        None if the user does not exist or the user has no attributes set, otherwise a dict of attributes set on the user
+    """
+    cursor.execute("SELECT attribute FROM INFORMATION_SCHEMA.USER_ATTRIBUTES WHERE user = %s AND host = %s", (user, host))
+
+    r = cursor.fetchone()
+    # convert JSON string stored in row into a dict - mysql enforces that user_attributes entires are in JSON format
+    j = json.loads(r[0]) if r and r[0] else None
+
+    # if the attributes dict is empty, return None instead
+    return j if j else None
 
 
 def get_impl(cursor):

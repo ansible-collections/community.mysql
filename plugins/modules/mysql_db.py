@@ -577,14 +577,14 @@ def db_create(cursor, db, encoding, collation):
 def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
-        name=dict(type='list', required=True, aliases=['db']),
+        name=dict(type='list', elements='str', required=True, aliases=['db']),
         encoding=dict(type='str', default=''),
         collation=dict(type='str', default=''),
         target=dict(type='path'),
         state=dict(type='str', default='present', choices=['absent', 'dump', 'import', 'present']),
         single_transaction=dict(type='bool', default=False),
         quick=dict(type='bool', default=True),
-        ignore_tables=dict(type='list', default=[]),
+        ignore_tables=dict(type='list', elements='str', default=[]),
         hex_blob=dict(default=False, type='bool'),
         force=dict(type='bool', default=False),
         master_data=dict(type='int', default=0, choices=[0, 1, 2]),

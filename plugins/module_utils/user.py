@@ -337,11 +337,10 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
                 update = True
 
-                if module.check_mode:
-                    return {'changed': True, 'msg': msg, 'password_changed': password_changed}
-                set_password_expire(cursor, user, host, password_expire, password_expire_interval)
-                password_changed = True
-                changed = True               
+                if not module.check_mode:
+                    set_password_expire(cursor, user, host, password_expire, password_expire_interval)
+                    password_changed = True
+                    changed = True
 
         # Handle plugin authentication
         if plugin and not role:

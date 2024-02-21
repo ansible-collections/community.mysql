@@ -569,7 +569,7 @@ def main():
                 reuse_existing_password = update_password == 'on_new_username'
                 result = user_add(cursor, user, host, host_all, password, encrypted,
                                   plugin, plugin_hash_string, plugin_auth_string,
-                                  priv, attributes, tls_requires, module, reuse_existing_password,
+                                  priv, attributes, tls_requires, reuse_existing_password, module,
                                   password_expire, password_expire_interval)
                 changed = result['changed']
                 password_changed = result['password_changed']

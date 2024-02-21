@@ -152,11 +152,12 @@ def get_existing_authentication(cursor, user, host):
 
 def user_add(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             attributes, tls_requires, module, reuse_existing_password,
+             attributes, tls_requires, reuse_existing_password, module,
              password_expire, password_expire_interval):
     # If attributes are set, perform a sanity check to ensure server supports user attributes before creating user
     if attributes and not get_attribute_support(cursor):
         module.fail_json(msg="user attributes were specified but the server does not support user attributes")
+
     # we cannot create users without a proper hostname
     if host_all:
         return {'changed': False, 'password_changed': False, 'attributes': attributes}

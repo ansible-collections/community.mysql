@@ -155,6 +155,21 @@ options:
       - Cannot be used to set global variables, use the M(community.mysql.mysql_variables) module instead.
     type: dict
     version_added: '3.6.0'
+  password_expire:
+    description:
+      - C(never) - I(password) will never expire.
+      - C(default) - I(password) is defined using global system variable I(default_password_lifetime) setting.
+      - C(interval) - I(password) will expire in days which is defined in I(password_expire_interval).
+      - C(now) - I(password) will expire immediately.
+    type: str
+    choices: [ now, never, default, interval ]
+    version_added: '3.9.0'
+  password_expire_interval:
+    description:
+      - Number of days I(password) will expire. Requires I(password_expire=interval).
+    type: int
+    version_added: '3.9.0'
+
   column_case_sensitive:
     description:
       - The default is C(false).
@@ -429,6 +444,8 @@ def main():
         force_context=dict(type='bool', default=False),
         session_vars=dict(type='dict'),
         column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
+        password_expire=dict(type='str', choices=['now', 'never', 'default', 'interval'], no_log=True),
+        password_expire_interval=dict(type='int', required_if=[('password_expire', 'interval', True)], no_log=True),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -466,6 +483,8 @@ def main():
     resource_limits = module.params["resource_limits"]
     session_vars = module.params["session_vars"]
     column_case_sensitive = module.params["column_case_sensitive"]
+    password_expire = module.params["password_expire"]
+    password_expire_interval = module.params["password_expire_interval"]
 
     if priv and not isinstance(priv, (str, dict)):
         module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
@@ -475,6 +494,10 @@ def main():
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
+
+    if password_expire_interval and password_expire_interval < 1:
+        module.fail_json(msg="password_expire_interval value \
+                             should be positive number")
 
     cursor = None
     try:
@@ -522,12 +545,14 @@ def main():
                 if update_password == "always":
                     result = user_mod(cursor, user, host, host_all, password, encrypted,
                                       plugin, plugin_hash_string, plugin_auth_string,
-                                      priv, append_privs, subtract_privs, attributes, tls_requires, module)
+                                      priv, append_privs, subtract_privs, attributes, tls_requires, module,
+                                      password_expire, password_expire_interval)
 
                 else:
                     result = user_mod(cursor, user, host, host_all, None, encrypted,
                                       None, None, None,
-                                      priv, append_privs, subtract_privs, attributes, tls_requires, module)
+                                      priv, append_privs, subtract_privs, attributes, tls_requires, module,
+                                      password_expire, password_expire_interval)
                 changed = result['changed']
                 msg = result['msg']
                 password_changed = result['password_changed']
@@ -544,7 +569,8 @@ def main():
                 reuse_existing_password = update_password == 'on_new_username'
                 result = user_add(cursor, user, host, host_all, password, encrypted,
                                   plugin, plugin_hash_string, plugin_auth_string,
-                                  priv, attributes, tls_requires, reuse_existing_password, module)
+                                  priv, attributes, tls_requires, reuse_existing_password, module,
+                                  password_expire, password_expire_interval)
                 changed = result['changed']
                 password_changed = result['password_changed']
                 final_attributes = result['attributes']

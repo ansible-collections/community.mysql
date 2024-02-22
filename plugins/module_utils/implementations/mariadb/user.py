@@ -23,3 +23,9 @@ def server_supports_alter_user(cursor):
     version = get_server_version(cursor)
 
     return LooseVersion(version) >= LooseVersion("10.2")
+
+
+def server_supports_password_expire(cursor):
+    version = get_server_version(cursor)
+
+    return LooseVersion(version) >= LooseVersion("10.4.3")

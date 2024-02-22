@@ -152,7 +152,8 @@ def get_existing_authentication(cursor, user, host):
 
 def user_add(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             attributes, tls_requires, reuse_existing_password, module):
+             attributes, tls_requires, reuse_existing_password, module,
+             password_expire, password_expire_interval):
     # If attributes are set, perform a sanity check to ensure server supports user attributes before creating user
     if attributes and not get_attribute_support(cursor):
         module.fail_json(msg="user attributes were specified but the server does not support user attributes")
@@ -205,6 +206,12 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     query_with_args_and_tls_requires = query_with_args + (tls_requires,)
     cursor.execute(*mogrify(*query_with_args_and_tls_requires))
 
+    if password_expire:
+        if not impl.server_supports_password_expire(cursor):
+            module.fail_json(msg="The server version does not match the requirements "
+                             "for password_expire parameter. See module's documentation.")
+        set_password_expire(cursor, user, host, password_expire, password_expire_interval)
+
     if new_priv is not None:
         for db_table, priv in iteritems(new_priv):
             privileges_grant(cursor, user, host, db_table, priv, tls_requires)
@@ -230,7 +237,8 @@ def is_hash(password):
 
 def user_mod(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, new_priv,
-             append_privs, subtract_privs, attributes, tls_requires, module, role=False, maria_role=False):
+             append_privs, subtract_privs, attributes, tls_requires, module,
+             password_expire, password_expire_interval, role=False, maria_role=False):
     changed = False
     msg = "User unchanged"
     grant_option = False
@@ -310,6 +318,28 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                                     msg = "Password forced update"
                                 else:
                                     raise e
+                    changed = True
+
+        # Handle password expiration
+        if bool(password_expire):
+            if not impl.server_supports_password_expire(cursor):
+                module.fail_json(msg="The server version does not match the requirements "
+                                     "for password_expire parameter. See module's documentation.")
+            update = False
+            mariadb_role = True if "mariadb" in str(impl.__name__) else False
+            current_password_policy = get_password_expiration_policy(cursor, user, host, maria_role=mariadb_role)
+            password_expired = is_password_expired(cursor, user, host)
+            # Check if changes needed to be applied.
+            if not ((current_password_policy == -1 and password_expire == "default") or
+                    (current_password_policy == 0 and password_expire == "never") or
+                    (current_password_policy == password_expire_interval and password_expire == "interval") or
+                    (password_expire == 'now' and password_expired)):
+
+                update = True
+
+                if not module.check_mode:
+                    set_password_expire(cursor, user, host, password_expire, password_expire_interval)
+                    password_changed = True
                     changed = True
 
         # Handle plugin authentication
@@ -971,6 +1001,72 @@ def limit_resources(module, cursor, user, host, resource_limits, check_mode):
     query += ' WITH %s' % ' '.join(tmp)
     cursor.execute(query, (user, host))
     return True
+
+
+def set_password_expire(cursor, user, host, password_expire, password_expire_interval):
+    """Fuction to set passowrd expiration for user.
+
+    Args:
+        cursor (cursor): DB driver cursor object.
+        user (str): User name.
+        host (str): User hostname.
+        password_expire (str): Password expiration mode.
+        password_expire_days (int): Invterval of days password expires.
+    """
+    if password_expire.lower() == "never":
+        statement = "PASSWORD EXPIRE NEVER"
+    elif password_expire.lower() == "default":
+        statement = "PASSWORD EXPIRE DEFAULT"
+    elif password_expire.lower() == "interval":
+        statement = "PASSWORD EXPIRE INTERVAL %d DAY" % (password_expire_interval)
+    elif password_expire.lower() == "now":
+        statement = "PASSWORD EXPIRE"
+
+    cursor.execute("ALTER USER %s@%s " + statement, (user, host))
+
+
+def get_password_expiration_policy(cursor, user, host, maria_role=False):
+    """Function to get password policy for user.
+
+    Args:
+        cursor (cursor): DB driver cursor object.
+        user (str): User name.
+        host (str): User hostname.
+        maria_role (bool, optional): mariadb or mysql. Defaults to False.
+
+    Returns:
+        policy (int): Current users password policy.
+    """
+    if not maria_role:
+        statement = "SELECT IFNULL(password_lifetime, -1) FROM mysql.user \
+            WHERE User = %s AND Host = %s", (user, host)
+    else:
+        statement = "SELECT JSON_EXTRACT(Priv, '$.password_lifetime') AS password_lifetime \
+            FROM mysql.global_priv \
+            WHERE User = %s AND Host = %s", (user, host)
+    cursor.execute(*statement)
+    policy = cursor.fetchone()[0]
+    return int(policy)
+
+
+def is_password_expired(cursor, user, host):
+    """Function to check if password is expired
+
+    Args:
+        cursor (cursor): DB driver cursor object.
+        user (str): User name.
+        host (str): User hostname.
+
+    Returns:
+        expired (bool): True if expired, else False.
+    """
+    statement = "SELECT password_expired FROM mysql.user \
+            WHERE User = %s AND Host = %s", (user, host)
+    cursor.execute(*statement)
+    expired = cursor.fetchone()[0]
+    if str(expired) == "Y":
+        return True
+    return False
 
 
 def get_attribute_support(cursor):

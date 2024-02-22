@@ -932,7 +932,8 @@ class Role():
             result = user_mod(self.cursor, self.name, self.host,
                               None, None, None, None, None, None,
                               privs, append_privs, subtract_privs, None, None,
-                              self.module, role=True, maria_role=self.is_mariadb)
+                              self.module, None, None, role=True,
+                              maria_role=self.is_mariadb)
             changed = result['changed']
 
         if admin:

@@ -6,6 +6,32 @@ Community MySQL Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.9.0
+======
+
+Release Summary
+---------------
+
+This is a minor release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules and plugins in this
+collection that have been made after the previous release.
+
+Major Changes
+-------------
+
+- Collection version 2.*.* is EOL, no more bugfixes will be backported. Please consider upgrading to the latest version.
+
+Minor Changes
+-------------
+
+- mysql_user - add the ``password_expire`` and ``password_expire_interval`` arguments to implement the password expiration management for mysql user (https://github.com/ansible-collections/community.mysql/pull/598).
+- mysql_user - add user attribute support via the ``attributes`` parameter and return value (https://github.com/ansible-collections/community.mysql/pull/604).
+
+Bugfixes
+--------
+
+- mysql_info - the ``slave_status`` filter was returning an empty list on MariaDB with multiple replication channels. It now returns all channels by running ``SHOW ALL SLAVES STATUS`` for MariaDB servers (https://github.com/ansible-collections/community.mysql/issues/603).
+
 v3.8.0
 ======
 

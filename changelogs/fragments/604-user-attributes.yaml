@@ -1,2 +1,0 @@
-minor_changes:
-  - "mysql_user - add user attribute support via the ``attributes`` parameter and return value (https://github.com/ansible-collections/community.mysql/pull/604)."

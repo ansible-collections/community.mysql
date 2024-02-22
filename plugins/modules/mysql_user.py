@@ -444,8 +444,8 @@ def main():
         force_context=dict(type='bool', default=False),
         session_vars=dict(type='dict'),
         column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
-        password_expire=dict(type='str', choices=['now', 'never', 'default', 'interval']),
-        password_expire_interval=dict(type='int', required_if=[('password_expire', 'interval', True)]),
+        password_expire=dict(type='str', choices=['now', 'never', 'default', 'interval'], no_log=True),
+        password_expire_interval=dict(type='int', required_if=[('password_expire', 'interval', True)], no_log=True),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,

@@ -1068,6 +1068,7 @@ def is_password_expired(cursor, user, host):
         return True
     return False
 
+
 def get_attribute_support(cursor):
     """Checks if the MySQL server supports user attributes.
 

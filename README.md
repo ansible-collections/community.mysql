@@ -42,21 +42,24 @@ They also should be subscribed to Ansible's [The Bullhorn newsletter](https://do
 
 > The `GitHub Discussions` feature is disabled in this repository. Use the `mysql` tag on the forum in the [Project Discussions](https://forum.ansible.com/new-topic?title=topic%20title&body=topic%20body&category=project&tags=mysql) or [Get Help](https://forum.ansible.com/new-topic?title=topic%20title&body=topic%20body&category=help&tags=mysql) category instead.
 
-We announce releases and important changes through Ansible's [The Bullhorn newsletter](https://eepurl.com/gZmiEP). Be sure you are subscribed.
+### Asynchronous channels
 
-Join [our team](https://forum.ansible.com/g/MySQLTeam) on:
-* The Ansible forums:
-    * [News & Announcements](https://forum.ansible.com/c/news/5/none)
-    * [Get Help](https://forum.ansible.com/c/help/6/none)
-    * [Social Spaces](https://forum.ansible.com/c/chat/4)
-    * [Posts tagged 'mysql'](https://forum.ansible.com/tag/mysql)
+* Join the Ansible forum:
+    * [MySQL Team](https://forum.ansible.com/g/MySQLTeam): by joining the team you will automatically get subscribed to the posts tagged with [mysql](https://forum.ansible.com/tag/mysql).
+    * [Get Help](https://forum.ansible.com/c/help/6/none): get help or help others.
+    * [Posts tagged with 'mysql'](https://forum.ansible.com/tag/mysql): leverage tags to narrow the scope.
+    * [Social Spaces](https://forum.ansible.com/c/chat/4): gather and interact with fellow enthusiasts.
+    * [News & Announcements](https://forum.ansible.com/c/news/5/none): track project-wide announcements.
+
+* The Ansible's [Bullhorn newsletter](https://forum.ansible.com/t/about-the-newsletter-category/166): we use it to announce releases and important changes.
+
+### Real-time channels
+
 * Matrix:
     * `#mysql:ansible.com` [room](https://matrix.to/#/#mysql:ansible.com): questions on how to contribute and use this collection.
     * `#users:ansible.com` [room](https://matrix.to/#/#users:ansible.com): general use questions and support.
     * `#ansible-community:ansible.com` [room](https://matrix.to/#/#community:ansible.com): community and collection development questions.
     * other Matrix rooms; see the [Ansible Communication Guide](https://docs.ansible.com/ansible/devel/community/communication.html) for details.
-
-We take part in the global quarterly [Ansible Contributor Summit](https://github.com/ansible/community/wiki/Contributor-Summit) virtually or in-person. Track [The Bullhorn newsletter](https://eepurl.com/gZmiEP) and join us.
 
 For more information about communication, refer to the [Ansible Communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
 

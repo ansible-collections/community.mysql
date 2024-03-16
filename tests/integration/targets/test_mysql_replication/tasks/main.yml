@@ -15,6 +15,9 @@
 # Tests of primary_delay parameter:
 - import_tasks: mysql_replication_primary_delay.yml
 
+# Tests of CHANGE MASTER TO options
+- include: mysql_replication_changeprimary_options.yml
+
 # Tests of channel parameter:
 - import_tasks: mysql_replication_channel.yml
   when:

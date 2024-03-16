@@ -1,0 +1,101 @@
+# Copyright: (c) 2023, Jorge Rodriguez (@Jorge-Rodriguez) <jorge.aka.tiriel@gmail.com>
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
+- vars:
+    mysql_params: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: 127.0.0.1
+
+  block:
+    # Auxiliary step:
+    - name: Stop Replica
+      mysql_replication:
+        <<: *mysql_params
+        login_port: '{{ mysql_replica1_port }}'
+        mode: stopreplica
+
+    - name: Test CHANGE MASTER TO options
+      mysql_replication:
+        <<: *mysql_params
+        login_port: '{{ mysql_replica1_port }}'
+        mode: changeprimary
+        primary_bind: 127.0.0.1
+        primary_retry_count: 12
+        primary_ssl_crl: bogus_crl
+        primary_ssl_crlpath: bogus_crl_path
+        primary_tls_version: TLSv1.3
+        primary_public_key_path: bogus_pub_key_path
+        get_primary_public_key: yes
+        ignore_server_ids: '123456789'
+        network_namespace: 'test_net_namespace'
+        primary_heartbeat_period: 15
+        primary_compression_algorithms: 'zstd'
+        primary_zstd_compression_level: 15
+      register: result
+
+    - assert:
+        that:
+        - result is changed
+        - result.queries == ["CHANGE MASTER TO MASTER_BIND='127.0.0.1',MASTER_HEARTBEAT_PERIOD=15,MASTER_RETRY_COUNT=12,MASTER_SSL_CRL='bogus_crl',MASTER_SSL_CRLPATH='bogus_crl_path',MASTER_TLS_VERSION='TLSv1.3',MASTER_COMPRESSION_ALGORITHMS='zstd',MASTER_ZSTD_COMPRESSION_LEVEL=15,MASTER_PUBLIC_KEY_PATH='bogus_pub_key_path',GET_MASTER_PUBLIC_KEY=1,IGNORE_SERVER_IDS=(123456789),NETWORK_NAMESPACE='test_net_namespace'"]
+
+    # Auxiliary step:
+    - name: Start replica
+      mysql_replication:
+        <<: *mysql_params
+        login_port: '{{ mysql_replica1_port }}'
+        mode: startreplica
+
+    # Check primary_bind:
+    - name: Get standby status
+      mysql_replication:
+        <<: *mysql_params
+        login_port: '{{ mysql_replica1_port }}'
+        mode: getreplica
+      register: replica_status
+
+    - assert:
+        that:
+        - replica_status.Source_Bind == '127.0.0.1'
+        - replica_status.Source_Retry_Count == 12
+        - replica_status.Source_SSL_Crl == 'bogus_crl'
+        - replica_status.Source_SSL_Crlpath == 'bogus_crl_path'
+        - replica_status.Source_TLS_Version == 'TLSv1.3'
+        - replica_status.Source_public_key_path == 'bogus_pub_key_path'
+        - replica_status.Get_Source_public_key == 1
+        - replica_status.Replicate_Ignore_Server_Ids == '123456789'
+        - replica_status.Network_Namespace == 'test_net_namespace'
+        - replica_status is not changed
+
+    - name: Test Results
+      mysql_query:
+        <<: *mysql_params
+        login_port: '{{ mysql_replica1_port }}'
+        query: SELECT HEARTBEAT_INTERVAL, COMPRESSION_ALGORITHM, ZSTD_COMPRESSION_LEVEL FROM performance_schema.replication_connection_configuration
+      register: result
+
+    - assert:
+        that:
+        - result.query_result[0][0]['COMPRESSION_ALGORITHM'] == 'zstd'
+        - result.query_result[0][0]['HEARTBEAT_INTERVAL'] == 15.0
+        - result.query_result[0][0]['ZSTD_COMPRESSION_LEVEL'] == 15
+
+# Missing TESTS
+# - privilege_checks_user
+# - require_row_format
+# - require_table_primary_key_check
+# - assign_gtids_To anonymous_transactions
+# - GTID_ONLY availabe on MySQL 8.0.27
+# - ztsd_compression_level out of bounds
+# - source_connection_auto_failover -> only possible when GTID_MODE = on
+# - primary_tls_ciphersuites -> requires SSL enabled
+
+    # - name: Test Results
+    #   mysql_query:
+    #     <<: *mysql_params
+    #     login_port: '{{ mysql_replica1_port }}'
+    #     query: SHOW VARIABLES LIKE '%tls_ciphersuites%'
+    #   register: result
+
+    # - debug:
+    #     var: result

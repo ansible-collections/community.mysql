@@ -12,3 +12,7 @@ from ansible_collections.community.mysql.plugins.module_utils.version import Loo
 def uses_replica_terminology(cursor):
     """Checks if REPLICA must be used instead of SLAVE"""
     return LooseVersion(get_server_version(cursor)) >= LooseVersion('8.0.22')
+
+def supports_gtid_only(cursor):
+    """The GTID_ONLY option is supported since MySQL 8.0.27"""
+    return LooseVersion(get_server_version(cursor)) >= LooseVersion('8.0.27')

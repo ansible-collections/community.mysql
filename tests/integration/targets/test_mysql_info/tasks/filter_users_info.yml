@@ -330,6 +330,14 @@
         - users_info_usage_only
         - users_info_columns_uppercase
         - users_info_multi_hosts
+        - users_info_tls_none
+        - users_info_tls_ssl
+        - users_info_tls_cipher
+        - users_info_tls_x509
+        - users_info_tls_subject
+        - users_info_tls_issuer
+        - users_info_tls_subject_issuer
+        - users_info_tls_sub_issu_ciph
 
     - name: Mysql_info users_info | Cleanup databases
       community.mysql.mysql_db:

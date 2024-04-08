@@ -300,6 +300,7 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     privileges_get,
     get_resource_limits,
     get_existing_authentication,
+    get_tls_requires,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -602,13 +603,16 @@ class MySQL_Info(object):
                 priv_string.remove('*.*:USAGE')
 
             resource_limits = get_resource_limits(self.cursor, user, host)
-
             copy_ressource_limits = dict.copy(resource_limits)
+
+            tls_requires = get_tls_requires(self.cursor, user, host)
+
             output_dict = {
                 'name': user,
                 'host': host,
                 'priv': '/'.join(priv_string),
                 'resource_limits': copy_ressource_limits,
+                'tls_requires': tls_requires,
             }
 
             # Prevent returning a resource limit if empty
@@ -618,6 +622,10 @@ class MySQL_Info(object):
                         del output_dict['resource_limits'][key]
                 if len(output_dict['resource_limits']) == 0:
                     del output_dict['resource_limits']
+
+            # Prevent returning tls_require if empty
+            if not tls_requires:
+                del output_dict['tls_requires']
 
             authentications = get_existing_authentication(self.cursor, user, host)
             if authentications:

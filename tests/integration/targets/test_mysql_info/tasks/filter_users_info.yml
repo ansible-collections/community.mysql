@@ -148,47 +148,47 @@
           - GRANT SELECT ON users_info_db.* TO users_info_multi_hosts@'host2'
 
           - >-
-            CREATE USER users_info_ssl_off@'host'
+            CREATE USER users_info_tls_none@'host'
             IDENTIFIED WITH mysql_native_password AS
             '*CB3326D5279DE7915FE5D743232165EE887883CA' REQUIRE NONE
-          - GRANT SELECT ON users_info_db.* TO users_info_ssl_off@'host'
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_none@'host'
 
           - >-
-            CREATE USER users_info_ssl@'host'
+            CREATE USER users_info_tls_ssl@'host'
             IDENTIFIED WITH mysql_native_password AS
             '*CB3326D5279DE7915FE5D743232165EE887883CA' REQUIRE SSL
-          - GRANT SELECT ON users_info_db.* TO users_info_ssl@'host'
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_ssl@'host'
 
           - >-
-            CREATE USER users_info_ssl_cipher@'host'
+            CREATE USER users_info_tls_cipher@'host'
             IDENTIFIED WITH mysql_native_password AS
             '*CB3326D5279DE7915FE5D743232165EE887883CA'
             REQUIRE CIPHER 'ECDH-RSA-AES256-SHA384'
-          - GRANT SELECT ON users_info_db.* TO users_info_ssl_cipher@'host'
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_cipher@'host'
 
           - >-
-            CREATE USER users_info_x509@'host'
+            CREATE USER users_info_tls_x509@'host'
             IDENTIFIED WITH mysql_native_password AS
             '*CB3326D5279DE7915FE5D743232165EE887883CA' REQUIRE X509
-          - GRANT SELECT ON users_info_db.* TO users_info_x509@'host'
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_x509@'host'
 
           - >-
-            CREATE USER users_info_ssl_subject@'host'
+            CREATE USER users_info_tls_subject@'host'
             IDENTIFIED WITH mysql_native_password AS
             '*CB3326D5279DE7915FE5D743232165EE887883CA'
             REQUIRE SUBJECT '/CN=Bob/O=MyDom/C=US/ST=Oregon/L=Portland'
-          - GRANT SELECT ON users_info_db.* TO users_info_ssl_subject@'host'
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_subject@'host'
 
           - >-
-            CREATE USER users_info_ssl_issuer@'host'
+            CREATE USER users_info_tls_issuer@'host'
             IDENTIFIED WITH mysql_native_password AS
             '*CB3326D5279DE7915FE5D743232165EE887883CA'
             REQUIRE ISSUER '/C=FI/ST=Somewhere/L=City/
             O=CompanyX/CN=Bob/emailAddress=bob@companyx.com'
-          - GRANT SELECT ON users_info_db.* TO users_info_ssl_issuer@'host'
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_issuer@'host'
 
           - >-
-            CREATE USER users_info_subject_ssl_issuer@'host'
+            CREATE USER users_info_tls_subject_issuer@'host'
             IDENTIFIED WITH mysql_native_password AS
             '*CB3326D5279DE7915FE5D743232165EE887883CA'
             REQUIRE SUBJECT '/CN=Bob/O=MyDom/C=US/ST=Oregon/L=Portland'
@@ -196,10 +196,10 @@
             O=CompanyX/CN=Bob/emailAddress=bob@companyx.com'
           - >-
             GRANT SELECT ON users_info_db.*
-            TO users_info_subject_ssl_issuer@'host'
+            TO users_info_tls_subject_issuer@'host'
 
           - >-
-            CREATE USER users_info_ssl_sub_issu_ciph@'host'
+            CREATE USER users_info_tls_sub_issu_ciph@'host'
             IDENTIFIED WITH mysql_native_password AS
             '*CB3326D5279DE7915FE5D743232165EE887883CA'
             REQUIRE SUBJECT '/CN=Bob/O=MyDom/C=US/ST=Oregon/L=Portland'
@@ -208,7 +208,7 @@
             AND CIPHER 'ECDH-RSA-AES256-SHA384'
           - >-
             GRANT SELECT ON users_info_db.*
-            TO users_info_ssl_sub_issu_ciph@'host'
+            TO users_info_tls_sub_issu_ciph@'host'
 
     - name: Mysql_info users_info | Prepare tests users for MariaDB
       community.mysql.mysql_user:

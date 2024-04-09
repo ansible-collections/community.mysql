@@ -29,10 +29,14 @@ jobs:
           - stable-2.15
           - devel
         python:
-          - 3.8
-          - 3.9
+          - '3.8'
+          - '3.9'
+          - '3.10'
         exclude:
           - python: 3.8
+            ansible: devel
+
+          - python: 3.9
             ansible: devel
 
     steps:

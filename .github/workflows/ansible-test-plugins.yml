@@ -283,8 +283,6 @@ jobs:
           -${{ matrix.connector_name }}${{ env.connector_version_flat }}\
           :latest")
 
-      - name: Store docker_image name in GITHUB_ENV
-        run: >-
           echo "docker_image=$(printf '%s' $docker_image_multiline)"
           >> $GITHUB_ENV
 

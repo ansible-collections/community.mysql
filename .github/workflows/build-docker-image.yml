@@ -1,7 +1,7 @@
 ---
 name: Build Docker Image for ansible-test
 
-on:
+on:  # yamllint disable-line rule:truthy
   workflow_call:
     inputs:
       registry:

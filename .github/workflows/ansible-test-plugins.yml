@@ -1,6 +1,6 @@
 ---
 name: Plugins CI
-on:
+on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - 'plugins/**'

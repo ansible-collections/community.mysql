@@ -1,6 +1,6 @@
 ---
 name: Roles CI
-on:
+on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - 'roles/**'

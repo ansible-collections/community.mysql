@@ -123,9 +123,6 @@ jobs:
           - db_engine_version: 8.0.31
             python: '3.8'
 
-          - db_engine_version: 8.0.31
-            python: '3.8'
-
           - db_engine_version: 10.4.27
             python: '3.10'
 

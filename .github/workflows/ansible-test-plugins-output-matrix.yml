@@ -1,16 +1,12 @@
 ---
-name: Plugins CI
+name: Plugins CI Matrix output
 on:  # yamllint disable-line rule:truthy
   push:
     paths:
-      - 'plugins/**'
-      - 'tests/**'
-      - '.github/workflows/ansible-test-plugins.yml'
+      - '.github/workflows/ansible-test-plugins-output-matrix.yml'
   pull_request:
     paths:
-      - 'plugins/**'
-      - 'tests/**'
-      - '.github/workflows/ansible-test-plugins.yml'
+      - '.github/workflows/ansible-test-plugins-output-matrix.yml'
 
 
 jobs:

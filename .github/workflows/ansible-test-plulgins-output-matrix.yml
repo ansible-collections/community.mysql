@@ -1,0 +1,176 @@
+---
+name: Plugins CI
+on:  # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - 'plugins/**'
+      - 'tests/**'
+      - '.github/workflows/ansible-test-plugins.yml'
+  pull_request:
+    paths:
+      - 'plugins/**'
+      - 'tests/**'
+      - '.github/workflows/ansible-test-plugins.yml'
+
+
+jobs:
+
+  generate-matrix:
+    name: "Generate the tests matrix"
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        ansible:
+          - stable-2.15
+          - stable-2.16
+          - stable-2.17
+          - devel
+        db_engine_name:
+          - mysql
+          - mariadb
+        db_engine_version:
+          - 5.7.40
+          - 8.0.31
+          - 10.4.27
+          - 10.5.18
+          - 10.6.11
+        python:
+          - '3.8'
+          - '3.9'
+          - '3.10'
+        connector_name:
+          - pymysql
+          - mysqlclient
+        connector_version:
+          - '0.7.11'
+          - '0.9.3'
+          - '1.0.2'
+          - '2.0.1'
+          - '2.0.3'
+          - '2.1.1'
+        exclude:
+          - db_engine_name: mysql
+            db_engine_version: 10.4.27
+
+          - db_engine_name: mysql
+            db_engine_version: 10.5.18
+
+          - db_engine_name: mysql
+            db_engine_version: 10.6.11
+
+          - db_engine_name: mariadb
+            db_engine_version: 5.7.40
+
+          - db_engine_name: mariadb
+            db_engine_version: 8.0.31
+
+          - connector_name: pymysql
+            connector_version: 2.0.1
+
+          - connector_name: pymysql
+            connector_version: 2.0.3
+
+          - connector_name: pymysql
+            connector_version: 2.1.1
+
+          - connector_name: mysqlclient
+            connector_version: 0.7.11
+
+          - connector_name: mysqlclient
+            connector_version: 0.9.3
+
+          - connector_name: mysqlclient
+            connector_version: 1.0.2
+
+          - db_engine_name: mariadb
+            connector_version: 0.7.11
+
+          - db_engine_version: 5.7.40
+            python: '3.9'
+
+          - db_engine_version: 5.7.40
+            python: '3.10'
+
+          - db_engine_version: 5.7.40
+            ansible: stable-2.15
+
+          - db_engine_version: 5.7.40
+            ansible: stable-2.16
+
+          - db_engine_version: 5.7.40
+            ansible: devel
+
+          - db_engine_version: 8.0.31
+            python: '3.8'
+
+          - db_engine_version: 10.4.27
+            python: '3.10'
+
+          - db_engine_version: 10.4.27
+            ansible: devel
+
+          - db_engine_version: 10.6.11
+            python: '3.8'
+
+          - db_engine_version: 10.6.11
+            python: '3.9'
+
+          - python: '3.8'
+            connector_version: 1.0.2
+
+          - python: '3.8'
+            connector_version: 2.0.3
+
+          - python: '3.8'
+            connector_version: 2.1.1
+
+          - python: '3.9'
+            connector_version: 0.7.11
+
+          - python: '3.9'
+            connector_version: 1.0.2
+
+          - python: '3.9'
+            connector_version: 2.0.1
+
+          - python: '3.9'
+            connector_version: 2.1.1
+
+          - python: '3.10'
+            connector_version: 0.7.11
+
+          - python: '3.10'
+            connector_version: 0.9.3
+
+          - python: '3.10'
+            connector_version: 2.0.1
+
+          - python: '3.10'
+            connector_version: 2.0.3
+
+          - python: '3.8'
+            ansible: stable-2.16
+
+          - python: '3.8'
+            ansible: stable-2.17
+
+          - python: '3.8'
+            ansible: devel
+
+          - python: '3.9'
+            ansible: stable-2.16
+
+          - python: '3.9'
+            ansible: stable-2.17
+
+          - python: '3.9'
+            ansible: devel
+
+    steps:
+
+      - name: Generate Matrix
+        id: generate-matrix
+        run: |
+          # Generate the matrix here
+          echo "::set-output name=matrix::${MATRIX}"

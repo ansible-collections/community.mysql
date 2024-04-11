@@ -301,6 +301,7 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     get_resource_limits,
     get_existing_authentication,
     get_tls_requires,
+    sanitize_requires,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -612,7 +613,7 @@ class MySQL_Info(object):
                 'host': host,
                 'priv': '/'.join(priv_string),
                 'resource_limits': copy_ressource_limits,
-                'tls_requires': tls_requires,
+                'tls_requires': sanitize_requires(tls_requires),
             }
 
             # Prevent returning a resource limit if empty

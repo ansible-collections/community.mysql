@@ -102,14 +102,15 @@ def get_tls_requires(cursor, user, host):
     if isinstance(res, dict):
         res = list(res.values())
 
-    if not res:
+    # When user don't require SSL, res value is: ('', '', '', '')
+    if not any(res):
         return None
 
     if res[0] == 'ANY':
-        return {'SSL': ''}
+        return 'SSL'
 
     if res[0] == 'X509':
-        return {'X509': ''}
+        return 'X509'
 
     if res[1]:
         tls_requires['CIPHER'] = res[1]

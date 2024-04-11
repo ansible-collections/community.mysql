@@ -300,8 +300,7 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     privileges_get,
     get_resource_limits,
     get_existing_authentication,
-    get_tls_requires,
-    sanitize_requires,
+    get_user_implementation,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -329,10 +328,11 @@ class MySQL_Info(object):
         5. add info about the new subset with an example to RETURN block
     """
 
-    def __init__(self, module, cursor, server_implementation):
+    def __init__(self, module, cursor, server_implementation, user_implementation):
         self.module = module
         self.cursor = cursor
         self.server_implementation = server_implementation
+        self.user_implementation = user_implementation
         self.info = {
             'version': {},
             'databases': {},
@@ -606,14 +606,15 @@ class MySQL_Info(object):
             resource_limits = get_resource_limits(self.cursor, user, host)
             copy_ressource_limits = dict.copy(resource_limits)
 
-            tls_requires = get_tls_requires(self.cursor, user, host)
+            tls_requires = self.user_implementation.get_tls_requires(
+                self.cursor, user, host)
 
             output_dict = {
                 'name': user,
                 'host': host,
                 'priv': '/'.join(priv_string),
                 'resource_limits': copy_ressource_limits,
-                'tls_requires': sanitize_requires(tls_requires),
+                'tls_requires': tls_requires,
             }
 
             # Prevent returning a resource limit if empty
@@ -754,11 +755,12 @@ def main():
         module.fail_json(msg)
 
     server_implementation = get_server_implementation(cursor)
+    user_implementation = get_user_implementation(cursor)
 
     ###############################
     # Create object and do main job
 
-    mysql = MySQL_Info(module, cursor, server_implementation)
+    mysql = MySQL_Info(module, cursor, server_implementation, user_implementation)
 
     module.exit_json(changed=False,
                      connector_name=connector_name,

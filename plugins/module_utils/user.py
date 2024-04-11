@@ -17,6 +17,7 @@ from ansible.module_utils.six import iteritems
 
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_driver,
+    get_server_implementation,
 )
 
 
@@ -80,49 +81,6 @@ def do_not_mogrify_requires(query, params, tls_requires):
     return query, params
 
 
-def get_tls_requires(cursor, user, host):
-    """Get user TLS requirements.
-
-    Args:
-        cursor (cursor): DB driver cursor object.
-        user (str): User name.
-        host (str): User host name.
-
-    Returns: Dictionary containing current TLS required
-    """
-    tls_requires = dict()
-
-    query = ('SELECT ssl_type, ssl_cipher, x509_issuer, x509_subject '
-             'FROM mysql.user WHERE User = %s AND Host = %s')
-    cursor.execute(query, (user, host))
-    res = cursor.fetchone()
-
-    # Mysql_info use a DictCursor so we must convert back to a list
-    # otherwise we get KeyError 0
-    if isinstance(res, dict):
-        res = list(res.values())
-
-    # When user don't require SSL, res value is: ('', '', '', '')
-    if not any(res):
-        return None
-
-    if res[0] == 'ANY':
-        return 'SSL'
-
-    if res[0] == 'X509':
-        return 'X509'
-
-    if res[1]:
-        tls_requires['CIPHER'] = res[1]
-
-    if res[2]:
-        tls_requires['ISSUER'] = res[2]
-
-    if res[3]:
-        tls_requires['SUBJECT'] = res[3]
-    return tls_requires
-
-
 def get_grants(cursor, user, host):
     cursor.execute("SHOW GRANTS FOR %s@%s", (user, host))
     grants_line = list(filter(lambda x: "ON *.*" in x[0], cursor.fetchall()))[0]
@@ -184,6 +142,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         return {'changed': True, 'password_changed': None, 'attributes': attributes}
 
     # Determine what user management method server uses
+    impl = get_user_implementation(cursor)
     old_user_mgmt = impl.use_old_user_mgmt(cursor)
 
     mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
@@ -262,6 +221,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
     grant_option = False
 
     # Determine what user management method server uses
+    impl = get_user_implementation(cursor)
     old_user_mgmt = impl.use_old_user_mgmt(cursor)
 
     if host_all and not role:
@@ -517,7 +477,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             continue
 
         # Handle TLS requirements
-        current_requires = get_tls_requires(cursor, user, host)
+        current_requires = sanitize_requires(impl.get_tls_requires(cursor, user, host))
         if current_requires != tls_requires:
             msg = "TLS requires updated"
             if not module.check_mode:
@@ -855,6 +815,7 @@ def privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_rol
         query.append("TO %s")
         params = (user)
 
+    impl = get_user_implementation(cursor)
     if tls_requires and impl.use_old_user_mgmt(cursor):
         query, params = mogrify_requires(" ".join(query), params, tls_requires)
         query = [query]
@@ -991,6 +952,7 @@ def limit_resources(module, cursor, user, host, resource_limits, check_mode):
 
     Returns: True, if changed, False otherwise.
     """
+    impl = get_user_implementation(cursor)
     if not impl.server_supports_alter_user(cursor):
         module.fail_json(msg="The server version does not match the requirements "
                              "for resource_limits parameter. See module's documentation.")
@@ -1126,12 +1088,11 @@ def attributes_get(cursor, user, host):
     return j if j else None
 
 
-def get_impl(cursor):
-    global impl
-    cursor.execute("SELECT VERSION()")
-    if 'mariadb' in cursor.fetchone()[0].lower():
+def get_user_implementation(cursor):
+    db_engine = get_server_implementation(cursor)
+    if db_engine == 'mariadb':
         from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import user as mariauser
-        impl = mariauser
+        return mariauser
     else:
         from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql import user as mysqluser
-        impl = mysqluser
+        return mysqluser

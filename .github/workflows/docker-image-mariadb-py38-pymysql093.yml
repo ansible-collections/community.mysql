@@ -1,7 +1,7 @@
 ---
 name: Docker Image CI mariadb-py38-pymysql093
 
-on:
+on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - 'test-containers/mariadb-py38-pymysql093/**'

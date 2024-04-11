@@ -49,11 +49,9 @@ The Makefile accept the following options
 - `ansible`
   - Mandatory: true
   - Choices:
-    - "stable-2.12"
-    - "stable-2.13"
-    - "stable-2.14"
     - "stable-2.15"
     - "stable-2.16"
+    - "stable-2.17"
     - "devel"
   - Description: Version of ansible to install in a venv to run ansible-test
 

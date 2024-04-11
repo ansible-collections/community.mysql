@@ -1,6 +1,6 @@
 ---
 name: Plugins CI
-on:
+on:  # yamllint disable-line rule:truthy
   push:
     paths:
       - 'plugins/**'
@@ -18,15 +18,16 @@ on:
 jobs:
   sanity:
     name: "Sanity (Ansible: ${{ matrix.ansible }})"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         ansible:
-          - stable-2.14
           - stable-2.15
           - stable-2.16
+          - stable-2.17
           - devel
     steps:
+      # https://github.com/ansible-community/ansible-test-gh-action
       - name: Perform sanity testing
         uses: ansible-community/ansible-test-gh-action@release/v1
         with:
@@ -36,14 +37,14 @@ jobs:
 
   integration:
     name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, DB: ${{ matrix.db_engine_name }} ${{ matrix.db_engine_version }}, connector: ${{ matrix.connector_name }} ${{ matrix.connector_version }})"
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         ansible:
-          - stable-2.14
           - stable-2.15
           - stable-2.16
+          - stable-2.17
           - devel
         db_engine_name:
           - mysql
@@ -112,9 +113,6 @@ jobs:
             python: '3.10'
 
           - db_engine_version: 5.7.40
-            ansible: stable-2.14
-
-          - db_engine_version: 5.7.40
             ansible: stable-2.15
 
           - db_engine_version: 5.7.40
@@ -122,9 +120,6 @@ jobs:
 
           - db_engine_version: 5.7.40
             ansible: devel
-
-          - db_engine_version: 8.0.31
-            python: '3.8'
 
           - db_engine_version: 8.0.31
             python: '3.8'
@@ -175,22 +170,19 @@ jobs:
             connector_version: 2.0.3
 
           - python: '3.8'
-            ansible: stable-2.14
-
-          - python: '3.8'
-            ansible: stable-2.15
-
-          - python: '3.8'
             ansible: stable-2.16
+
+          - python: '3.8'
+            ansible: stable-2.17
 
           - python: '3.8'
             ansible: devel
 
           - python: '3.9'
-            ansible: stable-2.15
+            ansible: stable-2.16
 
           - python: '3.9'
-            ansible: stable-2.16
+            ansible: stable-2.17
 
           - python: '3.9'
             ansible: devel
@@ -284,16 +276,12 @@ jobs:
           fi
 
       - name: Set docker_image
-        run: >
-          docker_image_multiline=("
-          ghcr.io/ansible-collections/community.mysql\
+        run: |-
+          echo "docker_image=ghcr.io/ansible-collections/community.mysql\
           /test-container-${{ env.db_client }}\
           -py${{ env.python_version_flat }}\
           -${{ matrix.connector_name }}${{ env.connector_version_flat }}\
-          :latest")
-
-          echo "docker_image=$(printf '%s' $docker_image_multiline)"
-          >> $GITHUB_ENV
+          :latest" >> $GITHUB_ENV
 
       - name: >-
           Perform integration testing against
@@ -332,7 +320,7 @@ jobs:
           testing-type: integration
 
   units:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     name: Units (Ⓐ${{ matrix.ansible }})
     strategy:
       # As soon as the first unit test fails,
@@ -340,20 +328,20 @@ jobs:
       fail-fast: true
       matrix:
         ansible:
-          - stable-2.14
           - stable-2.15
           - stable-2.16
+          - stable-2.17
           - devel
         python:
           - 3.8
           - 3.9
         exclude:
           - python: '3.8'
-            ansible: stable-2.14
-          - python: '3.8'
             ansible: stable-2.15
           - python: '3.8'
             ansible: stable-2.16
+          - python: '3.8'
+            ansible: stable-2.17
           - python: '3.8'
             ansible: devel
 

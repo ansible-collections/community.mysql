@@ -45,30 +45,33 @@ def get_tls_requires(cursor, user, host):
 
     Returns: Dictionary containing current TLS required
     """
-    if user:
-        if not use_old_user_mgmt(cursor):
-            query = "SHOW CREATE USER '%s'@'%s'" % (user, host)
-        else:
-            query = "SHOW GRANTS for '%s'@'%s'" % (user, host)
+    if not use_old_user_mgmt(cursor):
+        query = "SHOW CREATE USER '%s'@'%s'" % (user, host)
+    else:
+        query = "SHOW GRANTS for '%s'@'%s'" % (user, host)
 
-        cursor.execute(query)
-        grants = cursor.fetchone()
+    cursor.execute(query)
+    grants = cursor.fetchone()
 
-        # Mysql_info use a DictCursor so we must convert back to a list
-        # otherwise we get KeyError 0
-        if isinstance(grants, dict):
-            grants = list(grants.values())
-        grants_str = ''.join(grants)
+    # Mysql_info use a DictCursor so we must convert back to a list
+    # otherwise we get KeyError 0
+    if isinstance(grants, dict):
+        grants = list(grants.values())
+    grants_str = ''.join(grants)
 
-        pattern = r"(?<=\bREQUIRE\b)(.*?)(?=(?:\bPASSWORD\b|$))"
-        requires_match = re.search(pattern, grants_str)
-        requires = requires_match.group().strip() if requires_match else ""
+    pattern = r"(?<=\bREQUIRE\b)(.*?)(?=(?:\bPASSWORD\b|$))"
+    requires_match = re.search(pattern, grants_str)
+    requires = requires_match.group().strip() if requires_match else ""
 
-        if any((requires.startswith(req) for req in ('SSL', 'X509', 'NONE'))):
-            requires = requires.split()[0]
-            if requires == 'NONE':
-                requires = None
+    if requires.startswith('NONE'):
+        return None
 
-        items = iter(shlex.split(requires))
-        requires = dict(zip(items, items))
-        return requires or None
+    if requires.startswith('SSL'):
+        return {'SSL': None}
+
+    if requires.startswith('X509'):
+        return {'X509': None}
+
+    items = iter(shlex.split(requires))
+    requires = dict(zip(items, items))
+    return requires or None

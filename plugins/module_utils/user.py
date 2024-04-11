@@ -119,10 +119,10 @@ def get_existing_authentication(cursor, user, host):
         rows = list(rows.values())
 
     if isinstance(rows[0], tuple):
-        return {'plugin': rows[0][0], 'plugin_auth_string': rows[0][1]}
+        return {'plugin': rows[0][0], 'plugin_hash_string': rows[0][1]}
 
     if isinstance(rows[0], dict):
-        return {'plugin': rows[0].get('plugin'), 'plugin_auth_string': rows[0].get('auth')}
+        return {'plugin': rows[0].get('plugin'), 'plugin_hash_string': rows[0].get('auth')}
     return None
 
 

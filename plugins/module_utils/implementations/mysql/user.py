@@ -34,6 +34,7 @@ def server_supports_password_expire(cursor):
 
     return LooseVersion(version) >= LooseVersion("5.7")
 
+
 def get_tls_requires(cursor, user, host):
     """Get user TLS requirements.
     We must use SHOW GRANTS because some tls fileds are encoded.

@@ -30,6 +30,7 @@ def server_supports_password_expire(cursor):
 
     return LooseVersion(version) >= LooseVersion("10.4.3")
 
+
 def get_tls_requires(cursor, user, host):
     """Get user TLS requirements.
     Reads directly from mysql.user table allowing for a more

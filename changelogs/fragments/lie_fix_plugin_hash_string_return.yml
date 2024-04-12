@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - mysql_info - Fix ``users_info`` filter output variable for hashed password to use ``plugin_hash_string`` instead of ``plugin_auth_string`` (https://github.com/ansible-collections/community.mysql/pull/629).

@@ -1,0 +1,6 @@
+---
+bugfixes:
+  - mysql_info - Fix ``tls_requires`` data structure to be compatible with ``mysql_user`` input.
+  - mysql_info - Fix module output variable for hashed password to use ``plugin_hash_string`` instead of ``plugin_auth_string``.
+  - mysql_user - Fix idempotence when using variables from the ``users_info`` filter of ``mysql_info``.
+  - mysql_user - Fix ``tls_requires`` not removing ``SSL`` and ``X509`` when passing an empty value.

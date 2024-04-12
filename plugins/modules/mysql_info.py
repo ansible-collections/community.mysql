@@ -240,7 +240,8 @@ users_info:
       "host": "host.com",
       "plugin": "mysql_native_password",
       "priv": "db1.*:SELECT/db2.*:SELECT",
-      "resource_limits": { "MAX_USER_CONNECTIONS": 100 } }
+      "resource_limits": { "MAX_USER_CONNECTIONS": 100 }
+      "tls_requires": {"SSL": null} }
   version_added: '3.8.0'
 engines:
   description: Information about the server's storage engines.

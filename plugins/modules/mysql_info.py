@@ -230,7 +230,7 @@ users_info:
     - Does not support proxy privileges. If an account has proxy privileges, they won't appear in the output.
     - Causes issues with authentications plugins C(sha256_password) and C(caching_sha2_password).
       If the output is fed to M(community.mysql.mysql_user), the
-      ``plugin_hash_string`` will most likely be unreadable due to non-binary
+      ``plugin_auth_string`` will most likely be unreadable due to non-binary
       characters.
   returned: if not excluded by filter
   type: dict

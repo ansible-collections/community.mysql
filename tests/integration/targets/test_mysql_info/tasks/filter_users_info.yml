@@ -148,66 +148,32 @@
           - GRANT SELECT ON users_info_db.* TO users_info_multi_hosts@'host2'
 
     - name: Mysql_info users_info | Prepare tests users for MariaDB
-      community.mysql.mysql_user:
-        name: "{{ item.name }}"
-        host: "users_info.com"
-        plugin: "{{ item.plugin | default(omit) }}"
-        plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
-        plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
-        tls_require: "{{ item.tls_require | default(omit) }}"
-        priv: "{{ item.priv }}"
-        resource_limits: "{{ item.resource_limits | default(omit) }}"
-        column_case_sensitive: true
-        state: present
-      loop:
-        - name: users_info_socket  # Only for MariaDB
-          priv:
-            '*.*': 'ALL'
-          plugin: 'unix_socket'
+      community.mysql.mysql_query:
+        query:
+          - >-
+            CREATE USER users_info_socket@'users_info.com' IDENTIFIED WITH
+            unix_socket
+          - GRANT ALL ON *.* to users_info_socket@'users_info.com'
       when:
         - db_engine == 'mariadb'
 
     - name: Mysql_info users_info | Prepare tests users for MySQL
-      community.mysql.mysql_user:
-        name: "{{ item.name }}"
-        host: "users_info.com"
-        plugin: "{{ item.plugin | default(omit) }}"
-        plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
-        plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
-        tls_require: "{{ item.tls_require | default(omit) }}"
-        priv: "{{ item.priv }}"
-        resource_limits: "{{ item.resource_limits | default(omit) }}"
-        column_case_sensitive: true
-        state: present
-      loop:
-        - name: users_info_sha256  # Only for MySQL
-          priv:
-            '*.*': 'ALL'
-          plugin_auth_string:
-            '$5$/<w*D`L4\"F$WQiI1Pev.7atAh8udYs3wqlzgdfV8LXoy7rqSEC7NF2'
-          plugin: 'sha256_password'
+      community.mysql.mysql_query:
+        query:
+          - >-
+            CREATE USER users_info_sha256@'users_info.com' IDENTIFIED WITH
+            sha256_password BY 'msandbox'
+          - GRANT ALL ON *.* to users_info_sha256@'users_info.com'
       when:
         - db_engine == 'mysql'
 
     - name: Mysql_info users_info | Prepare tests users for MySQL 8+
-      community.mysql.mysql_user:
-        name: "{{ item.name }}"
-        host: "users_info.com"
-        plugin: "{{ item.plugin | default(omit) }}"
-        plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
-        plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
-        tls_require: "{{ item.tls_require | default(omit) }}"
-        priv: "{{ item.priv }}"
-        resource_limits: "{{ item.resource_limits | default(omit) }}"
-        column_case_sensitive: true
-        state: present
-      loop:
-        - name: users_info_caching_sha2  # Only for MySQL 8+
-          priv:
-            '*.*': 'ALL'
-          plugin_auth_string:
-            '$A$005$61j/uF%Qb4-=O2xkeO82u2HNkF.lxDq0liO4U3xqi7bDUCbWM6HayRXWn1'
-          plugin: 'caching_sha2_password'
+      community.mysql.mysql_query:
+        query:
+          - >-
+            CREATE USER users_info_caching_sha2@'users_info.com' IDENTIFIED WITH
+            caching_sha2_password BY 'msandbox'
+          - GRANT ALL ON *.* to users_info_caching_sha2@'users_info.com'
       when:
         - db_engine == 'mysql'
         - db_version is version('8.0', '>=')

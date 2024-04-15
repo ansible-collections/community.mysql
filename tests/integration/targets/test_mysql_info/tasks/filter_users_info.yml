@@ -186,7 +186,7 @@
           - users_info
       register: result
 
-    - name: Recreate users from mysql_info users_info result
+    - name: Mysql_info users_info | Recreate users from mysql_info result
       community.mysql.mysql_user:
         name: "{{ item.name }}"
         host: "{{ item.host }}"

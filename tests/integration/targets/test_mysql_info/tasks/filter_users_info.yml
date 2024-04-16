@@ -47,7 +47,7 @@
         state: import
         target: /root/create_procedure.sql
 
-    # Use a query instead of mysql_user, because we want to caches differences
+    # Use a query instead of mysql_user, because we want to catch differences
     # at the end and a bug in mysql_user would be invisible to this tests
     - name: Mysql_info users_info | Prepare common tests users
       community.mysql.mysql_query:
@@ -147,6 +147,69 @@
             '*CB3326D5279DE7915FE5D743232165EE887883CA'
           - GRANT SELECT ON users_info_db.* TO users_info_multi_hosts@'host2'
 
+          - >-
+            CREATE USER users_info_tls_none@'host'
+            IDENTIFIED WITH mysql_native_password AS
+            '*CB3326D5279DE7915FE5D743232165EE887883CA' REQUIRE NONE
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_none@'host'
+
+          - >-
+            CREATE USER users_info_tls_ssl@'host'
+            IDENTIFIED WITH mysql_native_password AS
+            '*CB3326D5279DE7915FE5D743232165EE887883CA' REQUIRE SSL
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_ssl@'host'
+
+          - >-
+            CREATE USER users_info_tls_cipher@'host'
+            IDENTIFIED WITH mysql_native_password AS
+            '*CB3326D5279DE7915FE5D743232165EE887883CA'
+            REQUIRE CIPHER 'ECDH-RSA-AES256-SHA384'
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_cipher@'host'
+
+          - >-
+            CREATE USER users_info_tls_x509@'host'
+            IDENTIFIED WITH mysql_native_password AS
+            '*CB3326D5279DE7915FE5D743232165EE887883CA' REQUIRE X509
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_x509@'host'
+
+          - >-
+            CREATE USER users_info_tls_subject@'host'
+            IDENTIFIED WITH mysql_native_password AS
+            '*CB3326D5279DE7915FE5D743232165EE887883CA'
+            REQUIRE SUBJECT '/CN=Bob/O=MyDom/C=US/ST=Oregon/L=Portland'
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_subject@'host'
+
+          - >-
+            CREATE USER users_info_tls_issuer@'host'
+            IDENTIFIED WITH mysql_native_password AS
+            '*CB3326D5279DE7915FE5D743232165EE887883CA'
+            REQUIRE ISSUER '/C=FI/ST=Somewhere/L=City/
+            O=CompanyX/CN=Bob/emailAddress=bob@companyx.com'
+          - GRANT SELECT ON users_info_db.* TO users_info_tls_issuer@'host'
+
+          - >-
+            CREATE USER users_info_tls_subject_issuer@'host'
+            IDENTIFIED WITH mysql_native_password AS
+            '*CB3326D5279DE7915FE5D743232165EE887883CA'
+            REQUIRE SUBJECT '/CN=Bob/O=MyDom/C=US/ST=Oregon/L=Portland'
+            AND ISSUER '/C=FI/ST=Somewhere/L=City/
+            O=CompanyX/CN=Bob/emailAddress=bob@companyx.com'
+          - >-
+            GRANT SELECT ON users_info_db.*
+            TO users_info_tls_subject_issuer@'host'
+
+          - >-
+            CREATE USER users_info_tls_sub_issu_ciph@'host'
+            IDENTIFIED WITH mysql_native_password AS
+            '*CB3326D5279DE7915FE5D743232165EE887883CA'
+            REQUIRE SUBJECT '/CN=Bob/O=MyDom/C=US/ST=Oregon/L=Portland'
+            AND ISSUER '/C=FI/ST=Somewhere/L=City/
+            O=CompanyX/CN=Bob/emailAddress=bob@companyx.com'
+            AND CIPHER 'ECDH-RSA-AES256-SHA384'
+          - >-
+            GRANT SELECT ON users_info_db.*
+            TO users_info_tls_sub_issu_ciph@'host'
+
     - name: Mysql_info users_info | Prepare tests users for MariaDB
       community.mysql.mysql_user:
         name: "{{ item.name }}"
@@ -154,7 +217,7 @@
         plugin: "{{ item.plugin | default(omit) }}"
         plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
         plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
-        tls_require: "{{ item.tls_require | default(omit) }}"
+        tls_requires: "{{ item.tls_requires | default(omit) }}"
         priv: "{{ item.priv }}"
         resource_limits: "{{ item.resource_limits | default(omit) }}"
         column_case_sensitive: true
@@ -174,7 +237,7 @@
         plugin: "{{ item.plugin | default(omit) }}"
         plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
         plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
-        tls_require: "{{ item.tls_require | default(omit) }}"
+        tls_requires: "{{ item.tls_requires | default(omit) }}"
         priv: "{{ item.priv }}"
         resource_limits: "{{ item.resource_limits | default(omit) }}"
         column_case_sensitive: true
@@ -196,7 +259,7 @@
         plugin: "{{ item.plugin | default(omit) }}"
         plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
         plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
-        tls_require: "{{ item.tls_require | default(omit) }}"
+        tls_requires: "{{ item.tls_requires | default(omit) }}"
         priv: "{{ item.priv }}"
         resource_limits: "{{ item.resource_limits | default(omit) }}"
         column_case_sensitive: true
@@ -227,7 +290,7 @@
         plugin: "{{ item.plugin | default(omit) }}"
         plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
         plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
-        tls_require: "{{ item.tls_require | default(omit) }}"
+        tls_requires: "{{ item.tls_requires | default(omit) }}"
         priv: "{{ item.priv | default(omit) }}"
         resource_limits: "{{ item.resource_limits | default(omit) }}"
         column_case_sensitive: true
@@ -237,7 +300,9 @@
         label: "{{ item.name }}@{{ item.host }}"
       register: recreate_users_result
       failed_when:
-        - recreate_users_result is changed
+        - >-
+          recreate_users_result is changed or
+          recreate_users_result.msg != 'User unchanged'
       when:
         - item.name != 'root'
         - item.name != 'mysql'
@@ -265,6 +330,14 @@
         - users_info_usage_only
         - users_info_columns_uppercase
         - users_info_multi_hosts
+        - users_info_tls_none
+        - users_info_tls_ssl
+        - users_info_tls_cipher
+        - users_info_tls_x509
+        - users_info_tls_subject
+        - users_info_tls_issuer
+        - users_info_tls_subject_issuer
+        - users_info_tls_sub_issu_ciph
 
     - name: Mysql_info users_info | Cleanup databases
       community.mysql.mysql_db:

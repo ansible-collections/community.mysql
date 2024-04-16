@@ -309,7 +309,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
 )
 from ansible_collections.community.mysql.plugins.module_utils.user import (
     convert_priv_dict_to_str,
-    get_impl,
+    get_user_implementation,
     get_mode,
     user_mod,
     privileges_grant,
@@ -1054,7 +1054,7 @@ def main():
     # Set defaults
     changed = False
 
-    get_impl(cursor)
+    impl = get_user_implementation(cursor)
 
     if priv is not None:
         try:

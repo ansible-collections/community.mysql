@@ -146,7 +146,7 @@ EXAMPLES = r'''
       plugin: "{{ item.plugin | default(omit) }}"
       plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
       plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
-      tls_require: "{{ item.tls_require | default(omit) }}"
+      tls_requires: "{{ item.tls_requires | default(omit) }}"
       priv: "{{ item.priv | default(omit) }}"
       resource_limits: "{{ item.resource_limits | default(omit) }}"
       column_case_sensitive: true
@@ -240,7 +240,8 @@ users_info:
       "host": "host.com",
       "plugin": "mysql_native_password",
       "priv": "db1.*:SELECT/db2.*:SELECT",
-      "resource_limits": { "MAX_USER_CONNECTIONS": 100 } }
+      "resource_limits": { "MAX_USER_CONNECTIONS": 100 },
+      "tls_requires": { "SSL": null } }
   version_added: '3.8.0'
 engines:
   description: Information about the server's storage engines.
@@ -300,6 +301,7 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     privileges_get,
     get_resource_limits,
     get_existing_authentication,
+    get_user_implementation,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -327,10 +329,11 @@ class MySQL_Info(object):
         5. add info about the new subset with an example to RETURN block
     """
 
-    def __init__(self, module, cursor, server_implementation):
+    def __init__(self, module, cursor, server_implementation, user_implementation):
         self.module = module
         self.cursor = cursor
         self.server_implementation = server_implementation
+        self.user_implementation = user_implementation
         self.info = {
             'version': {},
             'databases': {},
@@ -602,13 +605,17 @@ class MySQL_Info(object):
                 priv_string.remove('*.*:USAGE')
 
             resource_limits = get_resource_limits(self.cursor, user, host)
-
             copy_ressource_limits = dict.copy(resource_limits)
+
+            tls_requires = self.user_implementation.get_tls_requires(
+                self.cursor, user, host)
+
             output_dict = {
                 'name': user,
                 'host': host,
                 'priv': '/'.join(priv_string),
                 'resource_limits': copy_ressource_limits,
+                'tls_requires': tls_requires,
             }
 
             # Prevent returning a resource limit if empty
@@ -618,6 +625,10 @@ class MySQL_Info(object):
                         del output_dict['resource_limits'][key]
                 if len(output_dict['resource_limits']) == 0:
                     del output_dict['resource_limits']
+
+            # Prevent returning tls_require if empty
+            if not tls_requires:
+                del output_dict['tls_requires']
 
             authentications = get_existing_authentication(self.cursor, user, host)
             if authentications:
@@ -745,11 +756,12 @@ def main():
         module.fail_json(msg)
 
     server_implementation = get_server_implementation(cursor)
+    user_implementation = get_user_implementation(cursor)
 
     ###############################
     # Create object and do main job
 
-    mysql = MySQL_Info(module, cursor, server_implementation)
+    mysql = MySQL_Info(module, cursor, server_implementation, user_implementation)
 
     module.exit_json(changed=False,
                      connector_name=connector_name,

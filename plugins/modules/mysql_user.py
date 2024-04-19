@@ -139,8 +139,15 @@ options:
     description:
       - User's plugin auth_string (``CREATE USER user IDENTIFIED WITH plugin BY plugin_auth_string``).
       - If I(plugin) is ``pam`` (MariaDB) or ``auth_pam`` (MySQL) an optional I(plugin_auth_string) can be used to choose a specific PAM service.
+      - You need to define a I(salt) to have idempotence on password change.
     type: str
     version_added: '0.1.0'
+  salt:
+    description:
+      - Salt used to generate password hash.
+      - I(plugin) must be equal to ``caching_sha2_password`` and I(plugin_auth_string) must be defined.
+    type: str
+    version_added: '3.10.0'
   resource_limits:
     description:
       - Limit the user for certain server resources. Provided since MySQL 5.6 / MariaDB 10.2.
@@ -440,6 +447,7 @@ def main():
         plugin=dict(default=None, type='str'),
         plugin_hash_string=dict(default=None, type='str'),
         plugin_auth_string=dict(default=None, type='str'),
+        salt=dict(default=None, type='str'),
         resource_limits=dict(type='dict'),
         force_context=dict(type='bool', default=False),
         session_vars=dict(type='dict'),
@@ -480,6 +488,7 @@ def main():
     plugin = module.params["plugin"]
     plugin_hash_string = module.params["plugin_hash_string"]
     plugin_auth_string = module.params["plugin_auth_string"]
+    salt = module.params["salt"]
     resource_limits = module.params["resource_limits"]
     session_vars = module.params["session_vars"]
     column_case_sensitive = module.params["column_case_sensitive"]
@@ -542,13 +551,13 @@ def main():
             try:
                 if update_password == "always":
                     result = user_mod(cursor, user, host, host_all, password, encrypted,
-                                      plugin, plugin_hash_string, plugin_auth_string,
+                                      plugin, plugin_hash_string, plugin_auth_string, salt,
                                       priv, append_privs, subtract_privs, attributes, tls_requires, module,
                                       password_expire, password_expire_interval)
 
                 else:
                     result = user_mod(cursor, user, host, host_all, None, encrypted,
-                                      None, None, None,
+                                      None, None, None, None,
                                       priv, append_privs, subtract_privs, attributes, tls_requires, module,
                                       password_expire, password_expire_interval)
                 changed = result['changed']
@@ -566,7 +575,7 @@ def main():
                     priv = None  # avoid granting unwanted privileges
                 reuse_existing_password = update_password == 'on_new_username'
                 result = user_add(cursor, user, host, host_all, password, encrypted,
-                                  plugin, plugin_hash_string, plugin_auth_string,
+                                  plugin, plugin_hash_string, plugin_auth_string, salt,
                                   priv, attributes, tls_requires, reuse_existing_password, module,
                                   password_expire, password_expire_interval)
                 changed = result['changed']

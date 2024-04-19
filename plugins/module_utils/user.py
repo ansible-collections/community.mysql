@@ -1,4 +1,6 @@
 from __future__ import (absolute_import, division, print_function)
+
+from plugins.module_utils.implementations.mysql.hash import mysql_sha256_password_hash_hex
 __metaclass__ = type
 
 # This code is part of Ansible, but is an independent component.
@@ -135,12 +137,15 @@ def get_existing_authentication(cursor, user, host):
 
 
 def user_add(cursor, user, host, host_all, password, encrypted,
-             plugin, plugin_hash_string, plugin_auth_string, new_priv,
+             plugin, plugin_hash_string, plugin_auth_string, salt, new_priv,
              attributes, tls_requires, reuse_existing_password, module,
              password_expire, password_expire_interval):
     # If attributes are set, perform a sanity check to ensure server supports user attributes before creating user
     if attributes and not get_attribute_support(cursor):
         module.fail_json(msg="user attributes were specified but the server does not support user attributes")
+    # Only caching_sha2_password and sha256_password are supported for hash generation
+    if salt and plugin not in ['caching_sha2_password', 'sha256_password']:
+        module.fail_json(msg="salt requires caching_sha2_password or sha256_password plugin")
 
     # we cannot create users without a proper hostname
     if host_all:
@@ -181,6 +186,10 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         # Mysql and MariaDB differ in naming pam plugin and Syntax to set it
         if plugin == 'pam':  # Used by MariaDB which requires the USING keyword, not BY
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s USING %s", (user, host, plugin, plugin_auth_string)
+        elif salt:
+            if plugin in ['caching_sha2_password', 'sha256_password']:
+                generated_hash_string = mysql_sha256_password_hash_hex(password=plugin_auth_string, salt=salt)
+            query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, generated_hash_string)
         else:
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)
     elif plugin:
@@ -221,9 +230,13 @@ def is_hash(password):
 
 
 def user_mod(cursor, user, host, host_all, password, encrypted,
-             plugin, plugin_hash_string, plugin_auth_string, new_priv,
+             plugin, plugin_hash_string, plugin_auth_string, salt, new_priv,
              append_privs, subtract_privs, attributes, tls_requires, module,
              password_expire, password_expire_interval, role=False, maria_role=False):
+    # Only caching_sha2_password and sha256_password are supported for hash generation
+    if salt and plugin not in ['caching_sha2_password', 'sha256_password']:
+        module.fail_json(msg="salt requires caching_sha2_password or sha256_password plugin")
+
     changed = False
     msg = "User unchanged"
     grant_option = False
@@ -356,6 +369,10 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     # Mysql and MariaDB differ in naming pam plugin and syntax to set it
                     if plugin in ('pam', 'ed25519'):
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s USING %s", (user, host, plugin, plugin_auth_string)
+                    elif salt:
+                        if plugin in ['caching_sha2_password', 'sha256_password']:
+                            generated_hash_string = mysql_sha256_password_hash_hex(password=plugin_auth_string, salt=salt)
+                        query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, generated_hash_string)
                     else:
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)
                 else:

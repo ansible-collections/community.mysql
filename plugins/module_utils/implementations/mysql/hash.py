@@ -113,4 +113,5 @@ def mysql_sha256_password_hash_hex(password, salt):
     iteration = 1000 * count
 
     digest = _sha256_digest(password, salt, iteration)
-    return "$A${0:>03}{1}{2}".format(count, salt, digest).encode().hex().upper()
+    generated_hash = "$A${0:>03}{1}{2}".format(count, salt, digest).encode()
+    return "0x{0}".format(generated_hash.hex().upper())

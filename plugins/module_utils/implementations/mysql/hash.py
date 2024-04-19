@@ -1,4 +1,11 @@
-"""Generate MySQL sha256 compatible plugins hash for a given password and salt."""
+"""
+Generate MySQL sha256 compatible plugins hash for a given password and salt
+
+based on
+ * https://www.akkadia.org/drepper/SHA-crypt.txt
+ * https://crypto.stackexchange.com/questions/77427/whats-the-algorithm-behind-mysqls-sha256-password-hashing-scheme/111174#111174
+ * https://github.com/hashcat/hashcat/blob/master/tools/test_modules/m07400.pm
+"""
 
 import hashlib
 
@@ -83,7 +90,10 @@ def _sha256_digest(key: str, salt: str, loops: int) -> str:
 
     while True:
         tmp += _to64(
-            (digest_c[i] << 16) | (digest_c[(i + inc1) % mod] << 8) | digest_c[(i + inc1 * 2) % mod], 4
+            (digest_c[i] << 16)
+            | (digest_c[(i + inc1) % mod] << 8)
+            | digest_c[(i + inc1 * 2) % mod],
+            4,
         )
         i = (i + inc2) % mod
         if i == end:

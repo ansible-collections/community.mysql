@@ -144,9 +144,9 @@ options:
     version_added: '0.1.0'
   salt:
     description:
-      - Salt used to generate password hash.
+      - Salt used to generate password hash from I(plugin_auth_string).
       - Salt length must be 20 characters.
-      - I(plugin) must be equal to ``caching_sha2_password`` or ``sha256_password`` and I(plugin_auth_string) defined.
+      - Salt only support ``caching_sha2_password`` or ``sha256_password`` authentication I(plugin).
     type: str
     version_added: '3.10.0'
   resource_limits:
@@ -377,6 +377,13 @@ EXAMPLES = r'''
     priv: '*.*:ALL'
     state: present
 
+- name: Create user 'bob' authenticated with plugin 'caching_sha2_password' and static salt
+  community.mysql.mysql_user:
+    name: bob
+    plugin: caching_sha2_password
+    plugin_auth_string: password
+    salt: 1234567890abcdefghij
+
 - name: Limit bob's resources to 10 queries per hour and 5 connections per hour
   community.mysql.mysql_user:
     name: bob
@@ -509,8 +516,11 @@ def main():
         module.fail_json(msg="password_expire_interval value \
                              should be positive number")
 
-    if salt and plugin not in ['caching_sha2_password', 'sha256_password']:
-        module.fail_json(msg="salt requires caching_sha2_password or sha256_password plugin")
+    if salt:
+        if len(salt) != 20:
+            module.fail_json(msg="Salt must be 20 characters long")
+        if plugin not in ['caching_sha2_password', 'sha256_password']:
+            module.fail_json(msg="salt requires caching_sha2_password or sha256_password plugin")
 
     cursor = None
     try:

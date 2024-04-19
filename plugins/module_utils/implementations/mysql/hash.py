@@ -106,7 +106,8 @@ def _sha256_digest(key, salt, loops):
 
 def mysql_sha256_password_hash_hex(password, salt):
     """Return a MySQL compatible caching_sha2_password hash in hex format."""
-    assert len(salt) == 20, "Salt must be 20 characters long."
+    if len(salt) != 20:
+        raise ValueError("Salt must be 20 characters long.")
 
     count = 5
     iteration = 1000 * count

@@ -10,7 +10,7 @@ based on
 import hashlib
 
 
-def _to64(v: int, n: int) -> str:
+def _to64(v, n):
     """Convert a 32-bit integer to a base-64 string"""
     i64 = (
         [".", "/"]
@@ -18,7 +18,7 @@ def _to64(v: int, n: int) -> str:
         + [chr(x) for x in range(65, 91)]
         + [chr(x) for x in range(97, 123)]
     )
-    result: str = ""
+    result = ""
     while n > 0:
         n -= 1
         result += i64[v & 0x3F]
@@ -26,17 +26,17 @@ def _to64(v: int, n: int) -> str:
     return result
 
 
-def _hashlib_sha256(data: bytes) -> bytes:
+def _hashlib_sha256(data):
     """Return SHA-256 digest from hashlib ."""
     return hashlib.sha256(data).digest()
 
 
-def _sha256_digest(key: str, salt: str, loops: int) -> str:
+def _sha256_digest(key, salt, loops):
     """Return a SHA-256 digest of the concatenation of the key, the salt, and the key, repeated as necessary."""
     # https://www.akkadia.org/drepper/SHA-crypt.txt
-    num_bytes: bytes = 32
-    bytes_key: bytes = key.encode()
-    bytes_salt: bytes = salt.encode()
+    num_bytes = 32
+    bytes_key = key.encode()
+    bytes_salt = salt.encode()
     digest_b = _hashlib_sha256(bytes_key + bytes_salt + bytes_key)
 
     tmp = bytes_key + bytes_salt
@@ -104,7 +104,7 @@ def _sha256_digest(key: str, salt: str, loops: int) -> str:
     return tmp
 
 
-def mysql_sha256_password_hash_hex(password: str, salt: str) -> str:
+def mysql_sha256_password_hash_hex(password, salt):
     """Return a MySQL compatible caching_sha2_password hash in hex format."""
     assert len(salt) == 20, "Salt must be 20 characters long."
 
@@ -112,4 +112,4 @@ def mysql_sha256_password_hash_hex(password: str, salt: str) -> str:
     iteration = 1000 * count
 
     digest = _sha256_digest(password, salt, iteration)
-    return f"$A${count:>03}${salt}{digest}".encode().hex().upper()
+    return "$A${0:>03}{1}{2}".format(count, salt, digest).encode().hex().upper()

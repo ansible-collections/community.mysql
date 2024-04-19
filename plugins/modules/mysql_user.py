@@ -139,13 +139,14 @@ options:
     description:
       - User's plugin auth_string (``CREATE USER user IDENTIFIED WITH plugin BY plugin_auth_string``).
       - If I(plugin) is ``pam`` (MariaDB) or ``auth_pam`` (MySQL) an optional I(plugin_auth_string) can be used to choose a specific PAM service.
-      - You need to define a I(salt) to have idempotence on password change.
+      - You need to define a I(salt) to have idempotence on password change with ``caching_sha2_password`` and ``sha256_password`` plugins.
     type: str
     version_added: '0.1.0'
   salt:
     description:
       - Salt used to generate password hash.
-      - I(plugin) must be equal to ``caching_sha2_password`` and I(plugin_auth_string) must be defined.
+      - Salt length must be 20 characters.
+      - I(plugin) must be equal to ``caching_sha2_password`` or ``sha256_password`` and I(plugin_auth_string) defined.
     type: str
     version_added: '3.10.0'
   resource_limits:

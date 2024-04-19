@@ -1,9 +1,9 @@
-"""Generate MySQL caching_sha2_password hash for a given password and salt."""
+"""Generate MySQL sha256 compatible plugins hash for a given password and salt."""
 
 import hashlib
 
 
-def to64(v: int, n: int) -> str:
+def _to64(v: int, n: int) -> str:
     """Convert a 32-bit integer to a base-64 string"""
     i64 = (
         [".", "/"]
@@ -19,18 +19,18 @@ def to64(v: int, n: int) -> str:
     return result
 
 
-def hashlib_sha256(data: bytes) -> bytes:
+def _hashlib_sha256(data: bytes) -> bytes:
     """Return SHA-256 digest from hashlib ."""
     return hashlib.sha256(data).digest()
 
 
-def sha256_digest(key: str, salt: str, loops: int) -> str:
+def _sha256_digest(key: str, salt: str, loops: int) -> str:
     """Return a SHA-256 digest of the concatenation of the key, the salt, and the key, repeated as necessary."""
     # https://www.akkadia.org/drepper/SHA-crypt.txt
     num_bytes: bytes = 32
     bytes_key: bytes = key.encode()
     bytes_salt: bytes = salt.encode()
-    digest_b = hashlib_sha256(bytes_key + bytes_salt + bytes_key)
+    digest_b = _hashlib_sha256(bytes_key + bytes_salt + bytes_key)
 
     tmp = bytes_key + bytes_salt
     for i in range(len(bytes_key), 0, -num_bytes):
@@ -41,13 +41,13 @@ def sha256_digest(key: str, salt: str, loops: int) -> str:
         tmp += digest_b if (i & 1) != 0 else bytes_key
         i >>= 1
 
-    digest_a = hashlib_sha256(tmp)
+    digest_a = _hashlib_sha256(tmp)
 
     tmp = b""
     for i in range(len(bytes_key)):
         tmp += bytes_key
 
-    digest_dp = hashlib_sha256(tmp)
+    digest_dp = _hashlib_sha256(tmp)
 
     byte_sequence_p = b""
     for i in range(len(bytes_key), 0, -num_bytes):
@@ -59,7 +59,7 @@ def sha256_digest(key: str, salt: str, loops: int) -> str:
     for i in range(til):
         tmp += bytes_salt
 
-    digest_ds = hashlib_sha256(tmp)
+    digest_ds = _hashlib_sha256(tmp)
 
     byte_sequence_s = b""
     for i in range(len(bytes_salt), 0, -num_bytes):
@@ -74,7 +74,7 @@ def sha256_digest(key: str, salt: str, loops: int) -> str:
         if i % 7:
             tmp += byte_sequence_p
         tmp += digest_c if (i & 1) else byte_sequence_p
-        digest_c = hashlib_sha256(tmp)
+        digest_c = _hashlib_sha256(tmp)
 
     inc1, inc2, mod, end = (10, 21, 30, 0)
 
@@ -82,14 +82,14 @@ def sha256_digest(key: str, salt: str, loops: int) -> str:
     tmp = ""
 
     while True:
-        tmp += to64(
+        tmp += _to64(
             (digest_c[i] << 16) | (digest_c[(i + inc1) % mod] << 8) | digest_c[(i + inc1 * 2) % mod], 4
         )
         i = (i + inc2) % mod
         if i == end:
             break
 
-    tmp += to64((digest_c[31] << 8) | digest_c[30], 3)
+    tmp += _to64((digest_c[31] << 8) | digest_c[30], 3)
 
     return tmp
 
@@ -101,5 +101,5 @@ def mysql_sha256_password_hash_hex(password: str, salt: str) -> str:
     count = 5
     iteration = 1000 * count
 
-    digest = sha256_digest(password, salt, iteration)
+    digest = _sha256_digest(password, salt, iteration)
     return f"$A${count:>03}${salt}{digest}".encode().hex().upper()

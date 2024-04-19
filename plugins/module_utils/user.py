@@ -1,8 +1,5 @@
 from __future__ import (absolute_import, division, print_function)
 
-from plugins.module_utils.implementations.mysql.hash import (
-    mysql_sha256_password_hash_hex,
-)
 
 __metaclass__ = type
 
@@ -23,6 +20,9 @@ from ansible.module_utils.six import iteritems
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_driver,
     get_server_implementation,
+)
+from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql.hash import (
+    mysql_sha256_password_hash_hex,
 )
 
 

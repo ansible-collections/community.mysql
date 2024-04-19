@@ -1,6 +1,9 @@
 from __future__ import (absolute_import, division, print_function)
 
-from plugins.module_utils.implementations.mysql.hash import mysql_sha256_password_hash_hex
+from plugins.module_utils.implementations.mysql.hash import (
+    mysql_sha256_password_hash_hex,
+)
+
 __metaclass__ = type
 
 # This code is part of Ansible, but is an independent component.

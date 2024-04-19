@@ -509,6 +509,9 @@ def main():
         module.fail_json(msg="password_expire_interval value \
                              should be positive number")
 
+    if salt and plugin not in ['caching_sha2_password', 'sha256_password']:
+        module.fail_json(msg="salt requires caching_sha2_password or sha256_password plugin")
+
     cursor = None
     try:
         if check_implicit_admin:

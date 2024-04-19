@@ -143,9 +143,6 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     # If attributes are set, perform a sanity check to ensure server supports user attributes before creating user
     if attributes and not get_attribute_support(cursor):
         module.fail_json(msg="user attributes were specified but the server does not support user attributes")
-    # Only caching_sha2_password and sha256_password are supported for hash generation
-    if salt and plugin not in ['caching_sha2_password', 'sha256_password']:
-        module.fail_json(msg="salt requires caching_sha2_password or sha256_password plugin")
 
     # we cannot create users without a proper hostname
     if host_all:
@@ -189,6 +186,8 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         elif salt:
             if plugin in ['caching_sha2_password', 'sha256_password']:
                 generated_hash_string = mysql_sha256_password_hash_hex(password=plugin_auth_string, salt=salt)
+            else:
+                module.fail_json(msg="salt not handled for %s authentication plugin" % plugin)
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, generated_hash_string)
         else:
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)
@@ -233,10 +232,6 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, salt, new_priv,
              append_privs, subtract_privs, attributes, tls_requires, module,
              password_expire, password_expire_interval, role=False, maria_role=False):
-    # Only caching_sha2_password and sha256_password are supported for hash generation
-    if salt and plugin not in ['caching_sha2_password', 'sha256_password']:
-        module.fail_json(msg="salt requires caching_sha2_password or sha256_password plugin")
-
     changed = False
     msg = "User unchanged"
     grant_option = False
@@ -372,6 +367,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     elif salt:
                         if plugin in ['caching_sha2_password', 'sha256_password']:
                             generated_hash_string = mysql_sha256_password_hash_hex(password=plugin_auth_string, salt=salt)
+                        else:
+                            module.fail_json(msg="salt not handled for %s authentication plugin" % plugin)
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, generated_hash_string)
                     else:
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)

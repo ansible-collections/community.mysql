@@ -517,8 +517,10 @@ def main():
                              should be positive number")
 
     if salt:
+        if not plugin_auth_string:
+            module.fail_json(msg="salt requires plugin_auth_string")
         if len(salt) != 20:
-            module.fail_json(msg="Salt must be 20 characters long")
+            module.fail_json(msg="salt must be 20 characters long")
         if plugin not in ['caching_sha2_password', 'sha256_password']:
             module.fail_json(msg="salt requires caching_sha2_password or sha256_password plugin")
 

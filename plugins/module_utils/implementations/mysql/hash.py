@@ -7,6 +7,10 @@ based on
  * https://github.com/hashcat/hashcat/blob/master/tools/test_modules/m07400.pm
 """
 
+from __future__ import absolute_import, division, print_function
+
+__metaclass__ = type
+
 import hashlib
 
 

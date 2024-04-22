@@ -22,6 +22,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     get_server_implementation,
 )
 from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql.hash import (
+    mysql_sha256_password_hash,
     mysql_sha256_password_hash_hex,
 )
 
@@ -362,8 +363,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
             if salt:
                 if plugin in ['caching_sha2_password', 'sha256_password']:
-                    generated_hash_string = mysql_sha256_password_hash_hex(password=plugin_auth_string, salt=salt)
-                    if current_plugin[0] != generated_hash_string:
+                    if current_plugin[0] != mysql_sha256_password_hash(password=plugin_auth_string, salt=salt):
                         update = True
                 else:
                     module.fail_json(msg="salt not handled for %s authentication plugin" % plugin)
@@ -376,6 +376,10 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     if plugin in ('pam', 'ed25519'):
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s USING %s", (user, host, plugin, plugin_auth_string)
                     elif salt:
+                        if plugin in ['caching_sha2_password', 'sha256_password']:
+                            generated_hash_string = mysql_sha256_password_hash_hex(password=plugin_auth_string, salt=salt)
+                        else:
+                            module.fail_json(msg="salt not handled for %s authentication plugin" % plugin)
                         query_with_args = ("ALTER USER %s@%s IDENTIFIED WITH %s AS 0x" + generated_hash_string), (user, host, plugin)
                     else:
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)

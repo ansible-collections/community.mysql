@@ -354,19 +354,18 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             if plugin_hash_string and current_plugin[1] != plugin_hash_string:
                 update = True
 
-            if plugin_auth_string and current_plugin[1] != plugin_auth_string:
+            if salt:
+                if plugin in ['caching_sha2_password', 'sha256_password']:
+                    if current_plugin[1] != mysql_sha256_password_hash(password=plugin_auth_string, salt=salt):
+                        update = True
+                else:
+                    module.fail_json(msg="salt not handled for %s authentication plugin" % plugin)
+            elif plugin_auth_string and current_plugin[1] != plugin_auth_string:
                 # this case can cause more updates than expected,
                 # as plugin can hash auth_string in any way it wants
                 # and there's no way to figure it out for
                 # a check, so I prefer to update more often than never
                 update = True
-
-            if salt:
-                if plugin in ['caching_sha2_password', 'sha256_password']:
-                    if current_plugin[0] != mysql_sha256_password_hash(password=plugin_auth_string, salt=salt):
-                        update = True
-                else:
-                    module.fail_json(msg="salt not handled for %s authentication plugin" % plugin)
 
             if update:
                 if plugin_hash_string:

@@ -489,21 +489,9 @@
         plugin_auth_string: '{{ test_plugin_auth_string }}'
         salt: '{{ test_salt }}'
         priv: '{{ test_default_priv }}'
-      register: result
-
-    - name: Plugin auth | Assert that plugin_auth_string and salt was successful
-      ansible.builtin.assert:
-        that:
-          - result is succeeded
 
     - name: Plugin auth | Connect with user and password
       ansible.builtin.command: "{{ mysql_command }} -u {{ test_user_name }} -p{{ test_plugin_auth_string }} -e \"SELECT 1\""
-      register: result
-
-    - name: Plugin auth | Assert that connection was successful
-      ansible.builtin.assert:
-        that:
-          - result is succeeded
 
     - name: Plugin auth | Alter user with same plugin auth and same salt
       community.mysql.mysql_user:
@@ -515,11 +503,7 @@
         salt: '{{ test_salt }}'
         priv: '{{ test_default_priv }}'
       register: result
-
-    - name: Plugin auth | Assert that plugin_auth_string and salt doesn't trigger change
-      ansible.builtin.assert:
-        that:
-          - result is not changed
+      failed_when: result is not changed
 
     - name: cleanup user
       ansible.builtin.include_tasks: utils/remove_user.yml

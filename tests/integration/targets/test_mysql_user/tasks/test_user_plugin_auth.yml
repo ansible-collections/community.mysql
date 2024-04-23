@@ -509,3 +509,53 @@
       ansible.builtin.include_tasks: utils/remove_user.yml
       vars:
         user_name: "{{ test_user_name }}"
+
+    - name: Plugin auth | Create user with too short salt
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        host: '%'
+        plugin: caching_sha2_password
+        plugin_auth_string: '{{ test_plugin_auth_string }}'
+        salt: '1234567890az'
+        priv: '{{ test_default_priv }}'
+      register: result
+      ignore_errors: true
+
+    - name: Plugin auth | Assert that shorter salt fails
+      ansible.builtin.assert:
+        that:
+          - result is failed
+
+    - name: Plugin auth | Create user with salt and no plugin auth string (should fail)
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        host: '%'
+        plugin: caching_sha2_password
+        salt: '{{ test_salt }}'
+        priv: '{{ test_default_priv }}'
+      register: result
+      ignore_errors: true
+
+    - name: Plugin auth | Assert that missing plugin_auth_string with salt fails
+      ansible.builtin.assert:
+        that:
+          - result is failed
+
+    - name: Plugin auth | Create user with salt and plugin not handled by internal hash generation (should fail)
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        host: '%'
+        plugin: mysql_native_password
+        plugin_auth_string: '{{ test_plugin_auth_string }}'
+        salt: '{{ test_salt }}'
+        priv: '{{ test_default_priv }}'
+      register: result
+      ignore_errors: true
+
+    - name: Plugin auth | Assert that wrong plugin with salt fails
+      ansible.builtin.assert:
+        that:
+          - result is failed

@@ -480,9 +480,8 @@
     # ============================================================
     # Test plugin auth with a salt
     #
-    
     - name: Plugin auth | Create user with plugin auth and salt
-      mysql_user:
+      community.mysql.mysql_user:
         <<: *mysql_params
         name: '{{ test_user_name }}'
         host: '%'
@@ -493,21 +492,21 @@
       register: result
 
     - name: Plugin auth | Assert that plugin_auth_string and salt was successful
-      assert:
+      ansible.builtin.assert:
         that:
           - result is succeeded
 
     - name: Plugin auth | Connect with user and password
-      command: "{{ mysql_command }} -u {{ test_user_name }} -p{{ test_plugin_auth_string }} -e \"SELECT 1\""
+      ansible.builtin.command: "{{ mysql_command }} -u {{ test_user_name }} -p{{ test_plugin_auth_string }} -e \"SELECT 1\""
       register: result
 
     - name: Plugin auth | Assert that connection was successful
-      assert:
+      ansible.builtin.assert:
         that:
           - result is succeeded
 
     - name: Plugin auth | Alter user with same plugin auth and same salt
-      mysql_user:
+      community.mysql.mysql_user:
         <<: *mysql_params
         name: '{{ test_user_name }}'
         host: '%'
@@ -517,12 +516,12 @@
         priv: '{{ test_default_priv }}'
       register: result
 
-    - name: Plugin auth | Assert that plugin_auth_string and salt doesn't trigger change 
-      assert:
+    - name: Plugin auth | Assert that plugin_auth_string and salt doesn't trigger change
+      ansible.builtin.assert:
         that:
           - result is not changed
 
-    # Cleanup
-    - include_tasks: utils/remove_user.yml
+    - name: cleanup user
+      ansible.builtin.include_tasks: utils/remove_user.yml
       vars:
         user_name: "{{ test_user_name }}"

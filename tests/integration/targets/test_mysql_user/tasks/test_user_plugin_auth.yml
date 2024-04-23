@@ -503,7 +503,7 @@
         salt: '{{ test_salt }}'
         priv: '{{ test_default_priv }}'
       register: result
-      failed_when: result is not changed
+      failed_when: result is changed
 
     - name: cleanup user
       ansible.builtin.include_tasks: utils/remove_user.yml

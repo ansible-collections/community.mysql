@@ -401,7 +401,6 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
 )
 from ansible_collections.community.mysql.plugins.module_utils.user import (
     convert_priv_dict_to_str,
-    get_impl,
     get_mode,
     InvalidPrivsError,
     limit_resources,
@@ -527,8 +526,6 @@ def main():
 
     if session_vars:
         set_session_vars(module, cursor, session_vars)
-
-    get_impl(cursor)
 
     if priv is not None:
         try:

@@ -190,6 +190,8 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         elif salt:
             if plugin in ['caching_sha2_password', 'sha256_password']:
                 generated_hash_string = mysql_sha256_password_hash_hex(password=plugin_auth_string, salt=salt)
+            else:
+                module.fail_json(msg="salt not handled for %s authentication plugin" % plugin)
             query_with_args = ("CREATE USER %s@%s IDENTIFIED WITH %s AS 0x" + generated_hash_string), (user, host, plugin)
         else:
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)
@@ -373,6 +375,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     elif salt:
                         if plugin in ['caching_sha2_password', 'sha256_password']:
                             generated_hash_string = mysql_sha256_password_hash_hex(password=plugin_auth_string, salt=salt)
+                        else:
+                            module.fail_json(msg="salt not handled for %s authentication plugin" % plugin)
                         query_with_args = ("ALTER USER %s@%s IDENTIFIED WITH %s AS 0x" + generated_hash_string), (user, host, plugin)
                     else:
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)

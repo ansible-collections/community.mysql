@@ -162,7 +162,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         existing_auth = get_existing_authentication(cursor, user, host)
         if existing_auth:
             plugin = existing_auth['plugin']
-            plugin_hash_string = existing_auth['auth_string']
+            plugin_hash_string = existing_auth['plugin_hash_string']
             password = None
             used_existing_password = True
     if password and encrypted:

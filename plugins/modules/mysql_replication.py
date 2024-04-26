@@ -560,10 +560,10 @@ def main():
 
     elif mode == "getreplica":
         status = get_replica_status(cursor, connection_name, channel, replica_term)
-        if not isinstance(status, dict):
-            status = dict(Is_Replica=False, msg="Server is not configured as mysql replica")
-        else:
+        if status and "Slave_IO_Running" in status and "Slave_SQL_Running" in status:
             status['Is_Replica'] = True
+        else:
+            status = dict(Is_Replica=False, msg="Server is not configured as mysql replica")
 
         module.exit_json(queries=executed_queries, **status)
 

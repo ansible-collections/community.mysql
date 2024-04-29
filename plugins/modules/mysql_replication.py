@@ -550,11 +550,13 @@ def main():
 
     if mode == 'getprimary':
         status = get_primary_status(cursor)
-        if not isinstance(status, dict):
-            status = dict(Is_Primary=False,
-                          msg="Server is not configured as mysql primary")
-        else:
+        if status and "File" in status and "Position" in status:
             status['Is_Primary'] = True
+        else:
+            status = dict(
+                Is_Primary=False,
+                msg="Server is not configured as mysql primary. "
+                    "Meaning: Binary logs are disabled")
 
         module.exit_json(queries=executed_queries, **status)
 

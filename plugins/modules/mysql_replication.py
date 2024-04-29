@@ -560,7 +560,11 @@ def main():
 
     elif mode == "getreplica":
         status = get_replica_status(cursor, connection_name, channel, replica_term)
-        if status and "Slave_IO_Running" in status and "Slave_SQL_Running" in status:
+        # MySQL 8.0 uses Replica_...
+        # MariaDB 10.6 uses Slave_...
+        if status and (
+                "Slave_IO_Running" in status or
+                "Replica_IO_Running" in status):
             status['Is_Replica'] = True
         else:
             status = dict(Is_Replica=False, msg="Server is not configured as mysql replica")

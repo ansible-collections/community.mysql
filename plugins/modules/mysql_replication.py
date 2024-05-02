@@ -19,6 +19,7 @@ description:
 author:
 - Balazs Pocze (@banyek)
 - Andrew Klychkov (@Andersson007)
+- Jorge Rodriguez (@Jorge-Rodriguez)
 options:
   mode:
     description:
@@ -42,6 +43,11 @@ options:
     - resetreplica
     - resetreplicaall
     default: getreplica
+  primary_bind:
+    description:
+    - Same as the C(MASTER_BIND) mysql variable.
+    type: str
+    version_added: 3.6.0
   primary_host:
     description:
     - Same as the C(MASTER_HOST) mysql variable.
@@ -62,11 +68,21 @@ options:
     - Same as the C(MASTER_PORT) mysql variable.
     type: int
     aliases: [master_port]
+  primary_heartbeat_period:
+    description:
+    - Same as the C(MASTER_HEARTBEAT_PERIOD) mysql variable.
+    type: int
+    version_added: 3.6.0
   primary_connect_retry:
     description:
     - Same as the C(MASTER_CONNECT_RETRY) mysql variable.
     type: int
     aliases: [master_connect_retry]
+  primary_retry_count:
+    description:
+    - Same as the C(MASTER_RETRY_COUNT) mysql variable.
+    type: int
+    version_added: 3.6.0
   primary_log_file:
     description:
     - Same as the C(MASTER_LOG_FILE) mysql variable.
@@ -116,6 +132,20 @@ options:
       L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
     type: str
     aliases: [master_ssl_cert]
+  primary_ssl_crl:
+    description:
+    - Same as the C(MASTER_SSL_CRL) mysql variable.
+    - For details, refer to
+      L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
+    type: str
+    version_added: 3.6.0
+  primary_ssl_crlpath:
+    description:
+    - Same as the C(MASTER_SSL_CRLPATH) mysql variable.
+    - For details, refer to
+      L(MySQL encrypted replication documentation,https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html).
+    type: str
+    version_added: 3.6.0
   primary_ssl_key:
     description:
     - Same as the C(MASTER_SSL_KEY) mysql variable.
@@ -133,10 +163,15 @@ options:
     aliases: [master_ssl_cipher]
   primary_ssl_verify_server_cert:
     description:
-    - Same as mysql variable.
+    - Same as the C(SOURCE_SSL_VERIFY_SERVER_CERT) mysql variable.
     type: bool
     default: false
-    version_added: '3.5.0'
+    version_added: 3.5.0
+  primary_tls_version:
+    description:
+    - Same as the C(MASTER_TLS_VERSION) mysql variable.
+    type: str
+    version_added: 3.6.0
   primary_auto_position:
     description:
     - Whether the host uses GTID based replication or not.
@@ -144,6 +179,24 @@ options:
     type: bool
     default: false
     aliases: [master_auto_position]
+  ignore_server_ids:
+    description:
+    - List of server IDs whose events are ignored.
+    type: list
+    elements: str
+    version_added: 3.6.0
+  do_domain_ids:
+    description:
+    - Same as MariaDB variable.
+    type: list
+    elements: str
+    version_added: 3.6.0
+  ignore_domain_ids:
+    description:
+    - Same as MariaDB variable.
+    type: list
+    elements: str
+    version_added: 3.6.0
   primary_use_gtid:
     description:
     - Configures the replica to use the MariaDB Global Transaction ID.
@@ -164,6 +217,74 @@ options:
     type: int
     version_added: '0.1.0'
     aliases: [master_delay]
+  privilege_checks_user:
+    description:
+    - Same as mysql variable.
+    choices: [account]
+    type: str
+    version_added: 3.6.0
+  require_row_format:
+    description:
+    - Same as mysql variable.
+    type: bool
+    default: False
+    version_added: 3.6.0
+  require_table_primary_key_check:
+    description:
+    - Same as mysql variable.
+    choices: ["stream", "on", "off"]
+    type: str
+    version_added: 3.6.0
+  assign_gtids_to_annonymous_transactions:
+    description:
+    - Same as the C(ASSIGN_GTIDS_TO_ANNONYMOUS_TRANSACTIONS) mysql variable.
+    - Choices: ["OFF", "LOCAL", uuid]
+    type: str
+    version_added: 3.6.0
+  source_connection_auto_failover:
+    description:
+    - Same as mysql variable.
+    type: bool
+    default: False
+    version_added: 3.6.0
+  primary_compression_algorithms:
+    description:
+    - Same as the C(MASTER_COMPRESSION_ALGORITHMS) mysql variable.
+    type: str
+    version_added: 3.6.0
+  primary_zstd_compression_level:
+    description:
+    - Same as the C(MASTER_ZSTD_COMPRESSION_LEVEL) mysql variable. Valid values are in the range [1-22]
+    type: int
+    choices: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+    version_added: 3.6.0
+  primary_tls_ciphersuites:
+    description:
+    - Same as the C(MASTER_TLS_CIPHERSUITES) mysql variable.
+    type: str
+    version_added: 3.6.0
+  primary_public_key_path:
+    description:
+    - Same as the C(MASTER_PUBLIC_KEY_PATH) mysql variable.
+    type: str
+    version_added: 3.6.0
+  get_primary_public_key:
+    description:
+    - Same as the C(GET_MASTER_PUBLIC_KEY) mysql variable.
+    type: bool
+    default: False
+    version_added: 3.6.0
+  network_namespace:
+    description:
+    - Same as mysql variable.
+    type: str
+    version_added: 3.6.0
+  gtid_only:
+    description:
+    - Same as mysql variable.
+    type: bool
+    default: False
+    version_added: 3.6.0
   connection_name:
     description:
     - Name of the primary connection.
@@ -285,6 +406,7 @@ queries:
 '''
 
 import os
+import re
 import warnings
 
 from ansible.module_utils.basic import AnsibleModule
@@ -451,11 +573,14 @@ def main():
             'resetreplica',
             'resetreplicaall']),
         primary_auto_position=dict(type='bool', default=False, aliases=['master_auto_position']),
+        primary_bind=dict(type='str'),
         primary_host=dict(type='str', aliases=['master_host']),
         primary_user=dict(type='str', aliases=['master_user']),
         primary_password=dict(type='str', no_log=True, aliases=['master_password']),
         primary_port=dict(type='int', aliases=['master_port']),
+        primary_heartbeat_period=dict(type='int'),
         primary_connect_retry=dict(type='int', aliases=['master_connect_retry']),
+        primary_retry_count=dict(type='int'),
         primary_log_file=dict(type='str', aliases=['master_log_file']),
         primary_log_pos=dict(type='int', aliases=['master_log_pos']),
         relay_log_file=dict(type='str'),
@@ -464,13 +589,31 @@ def main():
         primary_ssl_ca=dict(type='str', aliases=['master_ssl_ca']),
         primary_ssl_capath=dict(type='str', aliases=['master_ssl_capath']),
         primary_ssl_cert=dict(type='str', aliases=['master_ssl_cert']),
+        primary_ssl_crl=dict(type='str'),
+        primary_ssl_crlpath=dict(type='str'),
         primary_ssl_key=dict(type='str', no_log=False, aliases=['master_ssl_key']),
         primary_ssl_cipher=dict(type='str', aliases=['master_ssl_cipher']),
         primary_ssl_verify_server_cert=dict(type='bool', default=False),
+        primary_tls_version=dict(type='str'),
+        primary_compression_algorithms=dict(type='str'),
+        primary_zstd_compression_level=dict(type='int', choices=list(range(1, 23))),
+        primary_tls_ciphersuites=dict(type='str'),
+        primary_public_key_path=dict(type='str'),
+        get_primary_public_key=dict(type='bool', default=False),
         primary_use_gtid=dict(type='str', choices=[
             'current_pos', 'replica_pos', 'disabled'], aliases=['master_use_gtid']),
+        ignore_server_ids=dict(type='list', elements="str"),
+        do_domain_ids=dict(type='list', elements="str"),
+        ignore_domain_ids=dict(type='list', elements="str"),
         primary_delay=dict(type='int', aliases=['master_delay']),
+        gtid_only=dict(type='bool', default=False),
         connection_name=dict(type='str'),
+        privilege_checks_user=dict(type='str', choices=['account']),
+        require_row_format=dict(type='bool', default=False),
+        require_table_primary_key_check=dict(type='str', choices=['stream', 'on', 'off']),
+        assign_gtids_to_anonymous_transactions=dict(type='str'),
+        source_connection_auto_failover=dict(type='bool', default=False),
+        network_namespace=dict(type='str'),
         channel=dict(type='str'),
         fail_on_error=dict(type='bool', default=False),
     )
@@ -481,11 +624,14 @@ def main():
         ],
     )
     mode = module.params["mode"]
+    primary_bind = module.params["primary_bind"]
     primary_host = module.params["primary_host"]
     primary_user = module.params["primary_user"]
     primary_password = module.params["primary_password"]
     primary_port = module.params["primary_port"]
+    primary_heartbeat_period = module.params["primary_heartbeat_period"]
     primary_connect_retry = module.params["primary_connect_retry"]
+    primary_retry_count = module.params["primary_retry_count"]
     primary_log_file = module.params["primary_log_file"]
     primary_log_pos = module.params["primary_log_pos"]
     relay_log_file = module.params["relay_log_file"]
@@ -494,10 +640,29 @@ def main():
     primary_ssl_ca = module.params["primary_ssl_ca"]
     primary_ssl_capath = module.params["primary_ssl_capath"]
     primary_ssl_cert = module.params["primary_ssl_cert"]
+    primary_ssl_crl = module.params["primary_ssl_crl"]
+    primary_ssl_crlpath = module.params["primary_ssl_crlpath"]
     primary_ssl_key = module.params["primary_ssl_key"]
     primary_ssl_cipher = module.params["primary_ssl_cipher"]
     primary_ssl_verify_server_cert = module.params["primary_ssl_verify_server_cert"]
+    primary_tls_version = module.params["primary_tls_version"]
+    primary_compression_algorithms = module.params["primary_compression_algorithms"]
+    primary_zstd_compression_level = module.params["primary_zstd_compression_level"]
+    primary_tls_ciphersuites = module.params["primary_tls_ciphersuites"]
+    primary_public_key_path = module.params["primary_public_key_path"]
+    get_primary_public_key = module.params["get_primary_public_key"]
     primary_auto_position = module.params["primary_auto_position"]
+    ignore_server_ids = module.params["ignore_server_ids"]
+    do_domain_ids = module.params["do_domain_ids"]
+    ignore_domain_ids = module.params["ignore_domain_ids"]
+    privilege_checks_user = module.params["privilege_checks_user"]
+    require_row_format = module.params["require_row_format"]
+    require_table_primary_key_check = module.params["require_table_primary_key_check"]
+    assign_gtids_to_anonymous_transactions = module.params["assign_gtids_to_anonymous_transactions"]
+    if assign_gtids_to_anonymous_transactions is not None and re.fullmatch(r'^(?:[0-9A-F]{8}-[0-9A-F]{4}-[1-5][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}|off|local)$', assign_gtids_to_anonymous_transactions, re.I) is None:
+      module.fail_json(msg="assign_gtids_to_anonymous_transactions must be a UUID, 'OFF' or 'LOCAL'")
+    source_connection_auto_failover = module.params["source_connection_auto_failover"]
+    network_namespace = module.params["network_namespace"]
     ssl_cert = module.params["client_cert"]
     ssl_key = module.params["client_key"]
     ssl_ca = module.params["ca_cert"]
@@ -509,6 +674,7 @@ def main():
         primary_use_gtid = 'no'
     else:
         primary_use_gtid = module.params["primary_use_gtid"]
+    gtid_only = module.params["gtid_only"]
     connection_name = module.params["connection_name"]
     channel = module.params['channel']
     fail_on_error = module.params['fail_on_error']
@@ -576,6 +742,8 @@ def main():
     elif mode == 'changeprimary':
         chm = []
         result = {}
+        if primary_bind is not None:
+            chm.append("MASTER_BIND='%s'" % primary_bind)
         if primary_host is not None:
             chm.append("MASTER_HOST='%s'" % primary_host)
         if primary_user is not None:
@@ -584,8 +752,12 @@ def main():
             chm.append("MASTER_PASSWORD='%s'" % primary_password)
         if primary_port is not None:
             chm.append("MASTER_PORT=%s" % primary_port)
+        if primary_heartbeat_period is not None:
+            chm.append("MASTER_HEARTBEAT_PERIOD=%s" % primary_heartbeat_period)
         if primary_connect_retry is not None:
             chm.append("MASTER_CONNECT_RETRY=%s" % primary_connect_retry)
+        if primary_retry_count is not None:
+            chm.append("MASTER_RETRY_COUNT=%s" % primary_retry_count)
         if primary_log_file is not None:
             chm.append("MASTER_LOG_FILE='%s'" % primary_log_file)
         if primary_log_pos is not None:
@@ -607,16 +779,55 @@ def main():
             chm.append("MASTER_SSL_CAPATH='%s'" % primary_ssl_capath)
         if primary_ssl_cert is not None:
             chm.append("MASTER_SSL_CERT='%s'" % primary_ssl_cert)
+        if primary_ssl_crl is not None:
+            chm.append("MASTER_SSL_CRL='%s'" % primary_ssl_crl)
+        if primary_ssl_crlpath is not None:
+            chm.append("MASTER_SSL_CRLPATH='%s'" % primary_ssl_crlpath)
         if primary_ssl_key is not None:
             chm.append("MASTER_SSL_KEY='%s'" % primary_ssl_key)
         if primary_ssl_cipher is not None:
             chm.append("MASTER_SSL_CIPHER='%s'" % primary_ssl_cipher)
+        if primary_tls_version is not None:
+            chm.append("MASTER_TLS_VERSION='%s'" % primary_tls_version)
+        if primary_compression_algorithms is not None:
+            chm.append("MASTER_COMPRESSION_ALGORITHMS='%s'" % primary_compression_algorithms)
+        if primary_zstd_compression_level is not None:
+            chm.append("MASTER_ZSTD_COMPRESSION_LEVEL=%s" % primary_zstd_compression_level)
+        if primary_tls_ciphersuites is not None:
+            chm.append("MASTER_TLS_CIPHERSUITES='%s'" % primary_tls_ciphersuites)
+        if primary_public_key_path is not None:
+            chm.append("MASTER_PUBLIC_KEY_PATH='%s'" % primary_public_key_path)
+        if get_primary_public_key:
+            chm.append("GET_MASTER_PUBLIC_KEY=1")
         if primary_ssl_verify_server_cert:
             chm.append("SOURCE_SSL_VERIFY_SERVER_CERT=1")
         if primary_auto_position:
             chm.append("MASTER_AUTO_POSITION=1")
         if primary_use_gtid is not None:
             chm.append("MASTER_USE_GTID=%s" % primary_use_gtid)
+        if ignore_server_ids:
+            chm.append("IGNORE_SERVER_IDS=(%s)" % ','.join(ignore_server_ids))
+        if do_domain_ids:
+            chm.append("DO_DOMAIN_IDS=(%s)" % ','.join(do_domain_ids))
+        if ignore_domain_ids:
+            chm.append("IGNORE_DOMAIN_IDS=(%s)" % ','.join(ignore_domain_ids))
+        if privilege_checks_user is not None:
+            chm.append("PRIVILEGE_CHECKS_USER='%s'" % privilege_checks_user)
+        if require_row_format:
+            chm.append("REQUIRE_ROW_FORMAT=1")
+        if require_table_primary_key_check is not None:
+            chm.append("REQUIRE_TABLE_PRIMARY_KEY_CHECK='%s'" % require_table_primary_key_check)
+        if assign_gtids_to_anonymous_transactions is not None:
+            chm.append("ASSIGN_GTIDS_TO_ANONYMOUS_FUNCTION='%s'" % assign_gtids_to_anonymous_transactions)
+        if source_connection_auto_failover:
+            chm.append("SOURCE_CONNECTION_AUTO_FAILOVER=1")
+        if network_namespace is not None:
+            chm.append("NETWORK_NAMESPACE='%s'" % network_namespace)
+        if gtid_only is not None and impl.supports_gtid_only(cursor):
+            if gtid_only:
+                chm.append("GTID_ONLY=1")
+            else:
+                chm.append("GTID_ONLY=0")
         try:
             changeprimary(cursor, chm, connection_name, channel)
         except mysql_driver.Warning as e:

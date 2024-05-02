@@ -550,20 +550,26 @@ def main():
 
     if mode == 'getprimary':
         status = get_primary_status(cursor)
-        if not isinstance(status, dict):
-            status = dict(Is_Primary=False,
-                          msg="Server is not configured as mysql primary")
-        else:
+        if status and "File" in status and "Position" in status:
             status['Is_Primary'] = True
+        else:
+            status = dict(
+                Is_Primary=False,
+                msg="Server is not configured as mysql primary. "
+                    "Meaning: Binary logs are disabled")
 
         module.exit_json(queries=executed_queries, **status)
 
     elif mode == "getreplica":
         status = get_replica_status(cursor, connection_name, channel, replica_term)
-        if not isinstance(status, dict):
-            status = dict(Is_Replica=False, msg="Server is not configured as mysql replica")
-        else:
+        # MySQL 8.0 uses Replica_...
+        # MariaDB 10.6 uses Slave_...
+        if status and (
+                "Slave_IO_Running" in status or
+                "Replica_IO_Running" in status):
             status['Is_Replica'] = True
+        else:
+            status = dict(Is_Replica=False, msg="Server is not configured as mysql replica")
 
         module.exit_json(queries=executed_queries, **status)
 

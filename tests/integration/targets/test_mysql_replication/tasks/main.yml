@@ -25,3 +25,8 @@
 - import_tasks: mysql_replication_resetprimary_mode.yml
 
 - include_tasks: issue-28.yml
+
+# Tests of changereplication mode:
+- import_tasks: mysql_replication_changereplication_mode.yml
+  when:
+    - db_engine == 'mysql'

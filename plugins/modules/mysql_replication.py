@@ -19,11 +19,13 @@ description:
 author:
 - Balazs Pocze (@banyek)
 - Andrew Klychkov (@Andersson007)
+- Dennis Urtubia (@dennisurtubia)
 options:
   mode:
     description:
     - Module operating mode. Could be
       C(changeprimary) (CHANGE MASTER TO),
+      C(changereplication) (CHANGE REPLICATION SOURCE TO) - only supported in MySQL 8.0.23 and later,
       C(getprimary) (SHOW MASTER STATUS),
       C(getreplica) (SHOW REPLICA STATUS),
       C(startreplica) (START REPLICA),
@@ -34,6 +36,7 @@ options:
     type: str
     choices:
     - changeprimary
+    - changereplication
     - getprimary
     - getreplica
     - startreplica
@@ -225,6 +228,13 @@ EXAMPLES = r'''
 - name: Change primary to primary server 192.0.2.1 and use binary log 'mysql-bin.000009' with position 4578
   community.mysql.mysql_replication:
     mode: changeprimary
+    primary_host: 192.0.2.1
+    primary_log_file: mysql-bin.000009
+    primary_log_pos: 4578
+
+- name: Change replication source to replica server 192.0.2.1 and use binary log 'mysql-bin.000009' with position 4578
+  community.mysql.mysql_replication:
+    mode: changereplication
     primary_host: 192.0.2.1
     primary_log_file: mysql-bin.000009
     primary_log_pos: 4578
@@ -438,6 +448,16 @@ def changeprimary(cursor, chm, connection_name='', channel=''):
     cursor.execute(query)
 
 
+def changereplication(cursor, chm, channel=''):
+    query = 'CHANGE REPLICATION SOURCE TO %s' % ','.join(chm)
+
+    if channel:
+        query += " FOR CHANNEL '%s'" % channel
+
+    executed_queries.append(query)
+    cursor.execute(query)
+
+
 def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
@@ -449,7 +469,8 @@ def main():
             'startreplica',
             'resetprimary',
             'resetreplica',
-            'resetreplicaall']),
+            'resetreplicaall',
+            'changereplication']),
         primary_auto_position=dict(type='bool', default=False, aliases=['master_auto_position']),
         primary_host=dict(type='str', aliases=['master_host']),
         primary_user=dict(type='str', aliases=['master_user']),
@@ -655,6 +676,56 @@ def main():
             module.exit_json(msg="Replica reset", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Replica already reset", changed=False, queries=executed_queries)
+    elif mode == 'changereplication':
+        chm = []
+        result = {}
+        if primary_host is not None:
+            chm.append("SOURCE_HOST='%s'" % primary_host)
+        if primary_user is not None:
+            chm.append("SOURCE_USER='%s'" % primary_user)
+        if primary_password is not None:
+            chm.append("SOURCE_PASSWORD='%s'" % primary_password)
+        if primary_port is not None:
+            chm.append("SOURCE_PORT=%s" % primary_port)
+        if primary_connect_retry is not None:
+            chm.append("SOURCE_CONNECT_RETRY=%s" % primary_connect_retry)
+        if primary_log_file is not None:
+            chm.append("SOURCE_LOG_FILE='%s'" % primary_log_file)
+        if primary_log_pos is not None:
+            chm.append("SOURCE_LOG_POS=%s" % primary_log_pos)
+        if primary_delay is not None:
+            chm.append("SOURCE_DELAY=%s" % primary_delay)
+        if relay_log_file is not None:
+            chm.append("RELAY_LOG_FILE='%s'" % relay_log_file)
+        if relay_log_pos is not None:
+            chm.append("RELAY_LOG_POS=%s" % relay_log_pos)
+        if primary_ssl is not None:
+            if primary_ssl:
+                chm.append("SOURCE_SSL=1")
+            else:
+                chm.append("SOURCE_SSL=0")
+        if primary_ssl_ca is not None:
+            chm.append("SOURCE_SSL_CA='%s'" % primary_ssl_ca)
+        if primary_ssl_capath is not None:
+            chm.append("SOURCE_SSL_CAPATH='%s'" % primary_ssl_capath)
+        if primary_ssl_cert is not None:
+            chm.append("SOURCE_SSL_CERT='%s'" % primary_ssl_cert)
+        if primary_ssl_key is not None:
+            chm.append("SOURCE_SSL_KEY='%s'" % primary_ssl_key)
+        if primary_ssl_cipher is not None:
+            chm.append("SOURCE_SSL_CIPHER='%s'" % primary_ssl_cipher)
+        if primary_ssl_verify_server_cert:
+            chm.append("SOURCE_SSL_VERIFY_SERVER_CERT=1")
+        if primary_auto_position:
+            chm.append("SOURCE_AUTO_POSITION=1")
+        try:
+            changereplication(cursor, chm, channel)
+        except mysql_driver.Warning as e:
+            result['warning'] = to_native(e)
+        except Exception as e:
+            module.fail_json(msg='%s. Query == CHANGE REPLICATION SOURCE TO %s' % (to_native(e), chm))
+        result['changed'] = True
+        module.exit_json(queries=executed_queries, **result)
 
     warnings.simplefilter("ignore")
 

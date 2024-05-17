@@ -1,0 +1,3 @@
+---
+minor_changes:
+  - mysql_replication - Adds support for `CHANGE REPLICATION SOURCE TO` statement (https://github.com/ansible-collections/community.mysql/issues/635).

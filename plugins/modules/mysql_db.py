@@ -11,9 +11,9 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: mysql_db
-short_description: Add or remove MySQL databases from a remote host
+short_description: Add or remove MySQL or MariaDB databases from a remote host
 description:
-- Add or remove MySQL databases from a remote host.
+- Add or remove MySQL or MariaDB databases from a remote host.
 options:
   name:
     description:
@@ -188,6 +188,7 @@ requirements:
    - mysql (command line binary)
    - mysqldump (command line binary)
 notes:
+   - Compatible with MariaDB or MySQL
    - Requires the mysql and mysqldump binaries on the remote host.
    - This module is B(not idempotent) when I(state) is C(import),
      and will import the dump file each time if run more than once.

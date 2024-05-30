@@ -11,9 +11,9 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: mysql_user
-short_description: Adds or removes a user from a MySQL database
+short_description: Adds or removes a user from a MySQL or MariaDB database
 description:
-   - Adds or removes a user from a MySQL database.
+   - Adds or removes a user from a MySQL or MariaDB database.
 options:
   name:
     description:
@@ -188,6 +188,7 @@ options:
     version_added: '3.9.0'
 
 notes:
+   - Compatible with MySQL or MariaDB
    - "MySQL server installs with default I(login_user) of C(root) and no password.
      To secure this user as part of an idempotent playbook, you must create at least two tasks:
      1) change the root user's password, without providing any I(login_user)/I(login_password) details,

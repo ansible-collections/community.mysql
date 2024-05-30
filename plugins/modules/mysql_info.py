@@ -11,9 +11,9 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: mysql_info
-short_description: Gather information about MySQL servers
+short_description: Gather information about MySQL or MariaDB servers
 description:
-- Gathers information about MySQL servers.
+- Gathers information about MySQL or MariaDB servers.
 
 options:
   filter:
@@ -46,6 +46,7 @@ options:
     default: false
 
 notes:
+- Compatible with MariaDB or MySQL
 - Calculating the size of a database might be slow, depending on the number and size of tables in it.
   To avoid this, use I(exclude_fields=db_size).
 

@@ -12,9 +12,9 @@ DOCUMENTATION = r'''
 ---
 module: mysql_variables
 
-short_description: Manage MySQL global variables
+short_description: Manage MySQL or MariaDB global variables
 description:
-- Query / Set MySQL variables.
+- Query / Set MySQL or MariaDB variables.
 author:
 - Balazs Pocze (@banyek)
 options:
@@ -53,6 +53,9 @@ seealso:
 - name: MySQL SET command reference
   description: Complete reference of the MySQL SET command documentation.
   link: https://dev.mysql.com/doc/refman/8.0/en/set-statement.html
+
+notes:
+   - Compatible with MariaDB or MySQL
 
 extends_documentation_fragment:
 - community.mysql.mysql

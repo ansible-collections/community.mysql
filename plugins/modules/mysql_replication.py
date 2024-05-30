@@ -316,8 +316,12 @@ def get_primary_status(cursor):
     term = "MASTER"
 
     version = get_server_version(cursor)
-    if get_server_implementation(cursor) == "mysql" and LooseVersion(version) >= LooseVersion("8.2.0"):
+    server_implementation = get_server_implementation(cursor)
+    if server_implementation == "mysql" and LooseVersion(version) >= LooseVersion("8.2.0"):
         term = "BINARY LOG"
+
+    if server_implementation == "mariadb" and LooseVersion(version) >= LooseVersion("10.5.2"):
+        term = "BINLOG"
 
     cursor.execute("SHOW %s STATUS" % term)
 

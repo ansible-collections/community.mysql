@@ -298,8 +298,11 @@ queries:
 import os
 import warnings
 
+from ansible_collections.community.mysql.plugins.module_utils.version import LooseVersion
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
+    get_server_version,
+    get_server_implementation,
     mysql_connect,
     mysql_driver,
     mysql_driver_fail_msg,
@@ -311,10 +314,18 @@ executed_queries = []
 
 
 def get_primary_status(cursor):
-    # TODO: when it's available to change on MySQL's side,
-    # change MASTER to PRIMARY using the approach from
-    # get_replica_status() function. Same for other functions.
-    cursor.execute("SHOW MASTER STATUS")
+    term = "MASTER"
+
+    version = get_server_version(cursor)
+    server_implementation = get_server_implementation(cursor)
+    if server_implementation == "mysql" and LooseVersion(version) >= LooseVersion("8.2.0"):
+        term = "BINARY LOG"
+
+    if server_implementation == "mariadb" and LooseVersion(version) >= LooseVersion("10.5.2"):
+        term = "BINLOG"
+
+    cursor.execute("SHOW %s STATUS" % term)
+
     primarystatus = cursor.fetchone()
     return primarystatus
 

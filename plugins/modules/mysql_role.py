@@ -11,10 +11,10 @@ DOCUMENTATION = r'''
 ---
 module: mysql_role
 
-short_description: Adds, removes, or updates a MySQL role
+short_description: Adds, removes, or updates a MySQL or MariaDB role
 
 description:
-   - Adds, removes, or updates a MySQL role.
+   - Adds, removes, or updates a MySQL or MariaDB role.
    - Roles are supported since MySQL 8.0.0 and MariaDB 10.0.5.
 
 version_added: '2.2.0'
@@ -132,6 +132,7 @@ options:
     version_added: '3.8.0'
 
 notes:
+  - Roles are supported since MySQL 8.0.0 and MariaDB 10.0.5.
   - Pay attention that the module runs C(SET DEFAULT ROLE ALL TO)
     all the I(members) passed by default when the state has changed.
     If you want to avoid this behavior, set I(set_default_role_all) to C(no).

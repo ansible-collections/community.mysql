@@ -13,9 +13,9 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: mysql_replication
-short_description: Manage MySQL replication
+short_description: Manage MySQL or MariaDB replication
 description:
-- Manages MySQL server replication, replica, primary status, get and change primary host.
+- Manages MySQL or MariaDB server replication, replica, primary status, get and change primary host.
 author:
 - Balazs Pocze (@banyek)
 - Andrew Klychkov (@Andersson007)
@@ -191,7 +191,8 @@ options:
     version_added: '0.1.0'
 
 notes:
-- If an empty value for the parameter of string type is needed, use an empty string.
+   - Compatible with MariaDB or MySQL.
+   - If an empty value for the parameter of string type is needed, use an empty string.
 
 attributes:
   check_mode:

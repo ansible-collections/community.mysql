@@ -191,7 +191,7 @@ options:
     version_added: '0.1.0'
 
 notes:
-   - Compatible with MariaDB or MySQL
+   - Compatible with MariaDB or MySQL.
    - If an empty value for the parameter of string type is needed, use an empty string.
 
 attributes:

@@ -55,7 +55,7 @@ seealso:
   link: https://dev.mysql.com/doc/refman/8.0/en/set-statement.html
 
 notes:
-   - Compatible with MariaDB or MySQL
+   - Compatible with MariaDB or MySQL.
 
 extends_documentation_fragment:
 - community.mysql.mysql

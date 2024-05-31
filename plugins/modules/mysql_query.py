@@ -57,7 +57,7 @@ attributes:
 seealso:
 - module: community.mysql.mysql_db
 notes:
-- Compatible with MariaDB or MySQL
+- Compatible with MariaDB or MySQL.
 author:
 - Andrew Klychkov (@Andersson007)
 extends_documentation_fragment:

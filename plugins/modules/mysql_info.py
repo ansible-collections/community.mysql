@@ -46,7 +46,7 @@ options:
     default: false
 
 notes:
-- Compatible with MariaDB or MySQL
+- Compatible with MariaDB or MySQL.
 - Calculating the size of a database might be slow, depending on the number and size of tables in it.
   To avoid this, use I(exclude_fields=db_size).
 

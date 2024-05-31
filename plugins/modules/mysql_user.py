@@ -188,7 +188,7 @@ options:
     version_added: '3.9.0'
 
 notes:
-   - Compatible with MySQL or MariaDB
+   - Compatible with MySQL or MariaDB.
    - "MySQL server installs with default I(login_user) of C(root) and no password.
      To secure this user as part of an idempotent playbook, you must create at least two tasks:
      1) change the root user's password, without providing any I(login_user)/I(login_password) details,

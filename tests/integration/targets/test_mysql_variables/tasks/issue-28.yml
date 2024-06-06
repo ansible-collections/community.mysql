@@ -3,7 +3,7 @@
   command: "{{ mysql_command }} \"-e SHOW VARIABLES LIKE 'have_ssl';\""
   register: result
 - set_fact:
-    tls_enabled: "{{ 'YES' in result.stdout | bool | default('false', true) }}"
+    tls_enabled: "{{ 'YES' in result.stdout }}"
 
 - vars:
     mysql_parameters: &mysql_params

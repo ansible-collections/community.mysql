@@ -1,0 +1,6 @@
+---
+
+bugfixes:
+
+  - mysql_user - Fixed an IndexError in the update_password functionality introduced in PR https://github.com/ansible-collections/community.mysql/pull/580 and released in community.mysql 3.8.0. If you used this functionality, please avoid versions 3.8.0 to 3.9.0.
+  - mysql_user - Added a warning to update_password's on_new_username option if multiple accounts with the same username but different passwords exist.

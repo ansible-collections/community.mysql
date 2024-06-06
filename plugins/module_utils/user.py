@@ -113,6 +113,9 @@ def get_existing_authentication(cursor, user, host):
             group by plugin, authentication_string limit 2""", {'user': user, 'host': host})
     rows = cursor.fetchall()
 
+    if len(rows) == 0:
+        return None
+
     # Mysql_info use a DictCursor so we must convert back to a list
     # otherwise we get KeyError 0
     if isinstance(rows, dict):

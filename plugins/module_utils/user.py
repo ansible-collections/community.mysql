@@ -90,7 +90,11 @@ def get_grants(cursor, user, host):
 
 
 def get_existing_authentication(cursor, user, host):
-    # Return the plugin and auth_string if there is exactly one distinct existing plugin and auth_string.
+    """ Return a list of dict containing the plugin and auth_string for the
+    specified username.
+    If hostname is provided, return only the information about this particular
+    account.
+    """
     cursor.execute("SELECT VERSION()")
     srv_type = cursor.fetchone()
     # Mysql_info use a DictCursor so we must convert back to a list
@@ -114,27 +118,30 @@ def get_existing_authentication(cursor, user, host):
     rows = cursor.fetchall()
 
     if len(rows) == 0:
-        return None
+        return []
 
     # Mysql_info use a DictCursor so we must convert back to a list
     # otherwise we get KeyError 0
     if isinstance(rows, dict):
         rows = list(rows.values())
 
-    # 'plugin_auth_string' contains the hash string. Must be removed in c.mysql 4.0
-    # See https://github.com/ansible-collections/community.mysql/pull/629
-    if isinstance(rows[0], tuple):
-        return {'plugin': rows[0][0],
-                'plugin_auth_string': rows[0][1],
-                'plugin_hash_string': rows[0][1]}
+    existing_auth_list = []
 
     # 'plugin_auth_string' contains the hash string. Must be removed in c.mysql 4.0
     # See https://github.com/ansible-collections/community.mysql/pull/629
-    if isinstance(rows[0], dict):
-        return {'plugin': rows[0].get('plugin'),
-                'plugin_auth_string': rows[0].get('auth'),
-                'plugin_hash_string': rows[0].get('auth')}
-    return None
+    for r in rows:
+        if isinstance(r, tuple):
+            existing_auth_list.append({
+                'plugin': r[0],
+                'plugin_auth_string': r[1],
+                'plugin_hash_string': r[1]})
+        elif isinstance(r, dict):
+            existing_auth_list.append({
+                'plugin': r.get('plugin'),
+                'plugin_auth_string': r.get('auth'),
+                'plugin_hash_string': r.get('auth')})
+
+    return existing_auth_list
 
 
 def user_add(cursor, user, host, host_all, password, encrypted,
@@ -158,14 +165,26 @@ def user_add(cursor, user, host, host_all, password, encrypted,
 
     mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
 
+    # This is for update_password: on_new_username
     used_existing_password = False
     if reuse_existing_password:
         existing_auth = get_existing_authentication(cursor, user, host)
         if existing_auth:
-            plugin = existing_auth['plugin']
-            plugin_hash_string = existing_auth['plugin_hash_string']
-            password = None
-            used_existing_password = True
+            pass_hashes = [p['plugin_hash_string'] for p in existing_auth]
+            # Use a set to check if all values are the same
+            if len(set(pass_hashes)) != 1:
+                module.warn("An account with the username %s has a different "
+                            "password than the others existing accounts. Thus "
+                            "on_new_username can't decide which password to "
+                            "reuse so it will use your provided password "
+                            "instead. If no password is provided, the account "
+                            "will have an empty password!" % user)
+                used_existing_password = False
+            else:
+                plugin_hash_string = existing_auth[0]['plugin_hash_string']
+                password = None
+                used_existing_password = True
+            plugin = existing_auth[0]['plugin']  # What if plugin differ?
     if password and encrypted:
         if impl.supports_identified_by_password(cursor):
             query_with_args = "CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password)

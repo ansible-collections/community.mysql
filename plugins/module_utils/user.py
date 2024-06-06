@@ -118,11 +118,19 @@ def get_existing_authentication(cursor, user, host):
     if isinstance(rows, dict):
         rows = list(rows.values())
 
+    # 'plugin_auth_string' contains the hash string. Must be removed in c.mysql 4.0
+    # See https://github.com/ansible-collections/community.mysql/pull/629
     if isinstance(rows[0], tuple):
-        return {'plugin': rows[0][0], 'plugin_auth_string': rows[0][1]}
+        return {'plugin': rows[0][0],
+                'plugin_auth_string': rows[0][1],
+                'plugin_hash_string': rows[0][1]}
 
+    # 'plugin_auth_string' contains the hash string. Must be removed in c.mysql 4.0
+    # See https://github.com/ansible-collections/community.mysql/pull/629
     if isinstance(rows[0], dict):
-        return {'plugin': rows[0].get('plugin'), 'plugin_auth_string': rows[0].get('auth')}
+        return {'plugin': rows[0].get('plugin'),
+                'plugin_auth_string': rows[0].get('auth'),
+                'plugin_hash_string': rows[0].get('auth')}
     return None
 
 
@@ -152,7 +160,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         existing_auth = get_existing_authentication(cursor, user, host)
         if existing_auth:
             plugin = existing_auth['plugin']
-            plugin_hash_string = existing_auth['auth_string']
+            plugin_hash_string = existing_auth['plugin_hash_string']
             password = None
             used_existing_password = True
     if password and encrypted:

@@ -89,7 +89,7 @@ def get_grants(cursor, user, host):
     return grants.split(", ")
 
 
-def get_existing_authentication(cursor, user, host):
+def get_existing_authentication(cursor, user, host=None):
     """ Return a list of dict containing the plugin and auth_string for the
     specified username.
     If hostname is provided, return only the information about this particular
@@ -105,16 +105,29 @@ def get_existing_authentication(cursor, user, host):
     if 'mariadb' in srv_type[0].lower():
         # before MariaDB 10.2.19 and 10.3.11, "password" and "authentication_string" can differ
         # when using mysql_native_password
-        cursor.execute("""select plugin, auth from (
-            select plugin, password as auth from mysql.user where user=%(user)s
-            and host=%(host)s
-            union select plugin, authentication_string as auth from mysql.user where user=%(user)s
-            and host=%(host)s) x group by plugin, auth limit 2
-        """, {'user': user, 'host': host})
+        if host:
+            cursor.execute("""select plugin, auth from (
+                select plugin, password as auth from mysql.user where user=%(user)s
+                and host=%(host)s
+                union select plugin, authentication_string as auth from mysql.user where user=%(user)s
+                and host=%(host)s) x group by plugin, auth
+            """, {'user': user, 'host': host})
+        else:
+            cursor.execute("""select plugin, auth from (
+                select plugin, password as auth from mysql.user where user=%(user)s
+                union select plugin, authentication_string as auth from mysql.user where user=%(user)s
+                ) x group by plugin, auth
+            """, {'user': user})
     else:
-        cursor.execute("""select plugin, authentication_string as auth
-            from mysql.user where user=%(user)s and host=%(host)s
-            group by plugin, authentication_string limit 2""", {'user': user, 'host': host})
+        if host:
+            cursor.execute("""select plugin, authentication_string as auth
+                from mysql.user where user=%(user)s and host=%(host)s
+                group by plugin, authentication_string""", {'user': user, 'host': host})
+        else:
+            cursor.execute("""select plugin, authentication_string as auth
+                from mysql.user where user=%(user)s
+                group by plugin, authentication_string""", {'user': user})
+
     rows = cursor.fetchall()
 
     if len(rows) == 0:
@@ -168,7 +181,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     # This is for update_password: on_new_username
     used_existing_password = False
     if reuse_existing_password:
-        existing_auth = get_existing_authentication(cursor, user, host)
+        existing_auth = get_existing_authentication(cursor, user)
         if existing_auth:
             pass_hashes = [p['plugin_hash_string'] for p in existing_auth]
             # Use a set to check if all values are the same

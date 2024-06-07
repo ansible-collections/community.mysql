@@ -1,2 +1,6 @@
+---
 fixes:
    - "/ansible_collections/community/mysql/::"
+
+ignore:
+   - "plugins/module_utils/pymysql"  # Skip test on upstream library

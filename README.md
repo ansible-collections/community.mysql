@@ -126,13 +126,10 @@ For MariaDB, only Long Term releases are tested.
 - mysqlclient 2.0.3 (only collection version >= 3.5.2)
 - mysqlclient 2.1.1 (only collection version >= 3.5.2)
 
-## External requirements
+Starting with 3.9.1, pymysql is now included. It means it is no longer necessary to install the connector on the controller or the controlled nodes. Here is the version included:
 
-The MySQL modules rely on a MySQL connector. The list of supported drivers is below:
-
-- [PyMySQL](https://github.com/PyMySQL/PyMySQL)
-- [mysqlclient](https://github.com/PyMySQL/mysqlclient)
-- Support for other Python MySQL connectors may be added in a future release.
+- community.mysql 3.9.1: pymysql 1.1.1
+s
 
 ## Using this collection
 

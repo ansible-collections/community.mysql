@@ -305,7 +305,6 @@ from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_connect,
     mysql_driver,
-    mysql_driver_fail_msg,
     mysql_common_argument_spec
 )
 from ansible_collections.community.mysql.plugins.module_utils.user import (
@@ -1016,9 +1015,6 @@ def main():
 
     if priv and isinstance(priv, dict):
         priv = convert_priv_dict_to_str(priv)
-
-    if mysql_driver is None:
-        module.fail_json(msg=mysql_driver_fail_msg)
 
     # TODO Release 4.0.0 : Remove this test and variable assignation
     if column_case_sensitive is None:

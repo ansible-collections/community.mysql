@@ -74,19 +74,7 @@ options:
       - This option has no effect on MySQLdb.
     type: bool
     version_added: '1.1.0'
-requirements:
-   - mysqlclient (Python 3.5+) or
-   - PyMySQL (Python 2.7 and Python 3.x) or
-   - MySQLdb (Python 2.x)
 notes:
-   - Requires the PyMySQL (Python 2.7 and Python 3.X) or MySQL-python (Python 2.X) package installed on the remote host.
-     The Python package may be installed with apt-get install python-pymysql (Ubuntu; see M(ansible.builtin.apt)) or
-     yum install python2-PyMySQL (RHEL/CentOS/Fedora; see M(ansible.builtin.yum)). You can also use dnf install python2-PyMySQL
-     for newer versions of Fedora; see M(ansible.builtin.dnf).
-   - Be sure you have mysqlclient, PyMySQL, or MySQLdb library installed on the target machine
-     for the Python interpreter Ansible discovers.  For example if ansible discovers and uses Python 3, you need to install
-     the Python 3 version of PyMySQL or mysqlclient.  If ansible discovers and uses Python 2, you need to install the Python 2
-     version of either PyMySQL or MySQL-python.
    - If you have trouble, it may help to force Ansible to use the Python interpreter you need by specifying
      C(ansible_python_interpreter).  For more information, see
      U(https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html).
@@ -99,9 +87,6 @@ notes:
      and later uses the unix_socket authentication plugin by default that
      without using I(login_unix_socket=/var/run/mysqld/mysqld.sock) (the default path)
      causes the error ``Host '127.0.0.1' is not allowed to connect to this MariaDB server``.
-   - Alternatively, you can use the mysqlclient library instead of MySQL-python (MySQLdb)
-     which supports both Python 2.X and Python >=3.5.
-     See U(https://pypi.org/project/mysqlclient/) how to install it.
    - "If credentials from the config file (for example, C(/root/.my.cnf)) are not needed to connect to a database server, but
      the file exists and does not contain a C([client]) section, before any other valid directives, it will be read and this
      will cause the connection to fail, to prevent this set it to an empty string, (for example C(config_file: ''))."

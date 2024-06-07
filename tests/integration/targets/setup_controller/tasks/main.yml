@@ -4,6 +4,14 @@
 # and should not be used as examples of how to write Ansible roles #
 ####################################################################
 
+- name: "{{ role_name }} | Mains | Install required packages for testing"
+  ansible.builtin.package:
+    name:
+      - bzip2     # To test mysql_db dump compression
+      - iproute2  # To gather network facts
+      - mariadb-client  # Can't install both mysql_client, had to make a choice
+    state: present
+
 - name: Prepare the fake root folder
   ansible.builtin.import_tasks:
     file: fake_root.yml

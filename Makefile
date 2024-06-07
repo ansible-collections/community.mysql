@@ -15,9 +15,6 @@ endif
 db_ver_tuple := $(subst ., , $(db_engine_version))
 db_engine_version_flat := $(word 1, $(db_ver_tuple))$(word 2, $(db_ver_tuple))
 
-con_ver_tuple := $(subst ., , $(connector_version))
-connector_version_flat := $(word 1, $(con_ver_tuple))$(word 2, $(con_ver_tuple))$(word 3, $(con_ver_tuple))
-
 py_ver_tuple := $(subst ., , $(python))
 python_version_flat := $(word 1, $(py_ver_tuple))$(word 2, $(py_ver_tuple))
 
@@ -32,8 +29,6 @@ endif
 test-integration:
 	@echo -n $(db_engine_name) > tests/integration/db_engine_name
 	@echo -n $(db_engine_version) > tests/integration/db_engine_version
-	@echo -n $(connector_name) > tests/integration/connector_name
-	@echo -n $(connector_version) > tests/integration/connector_version
 	@echo -n $(python) > tests/integration/python
 	@echo -n $(ansible) > tests/integration/ansible
 
@@ -94,16 +89,13 @@ test-integration:
 	https://github.com/ansible/ansible/archive/$(ansible).tar.gz; \
 	set -x; \
 	ansible-test integration $(target) -v --color --coverage --diff \
-	--docker ghcr.io/ansible-collections/community.mysql/test-container\
-	-$(db_client)-py$(python_version_flat)-$(connector_name)$(connector_version_flat):latest \
+	--docker \
 	--docker-network podman $(_continue_on_errors) $(_keep_containers_alive) --python $(python); \
 	set +x
 	# End of venv
 
 	rm tests/integration/db_engine_name
 	rm tests/integration/db_engine_version
-	rm tests/integration/connector_name
-	rm tests/integration/connector_version
 	rm tests/integration/python
 	rm tests/integration/ansible
 ifndef keep_containers_alive

@@ -48,19 +48,8 @@
         login_port: '{{ mysql_primary_port }}'
         ca_cert: /tmp/cert.pem
       register: result
-      ignore_errors: yes
-
-    - assert:
-        that:
-          - result is failed
-      when:
-        - connector_name == 'pymysql'
-
-    - assert:
-        that:
-          - result is succeeded
-      when:
-        - connector_name != 'pymysql'
+      failed_when:
+        - result is success
 
     - name: attempt connection with newly created user ignoring hostname
       mysql_info:

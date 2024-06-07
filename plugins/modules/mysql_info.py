@@ -268,21 +268,6 @@ slave_hosts:
   type: dict
   sample:
   - { "2": { "Host": "", "Master_id": 1, "Port": 3306 } }
-connector_name:
-  description: Name of the python connector used by the module. When the connector is not identified, returns C(Unknown).
-  returned: always
-  type: str
-  sample:
-  - "pymysql"
-  - "MySQLdb"
-  version_added: '3.6.0'
-connector_version:
-  description: Version of the python connector used by the module. When the connector is not identified, returns C(Unknown).
-  returned: always
-  type: str
-  sample:
-  - "1.0.2"
-  version_added: '3.6.0'
 '''
 
 from decimal import Decimal
@@ -292,9 +277,6 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_connect,
     mysql_common_argument_spec,
     mysql_driver,
-    mysql_driver_fail_msg,
-    get_connector_name,
-    get_connector_version,
     get_server_implementation,
 )
 
@@ -739,21 +721,15 @@ def main():
     if exclude_fields:
         exclude_fields = set([f.strip() for f in exclude_fields])
 
-    if mysql_driver is None:
-        module.fail_json(msg=mysql_driver_fail_msg)
-
-    connector_name = get_connector_name(mysql_driver)
-    connector_version = get_connector_version(mysql_driver)
-
     try:
         cursor, db_conn = mysql_connect(module, login_user, login_password,
                                         config_file, ssl_cert, ssl_key, ssl_ca, db,
                                         check_hostname=check_hostname,
                                         connect_timeout=connect_timeout, cursor_class='DictCursor')
     except Exception as e:
-        msg = ('unable to connect to database using %s %s, check login_user '
+        msg = ('unable to connect to database, check login_user '
                'and login_password are correct or %s has the credentials. '
-               'Exception message: %s' % (connector_name, connector_version, config_file, to_native(e)))
+               'Exception message: %s' % (config_file, to_native(e)))
         module.fail_json(msg)
 
     server_implementation = get_server_implementation(cursor)
@@ -765,8 +741,6 @@ def main():
     mysql = MySQL_Info(module, cursor, server_implementation, user_implementation)
 
     module.exit_json(changed=False,
-                     connector_name=connector_name,
-                     connector_version=connector_version,
                      **mysql.get_info(filter_, exclude_fields, return_empty_dbs))
 
 

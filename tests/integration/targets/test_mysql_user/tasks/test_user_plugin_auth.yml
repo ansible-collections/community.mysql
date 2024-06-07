@@ -403,75 +403,66 @@
     # plugins that are loaded by default are sha2*, but these aren't compatible with pymysql < 0.9, so skip these tests
     # for those versions.
     #
-    - name: Plugin auth | Test plugin auth switching which doesn't work on pymysql < 0.9
-      when:
-        - >
-          connector_name != 'pymysql'
-          or (
-            connector_name == 'pymysql'
-            and connector_version is version('0.9', '>=')
-          )
-      block:
 
-        - name: Plugin auth | Create user with plugin auth (empty auth string)
-          mysql_user:
-            <<: *mysql_params
-            name: '{{ test_user_name }}'
-            plugin: '{{ test_plugin_type }}'
-            priv: '{{ test_default_priv }}'
-          register: result
+    - name: Plugin auth | Create user with plugin auth (empty auth string)
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        plugin: '{{ test_plugin_type }}'
+        priv: '{{ test_default_priv }}'
+      register: result
 
-        - name: Plugin auth | Get user information (empty auth string)
-          command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
-          register: show_create_user
+    - name: Plugin auth | Get user information (empty auth string)
+      command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
+      register: show_create_user
 
-        - name: Plugin auth | Check that the module made a change (empty auth string)
-          assert:
-            that:
-              - result is changed
+    - name: Plugin auth | Check that the module made a change (empty auth string)
+      assert:
+        that:
+          - result is changed
 
-        - name: Plugin auth | Check that the expected plugin type is set (empty auth string)
-          assert:
-            that:
-              - test_plugin_type in show_create_user.stdout
-          when: db_engine == 'mysql' or (db_engine == 'mariadb' and db_version is version('10.3', '>='))
+    - name: Plugin auth | Check that the expected plugin type is set (empty auth string)
+      assert:
+        that:
+          - test_plugin_type in show_create_user.stdout
+      when: db_engine == 'mysql' or (db_engine == 'mariadb' and db_version is version('10.3', '>='))
 
-        - include_tasks: utils/assert_user.yml
-          vars:
-            user_name: "{{ test_user_name }}"
-            user_host: localhost
-            priv: "{{ test_default_priv_type }}"
+    - include_tasks: utils/assert_user.yml
+      vars:
+        user_name: "{{ test_user_name }}"
+        user_host: localhost
+        priv: "{{ test_default_priv_type }}"
 
-        - name: Plugin auth | Switch user to sha256_password auth plugin
-          mysql_user:
-            <<: *mysql_params
-            name: '{{ test_user_name }}'
-            plugin: sha256_password
-            priv: '{{ test_default_priv }}'
-          register: result
+    - name: Plugin auth | Switch user to sha256_password auth plugin
+      mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        plugin: sha256_password
+        priv: '{{ test_default_priv }}'
+      register: result
 
-        - name: Plugin auth | Get user information (sha256_password)
-          command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
-          register: show_create_user
+    - name: Plugin auth | Get user information (sha256_password)
+      command: "{{ mysql_command }} -e \"SHOW CREATE USER '{{ test_user_name }}'@'localhost'\""
+      register: show_create_user
 
-        - name: Plugin auth | Check that the module made a change (sha256_password)
-          assert:
-            that:
-              - result is changed
+    - name: Plugin auth | Check that the module made a change (sha256_password)
+      assert:
+        that:
+          - result is changed
 
-        - name: Plugin auth | Check that the expected plugin type is set (sha256_password)
-          assert:
-            that:
-              - "'sha256_password' in show_create_user.stdout"
-          when: db_engine == 'mysql' or (db_engine == 'mariadb' and db_version is version('10.3', '>='))
+    - name: Plugin auth | Check that the expected plugin type is set (sha256_password)
+      assert:
+        that:
+          - "'sha256_password' in show_create_user.stdout"
+      when: db_engine == 'mysql' or (db_engine == 'mariadb' and db_version is version('10.3', '>='))
 
-        - include_tasks: utils/assert_user.yml
-          vars:
-            user_name: "{{ test_user_name }}"
-            user_host: localhost
-            priv: "{{ test_default_priv_type }}"
+    - include_tasks: utils/assert_user.yml
+      vars:
+        user_name: "{{ test_user_name }}"
+        user_host: localhost
+        priv: "{{ test_default_priv_type }}"
 
-        # Cleanup
-        - include_tasks: utils/remove_user.yml
-          vars:
-            user_name: "{{ test_user_name }}"
+    # Cleanup
+    - include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ test_user_name }}"

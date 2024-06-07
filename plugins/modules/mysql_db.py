@@ -343,7 +343,7 @@ import traceback
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import mysql_quote_identifier
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
+from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_common_argument_spec
 from ansible.module_utils.six.moves import shlex_quote
 from ansible.module_utils._text import to_native
 
@@ -604,9 +604,6 @@ def main():
         argument_spec=argument_spec,
         supports_check_mode=True,
     )
-
-    if mysql_driver is None:
-        module.fail_json(msg=mysql_driver_fail_msg)
 
     db = module.params["name"]
     if not db:

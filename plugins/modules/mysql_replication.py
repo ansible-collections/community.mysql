@@ -305,7 +305,6 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     get_server_implementation,
     mysql_connect,
     mysql_driver,
-    mysql_driver_fail_msg,
     mysql_common_argument_spec,
 )
 from ansible.module_utils._text import to_native
@@ -545,12 +544,6 @@ def main():
     connection_name = module.params["connection_name"]
     channel = module.params['channel']
     fail_on_error = module.params['fail_on_error']
-
-    if mysql_driver is None:
-        module.fail_json(msg=mysql_driver_fail_msg)
-    else:
-        warnings.filterwarnings('error', category=mysql_driver.Warning)
-
     login_password = module.params["login_password"]
     login_user = module.params["login_user"]
 

@@ -36,7 +36,7 @@ jobs:
           pull-request-change-detection: true
 
   integration:
-    name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, DB: ${{ matrix.db_engine_name }} ${{ matrix.db_engine_version }}, connector: ${{ matrix.connector_name }} ${{ matrix.connector_version }})"
+    name: "Integration (Python: ${{ matrix.python }}, Ansible: ${{ matrix.ansible }}, DB: ${{ matrix.db_engine_name }} ${{ matrix.db_engine_version }})"
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -59,28 +59,8 @@ jobs:
           - '3.8'
           - '3.9'
           - '3.10'
-        connector_name:
-          - pymysql
-          - mysqlclient
-        connector_version:
-          - 0.7.11
-          - 0.9.3
-          - 1.0.2
-          - 2.0.1
-          - 2.0.3
-          - 2.1.1
-        include:
-          - python: '3.9'  # RHEL9 uses 3.9 by default
-            connector_version: '0.10.1'  # From RHEL package python3-PyMySQL
-            connector_name: pymysql
-
-          - python: '3.11'
-            connector_version: '1.0.2'  # From RHEL package python3.11-PyMySQL
-            connector_name: pymysql
-
-          - python: '3.12'
-            connector_version: '1.1.0'  # From RHEL package python3.12-PyMySQL
-            connector_name: pymysql
+          - '3.11'
+          - '3.12'
         exclude:
           - db_engine_name: mysql
             db_engine_version: 10.4.27
@@ -97,48 +77,6 @@ jobs:
           - db_engine_name: mariadb
             db_engine_version: 8.0.31
 
-          - connector_name: pymysql
-            connector_version: 2.0.1
-
-          - connector_name: pymysql
-            connector_version: 2.0.3
-
-          - connector_name: pymysql
-            connector_version: 2.1.1
-
-          - connector_name: mysqlclient
-            connector_version: 0.7.11
-
-          - connector_name: mysqlclient
-            connector_version: 0.10.1
-
-          - connector_name: mysqlclient
-            connector_version: 0.9.3
-
-          - connector_name: mysqlclient
-            connector_version: 1.0.2
-
-          - connector_name: mysqlclient
-            connector_version: 1.1.0
-
-          - db_engine_name: mariadb
-            connector_version: 0.7.11
-
-          - db_engine_version: 5.7.40
-            python: '3.9'
-
-          - db_engine_version: 5.7.40
-            python: '3.10'
-
-          - db_engine_version: 5.7.40
-            ansible: stable-2.15
-
-          - db_engine_version: 5.7.40
-            ansible: stable-2.16
-
-          - db_engine_version: 5.7.40
-            ansible: devel
-
           - db_engine_version: 8.0.31
             python: '3.8'
 
@@ -153,39 +91,6 @@ jobs:
 
           - db_engine_version: 10.6.11
             python: '3.9'
-
-          - python: '3.8'
-            connector_version: 1.0.2
-
-          - python: '3.8'
-            connector_version: 2.0.3
-
-          - python: '3.8'
-            connector_version: 2.1.1
-
-          - python: '3.9'
-            connector_version: 0.7.11
-
-          - python: '3.9'
-            connector_version: 1.0.2
-
-          - python: '3.9'
-            connector_version: 2.0.1
-
-          - python: '3.9'
-            connector_version: 2.1.1
-
-          - python: '3.10'
-            connector_version: 0.7.11
-
-          - python: '3.10'
-            connector_version: 0.9.3
-
-          - python: '3.10'
-            connector_version: 2.0.1
-
-          - python: '3.10'
-            connector_version: 2.0.3
 
           - python: '3.8'
             ansible: stable-2.16
@@ -270,37 +175,6 @@ jobs:
           ${{ job.services.db_primary.id }}
           | grep healthy && [[ "$SECONDS" -lt 120 ]]; do sleep 1; done
 
-      - name: Compute docker_image - Set python_version_flat
-        run: >
-          echo "python_version_flat=$(echo ${{ matrix.python }}
-          | tr -d '.')" >> $GITHUB_ENV
-
-      - name: Compute docker_image - Set connector_version_flat
-        run: >
-          echo "connector_version_flat=$(echo ${{ matrix.connector_version }}
-          |tr -d .)" >> $GITHUB_ENV
-
-      - name: Compute docker_image - Set db_engine_version_flat
-        run: >
-          echo "db_engine_version_flat=$(echo ${{ matrix.db_engine_version }}
-          | awk -F '.' '{print $1 $2}')" >> $GITHUB_ENV
-
-      - name: Compute docker_image - Set db_client
-        run: >
-          if [[ ${{ env.db_engine_version_flat }} == 57 ]]; then
-            echo "db_client=my57" >> $GITHUB_ENV;
-          else
-            echo "db_client=$(echo ${{ matrix.db_engine_name }})" >> $GITHUB_ENV;
-          fi
-
-      - name: Set docker_image
-        run: |-
-          echo "docker_image=ghcr.io/ansible-collections/community.mysql\
-          /test-container-${{ env.db_client }}\
-          -py${{ env.python_version_flat }}\
-          -${{ matrix.connector_name }}${{ env.connector_version_flat }}\
-          :latest" >> $GITHUB_ENV
-
       - name: >-
           Perform integration testing against
           Ansible version ${{ matrix.ansible }}
@@ -318,14 +192,6 @@ jobs:
             echo -n "${{ matrix.db_engine_version }}"
             > tests/integration/db_engine_version;
 
-            echo Setting Connector name to "${{ matrix.connector_name }}"...;
-            echo -n "${{ matrix.connector_name }}"
-            > tests/integration/connector_name;
-
-            echo Setting Connector name to "${{ matrix.connector_version }}"...;
-            echo -n "${{ matrix.connector_version }}"
-            > tests/integration/connector_version;
-
             echo Setting Python version to "${{ matrix.python }}"...;
             echo -n "${{ matrix.python }}"
             > tests/integration/python;
@@ -333,7 +199,6 @@ jobs:
             echo Setting Ansible version to "${{ matrix.ansible }}"...;
             echo -n "${{ matrix.ansible }}"
             > tests/integration/ansible
-          docker-image: ${{ env.docker_image }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration
 

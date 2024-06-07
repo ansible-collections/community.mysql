@@ -1,23 +1,11 @@
 ---
 
-- name: "{{ role_name }} | Setvars | Extract Podman/Docker Network Gateway"
-  ansible.builtin.shell:
-    cmd: ip route|grep default|awk '{print $3}'
-  register: ip_route_output
+- name: "{{ role_name }} | Setvars | Gather facts"
+  ansible.builtin.setup:
 
 - name: "{{ role_name }} | Setvars | Set Fact"
   ansible.builtin.set_fact:
-    gateway_addr: "{{ ip_route_output.stdout }}"
-    connector_name_lookup: >-
-      {{ lookup(
-        'file',
-        '/root/ansible_collections/community/mysql/tests/integration/connector_name'
-      ) }}
-    connector_version_lookup: >-
-      {{ lookup(
-        'file',
-        '/root/ansible_collections/community/mysql/tests/integration/connector_version'
-      ) }}
+    gateway_addr: "{{ ansible_default_ipv4.gateway }}"
     db_engine_name_lookup: >-
       {{ lookup(
         'file',
@@ -41,8 +29,6 @@
 
 - name: "{{ role_name }} | Setvars | Set Fact using above facts"
   ansible.builtin.set_fact:
-    connector_name: "{{ connector_name_lookup.strip() }}"
-    connector_version: "{{ connector_version_lookup.strip() }}"
     db_engine: "{{ db_engine_name_lookup.strip() }}"
     db_version: "{{ db_engine_version_lookup.strip() }}"
     python_version: "{{ python_version_lookup.strip() }}"
@@ -69,8 +55,6 @@
 - name: "{{ role_name }} | Setvars | Output test informations"
   vars:
     msg: |-
-      connector_name: {{ connector_name }}
-      connector_version: {{ connector_version }}
       db_engine: {{ db_engine }}
       db_version: {{ db_version }}
       python_version: {{ python_version }}

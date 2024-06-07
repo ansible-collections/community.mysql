@@ -50,21 +50,8 @@
         login_port: '{{ mysql_primary_port }}'
         ca_cert: /tmp/cert.pem
       register: result
-      ignore_errors: true
-
-    - name: Issue-28 | Assert connection failed
-      assert:
-        that:
-          - result is failed
-      when:
-        - connector_name == 'pymysql'
-
-    - name: Issue-28 | Assert connection succeeded
-      assert:
-        that:
-          - result is succeeded
-      when:
-        - connector_name != 'pymysql'
+      failed_when:
+        - result is success
 
     - name: Issue-28 | Attempt connection with newly created user ignoring hostname
       mysql_user:
@@ -77,13 +64,6 @@
         login_port: '{{ mysql_primary_port }}'
         ca_cert: /tmp/cert.pem
         check_hostname: false
-      register: result
-      ignore_errors: true
-
-    - name: Issue-28 | Assert connection succeeded
-      assert:
-        that:
-          - result is succeeded or 'pymysql >= 0.7.11 is required' in result.msg
 
     - name: Issue-28 | Drop mysql user
       mysql_user:

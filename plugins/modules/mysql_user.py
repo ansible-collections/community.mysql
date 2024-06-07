@@ -396,7 +396,6 @@ from ansible_collections.community.mysql.plugins.module_utils.database import SQ
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_connect,
     mysql_driver,
-    mysql_driver_fail_msg,
     mysql_common_argument_spec,
     set_session_vars,
 )
@@ -491,9 +490,6 @@ def main():
 
     if priv and isinstance(priv, dict):
         priv = convert_priv_dict_to_str(priv)
-
-    if mysql_driver is None:
-        module.fail_json(msg=mysql_driver_fail_msg)
 
     if password_expire_interval and password_expire_interval < 1:
         module.fail_json(msg="password_expire_interval value \

@@ -91,7 +91,7 @@ from re import match
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import SQLParseError, mysql_quote_identifier
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
+from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_common_argument_spec
 from ansible.module_utils._text import to_native
 
 executed_queries = []
@@ -205,10 +205,6 @@ def main():
         module.fail_json(msg="Cannot run without variable to operate with")
     if match('^[0-9A-Za-z_.]+$', mysqlvar) is None:
         module.fail_json(msg="invalid variable name \"%s\"" % mysqlvar)
-    if mysql_driver is None:
-        module.fail_json(msg=mysql_driver_fail_msg)
-    else:
-        warnings.filterwarnings('error', category=mysql_driver.Warning)
 
     try:
         cursor, db_conn = mysql_connect(module, user, password, config_file, ssl_cert, ssl_key, ssl_ca, db,

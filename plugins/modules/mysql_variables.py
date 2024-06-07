@@ -86,12 +86,11 @@ queries:
 '''
 
 import os
-import warnings
 from re import match
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import SQLParseError, mysql_quote_identifier
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_common_argument_spec
+from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_common_argument_spec
 from ansible.module_utils._text import to_native
 
 executed_queries = []

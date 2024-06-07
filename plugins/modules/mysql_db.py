@@ -343,7 +343,7 @@ import traceback
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import mysql_quote_identifier
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_common_argument_spec
+from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_common_argument_spec
 from ansible.module_utils.six.moves import shlex_quote
 from ansible.module_utils._text import to_native
 

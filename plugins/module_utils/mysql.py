@@ -84,7 +84,7 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
         config['ssl']['check_hostname'] = check_hostname
 
     db_connection = mysql_driver.connect(autocommit=autocommit, **config)
-    
+
     # Monkey patch the Connection class to close the connection when garbage collected
     def _conn_patch(conn_self):
         conn_self.close()

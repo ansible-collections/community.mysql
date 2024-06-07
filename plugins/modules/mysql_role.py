@@ -304,7 +304,6 @@ RETURN = '''#'''
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_connect,
-    mysql_driver,
     mysql_common_argument_spec
 )
 from ansible_collections.community.mysql.plugins.module_utils.user import (

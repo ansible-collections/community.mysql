@@ -129,7 +129,7 @@ For MariaDB, only Long Term releases are tested.
 Starting with 3.9.1, pymysql is now included. It means it is no longer necessary to install the connector on the controller or the controlled nodes. Here is the version included:
 
 - community.mysql 3.9.1: pymysql 1.1.1
-s
+
 
 ## Using this collection
 

@@ -6,7 +6,7 @@
 
 - name: Set tls_enabled fact
   ansible.builtin.set_fact:
-    tls_enabled: "{{ 'YES' in result.stdout }}"
+    tls_enabled: "{{ 'YES' in result.stdout | bool | default('false', true) }}"
 
 - vars:
     mysql_parameters: &mysql_params

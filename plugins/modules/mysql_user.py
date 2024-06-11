@@ -139,8 +139,16 @@ options:
     description:
       - User's plugin auth_string (``CREATE USER user IDENTIFIED WITH plugin BY plugin_auth_string``).
       - If I(plugin) is ``pam`` (MariaDB) or ``auth_pam`` (MySQL) an optional I(plugin_auth_string) can be used to choose a specific PAM service.
+      - You need to define a I(salt) to have idempotence on password change with ``caching_sha2_password`` and ``sha256_password`` plugins.
     type: str
     version_added: '0.1.0'
+  salt:
+    description:
+      - Salt used to generate password hash from I(plugin_auth_string).
+      - Salt length must be 20 characters.
+      - Salt only support ``caching_sha2_password`` or ``sha256_password`` authentication I(plugin).
+    type: str
+    version_added: '3.10.0'
   resource_limits:
     description:
       - Limit the user for certain server resources. Provided since MySQL 5.6 / MariaDB 10.2.
@@ -369,6 +377,13 @@ EXAMPLES = r'''
     priv: '*.*:ALL'
     state: present
 
+- name: Create user 'bob' authenticated with plugin 'caching_sha2_password' and static salt
+  community.mysql.mysql_user:
+    name: bob
+    plugin: caching_sha2_password
+    plugin_auth_string: password
+    salt: 1234567890abcdefghij
+
 - name: Limit bob's resources to 10 queries per hour and 5 connections per hour
   community.mysql.mysql_user:
     name: bob
@@ -440,6 +455,7 @@ def main():
         plugin=dict(default=None, type='str'),
         plugin_hash_string=dict(default=None, type='str'),
         plugin_auth_string=dict(default=None, type='str'),
+        salt=dict(default=None, type='str'),
         resource_limits=dict(type='dict'),
         force_context=dict(type='bool', default=False),
         session_vars=dict(type='dict'),
@@ -480,6 +496,7 @@ def main():
     plugin = module.params["plugin"]
     plugin_hash_string = module.params["plugin_hash_string"]
     plugin_auth_string = module.params["plugin_auth_string"]
+    salt = module.params["salt"]
     resource_limits = module.params["resource_limits"]
     session_vars = module.params["session_vars"]
     column_case_sensitive = module.params["column_case_sensitive"]
@@ -498,6 +515,14 @@ def main():
     if password_expire_interval and password_expire_interval < 1:
         module.fail_json(msg="password_expire_interval value \
                              should be positive number")
+
+    if salt:
+        if not plugin_auth_string:
+            module.fail_json(msg="salt requires plugin_auth_string")
+        if len(salt) != 20:
+            module.fail_json(msg="salt must be 20 characters long")
+        if plugin not in ['caching_sha2_password', 'sha256_password']:
+            module.fail_json(msg="salt requires caching_sha2_password or sha256_password plugin")
 
     cursor = None
     try:
@@ -542,13 +567,13 @@ def main():
             try:
                 if update_password == "always":
                     result = user_mod(cursor, user, host, host_all, password, encrypted,
-                                      plugin, plugin_hash_string, plugin_auth_string,
+                                      plugin, plugin_hash_string, plugin_auth_string, salt,
                                       priv, append_privs, subtract_privs, attributes, tls_requires, module,
                                       password_expire, password_expire_interval)
 
                 else:
                     result = user_mod(cursor, user, host, host_all, None, encrypted,
-                                      None, None, None,
+                                      None, None, None, None,
                                       priv, append_privs, subtract_privs, attributes, tls_requires, module,
                                       password_expire, password_expire_interval)
                 changed = result['changed']
@@ -566,7 +591,7 @@ def main():
                     priv = None  # avoid granting unwanted privileges
                 reuse_existing_password = update_password == 'on_new_username'
                 result = user_add(cursor, user, host, host_all, password, encrypted,
-                                  plugin, plugin_hash_string, plugin_auth_string,
+                                  plugin, plugin_hash_string, plugin_auth_string, salt,
                                   priv, attributes, tls_requires, reuse_existing_password, module,
                                   password_expire, password_expire_interval)
                 changed = result['changed']

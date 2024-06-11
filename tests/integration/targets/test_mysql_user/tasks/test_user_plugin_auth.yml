@@ -13,6 +13,7 @@
     test_plugin_auth_string: 'Fdt8fd^34ds'
     test_plugin_new_hash: '*E74368AC90460FA669F6D41BFB7F2A877DB73745'
     test_plugin_new_auth_string: 'c$K01LsmK7nJnIR4!h'
+    test_salt: 'TDwqdanU82d0yNtvaabb'
     test_default_priv_type: 'SELECT'
     test_default_priv: '*.*:{{ test_default_priv_type }}'
 
@@ -475,3 +476,71 @@
         - include_tasks: utils/remove_user.yml
           vars:
             user_name: "{{ test_user_name }}"
+
+    # ============================================================
+    # Test plugin auth with a salt
+    #
+    - name: Plugin auth | Create user with plugin auth and salt
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: "{{ test_user_name }}"
+        host: "%"
+        plugin: caching_sha2_password
+        plugin_auth_string: "{{ test_plugin_auth_string }}"
+        salt: "{{ test_salt }}"
+        priv: "{{ test_default_priv }}"
+
+    - name: Plugin auth | Connect with user and password
+      ansible.builtin.command: '{{ mysql_command }} -u {{ test_user_name }} -p{{ test_plugin_auth_string }} -e "SELECT 1"'
+
+    - name: Plugin auth | Alter user with same plugin auth and same salt
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: "{{ test_user_name }}"
+        host: "%"
+        plugin: caching_sha2_password
+        plugin_auth_string: "{{ test_plugin_auth_string }}"
+        salt: "{{ test_salt }}"
+        priv: "{{ test_default_priv }}"
+      register: result
+      failed_when: result is changed
+
+    - name: cleanup user
+      ansible.builtin.include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ test_user_name }}"
+
+    - name: Plugin auth | Create user with too short salt (should fail)
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: "{{ test_user_name }}"
+        host: "%"
+        plugin: caching_sha2_password
+        plugin_auth_string: "{{ test_plugin_auth_string }}"
+        salt: "1234567890az"
+        priv: "{{ test_default_priv }}"
+      register: result
+      failed_when: result is success
+
+    - name: Plugin auth | Create user with salt and no plugin auth string (should fail)
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: "{{ test_user_name }}"
+        host: "%"
+        plugin: caching_sha2_password
+        salt: "{{ test_salt }}"
+        priv: "{{ test_default_priv }}"
+      register: result
+      failed_when: result is success
+
+    - name: Plugin auth | Create user with salt and plugin not handled by internal hash generation (should fail)
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: "{{ test_user_name }}"
+        host: "%"
+        plugin: mysql_native_password
+        plugin_auth_string: "{{ test_plugin_auth_string }}"
+        salt: "{{ test_salt }}"
+        priv: "{{ test_default_priv }}"
+      register: result
+      failed_when: result is success

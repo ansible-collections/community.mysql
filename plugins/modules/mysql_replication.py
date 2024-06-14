@@ -20,6 +20,7 @@ author:
 - Balazs Pocze (@banyek)
 - Andrew Klychkov (@Andersson007)
 - Dennis Urtubia (@dennisurtubia)
+- Sebastian Pfahl (@eryx12o45)
 options:
   mode:
     description:
@@ -32,7 +33,9 @@ options:
       C(stopreplica) (STOP REPLICA),
       C(resetprimary) (RESET MASTER) - supported since community.mysql 0.1.0,
       C(resetreplica) (RESET REPLICA),
-      C(resetreplicaall) (RESET REPLICA ALL).
+      C(resetreplicaall) (RESET REPLICA ALL),
+      C(startgroupreplication) (START GROUP_REPLICATION),
+      C(stopgroupreplication) (STOP GROUP_REPLICATION).
     type: str
     choices:
     - changeprimary
@@ -44,6 +47,8 @@ options:
     - resetprimary
     - resetreplica
     - resetreplicaall
+    - startgroupreplication
+    - stopgroupreplication
     default: getreplica
   primary_host:
     description:
@@ -284,6 +289,14 @@ EXAMPLES = r'''
     mode: changeprimary
     fail_on_error: true
 
+- name: Start mysql group replication
+  community.mysql.mysql_replication:
+    mode: startgroupreplication
+
+- name: Stop mysql group replication
+  community.mysql.mysql_replication:
+    mode: stopgroupreplication
+
 '''
 
 RETURN = r'''
@@ -470,6 +483,38 @@ def changereplication(cursor, chm, channel=''):
     cursor.execute(query)
 
 
+def startgroupreplication(module, cursor, fail_on_error=False, term='GROUP_REPLICATION'):
+    query = 'START %s' % term
+
+    try:
+        executed_queries.append(query)
+        cursor.execute(query)
+        started = True
+    except mysql_driver.Warning as e:
+        started = False
+    except Exception as e:
+        if fail_on_error:
+            module.fail_json(msg="START %s failed: %s" % (term, to_native(e)))
+        started = False
+    return started
+
+
+def stopgroupreplication(module, cursor, fail_on_error=False, term='GROUP_REPLICATION'):
+    query = 'STOP %s' % term
+
+    try:
+        executed_queries.append(query)
+        cursor.execute(query)
+        stopped = True
+    except mysql_driver.Warning as e:
+        stopped = False
+    except Exception as e:
+        if fail_on_error:
+            module.fail_json(msg="STOP %s failed: %s" % (term, to_native(e)))
+        stopped = False
+    return stopped
+
+
 def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
@@ -482,7 +527,9 @@ def main():
             'resetprimary',
             'resetreplica',
             'resetreplicaall',
-            'changereplication']),
+            'changereplication',
+            'startgroupreplication',
+            'stopgroupreplication']),
         primary_auto_position=dict(type='bool', default=False, aliases=['master_auto_position']),
         primary_host=dict(type='str', aliases=['master_host']),
         primary_user=dict(type='str', aliases=['master_user']),
@@ -738,6 +785,19 @@ def main():
             module.fail_json(msg='%s. Query == CHANGE REPLICATION SOURCE TO %s' % (to_native(e), chm))
         result['changed'] = True
         module.exit_json(queries=executed_queries, **result)
+    elif mode in "startgroupreplication":
+        started = startgroupreplication(module, cursor, fail_on_error)
+        if started is True:
+            module.exit_json(msg="Group replication started ", changed=True, queries=executed_queries)
+        else:
+            module.exit_json(msg="Group replication already started (Or cannot be started)", changed=False,
+                             ueries=executed_queries)
+    elif mode in "stopgroupreplication":
+        stopped = stopgroupreplication(module, cursor, channel, fail_on_error)
+        if stopped is True:
+            module.exit_json(msg="Group replication stopped", changed=True, queries=executed_queries)
+        else:
+            module.exit_json(msg="Group replication already stopped", changed=False, queries=executed_queries)
 
     warnings.simplefilter("ignore")
 

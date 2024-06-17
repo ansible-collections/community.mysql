@@ -564,8 +564,8 @@ def main():
         connection_name=dict(type='str'),
         channel=dict(type='str'),
         fail_on_error=dict(type='bool', default=False),
-        group_replication_user=dict(type='str', default=None),
-        group_replication_password=dict(type='str', default=None),
+        group_replication_user=dict(type='str'),
+        group_replication_password=dict(type='str', no_log=True),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,

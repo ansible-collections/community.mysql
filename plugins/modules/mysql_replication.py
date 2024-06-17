@@ -301,8 +301,8 @@ EXAMPLES = r'''
 - name: Start mysql group replication
   community.mysql.mysql_replication:
     mode: startgroupreplication
-    group_replication_user: repl_user
-    group_replication_password: repl_passwd
+    group_replication_user: group_repl_user
+    group_replication_password: group_repl_passwd
 
 - name: Stop mysql group replication
   community.mysql.mysql_replication:
@@ -564,6 +564,8 @@ def main():
         connection_name=dict(type='str'),
         channel=dict(type='str'),
         fail_on_error=dict(type='bool', default=False),
+        group_replication_user=dict(type='str', default=None),
+        group_replication_password=dict(type='str', default=None),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,

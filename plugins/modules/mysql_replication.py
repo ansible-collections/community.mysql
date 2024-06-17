@@ -194,7 +194,16 @@ options:
     type: bool
     default: false
     version_added: '0.1.0'
-
+  group_replication_user:
+    description:
+    - User for group replication.
+    type: str
+    version_added: '3.9.0'
+  group_replication_password:
+    description:
+    - Password for group replication user.
+    type: str
+    version_added: '3.9.0'
 notes:
    - Compatible with MariaDB or MySQL.
    - If an empty value for the parameter of string type is needed, use an empty string.
@@ -292,6 +301,8 @@ EXAMPLES = r'''
 - name: Start mysql group replication
   community.mysql.mysql_replication:
     mode: startgroupreplication
+    group_replication_user: repl_user
+    group_replication_password: repl_passwd
 
 - name: Stop mysql group replication
   community.mysql.mysql_replication:
@@ -483,8 +494,8 @@ def changereplication(cursor, chm, channel=''):
     cursor.execute(query)
 
 
-def startgroupreplication(module, cursor, fail_on_error=False, term='GROUP_REPLICATION'):
-    query = 'START %s' % term
+def startgroupreplication(module, cursor, chm, fail_on_error=False, term='GROUP_REPLICATION'):
+    query = 'START %s %s' % (term, ','.join(chm))
 
     try:
         executed_queries.append(query)
@@ -592,6 +603,8 @@ def main():
     connection_name = module.params["connection_name"]
     channel = module.params['channel']
     fail_on_error = module.params['fail_on_error']
+    group_replication_user = module.params['group_replication_user']
+    group_replication_password = module.params['group_replication_password']
 
     if mysql_driver is None:
         module.fail_json(msg=mysql_driver_fail_msg)
@@ -786,7 +799,12 @@ def main():
         result['changed'] = True
         module.exit_json(queries=executed_queries, **result)
     elif mode in "startgroupreplication":
-        started = startgroupreplication(module, cursor, fail_on_error)
+        chm = []
+        if group_replication_user is not None:
+            chm.append(" USER='%s'" % group_replication_user)
+        if group_replication_password is not None:
+            chm.append(" PASSWORD='%s'" % group_replication_password)
+        started = startgroupreplication(module, cursor, chm, fail_on_error)
         if started is True:
             module.exit_json(msg="Group replication started ", changed=True, queries=executed_queries)
         else:

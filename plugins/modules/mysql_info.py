@@ -166,7 +166,7 @@ server_engine:
   description: Database server engine.
   returned: if not excluded by filter
   type: str
-  sample: 'mariadb'
+  sample: 'MariaDB'
   version_added: '3.10.0'
 version:
   description: Database server version.
@@ -771,7 +771,7 @@ def main():
     mysql = MySQL_Info(module, cursor, server_implementation, user_implementation)
 
     module.exit_json(changed=False,
-                     server_engine=server_implementation,
+                     server_engine='MariaDB' if server_implementation == 'mariadb' else 'MySQL',
                      connector_name=connector_name,
                      connector_version=connector_version,
                      **mysql.get_info(filter_, exclude_fields, return_empty_dbs))

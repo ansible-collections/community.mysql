@@ -13,3 +13,4 @@ __metaclass__ = type
 #
 #     from ansible.module_utils.compat.version import LooseVersion
 
+from ._version import LooseVersion

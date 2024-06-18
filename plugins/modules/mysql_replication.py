@@ -34,8 +34,8 @@ options:
       C(resetprimary) (RESET MASTER) - supported since community.mysql 0.1.0,
       C(resetreplica) (RESET REPLICA),
       C(resetreplicaall) (RESET REPLICA ALL),
-      C(startgroupreplication) (START GROUP_REPLICATION),
-      C(stopgroupreplication) (STOP GROUP_REPLICATION).
+      C(startgroupreplication) (START GROUP_REPLICATION) - supported since community.mysql 3.10.0,
+      C(stopgroupreplication) (STOP GROUP_REPLICATION) - supported since community.mysql 3.10.0.
     type: str
     choices:
     - changeprimary
@@ -198,12 +198,12 @@ options:
     description:
     - User for group replication.
     type: str
-    version_added: '3.9.0'
+    version_added: '3.10.0'
   group_replication_password:
     description:
     - Password for group replication user.
     type: str
-    version_added: '3.9.0'
+    version_added: '3.10.0'
 notes:
    - Compatible with MariaDB or MySQL.
    - If an empty value for the parameter of string type is needed, use an empty string.
@@ -807,14 +807,14 @@ def main():
         if group_replication_password is not None:
             chm.append(" PASSWORD='%s'" % group_replication_password)
         started = startgroupreplication(module, cursor, chm, fail_on_error)
-        if started is True:
+        if started:
             module.exit_json(msg="Group replication started ", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Group replication already started (Or cannot be started)", changed=False,
                              ueries=executed_queries)
     elif mode == "stopgroupreplication":
         stopped = stopgroupreplication(module, cursor, channel, fail_on_error)
-        if stopped is True:
+        if stopped:
             module.exit_json(msg="Group replication stopped", changed=True, queries=executed_queries)
         else:
             module.exit_json(msg="Group replication already stopped", changed=False, queries=executed_queries)

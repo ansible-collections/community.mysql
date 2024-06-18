@@ -7,7 +7,7 @@ __metaclass__ = type
 import pytest
 
 from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb.replication import uses_replica_terminology
-from tests import dummy_cursor_class
+from ..utils import dummy_cursor_class
 
 
 @pytest.mark.parametrize(

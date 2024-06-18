@@ -8,7 +8,7 @@ import pytest
 from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql.user import (
     supports_identified_by_password,
 )
-from tests import dummy_cursor_class
+from ..utils import dummy_cursor_class
 
 
 @pytest.mark.parametrize(

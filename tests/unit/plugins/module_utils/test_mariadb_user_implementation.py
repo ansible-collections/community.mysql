@@ -8,7 +8,7 @@ import pytest
 from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb.user import (
     supports_identified_by_password,
 )
-from ..utils import dummy_cursor_class
+from tests import dummy_cursor_class
 
 
 @pytest.mark.parametrize(

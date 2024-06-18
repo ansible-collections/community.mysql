@@ -800,7 +800,7 @@ def main():
             module.fail_json(msg='%s. Query == CHANGE REPLICATION SOURCE TO %s' % (to_native(e), chm))
         result['changed'] = True
         module.exit_json(queries=executed_queries, **result)
-    elif mode in "startgroupreplication":
+    elif mode == "startgroupreplication":
         chm = []
         if group_replication_user is not None:
             chm.append(" USER='%s'" % group_replication_user)
@@ -812,7 +812,7 @@ def main():
         else:
             module.exit_json(msg="Group replication already started (Or cannot be started)", changed=False,
                              ueries=executed_queries)
-    elif mode in "stopgroupreplication":
+    elif mode == "stopgroupreplication":
         stopped = stopgroupreplication(module, cursor, channel, fail_on_error)
         if stopped is True:
             module.exit_json(msg="Group replication stopped", changed=True, queries=executed_queries)

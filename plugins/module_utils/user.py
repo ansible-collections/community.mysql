@@ -189,9 +189,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     if reuse_existing_password:
         existing_auth = get_existing_authentication(cursor, user)
         if existing_auth:
-            pass_hashes = [p['plugin_hash_string'] for p in existing_auth]
-            # Use a set to check if all values are the same
-            if len(set(pass_hashes)) != 1:
+            if len(existing_auth) != 1:
                 module.warn("An account with the username %s has a different "
                             "password than the others existing accounts. Thus "
                             "on_new_username can't decide which password to "

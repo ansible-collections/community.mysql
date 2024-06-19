@@ -56,6 +56,7 @@
           - result.databases != {}
           - result.engines != {}
           - result.users != {}
+          - result.server_engine == 'MariaDB' or result.server_engine == 'MySQL'
 
     - name: mysql_info - Test connector informations display
       ansible.builtin.import_tasks:

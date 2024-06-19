@@ -1,0 +1,2 @@
+minor_changes:
+- mysql_info - return a database server engine used (https://github.com/ansible-collections/community.mysql/issues/644).

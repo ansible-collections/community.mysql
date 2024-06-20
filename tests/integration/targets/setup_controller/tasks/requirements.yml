@@ -5,6 +5,7 @@
     name:
       - bzip2     # To test mysql_db dump compression
       - "{{ db_engine }}-client"
+      - lib{{ db_engine }}client-dev  # Required by mysqlclient
     state: present
 
 - name: "{{ role_name }} | Requirements | Install Python packages"

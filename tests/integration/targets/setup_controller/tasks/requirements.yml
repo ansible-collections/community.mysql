@@ -10,7 +10,7 @@
       # The package libmysqlclient-dev that provides this command have a
       # different name between Ubuntu 20.04 and 22.04. Luckily, libmysql++ is
       # available on both.
-      - "{{ libmysql++-dev when db_engine == 'mysql' else libmariadb-dev }}"
+      - "{{ 'libmysql++-dev' if db_engine == 'mysql' else 'libmariadb-dev' }}"
     state: present
 
 - name: "{{ role_name }} | Requirements | Install Python packages"

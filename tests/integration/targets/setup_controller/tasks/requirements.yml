@@ -1,0 +1,14 @@
+---
+
+- name: "{{ role_name }} | Requirements | Install Linux packages"
+  ansible.builtin.package:
+    name:
+      - bzip2     # To test mysql_db dump compression
+      - "{{ db_engine }}-client"
+    state: present
+
+- name: "{{ role_name }} | Requirements | Install Python packages"
+  ansible.builtin.pip:
+    name:
+      - "{{ connector_name }}=={{ connector_version }}"
+    state: present

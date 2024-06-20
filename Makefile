@@ -94,9 +94,8 @@ test-integration:
 	https://github.com/ansible/ansible/archive/$(ansible).tar.gz; \
 	set -x; \
 	ansible-test integration $(target) -v --color --coverage --diff \
-	--docker ghcr.io/ansible-collections/community.mysql/test-container\
-	-$(db_client)-py$(python_version_flat)-$(connector_name)$(connector_version_flat):latest \
-	--docker-network podman $(_continue_on_errors) $(_keep_containers_alive) --python $(python); \
+	--docker --python $(python) \
+	--docker-network podman $(_continue_on_errors) $(_keep_containers_alive); \
 	set +x
 	# End of venv
 

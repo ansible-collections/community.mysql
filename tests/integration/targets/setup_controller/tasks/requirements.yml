@@ -5,7 +5,12 @@
     name:
       - bzip2     # To test mysql_db dump compression
       - "{{ db_engine }}-client"
-      - lib{{ db_engine }}client-dev  # Required by mysqlclient
+
+      # The command mysql-config must be present for mysqlclient python package.
+      # The package libmysqlclient-dev that provides this command have a
+      # different name between Ubuntu 20.04 and 22.04. Luckily, libmysql++ is
+      # available on both.
+      - "{{ libmysql++-dev when db_engine == 'mysql' else libmariadb-dev }}"
     state: present
 
 - name: "{{ role_name }} | Requirements | Install Python packages"

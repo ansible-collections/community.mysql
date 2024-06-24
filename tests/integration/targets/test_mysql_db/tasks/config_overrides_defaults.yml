@@ -93,7 +93,9 @@
 - name: Config overrides | Add fake host to config file
   shell: 'echo "host = {{ fake_host }}" >> {{ config_file }}'
 
-- name: Config overrides | Remove database using fake login_host
+- name: >-
+    Config overrides | Fail to Remove database using fake login_host
+    because its default has been overriden by wrong value from config file
   mysql_db:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
@@ -102,15 +104,17 @@
     name: '{{ db_to_create }}'
     state: absent
     config_file: '{{ config_file }}'
-    config_overrides_defaults: yes
+    config_overrides_defaults: true
   register: result
-  ignore_errors: yes
-
-- name: Config overrides | Must fail because login_host default has beed overriden by wrong value from config file
-  assert:
-    that:
-      - result is failed
-      - result.msg is search("Can't connect to MySQL server on '{{ fake_host }}'") or result.msg is search("Unknown MySQL server host '{{ fake_host }}'")
+  failed_when:
+    - result is succeeded
+    - result.msg is not search(pattern1)
+    - result.msg is not search(pattern2)
+    - result.msg is not search(pattern3)
+  vars:
+    pattern1: Can't connect to MySQL server on '{{ fake_host }}'
+    pattern2: Unknown MySQL server host '{{ fake_host }}'
+    pattern3: Unknown server host '{{ fake_host }}'
 
 - name: Config overrides | Clean up test database
   mysql_db:

@@ -252,37 +252,6 @@ jobs:
           ${{ job.services.db_primary.id }}
           | grep healthy && [[ "$SECONDS" -lt 120 ]]; do sleep 1; done
 
-      - name: Compute docker_image - Set python_version_flat
-        run: >
-          echo "python_version_flat=$(echo ${{ matrix.python }}
-          | tr -d '.')" >> $GITHUB_ENV
-
-      - name: Compute docker_image - Set connector_version_flat
-        run: >
-          echo "connector_version_flat=$(echo ${{ matrix.connector_version }}
-          |tr -d .)" >> $GITHUB_ENV
-
-      - name: Compute docker_image - Set db_engine_version_flat
-        run: >
-          echo "db_engine_version_flat=$(echo ${{ matrix.db_engine_version }}
-          | awk -F '.' '{print $1 $2}')" >> $GITHUB_ENV
-
-      - name: Compute docker_image - Set db_client
-        run: >
-          if [[ ${{ env.db_engine_version_flat }} == 57 ]]; then
-            echo "db_client=my57" >> $GITHUB_ENV;
-          else
-            echo "db_client=$(echo ${{ matrix.db_engine_name }})" >> $GITHUB_ENV;
-          fi
-
-      - name: Set docker_image
-        run: |-
-          echo "docker_image=ghcr.io/ansible-collections/community.mysql\
-          /test-container-${{ env.db_client }}\
-          -py${{ env.python_version_flat }}\
-          -${{ matrix.connector_name }}${{ env.connector_version_flat }}\
-          :latest" >> $GITHUB_ENV
-
       - name: >-
           Perform integration testing against
           Ansible version ${{ matrix.ansible }}
@@ -315,7 +284,6 @@ jobs:
             echo Setting Ansible version to "${{ matrix.ansible }}"...;
             echo -n "${{ matrix.ansible }}"
             > tests/integration/ansible
-          docker-image: ${{ env.docker_image }}
           target-python-version: ${{ matrix.python }}
           testing-type: integration
 

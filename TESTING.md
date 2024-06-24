@@ -26,12 +26,9 @@ For now, the makefile only supports Podman.
 - Minimum 2GB of RAM
 
 
-### Custom ansible-test containers
+### ansible-test environment
 
-Our integrations tests use custom containers for ansible-test. Those images have their definition file stored in the directory [test-containers](test-containers/). We build and publish the images on ghcr.io under the ansible-collection namespace: E.G.:
-`ghcr.io/ansible-collections/community.mysql/test-container-mariadb106-py310-mysqlclient211:latest`.
-
-Availables images are listed [here](https://github.com/orgs/ansible-collections/packages).
+Integration tests use the default container from ansible-test. Then required packages for the tests are installed from the `setup_controller` target located in the `tests/integration/targets` folder.
 
 
 ### Makefile options
@@ -151,16 +148,6 @@ python run_all_tests.py
 
 ### Add a new Python, Connector or Database version
 
-You can look into [.github/workflows/ansible-test-plugins.yml](https://github.com/ansible-collections/community.mysql/tree/main/.github/workflows) to see how those containers are built using [build-docker-image.yml](https://github.com/ansible-collections/community.mysql/blob/main/.github/workflows/build-docker-image.yml) and all [docker-image-xxx.yml](https://github.com/ansible-collections/community.mysql/blob/main/.github/workflows/docker-image-mariadb103-py38-mysqlclient201.yml) files.
+New components version should be added to this file: [.github/workflows/ansible-test-plugins.yml](https://github.com/ansible-collections/community.mysql/tree/main/.github/workflows)
 
-1. Add a workflow in [.github/workflows/](.github/workflows)
-1. Add a new folder in [test-containers](test-containers) containing a new Dockerfile. Your container must contains 3 things:
-  - Python
-  - A connector: The python package to connect to the database (pymysql, mysqlclient, ...)
-  - A mysql client to prepare databases before our tests starts. This client must provide both `mysql` and `mysqldump` commands.
-1. Add your version in the matrix of *.github/workflows/ansible-test-plugins.yml*. You can use [run_all_tests.py](run_all_tests.py) to help you see what the matrix will be. Simply comment out the line `os.system(make_cmd)` before runing the script. You can also add `print(len(matrix))` to display how many tests there will be on GitHub Action.
-1. Ask the lead maintainer to mark your new image(s) as `public` under [https://github.com/orgs/ansible-collections/packages](https://github.com/orgs/ansible-collections/packages)
-
-After pushing your commit to the remote, the container will be built and published on ghcr.io. Have a look in the "Action" tab to see if it worked. In case of error `failed to copy: io: read/write on closed pipe` re-run the workflow, this append unfortunately a lot.
-
-To see the docker image produced, go to the package page in the ansible-collection namespace [https://github.com/orgs/ansible-collections/packages](https://github.com/orgs/ansible-collections/packages). This page indicate a "Published x days ago" that is updated infrequently. To see the last time the container has been updated you must click on its title and look in the right hands side bellow the title "Last published".
+Be careful to not add too much tests. When adding a new version of Python, for instance, only test it agains the latest versions of Ansible and MySQL/MariaDB. When tests are run, you can see that we already start 40 virtual machines!

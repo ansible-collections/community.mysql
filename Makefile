@@ -11,23 +11,6 @@ ifdef continue_on_errors
 	_continue_on_errors = --retry-on-error --continue-on-error
 endif
 
-
-db_ver_tuple := $(subst ., , $(db_engine_version))
-db_engine_version_flat := $(word 1, $(db_ver_tuple))$(word 2, $(db_ver_tuple))
-
-con_ver_tuple := $(subst ., , $(connector_version))
-connector_version_flat := $(word 1, $(con_ver_tuple))$(word 2, $(con_ver_tuple))$(word 3, $(con_ver_tuple))
-
-py_ver_tuple := $(subst ., , $(python))
-python_version_flat := $(word 1, $(py_ver_tuple))$(word 2, $(py_ver_tuple))
-
-ifeq ($(db_engine_version_flat), 57)
-	db_client := my57
-else
-	db_client := $(db_engine_name)
-endif
-
-
 .PHONY: test-integration
 test-integration:
 	@echo -n $(db_engine_name) > tests/integration/db_engine_name
@@ -94,9 +77,8 @@ test-integration:
 	https://github.com/ansible/ansible/archive/$(ansible).tar.gz; \
 	set -x; \
 	ansible-test integration $(target) -v --color --coverage --diff \
-	--docker ghcr.io/ansible-collections/community.mysql/test-container\
-	-$(db_client)-py$(python_version_flat)-$(connector_name)$(connector_version_flat):latest \
-	--docker-network podman $(_continue_on_errors) $(_keep_containers_alive) --python $(python); \
+	--docker --python $(python) \
+	--docker-network podman $(_continue_on_errors) $(_keep_containers_alive); \
 	set +x
 	# End of venv
 

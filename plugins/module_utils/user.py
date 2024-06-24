@@ -201,7 +201,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
                 plugin_hash_string = existing_auth[0]['plugin_hash_string']
                 password = None
                 used_existing_password = True
-            plugin = existing_auth[0]['plugin']  # What if plugin differ?
+                plugin = existing_auth[0]['plugin']  # What if plugin differ?
     if password and encrypted:
         if impl.supports_identified_by_password(cursor):
             query_with_args = "CREATE USER %s@%s IDENTIFIED BY PASSWORD %s", (user, host, password)

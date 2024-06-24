@@ -139,26 +139,20 @@ def get_existing_authentication(cursor, user, host=None):
     if len(rows) == 0:
         return []
 
-    # Mysql_info use a DictCursor so we must convert back to a list
-    # otherwise we get KeyError 0
-    if isinstance(rows, dict):
-        rows = list(rows.values())
+    # Mysql_info use a DictCursor so we must convert list(dict)
+    # to list(tuple) otherwise we get KeyError 0
+    if isinstance(rows[0], dict):
+        rows = [tuple(row.values()) for row in rows]
 
     existing_auth_list = []
 
     # 'plugin_auth_string' contains the hash string. Must be removed in c.mysql 4.0
     # See https://github.com/ansible-collections/community.mysql/pull/629
     for r in rows:
-        if isinstance(r, tuple):
-            existing_auth_list.append({
-                'plugin': r[0],
-                'plugin_auth_string': r[1],
-                'plugin_hash_string': r[1]})
-        elif isinstance(r, dict):
-            existing_auth_list.append({
-                'plugin': r.get('plugin'),
-                'plugin_auth_string': r.get('auth'),
-                'plugin_hash_string': r.get('auth')})
+        existing_auth_list.append({
+            'plugin': r[0],
+            'plugin_auth_string': r[1],
+            'plugin_hash_string': r[1]})
 
     return existing_auth_list
 

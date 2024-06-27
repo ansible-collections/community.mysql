@@ -287,6 +287,84 @@
         var_name: "{{set_name}}"
         var_value: '{{set_value}}'
 
+    #=========================================================================
+    # Bugfix https://github.com/ansible-collections/community.mysql/issues/652
+
+    - name: Set a boolean value using ON
+      mysql_variables:
+        <<: *mysql_params
+        variable: log_slow_slave_statements
+        value: ON
+      register: result
+
+    - name: Check that it changed
+      assert:
+        that:
+        - result is changed
+        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = 'ON'"]
+
+    - name: Set a boolean value again using ON
+      mysql_variables:
+        <<: *mysql_params
+        variable: log_slow_slave_statements
+        value: ON
+      register: result
+
+    - name: Check that it didn't change
+      assert:
+        that:
+        - result is not changed
+
+    - name: Set a boolean value again using 1
+      mysql_variables:
+        <<: *mysql_params
+        variable: log_slow_slave_statements
+        value: 1
+      register: result
+
+    - name: Check that it didn't change
+      assert:
+        that:
+        - result is not changed
+
+    - name: Set a boolean value using OFF
+      mysql_variables:
+        <<: *mysql_params
+        variable: log_slow_slave_statements
+        value: OFF
+      register: result
+
+    - name: Check that it changed
+      assert:
+        that:
+        - result is changed
+        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = 'OFF'"]
+
+    - name: Set a boolean value again using 0
+      mysql_variables:
+        <<: *mysql_params
+        variable: log_slow_slave_statements
+        value: 0
+      register: result
+
+    - name: Check that it didn't change
+      assert:
+        that:
+        - result is not changed
+
+    - name: Set a boolean value using on
+      mysql_variables:
+        <<: *mysql_params
+        variable: log_slow_slave_statements
+        value: on
+      register: result
+
+    - name: Check that it changed
+      assert:
+        that:
+        - result is changed
+        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = 'ON'"]
+
     #============================================================
     # Verify mysql_variable fails with an incorrect login_password parameter
     #

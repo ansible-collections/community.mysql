@@ -18,7 +18,8 @@ from ansible_collections.community.mysql.plugins.modules.mysql_variables import 
         (2, 2),
         ('on', 'ON'),
         ('off', 'OFF'),
-        ("string", "string"),
+        ('ON', 'ON'),
+        ('OFF', 'OFF'),
     ]
 )
 def test_convert_bool_value(value, output):

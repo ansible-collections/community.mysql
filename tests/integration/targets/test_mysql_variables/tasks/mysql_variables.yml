@@ -301,7 +301,7 @@
       assert:
         that:
         - result is changed
-        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = 'ON'"]
+        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = ON"]
 
     - name: Set a boolean value again using ON
       mysql_variables:
@@ -338,7 +338,7 @@
       assert:
         that:
         - result is changed
-        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = 'OFF'"]
+        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = OFF"]
 
     - name: Set a boolean value again using 0
       mysql_variables:
@@ -363,7 +363,7 @@
       assert:
         that:
         - result is changed
-        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = 'ON'"]
+        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = ON"]
 
     #============================================================
     # Verify mysql_variable fails with an incorrect login_password parameter

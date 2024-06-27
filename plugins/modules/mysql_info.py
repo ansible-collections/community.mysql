@@ -639,7 +639,7 @@ class MySQL_Info(object):
 
             authentications = get_existing_authentication(self.cursor, user, host)
             if authentications:
-                output_dict.update(authentications)
+                output_dict.update(authentications[0])
 
             # TODO password_option
             # TODO lock_option

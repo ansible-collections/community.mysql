@@ -1,8 +1,11 @@
 ---
 - name: set fact tls_enabled
-  command: "{{ mysql_command }} \"-e SHOW VARIABLES LIKE 'have_ssl';\""
+  ansible.builtin.command:
+    cmd: "{{ mysql_command }} \"-e SHOW VARIABLES LIKE 'have_ssl';\""
   register: result
-- set_fact:
+
+- name: Set tls_enabled fact
+  ansible.builtin.set_fact:
     tls_enabled: "{{ 'YES' in result.stdout | bool | default('false', true) }}"
 
 - vars:
@@ -16,21 +19,21 @@
 
     # ============================================================
     - name: get server certificate
-      copy:
+      ansible.builtin.copy:
         content: "{{ lookup('pipe', \"openssl s_client -starttls mysql -connect localhost:3307 -showcerts 2>/dev/null </dev/null |  sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p'\") }}"
         dest: /tmp/cert.pem
       delegate_to: localhost
 
     - name: Drop mysql user if exists
-      mysql_user:
+      community.mysql.mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
         host_all: true
         state: absent
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: create user with ssl requirement
-      mysql_user:
+      community.mysql.mysql_user:
         <<: *mysql_params
         name: "{{ user_name_1 }}"
         host: '%'
@@ -40,7 +43,7 @@
           SSL:
 
     - name: attempt connection with newly created user (expect failure)
-      mysql_variables:
+      community.mysql.mysql_variables:
         variable: '{{ set_name }}'
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
@@ -48,22 +51,24 @@
         login_port: '{{ mysql_primary_port }}'
         ca_cert: /tmp/cert.pem
       register: result
-      ignore_errors: yes
+      ignore_errors: true
 
-    - assert:
+    - name: Assert that result is failed for pymysql
+      ansible.builtin.assert:
         that:
           - result is failed
       when:
         - connector_name == 'pymysql'
 
-    - assert:
+    - name: Assert that result is success for mysqlclient
+      ansible.builtin.assert:
         that:
           - result is succeeded
       when:
         - connector_name != 'pymysql'
 
     - name: attempt connection with newly created user ignoring hostname
-      mysql_variables:
+      community.mysql.mysql_variables:
         variable: '{{ set_name }}'
         login_user: '{{ user_name_1 }}'
         login_password: '{{ user_password_1 }}'
@@ -72,14 +77,12 @@
         ca_cert: /tmp/cert.pem
         check_hostname: no
       register: result
-      ignore_errors: yes
-
-    - assert:
-        that:
-          - result is succeeded or 'pymysql >= 0.7.11 is required' in result.msg
+      ignore_errors: true
+      failed_when:
+        - result is failed or 'pymysql >= 0.7.11 is required' not in result.msg
 
     - name: Drop mysql user
-      mysql_user:
+      community.mysql.mysql_user:
         <<: *mysql_params
         name: '{{ user_name_1 }}'
         host_all: true

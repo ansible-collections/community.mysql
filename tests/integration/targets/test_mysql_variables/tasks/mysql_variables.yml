@@ -47,8 +47,8 @@
     # Verify mysql_variable successfully updates a variable (issue:4568)
     #
     - set_fact:
-         set_name: 'delay_key_write'
-         set_value: 'ON'
+        set_name: 'delay_key_write'
+        set_value: 'ON'
 
     - name: set mysql variable
       mysql_variables:
@@ -74,8 +74,8 @@
     # Verify mysql_variable successfully updates a variable using single quotes
     #
     - set_fact:
-         set_name: 'wait_timeout'
-         set_value: '300'
+        set_name: 'wait_timeout'
+        set_value: '300'
 
     - name: set mysql variable to a temp value
       mysql_variables:
@@ -105,8 +105,8 @@
     # Verify mysql_variable successfully updates a variable using double quotes
     #
     - set_fact:
-         set_name: "wait_timeout"
-         set_value: "400"
+        set_name: "wait_timeout"
+        set_value: "400"
 
     - name: set mysql variable to a temp value
       mysql_variables:
@@ -132,8 +132,8 @@
     # Verify mysql_variable successfully updates a variable using no quotes
     #
     - set_fact:
-         set_name: wait_timeout
-         set_value: 500
+        set_name: wait_timeout
+        set_value: 500
 
     - name: set mysql variable to a temp value
       mysql_variables:
@@ -251,8 +251,8 @@
     # Verify mysql_variable works with the login_user and login_password parameters
     #
     - set_fact:
-         set_name: wait_timeout
-         set_value: 77
+        set_name: wait_timeout
+        set_value: 77
 
     - name: query mysql_variable using login_user and password_password
       mysql_variables:
@@ -291,8 +291,8 @@
     # Verify mysql_variable fails with an incorrect login_password parameter
     #
     - set_fact:
-         set_name: connect_timeout
-         set_value: 10
+        set_name: connect_timeout
+        set_value: 10
 
     - name: query mysql_variable using incorrect login_password
       mysql_variables:

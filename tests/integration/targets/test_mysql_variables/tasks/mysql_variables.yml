@@ -294,7 +294,7 @@
       mysql_variables:
         <<: *mysql_params
         variable: log_slow_slave_statements
-        value: ON
+        value: "ON"
       register: result
 
     - name: Check that it changed
@@ -307,7 +307,7 @@
       mysql_variables:
         <<: *mysql_params
         variable: log_slow_slave_statements
-        value: ON
+        value: "ON"
       register: result
 
     - name: Check that it didn't change
@@ -331,7 +331,7 @@
       mysql_variables:
         <<: *mysql_params
         variable: log_slow_slave_statements
-        value: OFF
+        value: "OFF"
       register: result
 
     - name: Check that it changed
@@ -356,7 +356,7 @@
       mysql_variables:
         <<: *mysql_params
         variable: log_slow_slave_statements
-        value: on
+        value: "on"
       register: result
 
     - name: Check that it changed

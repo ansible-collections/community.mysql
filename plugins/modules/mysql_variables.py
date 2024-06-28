@@ -26,6 +26,7 @@ options:
   value:
     description:
     - If set, then sets variable value to this.
+    - With boolean values, use C(0)|C(1) or quoted C("ON")|C("OFF").
     type: str
   mode:
     description:
@@ -74,6 +75,11 @@ EXAMPLES = r'''
     variable: read_only
     value: 1
     mode: persist
+
+- name: Set a boolean using ON/OFF notation
+  mysql_variables:
+    variable: log_slow_slave_statements
+    value: "ON"  # Make sure it's quoted
 '''
 
 RETURN = r'''

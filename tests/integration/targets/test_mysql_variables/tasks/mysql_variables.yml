@@ -290,7 +290,7 @@
     #=========================================================================
     # Bugfix https://github.com/ansible-collections/community.mysql/issues/652
 
-    - name: mysql_info - collect default cred file
+    - name: Get server version
       register: result
       mysql_info:
         <<: *mysql_params

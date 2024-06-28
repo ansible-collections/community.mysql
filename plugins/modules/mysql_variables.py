@@ -26,6 +26,7 @@ options:
   value:
     description:
     - If set, then sets variable value to this.
+    - With boolean values, use C(0)|C(1) or quoted C("ON")|C("OFF").
     type: str
   mode:
     description:
@@ -74,6 +75,11 @@ EXAMPLES = r'''
     variable: read_only
     value: 1
     mode: persist
+
+- name: Set a boolean using ON/OFF notation
+  mysql_variables:
+    variable: log_slow_replica_statements
+    value: "ON"  # Make sure it's quoted
 '''
 
 RETURN = r'''
@@ -176,6 +182,18 @@ def setvariable(cursor, mysqlvar, value, mode='global'):
     return result
 
 
+def convert_bool_setting_value_wanted(val):
+    """Converts passed value from 0,1,on,off to ON/OFF
+       as it's represented in the server.
+    """
+    if val in ('on', 1):
+        val = 'ON'
+    elif val in ('off', 0):
+        val = 'OFF'
+
+    return val
+
+
 def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
@@ -243,6 +261,9 @@ def main():
     # Type values before using them
     value_wanted = typedvalue(value)
     value_actual = typedvalue(mysqlvar_val)
+    if value_actual in ('ON', 'OFF') and value_wanted not in ('ON', 'OFF'):
+        value_wanted = convert_bool_setting_value_wanted(value_wanted)
+
     value_in_auto_cnf = None
     if var_in_mysqld_auto_cnf is not None:
         value_in_auto_cnf = typedvalue(var_in_mysqld_auto_cnf)

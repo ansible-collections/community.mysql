@@ -1,0 +1,2 @@
+bugfixes:
+- mysql_variables - fix the module always changes on boolean values (https://github.com/ansible-collections/community.mysql/issues/652).

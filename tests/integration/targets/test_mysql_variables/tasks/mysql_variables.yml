@@ -293,7 +293,7 @@
     - name: Set a boolean value using ON
       mysql_variables:
         <<: *mysql_params
-        variable: log_slow_slave_statements
+        variable: log_slow_replica_statements
         value: "ON"
       register: result
 
@@ -301,12 +301,12 @@
       assert:
         that:
         - result is changed or result.msg == "Variable is already set to requested value."
-        - result.msg == "Variable is already set to requested value." or result.queries == ["SET GLOBAL `log_slow_slave_statements` = ON"]
+        - result.msg == "Variable is already set to requested value." or result.queries == ["SET GLOBAL `log_slow_replica_statements` = ON"]
 
     - name: Set a boolean value again using ON
       mysql_variables:
         <<: *mysql_params
-        variable: log_slow_slave_statements
+        variable: log_slow_replica_statements
         value: "ON"
       register: result
 
@@ -318,7 +318,7 @@
     - name: Set a boolean value again using 1
       mysql_variables:
         <<: *mysql_params
-        variable: log_slow_slave_statements
+        variable: log_slow_replica_statements
         value: 1
       register: result
 
@@ -330,7 +330,7 @@
     - name: Set a boolean value using OFF
       mysql_variables:
         <<: *mysql_params
-        variable: log_slow_slave_statements
+        variable: log_slow_replica_statements
         value: "OFF"
       register: result
 
@@ -338,12 +338,12 @@
       assert:
         that:
         - result is changed
-        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = OFF"]
+        - result.queries == ["SET GLOBAL `log_slow_replica_statements` = OFF"]
 
     - name: Set a boolean value again using 0
       mysql_variables:
         <<: *mysql_params
-        variable: log_slow_slave_statements
+        variable: log_slow_replica_statements
         value: 0
       register: result
 
@@ -355,7 +355,7 @@
     - name: Set a boolean value using on
       mysql_variables:
         <<: *mysql_params
-        variable: log_slow_slave_statements
+        variable: log_slow_replica_statements
         value: "on"
       register: result
 
@@ -363,7 +363,7 @@
       assert:
         that:
         - result is changed
-        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = ON"]
+        - result.queries == ["SET GLOBAL `log_slow_replica_statements` = ON"]
 
     #============================================================
     # Verify mysql_variable fails with an incorrect login_password parameter

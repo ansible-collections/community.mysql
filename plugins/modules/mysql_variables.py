@@ -78,7 +78,7 @@ EXAMPLES = r'''
 
 - name: Set a boolean using ON/OFF notation
   mysql_variables:
-    variable: log_slow_slave_statements
+    variable: log_slow_replica_statements
     value: "ON"  # Make sure it's quoted
 '''
 

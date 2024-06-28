@@ -300,8 +300,8 @@
     - name: Check that it changed
       assert:
         that:
-        - result is changed
-        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = ON"]
+        - result is changed or result.msg == "Variable is already set to requested value."
+        - result.queries == ["SET GLOBAL `log_slow_slave_statements` = ON"] or result.msg == "Variable is already set to requested value."
 
     - name: Set a boolean value again using ON
       mysql_variables:

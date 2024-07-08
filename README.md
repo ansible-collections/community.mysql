@@ -127,6 +127,8 @@ For MariaDB, only Long Term releases are tested.
 
 The MySQL modules rely on a [PyMySQL](https://github.com/PyMySQL/PyMySQL) connector.
 
+The `mysqlclient` connector support has been [deprecated](https://github.com/ansible-collections/community.mysql/issues/654) - use `PyMySQL` connector instead! We will stop testing against it in collection version 4.0.0 and remove the related code in 5.0.0.
+
 ## Using this collection
 
 ### Installing the Collection from Ansible Galaxy

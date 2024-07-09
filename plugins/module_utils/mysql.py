@@ -154,6 +154,13 @@ def mysql_connect(module, login_user=None, login_password=None, config_file='', 
         db_connection = mysql_driver.connect(autocommit=autocommit, **config)
     else:
         # In case of MySQLdb driver
+
+        # Will be deprecated and dropped
+        # https://github.com/ansible-collections/community.mysql/issues/654
+        module.warn('Support of mysqlcline/MySQLdb connector is deprecated. '
+                    'We\'ll stop testing against it in collection version 4.0.0 '
+                    'and remove the related code in 5.0.0. Use PyMySQL connector instead.')
+
         if mysql_driver.version_info[0] < 2 or (mysql_driver.version_info[0] == 2 and mysql_driver.version_info[1] < 1):
             # for MySQLdb < 2.1.0, use 'db' instead of 'database' and 'passwd' instead of 'password'
             if 'database' in config:

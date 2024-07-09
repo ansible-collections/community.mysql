@@ -122,17 +122,12 @@ For MariaDB, only Long Term releases are tested.
 - pymysql 0.7.11 (Only tested with MySQL 5.7)
 - pymysql 0.9.3
 - pymysql 1.0.2 (only collection version >= 3.6.1)
-- mysqlclient 2.0.1
-- mysqlclient 2.0.3 (only collection version >= 3.5.2)
-- mysqlclient 2.1.1 (only collection version >= 3.5.2)
 
 ## External requirements
 
-The MySQL modules rely on a MySQL connector. The list of supported drivers is below:
+The MySQL modules rely on a [PyMySQL](https://github.com/PyMySQL/PyMySQL) connector.
 
-- [PyMySQL](https://github.com/PyMySQL/PyMySQL)
-- [mysqlclient](https://github.com/PyMySQL/mysqlclient)
-- Support for other Python MySQL connectors may be added in a future release.
+The `mysqlclient` connector support has been [deprecated](https://github.com/ansible-collections/community.mysql/issues/654) - use `PyMySQL` connector instead! We will stop testing against it in collection version 4.0.0 and remove the related code in 5.0.0.
 
 ## Using this collection
 

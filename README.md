@@ -104,24 +104,37 @@ Here is the table for the support timeline:
 - stable-2.17
 - current development version
 
+### Python
+
+- 3.8
+- 3.9
+- 3.10
+- 3.11 (collection version >= 3.10.0)
+- 3.12 (collection version >= 3.10.0)
+
 ### Databases
 
 For MariaDB, only Long Term releases are tested.
 
-- mysql 5.7.40
-- mysql 8.0.31
-- mariadb:10.3.34 (only collection version <= 3.5.1)
-- mariadb:10.4.24 (only collection version >= 3.5.2)
-- mariadb:10.5.18 (only collection version >= 3.5.2)
-- mariadb:10.6.11 (only collection version >= 3.5.2)
-- mariadb:10.11.?? (waiting for release)
+- mysql 5.7.40 (collection version < 3.10.0)
+- mysql 8.0.31  (collection version < 3.10.0)
+- mariadb:10.3.34 (collection version < 3.5.1)
+- mariadb:10.4.24 (collection version >= 3.5.2, < 3.10.0)
+- mariadb:10.4.34 (collection version >= 3.10.0)
+- mariadb:10.5.18 (collection version >= 3.5.2, < 3.10.0)
+- mariadb:10.5.25 (collection version >= 3.10.0)
+- mariadb:10.6.11 (collection version >= 3.5.2, < 3.10.0)
+- mariadb:10.6.18 (collection version >= 3.10.0)
+- mariadb:10.11.8 (collection version >= 3.10.0)
 
 
 ### Database connectors
 
-- pymysql 0.7.11 (Only tested with MySQL 5.7)
+- pymysql 0.7.11 (collection version < 3.10 and MySQL 5.7)
 - pymysql 0.9.3
-- pymysql 1.0.2 (only collection version >= 3.6.1)
+- pymysql 0.10.1 (for RHEL8 context)
+- pymysql 1.0.2 (collection version >= 3.6.1)
+- pymysql 1.1.1 (for RHEL9 context)
 
 ## External requirements
 

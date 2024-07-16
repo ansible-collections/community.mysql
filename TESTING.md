@@ -19,7 +19,7 @@ For now, the makefile only supports Podman.
 
 ### Requirements
 
-- python >= 3.8 and <= 3.10
+- python >= 3.8
 - make
 - podman
 - Minimum 15GB of free space on the device storing containers images and volumes. You can use this command to check: `podman system info --format='{{.Store.GraphRoot}}'|xargs findmnt --noheadings --nofsroot --output SOURCE --target|xargs df -h --output=size,used,avail,pcent,target`
@@ -41,7 +41,9 @@ The Makefile accept the following options
     - "3.8"
     - "3.9"
     - "3.10"
-  - Description: If `Python -V` shows an unsupported version, use this option and choose one of the version available on your system. Use `ls /usr/bin/python3*|grep -v config` to list them.
+    - "3.11" (for stable-2.15+)
+    - "3.12" (for stable-2.16+)
+  - Description: If `Python -V` shows an unsupported version, use this option to select a compatible Python version available on your system. Use `ls /usr/bin/python3*|grep -v config` to list the available versions (You may have to install one). Unsupported versions are those that are too recent for the Ansible version you are using. In such cases, you will see an error message similar to: 'This version of ansible-test cannot be executed with Python version 3.12.3. Supported Python versions are: 3.9, 3.10, 3.11'.
 
 - `ansible`
   - Mandatory: true
@@ -62,11 +64,12 @@ The Makefile accept the following options
 - `db_engine_version`
   - Mandatory: true
   - Choices:
-    - "5.7.40" <- mysql
-    - "8.0.31" <- mysql
-    - "10.4.24" <- mariadb
-    - "10.5.18" <- mariadb
-    - "10.6.11" <- mariadb
+    - "8.0.38" <- mysql
+    - "8.4.1" <- mysql (NOT WORKING YET, ansible-test uses Ubuntu 20.04 which is too old to install mysql-community-client 8.4)
+    - "10.4.34" <- mariadb
+    - "10.5.25" <- mariadb
+    - "10.6.18" <- mariadb
+    - "10.11.8" <- mariadb
   - Description: The tag of the container to use for the service containers that will host a primary database and two replicas. Do not use short version, like `mysql:8` (don't do that) because our tests expect a full version to filter tests precisely. For instance: `when: db_version is version ('8.0.22', '>')`. You can use any tag available on [hub.docker.com/_/mysql](https://hub.docker.com/_/mysql) and [hub.docker.com/_/mariadb](https://hub.docker.com/_/mariadb) but GitHub Action will only use the versions listed above.
 
 - `connector_name`
@@ -79,7 +82,6 @@ The Makefile accept the following options
 - `connector_version`
   - Mandatory: true
   - Choices:
-    - "0.7.11" <- pymysql (Only for MySQL 5.7)
     - "0.9.3" <- pymysql
     - "1.0.2" <- pymysql
     - "2.0.1" <- mysqlclient
@@ -93,6 +95,8 @@ The Makefile accept the following options
     - "3.8"
     - "3.9"
     - "3.10"
+    - "3.11"
+    - "3.12"
   - Description: The python version to use in the controller (ansible-test container).
 
 - `target`
@@ -121,17 +125,17 @@ tests will overwrite the 3 databases containers so no need to kill them in advan
 
 ```sh
 # Run all targets
-make ansible="stable-2.12" db_engine_name="mysql" db_engine_version="5.7.40" python="3.8" connector_name="pymysql" connector_version="0.7.11"
+make ansible="stable-2.16" db_engine_name="mysql" db_engine_version="8.0.31" python="3.10" connector_name="pymysql" connector_version="1.0.2"
 
 # A single target
-make ansible="stable-2.14" db_engine_name="mysql" db_engine_version="5.7.40" python="3.8" connector_name="pymysql" connector_version="0.7.11" target="test_mysql_info"
+make ansible="stable-2.16" db_engine_name="mysql" db_engine_version="8.0.31" python="3.10" connector_name="pymysql" connector_version="1.0.2" target="test_mysql_info"
 
 # Keep databases and ansible tests containers alives
 # A single target and continue on errors
-make ansible="stable-2.14" db_engine_name="mysql" db_engine_version="8.0.31" python="3.9" connector_name="mysqlclient" connector_version="2.0.3" target="test_mysql_query" keep_containers_alive=1 continue_on_errors=1
+make ansible="stable-2.17" db_engine_name="mysql" db_engine_version="8.0.31" python="3.11" connector_name="mysqlclient" connector_version="2.0.3" target="test_mysql_query" keep_containers_alive=1 continue_on_errors=1
 
 # If your system has an usupported version of Python:
-make local_python_version="3.8" ansible="stable-2.14" db_engine_name="mariadb" db_engine_version="10.6.11" python="3.9" connector_name="pymysql" connector_version="0.9.3"
+make local_python_version="3.10" ansible="stable-2.17" db_engine_name="mariadb" db_engine_version="10.6.11" python="3.11" connector_name="pymysql" connector_version="1.0.2"
 ```
 
 

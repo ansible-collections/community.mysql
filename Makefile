@@ -55,7 +55,7 @@ test-integration:
 		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
 		docker.io/library/$(db_engine_name):$(db_engine_version) \
 		mysqld
-	# Setup replication and restart containers
+	# Setup replication and restart containers using the same subshell to keep variables alive
 	db_ver=$(db_engine_version); \
 	maj="$${db_ver%.*.*}"; \
 	maj_min="$${db_ver%.*}"; \
@@ -69,9 +69,9 @@ test-integration:
 		repl1_conf='[mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin'; \
 		repl2_conf='[mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin'; \
 	fi; \
-	podman exec primary bash -c 'echo -e "$$prima_conf" > /etc/mysql/conf.d/replication.cnf'; \
-	podman exec replica1 bash -c 'echo -e "$$repl1_conf" > /etc/mysql/conf.d/replication.cnf'; \
-	podman exec replica2 bash -c 'echo -e "$$repl2_conf" > /etc/mysql/conf.d/replication.cnf'
+	podman exec -e cnf="$$prima_conf" primary bash -c 'echo -e "$$cnf" > /etc/mysql/conf.d/replication.cnf'; \
+	podman exec -e cnf="$$repl1_conf" replica1 bash -c 'echo -e "$$cnf" > /etc/mysql/conf.d/replication.cnf'; \
+	podman exec -e cnf="$$repl2_conf" replica2 bash -c 'echo -e "$$cnf" > /etc/mysql/conf.d/replication.cnf'
 	# Don't restart a container unless it is healthy
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
 	podman restart -t 30 primary

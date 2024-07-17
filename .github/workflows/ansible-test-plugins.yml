@@ -275,9 +275,9 @@ jobs:
             repl1_conf='[mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin'
             repl2_conf='[mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin'
           fi
-          docker exec ${{ job.services.db_primary.id }} bash -c 'echo -e $prima_conf > /etc/mysql/conf.d/replication.cnf'
-          docker exec ${{ job.services.db_replica1.id }} bash -c 'echo -e $repl1_conf > /etc/mysql/conf.d/replication.cnf'
-          docker exec ${{ job.services.db_replica2.id }} bash -c 'echo -e $repl2_conf > /etc/mysql/conf.d/replication.cnf'
+          docker exec -e cnf=$prima_conf ${{ job.services.db_primary.id }} bash -c 'echo -e $cnf > /etc/mysql/conf.d/replication.cnf'
+          docker exec -e cnf=$repl1_conf ${{ job.services.db_replica1.id }} bash -c 'echo -e $cnf > /etc/mysql/conf.d/replication.cnf'
+          docker exec -e cnf=$repl2_conf ${{ job.services.db_replica2.id }} bash -c 'echo -e $cnf > /etc/mysql/conf.d/replication.cnf'
           docker restart -t 30 ${{ job.services.db_primary.id }}
           docker restart -t 30 ${{ job.services.db_replica1.id }}
           docker restart -t 30 ${{ job.services.db_replica2.id }}

@@ -83,10 +83,9 @@ The Makefile accept the following options
   - Mandatory: true
   - Choices:
     - "0.9.3" <- pymysql
+    - "0.10.1" <- pymysql
     - "1.0.2" <- pymysql
-    - "2.0.1" <- mysqlclient
-    - "2.0.3" <- mysqlclient
-    - "2.1.1" <- mysqlclient
+    - "1.1.1" <- pymysql
   - Description: The version of the python package of the connector to use. This value is used to filter tests meant for other connectors.
 
 - `python`

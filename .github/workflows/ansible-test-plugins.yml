@@ -263,9 +263,21 @@ jobs:
 
       - name: Restart MySQL server with settings for replication
         run: |
-          docker exec ${{ job.services.db_primary.id }} bash -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'
-          docker exec ${{ job.services.db_replica1.id }} bash -c 'echo -e [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
-          docker exec ${{ job.services.db_replica2.id }} bash -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
+          maj="${$(matrix.db_engine_version)%.*.*}"
+          maj_min="${$(matrix.db_engine_version)%.*}"
+          min="${maj_min#*.}"
+          if [[ "${{ matrix.db_engine_name }}" == "mysql" && "$maj" == 8 && "$min" >= 2  ]]; then
+            prima_conf='[mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin\\nmysql-native-password=1'
+            repl1_conf='[mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin\\nmysql-native-password=1'
+            repl2_conf='[mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin\\nmysql-native-password=1'
+          else
+            prima_conf='[mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin'
+            repl1_conf='[mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin'
+            repl2_conf='[mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin'
+          fi
+          docker exec ${{ job.services.db_primary.id }} bash -c 'echo -e $prima_conf > /etc/mysql/conf.d/replication.cnf'
+          docker exec ${{ job.services.db_replica1.id }} bash -c 'echo -e $repl1_conf > /etc/mysql/conf.d/replication.cnf'
+          docker exec ${{ job.services.db_replica2.id }} bash -c 'echo -e $repl2_conf > /etc/mysql/conf.d/replication.cnf'
           docker restart -t 30 ${{ job.services.db_primary.id }}
           docker restart -t 30 ${{ job.services.db_replica1.id }}
           docker restart -t 30 ${{ job.services.db_replica2.id }}

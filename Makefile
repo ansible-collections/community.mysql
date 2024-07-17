@@ -56,9 +56,22 @@ test-integration:
 		docker.io/library/$(db_engine_name):$(db_engine_version) \
 		mysqld
 	# Setup replication and restart containers
-	podman exec primary bash -c 'echo -e [mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin > /etc/mysql/conf.d/replication.cnf'
-	podman exec replica1 bash -c 'echo -e [mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin > /etc/mysql/conf.d/replication.cnf'
-	podman exec replica2 bash -c 'echo -e [mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin > /etc/mysql/conf.d/replication.cnf'
+	db_ver=$(db_engine_version); \
+	maj="$${db_ver%.*.*}"; \
+	maj_min="$${db_ver%.*}"; \
+	min="$${maj_min#*.}"; \
+	if [[ "$(db_engine_name)" == "mysql" && "$$maj" -eq 8 && "$$min" -ge 2 ]]; then \
+		prima_conf='[mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin\\nmysql-native-password=1'; \
+		repl1_conf='[mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin\\nmysql-native-password=1'; \
+		repl2_conf='[mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin\\nmysql-native-password=1'; \
+	else \
+		prima_conf='[mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin'; \
+		repl1_conf='[mysqld]\\nserver-id=2\\nlog-bin=/var/lib/mysql/replica1-bin'; \
+		repl2_conf='[mysqld]\\nserver-id=3\\nlog-bin=/var/lib/mysql/replica2-bin'; \
+	fi; \
+	podman exec primary bash -c 'echo -e "$$prima_conf" > /etc/mysql/conf.d/replication.cnf'; \
+	podman exec replica1 bash -c 'echo -e "$$repl1_conf" > /etc/mysql/conf.d/replication.cnf'; \
+	podman exec replica2 bash -c 'echo -e "$$repl2_conf" > /etc/mysql/conf.d/replication.cnf'
 	# Don't restart a container unless it is healthy
 	while ! podman healthcheck run primary && [[ "$$SECONDS" -lt 120 ]]; do sleep 1; done
 	podman restart -t 30 primary

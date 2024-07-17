@@ -343,12 +343,18 @@ import traceback
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import mysql_quote_identifier
-from ansible_collections.community.mysql.plugins.module_utils.mysql import mysql_connect, mysql_driver, mysql_driver_fail_msg, mysql_common_argument_spec
+from ansible_collections.community.mysql.plugins.module_utils.mysql import (
+  mysql_connect,
+  mysql_driver,
+  mysql_driver_fail_msg,
+  mysql_common_argument_spec,
+  get_server_implementation,
+  get_server_version,
+)
+from ansible_collections.community.mysql.plugins.module_utils.version import LooseVersion
 from ansible.module_utils.six.moves import shlex_quote
 from ansible.module_utils._text import to_native
-
 executed_commands = []
-
 # ===========================================
 # MySQL module specific support methods.
 #
@@ -372,7 +378,8 @@ def db_delete(cursor, db):
 
 
 def db_dump(module, host, user, password, db_name, target, all_databases, port,
-            config_file, socket=None, ssl_cert=None, ssl_key=None, ssl_ca=None,
+            config_file, server_implementation, server_version, socket=None,
+            ssl_cert=None, ssl_key=None, ssl_ca=None,
             single_transaction=None, quick=None, ignore_tables=None, hex_blob=None,
             encoding=None, force=False, master_data=0, skip_lock_tables=False,
             dump_extra_args=None, unsafe_password=False, restrict_config_file=False,
@@ -431,7 +438,11 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
     if hex_blob:
         cmd += " --hex-blob"
     if master_data:
-        cmd += " --master-data=%s" % master_data
+        if (server_implementation == 'mysql' and
+            LooseVersion(server_version) >= LooseVersion("8.2")):
+            cmd += " --source-data=%s" % master_data
+        else:
+            cmd += " --master-data=%s" % master_data
     if dump_extra_args is not None:
         cmd += " " + dump_extra_args
 
@@ -690,6 +701,9 @@ def main():
         else:
             module.fail_json(msg="unable to find %s. Exception message: %s" % (config_file, to_native(e)))
 
+    server_implementation = get_server_implementation(cursor)
+    server_version = get_server_version(cursor)
+
     changed = False
     if not os.path.exists(config_file):
         config_file = None
@@ -730,7 +744,8 @@ def main():
             module.exit_json(changed=True, db=db_name, db_list=db)
         rc, stdout, stderr = db_dump(module, login_host, login_user,
                                      login_password, db, target, all_databases,
-                                     login_port, config_file, socket, ssl_cert, ssl_key,
+                                     login_port, config_file, server_implementation, server_version,
+                                     socket, ssl_cert, ssl_key,
                                      ssl_ca, single_transaction, quick, ignore_tables,
                                      hex_blob, encoding, force, master_data, skip_lock_tables,
                                      dump_extra_args, unsafe_login_password, restrict_config_file,

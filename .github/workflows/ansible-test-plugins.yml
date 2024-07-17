@@ -267,8 +267,9 @@ jobs:
 
       - name: Restart MySQL server with settings for replication
         run: |
-          maj="${${{ matrix.db_engine_version }}%.*.*}"
-          maj_min="${${{ matrix.db_engine_version }}%.*}"
+          db_ver="${{ matrix.db_engine_version }}"
+          maj="${db_ver%.*.*}"
+          maj_min="${db_ver%.*}"
           min="${maj_min#*.}"
           if [[ "${{ matrix.db_engine_name }}" == "mysql" && "$maj" == 8 && "$min" >= 2  ]]; then
             prima_conf='[mysqld]\\nserver-id=1\\nlog-bin=/var/lib/mysql/primary-bin\\nmysql-native-password=1'

@@ -1,5 +1,15 @@
 ---
 
+# (A) Ubuntu 20.04 has been updated on July 10th 2024 and now required
+# additionnal packages to connect to MySQL 8+. I think it was because of a
+# security issues discovered in mysql-client and/or PyMySQL. The error was:
+# unable to connect to database using pymysql 1.0.2, check login_user and
+# login_password are correct or /root/.my.cnf has the credentials. Exception
+# message: 'cryptography' package is required for sha256_password or
+# caching_sha2_password auth method
+# Ubuntu 20.04 is chosen by ansible-test default image. So any change in
+# ansible-test or Ubuntu can break our tests anytime without us knowing why.
+
 - name: "{{ role_name }} | Requirements | Install Linux packages"
   ansible.builtin.package:
     name:
@@ -11,10 +21,12 @@
       # different name between Ubuntu 20.04 and 22.04. Luckily, libmysql++ is
       # available on both.
       - "{{ 'libmysql++-dev' if db_engine == 'mysql' else 'libmariadb-dev' }}"
+      - python3-cryptography  # (A)
     state: present
 
 - name: "{{ role_name }} | Requirements | Install Python packages"
   ansible.builtin.pip:
     name:
+      - cffi  # (A)
       - "{{ connector_name }}=={{ connector_version }}"
     state: present

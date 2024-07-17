@@ -63,7 +63,6 @@ jobs:
           - '3.9'
           - '3.10'
           - '3.11'
-          - '3.12'
         connector_name:
           - pymysql
           - mysqlclient
@@ -136,9 +135,6 @@ jobs:
             python: '3.11'
 
           - db_engine_version: '10.4.34'
-            python: '3.12'
-
-          - db_engine_version: '10.4.34'
             ansible: devel
 
           - db_engine_version: '10.6.18'
@@ -184,18 +180,6 @@ jobs:
             connector_version: '2.0.1'
 
           - python: '3.11'
-            connector_version: '2.0.3'
-
-          - python: '3.12'
-            connector_version: '0.9.3'
-
-          - python: '3.12'
-            connector_version: '1.0.2'
-
-          - python: '3.12'
-            connector_version: '2.0.1'
-
-          - python: '3.12'
             connector_version: '2.0.3'
 
           - python: '3.8'
@@ -347,7 +331,6 @@ jobs:
           - '3.9'
           - '3.10'
           - '3.11'
-          - '3.12'
         exclude:
           - python: '3.8'
             ansible: stable-2.16
@@ -377,12 +360,6 @@ jobs:
             ansible: stable-2.15
 
           - python: '3.11'
-            ansible: stable-2.16
-
-          - python: '3.12'
-            ansible: stable-2.15
-
-          - python: '3.12'
             ansible: stable-2.16
 
     steps:

@@ -42,7 +42,6 @@ The Makefile accept the following options
     - "3.9"
     - "3.10"
     - "3.11" (for stable-2.15+)
-    - "3.12" (for stable-2.16+)
   - Description: If `Python -V` shows an unsupported version, use this option to select a compatible Python version available on your system. Use `ls /usr/bin/python3*|grep -v config` to list the available versions (You may have to install one). Unsupported versions are those that are too recent for the Ansible version you are using. In such cases, you will see an error message similar to: 'This version of ansible-test cannot be executed with Python version 3.12.3. Supported Python versions are: 3.9, 3.10, 3.11'.
 
 - `ansible`

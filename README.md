@@ -110,7 +110,6 @@ Here is the table for the support timeline:
 - 3.9
 - 3.10
 - 3.11 (collection version >= 3.10.0)
-- 3.12 (collection version >= 3.10.0)
 
 ### Databases
 

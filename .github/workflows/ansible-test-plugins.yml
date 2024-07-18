@@ -17,7 +17,7 @@ on:  # yamllint disable-line rule:truthy
 
 jobs:
   sanity:
-    name: "Sanity (Ansible: ${{ matrix.ansible }})"
+    name: "Sanity (Ⓐ${{ matrix.ansible }})"
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -38,7 +38,7 @@ jobs:
   # Use this to chose which version of Python vs Ansible to test:
   # https://docs.ansible.com/ansible/latest/reference_appendices/release_and_maintenance.html#ansible-core-control-node-python-support
   integration:
-    name: "Integration (Ansible: ${{ matrix.ansible }}, DB: ${{ matrix.db_engine_name }} ${{ matrix.db_engine_version }}, connector: ${{ matrix.connector_name }} ${{ matrix.connector_version }})"
+    name: "Integration (Ⓐ${{ matrix.ansible }}, DB: ${{ matrix.db_engine_name }} ${{ matrix.db_engine_version }}, connector: ${{ matrix.connector_name }} ${{ matrix.connector_version }})"
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -275,7 +275,7 @@ jobs:
 
   units:
     runs-on: ubuntu-22.04
-    name: Units (Ⓐ${{ matrix.ansible }})
+    name: Units (Ⓐ${{ matrix.ansible }}, Python${{ matrix.python }})
     strategy:
       # As soon as the first unit test fails,
       # cancel the others to free up the CI queue

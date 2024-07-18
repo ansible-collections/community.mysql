@@ -113,6 +113,9 @@ jobs:
           - connector_name: mysqlclient
             connector_version: '1.0.2'
 
+          - connector_name: mysqlclient
+            connector_version: '1.1.1'
+
           - db_engine_version: '8.0.38'
             ansible: stable-2.17
 

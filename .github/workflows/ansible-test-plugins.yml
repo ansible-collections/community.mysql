@@ -325,7 +325,8 @@ jobs:
     steps:
       - name: >-
           Perform unit testing against
-          Ansible version ${{ matrix.ansible }}
+          Ansible version ${{ matrix.ansible }} and
+          python version ${{ matrix.python }}
         uses: ansible-community/ansible-test-gh-action@release/v1
         with:
           ansible-core-version: ${{ matrix.ansible }}

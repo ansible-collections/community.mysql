@@ -55,7 +55,6 @@ jobs:
           - '8.0.38'
           - '8.4.1'
           - '10.5.25'
-          - '10.6.18'
           - '10.11.8'
         connector_name:
           - pymysql
@@ -89,9 +88,6 @@ jobs:
 
           - db_engine_name: mysql
             db_engine_version: '10.5.25'
-
-          - db_engine_name: mysql
-            db_engine_version: '10.6.18'
 
           - db_engine_name: mysql
             db_engine_version: '10.11.8'
@@ -129,9 +125,6 @@ jobs:
           - db_engine_version: '10.5.25'
             ansible: devel
 
-          - db_engine_version: '10.6.18'
-            ansible: devel
-
           - db_engine_version: '8.4.1'
             connector_version: '0.9.3'
 
@@ -167,9 +160,6 @@ jobs:
 
           - connector_version: '1.1.1'
             db_engine_version: '10.5.25'
-
-          - connector_version: '1.1.1'
-            db_engine_version: '10.6.18'
 
     services:
       db_primary:

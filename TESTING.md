@@ -66,7 +66,6 @@ The Makefile accept the following options
     - "8.0.38" <- mysql
     - "8.4.1" <- mysql (NOT WORKING YET, ansible-test uses Ubuntu 20.04 which is too old to install mysql-community-client 8.4)
     - "10.5.25" <- mariadb
-    - "10.6.18" <- mariadb
     - "10.11.8" <- mariadb
   - Description: The tag of the container to use for the service containers that will host a primary database and two replicas. Do not use short version, like `mysql:8` (don't do that) because our tests expect a full version to filter tests precisely. For instance: `when: db_version is version ('8.0.22', '>')`. You can use any tag available on [hub.docker.com/_/mysql](https://hub.docker.com/_/mysql) and [hub.docker.com/_/mariadb](https://hub.docker.com/_/mariadb) but GitHub Action will only use the versions listed above.
 

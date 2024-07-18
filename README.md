@@ -133,7 +133,7 @@ For MariaDB, only Long Term releases are tested.
 - pymysql 0.9.3
 - pymysql 0.10.1 (for RHEL8 context)
 - pymysql 1.0.2 (collection version >= 3.6.1)
-- pymysql 1.1.1 (for RHEL9 context)
+- pymysql 1.1.1 (collection version >= 3.10.0)
 
 ## External requirements
 

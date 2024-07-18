@@ -120,7 +120,6 @@ For MariaDB, only Long Term releases are tested.
 - mysql 8.4.1 (collection version >= 3.10.0) !!! FAILING, no support yet !!!
 - mariadb:10.3.34 (collection version < 3.5.1)
 - mariadb:10.4.24 (collection version >= 3.5.2, < 3.10.0)
-- mariadb:10.4.34 (collection version >= 3.10.0)
 - mariadb:10.5.18 (collection version >= 3.5.2, < 3.10.0)
 - mariadb:10.5.25 (collection version >= 3.10.0)
 - mariadb:10.6.11 (collection version >= 3.5.2, < 3.10.0)

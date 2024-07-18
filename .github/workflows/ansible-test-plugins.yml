@@ -54,7 +54,6 @@ jobs:
         db_engine_version:
           - '8.0.38'
           - '8.4.1'
-          - '10.4.34'
           - '10.5.25'
           - '10.6.18'
           - '10.11.8'
@@ -85,8 +84,6 @@ jobs:
             db_engine_version: '10.11.8'
 
         exclude:
-          - db_engine_name: mysql
-            db_engine_version: '10.4.34'
 
           - db_engine_name: mysql
             db_engine_version: '10.5.25'
@@ -118,7 +115,7 @@ jobs:
           - connector_name: mysqlclient
             connector_version: '1.0.2'
 
-          - db_engine_version: '10.4.34'
+          - db_engine_version: '10.5.25'
             ansible: devel
 
     services:

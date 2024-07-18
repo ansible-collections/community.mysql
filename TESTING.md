@@ -65,7 +65,6 @@ The Makefile accept the following options
   - Choices:
     - "8.0.38" <- mysql
     - "8.4.1" <- mysql (NOT WORKING YET, ansible-test uses Ubuntu 20.04 which is too old to install mysql-community-client 8.4)
-    - "10.4.34" <- mariadb
     - "10.5.25" <- mariadb
     - "10.6.18" <- mariadb
     - "10.11.8" <- mariadb

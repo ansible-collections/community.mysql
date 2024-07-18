@@ -8,7 +8,7 @@ endif
 
 # This match what GitHub Action will do. Disabled by default.
 ifdef continue_on_errors
-	_continue_on_errors = --retry-on-error --continue-on-error
+	_continue_on_errors = --continue-on-error
 endif
 
 .PHONY: test-integration

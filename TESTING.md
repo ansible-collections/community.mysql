@@ -104,7 +104,7 @@ tests will overwrite the 3 databases containers so no need to kill them in advan
 
 - `continue_on_errors`
   - Mandatory: false
-  - Description: Tells ansible-test to retry on errors and also continue on errors. This is the way the GitHub Action's workflow runs the tests. This can be used to catch all errors in a single run, but you'll need to scroll up to find them. Add any value to activate this option: `continue_on_errors=1`
+  - Description: Tells ansible-test to continue on errors. This is the way the GitHub Action's workflow runs the tests. This can be used to catch all errors in a single run, but you'll need to scroll up to find them. Add any value to activate this option: `continue_on_errors=1`
 
 
 #### Makefile usage examples:

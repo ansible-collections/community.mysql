@@ -271,6 +271,7 @@ jobs:
             echo -n "${{ matrix.ansible }}"
             > tests/integration/ansible
           testing-type: integration
+          integration-retry-on-error: false
 
   units:
     runs-on: ubuntu-22.04

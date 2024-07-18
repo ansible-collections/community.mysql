@@ -53,16 +53,11 @@ jobs:
           - mariadb
         db_engine_version:
           - '8.0.38'
-          # - '8.4.1'  # Unable to install mysql-client on Ubuntu 20.04 default container used by ansible-test
+          - '8.4.1'
           - '10.4.34'
           - '10.5.25'
           - '10.6.18'
           - '10.11.8'
-        python:
-          - '3.8'
-          - '3.9'
-          - '3.10'
-          - '3.11'
         connector_name:
           - pymysql
           - mysqlclient
@@ -78,7 +73,6 @@ jobs:
           # RHEL8 context
           - connector_name: pymysql
             connector_version: '0.10.1'
-            python: '3.6'
             ansible: stable-2.16
             db_engine_name: mariadb
             db_engine_version: '10.11.8'
@@ -86,7 +80,6 @@ jobs:
           # RHEL9 context
           - connector_name: pymysql
             connector_version: '1.1.1'
-            python: '3.9'
             ansible: stable-2.17
             db_engine_name: mariadb
             db_engine_version: '10.11.8'
@@ -125,79 +118,7 @@ jobs:
           - connector_name: mysqlclient
             connector_version: '1.0.2'
 
-          - db_engine_version: '8.4.1'
-            python: '3.8'
-
           - db_engine_version: '10.4.34'
-            python: '3.10'
-
-          - db_engine_version: '10.4.34'
-            python: '3.11'
-
-          - db_engine_version: '10.4.34'
-            ansible: devel
-
-          - db_engine_version: '10.6.18'
-            python: '3.8'
-
-          - db_engine_version: '10.6.18'
-            python: '3.9'
-
-          - python: '3.8'
-            connector_version: '1.0.2'
-
-          - python: '3.8'
-            connector_version: '2.0.3'
-
-          - python: '3.8'
-            connector_version: '2.1.1'
-
-          - python: '3.9'
-            connector_version: '1.0.2'
-
-          - python: '3.9'
-            connector_version: '2.0.1'
-
-          - python: '3.9'
-            connector_version: '2.1.1'
-
-          - python: '3.10'
-            connector_version: '0.9.3'
-
-          - python: '3.10'
-            connector_version: '2.0.1'
-
-          - python: '3.10'
-            connector_version: '2.0.3'
-
-          - python: '3.11'
-            connector_version: '0.9.3'
-
-          - python: '3.11'
-            connector_version: '1.0.2'
-
-          - python: '3.11'
-            connector_version: '2.0.1'
-
-          - python: '3.11'
-            connector_version: '2.0.3'
-
-          - python: '3.8'
-            ansible: stable-2.16
-
-          - python: '3.8'
-            ansible: stable-2.17
-
-          - python: '3.8'
-            ansible: devel
-
-          - python: '3.9'
-            ansible: stable-2.16
-
-          - python: '3.9'
-            ansible: stable-2.17
-
-          - python: '3.9'
             ansible: devel
 
     services:
@@ -281,10 +202,10 @@ jobs:
       - name: >-
           Perform integration testing against
           Ansible version ${{ matrix.ansible }}
-          under Python ${{ matrix.python }}
         uses: ansible-community/ansible-test-gh-action@release/v1
         with:
           ansible-core-version: ${{ matrix.ansible }}
+          docker-image: ubuntu2204
           pre-test-cmd: >-
             echo Setting db_engine_name to "${{ matrix.db_engine_name }}"...;
             echo -n "${{ matrix.db_engine_name }}"
@@ -303,14 +224,9 @@ jobs:
             echo -n "${{ matrix.connector_version }}"
             > tests/integration/connector_version;
 
-            echo Setting Python version to "${{ matrix.python }}"...;
-            echo -n "${{ matrix.python }}"
-            > tests/integration/python;
-
             echo Setting Ansible version to "${{ matrix.ansible }}"...;
             echo -n "${{ matrix.ansible }}"
             > tests/integration/ansible
-          target-python-version: ${{ matrix.python }}
           testing-type: integration
 
   units:

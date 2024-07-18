@@ -43,14 +43,8 @@
 
     - name: Display the python version in use
       command:
-        cmd: python{{ python_version }} -V
+        cmd: python -V
       changed_when: false
-      register: python_in_use
-
-    - name: Assert that expected Python is installed
-      assert:
-        that:
-          - python_in_use.stdout is search(python_version)
 
     - name: Assert that we run the expected ansible version
       assert:

@@ -17,7 +17,6 @@ test-integration:
 	@echo -n $(db_engine_version) > tests/integration/db_engine_version
 	@echo -n $(connector_name) > tests/integration/connector_name
 	@echo -n $(connector_version) > tests/integration/connector_version
-	@echo -n $(python) > tests/integration/python
 	@echo -n $(ansible) > tests/integration/ansible
 
 	# Create podman network for systems missing it. Error can be ignored
@@ -90,7 +89,7 @@ test-integration:
 	https://github.com/ansible/ansible/archive/$(ansible).tar.gz; \
 	set -x; \
 	ansible-test integration $(target) -v --color --coverage --diff \
-	--docker --python $(python) \
+	--docker ubuntu2204 \
 	--docker-network podman $(_continue_on_errors) $(_keep_containers_alive); \
 	set +x
 	# End of venv
@@ -99,7 +98,6 @@ test-integration:
 	rm tests/integration/db_engine_version
 	rm tests/integration/connector_name
 	rm tests/integration/connector_version
-	rm tests/integration/python
 	rm tests/integration/ansible
 ifndef keep_containers_alive
 	podman stop --time 0 --ignore primary replica1 replica2

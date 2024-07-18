@@ -106,17 +106,18 @@ Here is the table for the support timeline:
 
 ### Python
 
-- 3.8
-- 3.9
-- 3.10
-- 3.11 (collection version >= 3.10.0)
+- 3.8 (Unit tests only)
+- 3.9 (Unit tests only)
+- 3.10 (Sanity, Units and integrations tests)
+- 3.11 (Unit tests only, collection version >= 3.10.0)
 
 ### Databases
 
 For MariaDB, only Long Term releases are tested.
 
 - mysql 5.7.40 (collection version < 3.10.0)
-- mysql 8.0.31  (collection version < 3.10.0)
+- mysql 8.0.31 (collection version < 3.10.0)
+- mysql 8.4.1 (collection version >= 3.10.0) !!! FAILING, no support yet !!!
 - mariadb:10.3.34 (collection version < 3.5.1)
 - mariadb:10.4.24 (collection version >= 3.5.2, < 3.10.0)
 - mariadb:10.4.34 (collection version >= 3.10.0)

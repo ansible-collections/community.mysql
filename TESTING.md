@@ -87,16 +87,6 @@ The Makefile accept the following options
     - "1.1.1" <- pymysql
   - Description: The version of the python package of the connector to use. This value is used to filter tests meant for other connectors.
 
-- `python`
-  - Mandatory: true
-  - Choices:
-    - "3.8"
-    - "3.9"
-    - "3.10"
-    - "3.11"
-    - "3.12"
-  - Description: The python version to use in the controller (ansible-test container).
-
 - `target`
   - Mandatory: false
   - Choices:
@@ -123,23 +113,23 @@ tests will overwrite the 3 databases containers so no need to kill them in advan
 
 ```sh
 # Run all targets
-make ansible="stable-2.16" db_engine_name="mysql" db_engine_version="8.0.31" python="3.10" connector_name="pymysql" connector_version="1.0.2"
+make ansible="stable-2.16" db_engine_name="mysql" db_engine_version="8.0.31" connector_name="pymysql" connector_version="1.0.2"
 
 # A single target
-make ansible="stable-2.16" db_engine_name="mysql" db_engine_version="8.0.31" python="3.10" connector_name="pymysql" connector_version="1.0.2" target="test_mysql_info"
+make ansible="stable-2.16" db_engine_name="mysql" db_engine_version="8.0.31" connector_name="pymysql" connector_version="1.0.2" target="test_mysql_info"
 
 # Keep databases and ansible tests containers alives
 # A single target and continue on errors
-make ansible="stable-2.17" db_engine_name="mysql" db_engine_version="8.0.31" python="3.11" connector_name="mysqlclient" connector_version="2.0.3" target="test_mysql_query" keep_containers_alive=1 continue_on_errors=1
+make ansible="stable-2.17" db_engine_name="mysql" db_engine_version="8.0.31" connector_name="mysqlclient" connector_version="2.0.3" target="test_mysql_query" keep_containers_alive=1 continue_on_errors=1
 
 # If your system has an usupported version of Python:
-make local_python_version="3.10" ansible="stable-2.17" db_engine_name="mariadb" db_engine_version="10.6.11" python="3.11" connector_name="pymysql" connector_version="1.0.2"
+make local_python_version="3.10" ansible="stable-2.17" db_engine_name="mariadb" db_engine_version="10.6.11" connector_name="pymysql" connector_version="1.0.2"
 ```
 
 
 ### Run all tests
 
-GitHub Action offer a test matrix that run every combination of Python, MySQL, MariaDB and Connector against each other. To reproduce this, this repo provides a script called *run_all_tests.py*.
+GitHub Action offer a test matrix that run every combination of MySQL, MariaDB and Connector against each other. To reproduce this, this repo provides a script called *run_all_tests.py*.
 
 Examples:
 
@@ -148,8 +138,8 @@ python run_all_tests.py
 ```
 
 
-### Add a new Python, Connector or Database version
+### Add a new Connector or Database version
 
 New components version should be added to this file: [.github/workflows/ansible-test-plugins.yml](https://github.com/ansible-collections/community.mysql/tree/main/.github/workflows)
 
-Be careful to not add too much tests. When adding a new version of Python, for instance, only test it agains the latest versions of Ansible and MySQL/MariaDB. When tests are run, you can see that we already start 40 virtual machines!
+Be careful to not add too much tests. The matrix creates an exponential number of virtual machines!

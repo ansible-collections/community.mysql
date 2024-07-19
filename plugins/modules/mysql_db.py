@@ -344,12 +344,12 @@ import traceback
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.database import mysql_quote_identifier
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
-  mysql_connect,
-  mysql_driver,
-  mysql_driver_fail_msg,
-  mysql_common_argument_spec,
-  get_server_implementation,
-  get_server_version,
+    mysql_connect,
+    mysql_driver,
+    mysql_driver_fail_msg,
+    mysql_common_argument_spec,
+    get_server_implementation,
+    get_server_version,
 )
 from ansible_collections.community.mysql.plugins.module_utils.version import LooseVersion
 from ansible.module_utils.six.moves import shlex_quote
@@ -439,7 +439,7 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
         cmd += " --hex-blob"
     if master_data:
         if (server_implementation == 'mysql' and
-            LooseVersion(server_version) >= LooseVersion("8.2")):
+                LooseVersion(server_version) >= LooseVersion("8.2")):
             cmd += " --source-data=%s" % master_data
         else:
             cmd += " --master-data=%s" % master_data

@@ -2,6 +2,35 @@
 
 # We use the ubuntu2204 image provided by ansible-test.
 
+# The GPG key is imported in the files folder from:
+#   https://dev.mysql.com/doc/refman/8.4/en/checking-gpg-signature.html
+# Downloading the key on each iteration of the tests is too slow.
+- name: Install MySQL PGP public key
+  ansible.builtin.copy:
+    src: files/mysql.gpg
+    dest: /usr/share/keyrings/mysql.gpg
+    owner: root
+    group: root
+    mode: '0644'
+  when:
+    - db_engine == 'mysql'
+    - db_version is version('8.4', '>=')
+
+- name: Add Apt signing key to keyring
+  ansible.builtin.apt_key:
+    id: A8D3785C
+    file: /usr/share/keyrings/mysql.gpg
+    state: present
+
+- name: Add MySQL 8.4 repository
+  ansible.builtin.apt_repository:
+    repo: deb http://repo.mysql.com/apt/ubuntu/ jammy mysql-8.4-lts mysql-tools
+    state: present
+    filename: mysql
+  when:
+    - db_engine == 'mysql'
+    - db_version is version('8.4', '>=')
+
 - name: "{{ role_name }} | Requirements | Install Linux packages"
   ansible.builtin.package:
     name:

@@ -104,24 +104,35 @@ Here is the table for the support timeline:
 - stable-2.17
 - current development version
 
+### Python
+
+- 3.8 (Unit tests only)
+- 3.9 (Unit tests only)
+- 3.10 (Sanity, Units and integrations tests)
+- 3.11 (Unit tests only, collection version >= 3.10.0)
+
 ### Databases
 
-For MariaDB, only Long Term releases are tested.
+For MariaDB, only Long Term releases are tested. When multiple LTS are available, we test the oldest and the newest only. Usually breaking changes introduced in the versions in between are also present in the latest version.
 
-- mysql 5.7.40
-- mysql 8.0.31
-- mariadb:10.3.34 (only collection version <= 3.5.1)
-- mariadb:10.4.24 (only collection version >= 3.5.2)
-- mariadb:10.5.18 (only collection version >= 3.5.2)
-- mariadb:10.6.11 (only collection version >= 3.5.2)
-- mariadb:10.11.?? (waiting for release)
+- mysql 5.7.40 (collection version < 3.10.0)
+- mysql 8.0.31 (collection version < 3.10.0)
+- mysql 8.4.1 (collection version >= 3.10.0) !!! FAILING, no support yet !!!
+- mariadb:10.3.34 (collection version < 3.5.1)
+- mariadb:10.4.24 (collection version >= 3.5.2, < 3.10.0)
+- mariadb:10.5.18 (collection version >= 3.5.2, < 3.10.0)
+- mariadb:10.5.25 (collection version >= 3.10.0)
+- mariadb:10.6.11 (collection version >= 3.5.2, < 3.10.0)
+- mariadb:10.11.8 (collection version >= 3.10.0)
 
 
 ### Database connectors
 
-- pymysql 0.7.11 (Only tested with MySQL 5.7)
+- pymysql 0.7.11 (collection version < 3.10 and MySQL 5.7)
 - pymysql 0.9.3
-- pymysql 1.0.2 (only collection version >= 3.6.1)
+- pymysql 0.10.1 (for RHEL8 context)
+- pymysql 1.0.2 (collection version >= 3.6.1)
+- pymysql 1.1.1 (collection version >= 3.10.0)
 
 ## External requirements
 

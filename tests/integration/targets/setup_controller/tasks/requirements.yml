@@ -1,5 +1,7 @@
 ---
 
+# We use the ubuntu2204 image provided by ansible-test.
+
 - name: "{{ role_name }} | Requirements | Install Linux packages"
   ansible.builtin.package:
     name:

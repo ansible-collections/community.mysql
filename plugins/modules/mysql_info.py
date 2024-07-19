@@ -293,6 +293,7 @@ connector_version:
 from decimal import Decimal
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.community.mysql.plugins.module_utils.version import LooseVersion
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_connect,
     mysql_common_argument_spec,
@@ -301,6 +302,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     get_connector_name,
     get_connector_version,
     get_server_implementation,
+    get_server_version,
 )
 
 from ansible_collections.community.mysql.plugins.module_utils.user import (
@@ -335,10 +337,11 @@ class MySQL_Info(object):
         5. add info about the new subset with an example to RETURN block
     """
 
-    def __init__(self, module, cursor, server_implementation, user_implementation):
+    def __init__(self, module, cursor, server_implementation, server_version, user_implementation):
         self.module = module
         self.cursor = cursor
         self.server_implementation = server_implementation
+        self.server_version = server_version
         self.user_implementation = user_implementation
         self.info = {
             'version': {},
@@ -501,7 +504,16 @@ class MySQL_Info(object):
 
     def __get_master_status(self):
         """Get master status if the instance is a master."""
-        res = self.__exec_sql('SHOW MASTER STATUS')
+        si = self.server_implementation
+        sv = LooseVersion(self.server_version)
+        term = 'MASTER'
+        if si == "mysql" and sv >= LooseVersion("8.2.0"):
+            term = "BINARY LOG"
+
+        if si == "mariadb" and sv >= LooseVersion("10.5.2"):
+            term = "BINLOG"
+
+        res = self.__exec_sql('SHOW %s STATUS' % term)
         if res:
             for line in res:
                 for vname, val in iteritems(line):
@@ -762,12 +774,13 @@ def main():
         module.fail_json(msg)
 
     server_implementation = get_server_implementation(cursor)
+    server_version = get_server_version(cursor)
     user_implementation = get_user_implementation(cursor)
 
     ###############################
     # Create object and do main job
 
-    mysql = MySQL_Info(module, cursor, server_implementation, user_implementation)
+    mysql = MySQL_Info(module, cursor, server_implementation, server_version, user_implementation)
 
     module.exit_json(changed=False,
                      server_engine='MariaDB' if server_implementation == 'mariadb' else 'MySQL',

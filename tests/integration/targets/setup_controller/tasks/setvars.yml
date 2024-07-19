@@ -32,11 +32,6 @@
         'file',
         '/root/ansible_collections/community/mysql/tests/integration/db_engine_version'
       ) }}
-    python_version_lookup: >-
-      {{ lookup(
-        'file',
-        '/root/ansible_collections/community/mysql/tests/integration/python'
-      ) }}
     ansible_version_lookup: >-
       {{ lookup(
         'file',
@@ -49,7 +44,6 @@
     connector_version: "{{ connector_version_lookup.strip() }}"
     db_engine: "{{ db_engine_name_lookup.strip() }}"
     db_version: "{{ db_engine_version_lookup.strip() }}"
-    python_version: "{{ python_version_lookup.strip() }}"
     test_ansible_version: >-
       {%- if ansible_version_lookup == 'devel' -%}
       {{ ansible_version_lookup }}
@@ -77,7 +71,6 @@
       connector_version: {{ connector_version }}
       db_engine: {{ db_engine }}
       db_version: {{ db_version }}
-      python_version: {{ python_version }}
       test_ansible_version: {{ test_ansible_version }}
   ansible.builtin.debug:
     msg: "{{ msg.split('\n') }}"

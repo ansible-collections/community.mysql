@@ -21,6 +21,9 @@
     id: A8D3785C
     file: /usr/share/keyrings/mysql.gpg
     state: present
+  when:
+    - db_engine == 'mysql'
+    - db_version is version('8.4', '>=')
 
 - name: Add MySQL 8.4 repository
   ansible.builtin.apt_repository:

@@ -72,7 +72,7 @@ class CommandResolver():
                 ("mysql", "default"): "SHOW SLAVE HOSTS",
                 ("mariadb", "default"): "SHOW SLAVE HOSTS",
                 ("mysql", "8.0.22"): "SHOW REPLICAS",
-                ("mariadb", "10.5.1"): "SHOW REPLICAS HOSTS",
+                ("mariadb", "10.5.1"): "SHOW REPLICA HOSTS",
             },
             # Add more command mappings here
         }

@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import (absolute_import, division, print_function)
 from ._version import LooseVersion
+__metaclass__ = type
 
-class CommandResolver:
+
+class CommandResolver():
     def __init__(self, server_implementation, server_version):
         self.server_implementation = server_implementation
         self.server_version = LooseVersion(server_version)
@@ -84,4 +87,4 @@ class CommandResolver:
                     return cmd
 
             return cmd_syntaxes[(self.server_implementation, "default")]
-        raise ValueError(f"Unsupported command: {command}")
+        raise ValueError("Unsupported command: %s" % command)

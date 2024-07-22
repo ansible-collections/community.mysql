@@ -298,7 +298,6 @@ queries:
 import os
 import warnings
 
-from ansible_collections.community.mysql.plugins.module_utils.version import LooseVersion
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.community.mysql.plugins.module_utils.command_resolver import (
     CommandResolver
@@ -568,7 +567,6 @@ def main():
         from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import replication as impl
     else:
         from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql import replication as impl
-
 
     # Since MySQL 8.0.22 and MariaDB 10.5.1,
     # "REPLICA" must be used instead of "SLAVE"

@@ -293,7 +293,6 @@ connector_version:
 from decimal import Decimal
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.community.mysql.plugins.module_utils.version import LooseVersion
 from ansible_collections.community.mysql.plugins.module_utils.command_resolver import (
     CommandResolver
 )

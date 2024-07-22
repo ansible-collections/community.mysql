@@ -300,6 +300,9 @@ import warnings
 
 from ansible_collections.community.mysql.plugins.module_utils.version import LooseVersion
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.community.mysql.plugins.module_utils.command_resolver import (
+    CommandResolver
+)
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     get_server_version,
     get_server_implementation,
@@ -313,18 +316,9 @@ from ansible.module_utils._text import to_native
 executed_queries = []
 
 
-def get_primary_status(cursor):
-    term = "MASTER"
-
-    version = get_server_version(cursor)
-    server_implementation = get_server_implementation(cursor)
-    if server_implementation == "mysql" and LooseVersion(version) >= LooseVersion("8.2.0"):
-        term = "BINARY LOG"
-
-    if server_implementation == "mariadb" and LooseVersion(version) >= LooseVersion("10.5.2"):
-        term = "BINLOG"
-
-    cursor.execute("SHOW %s STATUS" % term)
+def get_primary_status(cursor, command_resolver):
+    query = command_resolver.resolve_command("SHOW MASTER STATUS")
+    cursor.execute(query)
 
     primarystatus = cursor.fetchone()
     return primarystatus
@@ -566,11 +560,15 @@ def main():
         else:
             module.fail_json(msg="unable to find %s. Exception message: %s" % (config_file, to_native(e)))
 
+    server_version = get_server_version(cursor)
+    server_implementation = get_server_implementation(cursor)
+    command_resolver = CommandResolver(server_implementation, server_version)
     cursor.execute("SELECT VERSION()")
-    if 'mariadb' in cursor.fetchone()["VERSION()"].lower():
+    if server_implementation == 'mariadb':
         from ansible_collections.community.mysql.plugins.module_utils.implementations.mariadb import replication as impl
     else:
         from ansible_collections.community.mysql.plugins.module_utils.implementations.mysql import replication as impl
+
 
     # Since MySQL 8.0.22 and MariaDB 10.5.1,
     # "REPLICA" must be used instead of "SLAVE"
@@ -582,7 +580,7 @@ def main():
             primary_use_gtid = 'slave_pos'
 
     if mode == 'getprimary':
-        status = get_primary_status(cursor)
+        status = get_primary_status(cursor, command_resolver)
         if status and "File" in status and "Position" in status:
             status['Is_Primary'] = True
         else:

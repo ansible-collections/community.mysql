@@ -440,11 +440,12 @@ def start_replica(module, cursor, connection_name='', channel='', fail_on_error=
     return started
 
 
-def changeprimary(cursor, chm, connection_name='', channel=''):
+def changeprimary(cursor, command_resolver, chm, connection_name='', channel=''):
+    query_head = command_resolver.resolve_command("CHANGE MASTER")
     if connection_name:
-        query = "CHANGE MASTER '%s' TO %s" % (connection_name, ','.join(chm))
+        query = "%s '%s' TO %s" % (query_head, connection_name, ','.join(chm))
     else:
-        query = 'CHANGE MASTER TO %s' % ','.join(chm)
+        query = '%s TO %s' % (query_head, ','.join(chm))
 
     if channel:
         query += " FOR CHANNEL '%s'" % channel
@@ -647,7 +648,7 @@ def main():
         if primary_use_gtid is not None:
             chm.append("MASTER_USE_GTID=%s" % primary_use_gtid)
         try:
-            changeprimary(cursor, chm, connection_name, channel)
+            changeprimary(cursor, command_resolver, chm, connection_name, channel)
         except mysql_driver.Warning as e:
             result['warning'] = to_native(e)
         except Exception as e:

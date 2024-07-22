@@ -74,6 +74,11 @@ class CommandResolver():
                 ("mysql", "8.0.22"): "SHOW REPLICAS",
                 ("mariadb", "10.5.1"): "SHOW REPLICA HOSTS",
             },
+            "CHANGE MASTER": {
+                ("mysql", "default"): "CHANGE MASTER",
+                ("mariadb", "default"): "CHANGE MASTER",
+                ("mysql", "8.0.23"): "CHANGE REPLICATION SOURCE",
+            },
             # Add more command mappings here
         }
 

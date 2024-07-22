@@ -63,10 +63,10 @@ class CommandResolver():
                 ("mariadb", "10.5.2"): "SHOW BINLOG STATUS",
             },
             "SHOW SLAVE STATUS": {
-                ("mysql", "default"): "SHOW SLAVE HOSTS STATUS",
-                ("mariadb", "default"): "SHOW SLAVE HOSTS STATUS",
-                ("mysql", "8.0.22"): "SHOW REPLICAS STATUS",
-                ("mariadb", "10.5.1"): "SHOW REPLICAS HOSTS STATUS",
+                ("mysql", "default"): "SHOW SLAVE STATUS",
+                ("mariadb", "default"): "SHOW SLAVE STATUS",
+                ("mysql", "8.0.22"): "SHOW REPLICA STATUS",
+                ("mariadb", "10.5.1"): "SHOW REPLICA STATUS",
             },
             "SHOW SLAVE HOSTS": {
                 ("mysql", "default"): "SHOW SLAVE HOSTS",

@@ -32,12 +32,31 @@
         channel: '{{ test_channel }}'
       register: result
 
-    - assert:
+    - name: Assert that run replication with channel is changed and query matches for MariaDB and MySQL < 8.0.23
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.queries == result_query
+      when:
+        - >
+          db_engine == 'mariadb' or
+          (db_engine == 'mysql' and db_version is version('8.0.23', '<'))
       vars:
         result_query: ["CHANGE MASTER TO MASTER_HOST='{{ mysql_host }}',\
+          MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='********',\
+          MASTER_PORT={{ mysql_primary_port }},MASTER_LOG_FILE=\
+          '{{ mysql_primary_status.File }}',MASTER_LOG_POS=\
+          {{ mysql_primary_status.Position }} FOR CHANNEL '{{ test_channel }}'"]
+
+    - name: Assert that run replication with channel is changed and query matches for MySQL >= 8.0.23
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.queries == result_query
+      when:
+        - db_engine == 'mysql' and db_version is version('8.0.23', '>=')
+      vars:
+        result_query: ["CHANGE REPLICATION SOURCE TO MASTER_HOST='{{ mysql_host }}',\
           MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='********',\
           MASTER_PORT={{ mysql_primary_port }},MASTER_LOG_FILE=\
           '{{ mysql_primary_status.File }}',MASTER_LOG_POS=\

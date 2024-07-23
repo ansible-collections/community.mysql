@@ -154,13 +154,32 @@
         primary_ssl: no
       register: result
 
-    - name: Assert that changeprimmary is changed and return expected query
-      assert:
+    - name: Assert that changeprimmary is changed and return expected query for MariaDB and MySQL < 8.0.23
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.queries == expected_queries
+      when:
+        - >
+          db_engine == 'mariadb' or
+          (db_engine == 'mysql' and db_version is version('8.0.23', '<'))
       vars:
         expected_queries: ["CHANGE MASTER TO MASTER_HOST='{{ mysql_host }}',\
+          MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='********',\
+          MASTER_PORT={{ mysql_primary_port }},MASTER_LOG_FILE=\
+          '{{ mysql_primary_status.File }}',MASTER_LOG_POS=\
+          {{ mysql_primary_status.Position }},MASTER_SSL=0,MASTER_SSL_CA=''"]
+
+    - name: Assert that changeprimmary is changed and return expected query for MySQL > 8.0.23
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.queries == expected_queries
+      when:
+        - db_engine == 'mysql' and db_version is version('8.0.23', '>=')
+      vars:
+        expected_queries: ["CHANGE REPLICATION SOURCE TO \
+          MASTER_HOST='{{ mysql_host }}',\
           MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='********',\
           MASTER_PORT={{ mysql_primary_port }},MASTER_LOG_FILE=\
           '{{ mysql_primary_status.File }}',MASTER_LOG_POS=\

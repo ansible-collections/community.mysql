@@ -1,3 +1,4 @@
+---
 ####################################################################
 # WARNING: These are designed specifically for Ansible tests       #
 # and should not be used as examples of how to write Ansible roles #
@@ -18,8 +19,7 @@
 # Tests of channel parameter:
 - import_tasks: mysql_replication_channel.yml
   when:
-    - db_engine == 'mysql' # FIXME: mariadb introduces FOR CHANNEL in 10.7
-    - mysql8022_and_higher == true  # FIXME: mysql 5.7 should work, but our tets fails, why?
+    - db_engine == 'mysql'  # FIXME: mariadb introduces FOR CHANNEL in 10.7
 
 # Tests of resetprimary mode:
 - import_tasks: mysql_replication_resetprimary_mode.yml
@@ -30,3 +30,4 @@
 - import_tasks: mysql_replication_changereplication_mode.yml
   when:
     - db_engine == 'mysql'
+    - db_version is version('8.0.23', '>=')

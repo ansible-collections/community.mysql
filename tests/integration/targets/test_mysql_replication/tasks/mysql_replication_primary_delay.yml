@@ -32,7 +32,7 @@
       ansible.builtin.assert:
         that:
           - result is changed
-          - result.queries == ["CHANGE REPLICATION SOURCE TO MASTER_DELAY=60"]
+          - result.queries == ["CHANGE REPLICATION SOURCE TO SOURCE_DELAY=60"]
       when:
         - db_engine == 'mysql' and db_version is version('8.0.23', '>=')
 

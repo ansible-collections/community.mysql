@@ -23,6 +23,7 @@ from ansible_collections.community.mysql.plugins.module_utils.command_resolver i
         ('mariadb', '10.5.1', 'SHOW MASTER STATUS', 'SHOW MASTER STATUS', None, None),   # Default
         ('mariadb', '10.5.2', 'SHOW MASTER STATUS', 'SHOW BINLOG STATUS', None, None),
         ('mariadb', '10.6.17', 'SHOW MASTER STATUS', 'SHOW BINLOG STATUS', None, None),
+        ('mysql', '8.4.1', 'CHANGE MASTER', 'CHANGE REPLICATION SOURCE', None, None),
     ]
 )
 def test_resolve_command(server_implementation, server_version, command, expected_output, expected_exception, expected_message):

@@ -79,6 +79,91 @@ class CommandResolver():
                 ("mariadb", "default"): "CHANGE MASTER",
                 ("mysql", "8.0.23"): "CHANGE REPLICATION SOURCE",
             },
+            "MASTER_HOST": {
+                ("mysql", "default"): "MASTER_HOST",
+                ("mariadb", "default"): "MASTER_HOST",
+                ("mysql", "8.0.23"): "SOURCE_HOST",
+            },
+            "MASTER_USER": {
+                ("mysql", "default"): "MASTER_USER",
+                ("mariadb", "default"): "MASTER_USER",
+                ("mysql", "8.0.23"): "SOURCE_USER",
+            },
+            "MASTER_PASSWORD": {
+                ("mysql", "default"): "MASTER_PASSWORD",
+                ("mariadb", "default"): "MASTER_PASSWORD",
+                ("mysql", "8.0.23"): "SOURCE_PASSWORD",
+            },
+            "MASTER_PORT": {
+                ("mysql", "default"): "MASTER_PORT",
+                ("mariadb", "default"): "MASTER_PORT",
+                ("mysql", "8.0.23"): "SOURCE_PORT",
+            },
+            "MASTER_CONNECT_RETRY": {
+                ("mysql", "default"): "MASTER_CONNECT_RETRY",
+                ("mariadb", "default"): "MASTER_CONNECT_RETRY",
+                ("mysql", "8.0.23"): "SOURCE_CONNECT_RETRY",
+            },
+            "MASTER_LOG_FILE": {
+                ("mysql", "default"): "MASTER_LOG_FILE",
+                ("mariadb", "default"): "MASTER_LOG_FILE",
+                ("mysql", "8.0.23"): "SOURCE_LOG_FILE",
+            },
+            "MASTER_LOG_POS": {
+                ("mysql", "default"): "MASTER_LOG_POS",
+                ("mariadb", "default"): "MASTER_LOG_POS",
+                ("mysql", "8.0.23"): "SOURCE_LOG_POS",
+            },
+            "MASTER_DELAY": {
+                ("mysql", "default"): "MASTER_DELAY",
+                ("mariadb", "default"): "MASTER_DELAY",
+                ("mysql", "8.0.23"): "SOURCE_DELAY",
+            },
+            "MASTER_SSL": {
+                ("mysql", "default"): "MASTER_SSL",
+                ("mariadb", "default"): "MASTER_SSL",
+                ("mysql", "8.0.23"): "SOURCE_SSL",
+            },
+            "MASTER_SSL_CA": {
+                ("mysql", "default"): "MASTER_SSL_CA",
+                ("mariadb", "default"): "MASTER_SSL_CA",
+                ("mysql", "8.0.23"): "SOURCE_SSL_CA",
+            },
+            "MASTER_SSL_CAPATH": {
+                ("mysql", "default"): "MASTER_SSL_CAPATH",
+                ("mariadb", "default"): "MASTER_SSL_CAPATH",
+                ("mysql", "8.0.23"): "SOURCE_SSL_CAPATH",
+            },
+            "MASTER_SSL_CERT": {
+                ("mysql", "default"): "MASTER_SSL_CERT",
+                ("mariadb", "default"): "MASTER_SSL_CERT",
+                ("mysql", "8.0.23"): "SOURCE_SSL_CERT",
+            },
+            "MASTER_SSL_KEY": {
+                ("mysql", "default"): "MASTER_SSL_KEY",
+                ("mariadb", "default"): "MASTER_SSL_KEY",
+                ("mysql", "8.0.23"): "SOURCE_SSL_KEY",
+            },
+            "MASTER_SSL_CIPHER": {
+                ("mysql", "default"): "MASTER_SSL_CIPHER",
+                ("mariadb", "default"): "MASTER_SSL_CIPHER",
+                ("mysql", "8.0.23"): "SOURCE_SSL_CIPHER",
+            },
+            "MASTER_SSL_VERIFY_SERVER_CERT": {
+                ("mysql", "default"): "MASTER_SSL_VERIFY_SERVER_CERT",
+                ("mariadb", "default"): "MASTER_SSL_VERIFY_SERVER_CERT",
+                ("mysql", "8.0.23"): "SOURCE_SSL_VERIFY_SERVER_CERT",
+            },
+            "MASTER_AUTO_POSITION": {
+                ("mysql", "default"): "MASTER_AUTO_POSITION",
+                ("mariadb", "default"): "MASTER_AUTO_POSITION",
+                ("mysql", "8.0.23"): "SOURCE_AUTO_POSITION",
+            },
+            "RESET MASTER": {
+                ("mysql", "default"): "RESET MASTER",
+                ("mariadb", "default"): "RESET MASTER",
+                ("mysql", "8.4.0"): "RESET BINARY LOGS AND GTIDS",
+            },
             # Add more command mappings here
         }
 

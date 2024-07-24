@@ -20,11 +20,12 @@ author:
 - Balazs Pocze (@banyek)
 - Andrew Klychkov (@Andersson007)
 - Dennis Urtubia (@dennisurtubia)
+- Laurent Indermühle (@laurent-indermuehle)
 options:
   mode:
     description:
     - Module operating mode. Could be
-      C(changeprimary) (CHANGE MASTER TO),
+      C(changeprimary) (CHANGE MASTER TO) - also works for MySQL 8.0.23 and later since community.mysql 3.10.0,
       C(changereplication) (CHANGE REPLICATION SOURCE TO) - only supported in MySQL 8.0.23 and later,
       C(getprimary) (SHOW MASTER STATUS),
       C(getreplica) (SHOW REPLICA STATUS),
@@ -403,8 +404,8 @@ def reset_replica_all(module, cursor, connection_name='', channel='', fail_on_er
     return reset
 
 
-def reset_primary(module, cursor, fail_on_error=False):
-    query = 'RESET MASTER'
+def reset_primary(module, cursor, command_resolver, fail_on_error=False):
+    query = command_resolver.resolve_command('RESET MASTER')
     try:
         executed_queries.append(query)
         cursor.execute(query)
@@ -413,7 +414,7 @@ def reset_primary(module, cursor, fail_on_error=False):
         reset = False
     except Exception as e:
         if fail_on_error:
-            module.fail_json(msg="RESET MASTER failed: %s" % to_native(e))
+            module.fail_json(msg="%s failed: %s" % (command_resolver.resolve_command('RESET MASTER'), to_native(e)))
         reset = False
     return reset
 
@@ -607,52 +608,52 @@ def main():
         chm = []
         result = {}
         if primary_host is not None:
-            chm.append("MASTER_HOST='%s'" % primary_host)
+            chm.append("%s='%s'" % (command_resolver.resolve_command('MASTER_HOST'), primary_host))
         if primary_user is not None:
-            chm.append("MASTER_USER='%s'" % primary_user)
+            chm.append("%s='%s'" % (command_resolver.resolve_command('MASTER_USER'), primary_user))
         if primary_password is not None:
-            chm.append("MASTER_PASSWORD='%s'" % primary_password)
+            chm.append("%s='%s'" % (command_resolver.resolve_command('MASTER_PASSWORD'), primary_password))
         if primary_port is not None:
-            chm.append("MASTER_PORT=%s" % primary_port)
+            chm.append("%s=%s" % (command_resolver.resolve_command('MASTER_PORT'), primary_port))
         if primary_connect_retry is not None:
-            chm.append("MASTER_CONNECT_RETRY=%s" % primary_connect_retry)
+            chm.append("%s=%s" % (command_resolver.resolve_command('MASTER_CONNECT_RETRY'), primary_connect_retry))
         if primary_log_file is not None:
-            chm.append("MASTER_LOG_FILE='%s'" % primary_log_file)
+            chm.append("%s='%s'" % (command_resolver.resolve_command('MASTER_LOG_FILE'), primary_log_file))
         if primary_log_pos is not None:
-            chm.append("MASTER_LOG_POS=%s" % primary_log_pos)
+            chm.append("%s=%s" % (command_resolver.resolve_command('MASTER_LOG_POS'), primary_log_pos))
         if primary_delay is not None:
-            chm.append("MASTER_DELAY=%s" % primary_delay)
+            chm.append("%s=%s" % (command_resolver.resolve_command('MASTER_DELAY'), primary_delay))
         if relay_log_file is not None:
             chm.append("RELAY_LOG_FILE='%s'" % relay_log_file)
         if relay_log_pos is not None:
             chm.append("RELAY_LOG_POS=%s" % relay_log_pos)
         if primary_ssl is not None:
             if primary_ssl:
-                chm.append("MASTER_SSL=1")
+                chm.append("%s=1" % command_resolver.resolve_command('MASTER_SSL'))
             else:
-                chm.append("MASTER_SSL=0")
+                chm.append("%s=0" % command_resolver.resolve_command('MASTER_SSL'))
         if primary_ssl_ca is not None:
-            chm.append("MASTER_SSL_CA='%s'" % primary_ssl_ca)
+            chm.append("%s='%s'" % (command_resolver.resolve_command('MASTER_SSL_CA'), primary_ssl_ca))
         if primary_ssl_capath is not None:
-            chm.append("MASTER_SSL_CAPATH='%s'" % primary_ssl_capath)
+            chm.append("%s='%s'" % (command_resolver.resolve_command('MASTER_SSL_CAPATH'), primary_ssl_capath))
         if primary_ssl_cert is not None:
-            chm.append("MASTER_SSL_CERT='%s'" % primary_ssl_cert)
+            chm.append("%s='%s'" % (command_resolver.resolve_command('MASTER_SSL_CERT'), primary_ssl_cert))
         if primary_ssl_key is not None:
-            chm.append("MASTER_SSL_KEY='%s'" % primary_ssl_key)
+            chm.append("%s='%s'" % (command_resolver.resolve_command('MASTER_SSL_KEY'), primary_ssl_key))
         if primary_ssl_cipher is not None:
-            chm.append("MASTER_SSL_CIPHER='%s'" % primary_ssl_cipher)
+            chm.append("%s='%s'" % (command_resolver.resolve_command('MASTER_SSL_CIPHER'), primary_ssl_cipher))
         if primary_ssl_verify_server_cert:
-            chm.append("SOURCE_SSL_VERIFY_SERVER_CERT=1")
+            chm.append("%s=1" % command_resolver.resolve_command('MASTER_SSL_VERIFY_SERVER_CERT'))
         if primary_auto_position:
-            chm.append("MASTER_AUTO_POSITION=1")
+            chm.append("%s=1" % command_resolver.resolve_command('MASTER_AUTO_POSITION'))
         if primary_use_gtid is not None:
-            chm.append("MASTER_USE_GTID=%s" % primary_use_gtid)
+            chm.append("MASTER_USE_GTID=%s" % primary_use_gtid)  # MariaDB only
         try:
             changeprimary(cursor, command_resolver, chm, connection_name, channel)
         except mysql_driver.Warning as e:
             result['warning'] = to_native(e)
         except Exception as e:
-            module.fail_json(msg='%s. Query == CHANGE MASTER TO %s' % (to_native(e), chm))
+            module.fail_json(msg='%s. Query == %s TO %s' % (to_native(e), command_resolver.resolve_command('CHANGE MASTER'), chm))
         result['changed'] = True
         module.exit_json(queries=executed_queries, **result)
     elif mode == "startreplica":
@@ -668,7 +669,7 @@ def main():
         else:
             module.exit_json(msg="Replica already stopped", changed=False, queries=executed_queries)
     elif mode == 'resetprimary':
-        reset = reset_primary(module, cursor, fail_on_error)
+        reset = reset_primary(module, cursor, command_resolver, fail_on_error)
         if reset is True:
             module.exit_json(msg="Primary reset", changed=True, queries=executed_queries)
         else:

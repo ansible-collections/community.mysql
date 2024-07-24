@@ -46,23 +46,10 @@
     master_log_pos: '{{ master_status.Position }}'
   register: result
 
-- name: Assert that changemaster is changed and query matchs for MariaDB and MySQL < 8.0.23
-  ansible.builtin.assert:
+- assert:
     that:
-      - result is changed
-      - result.queries[0] is match("CHANGE MASTER ('\S+' )?TO MASTER_HOST='[0-9.]+',MASTER_USER='\w+',MASTER_PASSWORD='[*]{8}',MASTER_PORT=\d+,MASTER_LOG_FILE='mysql-bin.000001',MASTER_LOG_POS=\d+")
-  when:
-    - >
-      db_engine == 'mariadb' or
-      (db_engine == 'mysql' and db_version is version('8.0.23', '<'))
-
-- name: Assert that changemaster is changed and query matchs for MySQL >= 8.0.23
-  ansible.builtin.assert:
-    that:
-      - result is changed
-      - result.queries[0] is match("CHANGE REPLICATION SOURCE ('\S+' )?TO MASTER_HOST='[0-9.]+',MASTER_USER='\w+',MASTER_PASSWORD='[*]{8}',MASTER_PORT=\d+,MASTER_LOG_FILE='mysql-bin.000001',MASTER_LOG_POS=\d+")
-  when:
-    - db_engine == 'mysql' and db_version is version('8.0.23', '>=')
+    - result is changed
+    - result.queries[0] is match("CHANGE MASTER ('\S+' )?TO MASTER_HOST='[0-9.]+',MASTER_USER='\w+',MASTER_PASSWORD='[*]{8}',MASTER_PORT=\d+,MASTER_LOG_FILE='mysql-bin.000001',MASTER_LOG_POS=\d+")
 
 # Test startslave mode:
 - name: Start slave

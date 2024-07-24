@@ -34,7 +34,8 @@
           - result is changed
           - result.queries == ["CHANGE REPLICATION SOURCE TO SOURCE_DELAY=60"]
       when:
-        - db_engine == 'mysql' and db_version is version('8.0.23', '>=')
+        - db_engine == 'mysql'
+        - db_version is version('8.0.23', '>=')
 
     # Auxiliary step:
     - name: Start replica

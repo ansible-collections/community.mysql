@@ -54,7 +54,8 @@
           - result is changed
           - result.queries == result_query
       when:
-        - db_engine == 'mysql' and db_version is version('8.0.23', '>=')
+        - db_engine == 'mysql'
+        - db_version is version('8.0.23', '>=')
       vars:
         result_query: ["CHANGE REPLICATION SOURCE TO SOURCE_HOST='{{ mysql_host }}',\
           SOURCE_USER='{{ replication_user }}',SOURCE_PASSWORD='********',\

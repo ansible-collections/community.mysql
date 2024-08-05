@@ -9,16 +9,6 @@
       login_host: '{{ mysql_host }}'
 
   block:
-    - name: Set mysql8022_and_higher
-      set_fact:
-        mysql8022_and_higher: false
-
-    - name: Set mysql8022_and_higher
-      set_fact:
-        mysql8022_and_higher: true
-      when:
-        - db_engine == 'mysql'
-        - db_version is version('8.0.22', '>=')
 
     # We use iF NOT EXISTS because the GITHUB Action:
     # "ansible-community/ansible-test-gh-action" uses "--retry-on-error".
@@ -136,11 +126,10 @@
         that:
           - result is not failed
 
-    # Test changeprimary mode:
     # primary_ssl_ca will be set as '' to check the module's behaviour for #23976,
     # must be converted to an empty string
-    - name: Run replication
-      mysql_replication:
+    - name: Test changeprimary mode with empty primary_ssl_ca
+      community.mysql.mysql_replication:
         <<: *mysql_params
         login_port: '{{ mysql_replica1_port }}'
         mode: changeprimary
@@ -151,20 +140,40 @@
         primary_log_file: '{{ mysql_primary_status.File }}'
         primary_log_pos: '{{ mysql_primary_status.Position }}'
         primary_ssl_ca: ''
-        primary_ssl: no
+        primary_ssl: false
       register: result
 
-    - name: Assert that changeprimmary is changed and return expected query
-      assert:
+    - name: Assert that changeprimmary is changed and return expected query for MariaDB and MySQL < 8.0.23
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.queries == expected_queries
+      when:
+        - >
+          db_engine == 'mariadb' or
+          (db_engine == 'mysql' and db_version is version('8.0.23', '<'))
       vars:
         expected_queries: ["CHANGE MASTER TO MASTER_HOST='{{ mysql_host }}',\
           MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='********',\
           MASTER_PORT={{ mysql_primary_port }},MASTER_LOG_FILE=\
           '{{ mysql_primary_status.File }}',MASTER_LOG_POS=\
           {{ mysql_primary_status.Position }},MASTER_SSL=0,MASTER_SSL_CA=''"]
+
+    - name: Assert that changeprimmary is changed and return expected query for MySQL > 8.0.23
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.queries == expected_queries
+      when:
+        - db_engine == 'mysql'
+        - db_version is version('8.0.23', '>=')
+      vars:
+        expected_queries: ["CHANGE REPLICATION SOURCE TO \
+          SOURCE_HOST='{{ mysql_host }}',\
+          SOURCE_USER='{{ replication_user }}',SOURCE_PASSWORD='********',\
+          SOURCE_PORT={{ mysql_primary_port }},SOURCE_LOG_FILE=\
+          '{{ mysql_primary_status.File }}',SOURCE_LOG_POS=\
+          {{ mysql_primary_status.Position }},SOURCE_SSL=0,SOURCE_SSL_CA=''"]
 
     # Test startreplica mode:
     - name: Start replica
@@ -201,7 +210,10 @@
       vars:
         mysql_host_value: "{{ mysql_host }}"
         mysql_primary_port_value: "{{ mysql_primary_port }}"
-      when: mysql8022_and_higher is falsy(convert_bool=True)
+      when:
+        - >
+          db_engine == 'mariadb' or
+          (db_engine == 'mysql' and db_version is version('8.0.22', '<'))
 
     - name: Assert that getreplica returns expected values for MySQL newer than 8.0.22
       assert:
@@ -216,7 +228,9 @@
       vars:
         mysql_host_value: "{{ mysql_host }}"
         mysql_primary_port_value: "{{ mysql_primary_port }}"
-      when: mysql8022_and_higher is truthy(convert_bool=True)
+      when:
+        - db_engine == 'mysql'
+        - db_version is version('8.0.22', '>=')
 
     # Create test table and add data to it:
     - name: Create test table
@@ -243,13 +257,18 @@
       assert:
         that:
           - replica_status.Exec_Master_Log_Pos != mysql_primary_status.Position
-      when: mysql8022_and_higher == false
+      when:
+        - >
+          db_engine == 'mariadb' or
+          (db_engine == 'mysql' and db_version is version('8.0.22', '<'))
 
     - name: Assert that getreplica Log_Pos is different for MySQL newer than 8.0.22
       assert:
         that:
           - replica_status.Exec_Source_Log_Pos != mysql_primary_status.Position
-      when: mysql8022_and_higher == true
+      when:
+        - db_engine == 'mysql'
+        - db_version is version('8.0.22', '>=')
 
     - name: Start replica that is already running
       mysql_replication:

@@ -111,11 +111,24 @@
     check_implicit_admin: no
   register: result
 
-- name: Dump and Import | Assert successful completion of dump operation
+- name: Dump and Import | Assert successful completion of dump operation for MariaDB and MySQL < 8.2
   assert:
     that:
       - result is changed
       - result.executed_commands[0] is search(".department --master-data=1 --skip-triggers")
+  when:
+    - >
+      db_engine == 'mariadb' or
+      (db_engine == 'mysql' and db_version is version('8.2', '<'))
+
+- name: Dump and Import | Assert successful completion of dump operation for MySQL >= 8.2
+  assert:
+    that:
+      - result is changed
+      - result.executed_commands[0] is search(".department --source-data=1 --skip-triggers")
+  when:
+    - db_engine == 'mysql'
+    - db_version is version('8.2', '>=')
 
 - name: Dump and Import | State dump/import - file name should exist (db_file_name)
   file:

@@ -293,6 +293,9 @@ connector_version:
 from decimal import Decimal
 
 from ansible.module_utils.basic import AnsibleModule
+from ansible_collections.community.mysql.plugins.module_utils.command_resolver import (
+    CommandResolver
+)
 from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     mysql_connect,
     mysql_common_argument_spec,
@@ -301,6 +304,7 @@ from ansible_collections.community.mysql.plugins.module_utils.mysql import (
     get_connector_name,
     get_connector_version,
     get_server_implementation,
+    get_server_version,
 )
 
 from ansible_collections.community.mysql.plugins.module_utils.user import (
@@ -335,11 +339,13 @@ class MySQL_Info(object):
         5. add info about the new subset with an example to RETURN block
     """
 
-    def __init__(self, module, cursor, server_implementation, user_implementation):
+    def __init__(self, module, cursor, server_implementation, server_version, user_implementation):
         self.module = module
         self.cursor = cursor
         self.server_implementation = server_implementation
+        self.server_version = server_version
         self.user_implementation = user_implementation
+        self.command_resolver = CommandResolver(self.server_implementation, self.server_version)
         self.info = {
             'version': {},
             'databases': {},
@@ -501,7 +507,8 @@ class MySQL_Info(object):
 
     def __get_master_status(self):
         """Get master status if the instance is a master."""
-        res = self.__exec_sql('SHOW MASTER STATUS')
+        query = self.command_resolver.resolve_command("SHOW MASTER STATUS")
+        res = self.__exec_sql(query)
         if res:
             for line in res:
                 for vname, val in iteritems(line):
@@ -509,10 +516,8 @@ class MySQL_Info(object):
 
     def __get_slave_status(self):
         """Get slave status if the instance is a slave."""
-        if self.server_implementation == "mariadb":
-            res = self.__exec_sql('SHOW ALL SLAVES STATUS')
-        else:
-            res = self.__exec_sql('SHOW SLAVE STATUS')
+        query = self.command_resolver.resolve_command("SHOW SLAVE STATUS")
+        res = self.__exec_sql(query)
         if res:
             for line in res:
                 host = line['Master_Host']
@@ -533,7 +538,8 @@ class MySQL_Info(object):
 
     def __get_slaves(self):
         """Get slave hosts info if the instance is a master."""
-        res = self.__exec_sql('SHOW SLAVE HOSTS')
+        query = self.command_resolver.resolve_command("SHOW SLAVE HOSTS")
+        res = self.__exec_sql(query)
         if res:
             for line in res:
                 srv_id = line['Server_id']
@@ -762,12 +768,13 @@ def main():
         module.fail_json(msg)
 
     server_implementation = get_server_implementation(cursor)
+    server_version = get_server_version(cursor)
     user_implementation = get_user_implementation(cursor)
 
     ###############################
     # Create object and do main job
 
-    mysql = MySQL_Info(module, cursor, server_implementation, user_implementation)
+    mysql = MySQL_Info(module, cursor, server_implementation, server_version, user_implementation)
 
     module.exit_json(changed=False,
                      server_engine='MariaDB' if server_implementation == 'mariadb' else 'MySQL',

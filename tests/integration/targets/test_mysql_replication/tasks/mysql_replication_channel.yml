@@ -32,15 +32,35 @@
         channel: '{{ test_channel }}'
       register: result
 
-    - assert:
+    - name: Assert that run replication with channel is changed and query matches for MariaDB and MySQL < 8.0.23
+      ansible.builtin.assert:
         that:
           - result is changed
           - result.queries == result_query
+      when:
+        - >
+          db_engine == 'mariadb' or
+          (db_engine == 'mysql' and db_version is version('8.0.23', '<'))
       vars:
         result_query: ["CHANGE MASTER TO MASTER_HOST='{{ mysql_host }}',\
           MASTER_USER='{{ replication_user }}',MASTER_PASSWORD='********',\
           MASTER_PORT={{ mysql_primary_port }},MASTER_LOG_FILE=\
           '{{ mysql_primary_status.File }}',MASTER_LOG_POS=\
+          {{ mysql_primary_status.Position }} FOR CHANNEL '{{ test_channel }}'"]
+
+    - name: Assert that run replication with channel is changed and query matches for MySQL >= 8.0.23
+      ansible.builtin.assert:
+        that:
+          - result is changed
+          - result.queries == result_query
+      when:
+        - db_engine == 'mysql'
+        - db_version is version('8.0.23', '>=')
+      vars:
+        result_query: ["CHANGE REPLICATION SOURCE TO SOURCE_HOST='{{ mysql_host }}',\
+          SOURCE_USER='{{ replication_user }}',SOURCE_PASSWORD='********',\
+          SOURCE_PORT={{ mysql_primary_port }},SOURCE_LOG_FILE=\
+          '{{ mysql_primary_status.File }}',SOURCE_LOG_POS=\
           {{ mysql_primary_status.Position }} FOR CHANNEL '{{ test_channel }}'"]
 
     # Test startreplica mode:
@@ -83,7 +103,10 @@
         mysql_host_value: '{{ mysql_host }}'
         mysql_primary_port_value: '{{ mysql_primary_port }}'
         test_channel_value: '{{ test_channel }}'
-      when: mysql8022_and_higher == false
+      when:
+        - >
+          db_engine == 'mariadb' or
+          (db_engine == 'mysql' and db_version is version('8.0.22', '<'))
 
     - assert:
         that:
@@ -99,7 +122,9 @@
         mysql_host_value: '{{ mysql_host }}'
         mysql_primary_port_value: '{{ mysql_primary_port }}'
         test_channel_value: '{{ test_channel }}'
-      when: mysql8022_and_higher == true
+      when:
+        - db_engine == 'mysql'
+        - db_version is version('8.0.22', '>=')
 
 
     # Test stopreplica mode:

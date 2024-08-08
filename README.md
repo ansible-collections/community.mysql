@@ -15,6 +15,22 @@ We follow the [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/
 
 If you encounter abusive behavior violating the [Ansible Code of Conduct](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html), please refer to the [policy violations](https://docs.ansible.com/ansible/latest/community/code_of_conduct.html#policy-violations) section of the Code of Conduct for information on how to raise a complaint.
 
+## Communication
+
+* Join the Ansible forum:
+  * [Get Help](https://forum.ansible.com/c/help/6): get help or help others.
+  * [Posts tagged with 'mysql'](https://forum.ansible.com/tag/mysql): leverage tags to narrow the scope.
+  * [MySQL Team](https://forum.ansible.com/g/MySQLTeam): by joining the team you will automatically get subscribed to the posts tagged with [mysql](https://forum.ansible.com/tag/mysql).
+  * [Social Spaces](https://forum.ansible.com/c/chat/4): gather and interact with fellow enthusiasts.
+  * [News & Announcements](https://forum.ansible.com/c/news/5): track project-wide announcements including social events.
+
+* The Ansible [Bullhorn newsletter](https://docs.ansible.com/ansible/devel/community/communication.html#the-bullhorn): used to announce releases and important changes.
+
+* Matrix chat:
+  * [#mysql:ansible.com](https://matrix.to/#/#mysql:ansible.com) room: questions on how to contribute to this collection.
+
+For more information about communication, see the [Ansible communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
+
 ## Contributing
 
 The content of this collection is made by [people](https://github.com/ansible-collections/community.mysql/blob/main/CONTRIBUTORS) just like you, a community of individuals collaborating on making the world better through developing automation software.
@@ -37,31 +53,6 @@ It is necessary for maintainers of this collection to be subscribed to:
 * The "Changes Impacting Collection Contributors and Maintainers" [issue](https://github.com/ansible-collections/overview/issues/45).
 
 They also should be subscribed to Ansible's [The Bullhorn newsletter](https://docs.ansible.com/ansible/devel/community/communication.html#the-bullhorn).
-
-## Communication
-
-> The `GitHub Discussions` feature is disabled in this repository. Use the `mysql` tag on the forum in the [Project Discussions](https://forum.ansible.com/new-topic?title=topic%20title&body=topic%20body&category=project&tags=mysql) or [Get Help](https://forum.ansible.com/new-topic?title=topic%20title&body=topic%20body&category=help&tags=mysql) category instead.
-
-### Asynchronous channels
-
-* Join the Ansible forum:
-    * [MySQL Team](https://forum.ansible.com/g/MySQLTeam): by joining the team you will automatically get subscribed to the posts tagged with [mysql](https://forum.ansible.com/tag/mysql).
-    * [Get Help](https://forum.ansible.com/c/help/6/none): get help or help others.
-    * [Posts tagged with 'mysql'](https://forum.ansible.com/tag/mysql): leverage tags to narrow the scope.
-    * [Social Spaces](https://forum.ansible.com/c/chat/4): gather and interact with fellow enthusiasts.
-    * [News & Announcements](https://forum.ansible.com/c/news/5/none): track project-wide announcements.
-
-* The Ansible's [Bullhorn newsletter](https://forum.ansible.com/t/about-the-newsletter-category/166): we use it to announce releases and important changes.
-
-### Real-time channels
-
-* Matrix:
-    * `#mysql:ansible.com` [room](https://matrix.to/#/#mysql:ansible.com): questions on how to contribute and use this collection.
-    * `#users:ansible.com` [room](https://matrix.to/#/#users:ansible.com): general use questions and support.
-    * `#ansible-community:ansible.com` [room](https://matrix.to/#/#community:ansible.com): community and collection development questions.
-    * other Matrix rooms; see the [Ansible Communication Guide](https://docs.ansible.com/ansible/devel/community/communication.html) for details.
-
-For more information about communication, refer to the [Ansible Communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
 
 ## Governance
 

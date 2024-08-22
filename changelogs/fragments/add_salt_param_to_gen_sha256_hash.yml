@@ -1,3 +1,0 @@
----
-minor_changes:
-  - mysql_user - Add salt parameter to generate static hash for `caching_sha2_password` and `sha256_password` plugins.

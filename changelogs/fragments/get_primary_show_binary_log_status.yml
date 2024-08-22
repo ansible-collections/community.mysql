@@ -1,4 +1,0 @@
----
-minor_changes:
-
-  - mysql_replication - Adds support for `SHOW BINARY LOG STATUS` and `SHOW BINLOG STATUS` on getprimary mode.

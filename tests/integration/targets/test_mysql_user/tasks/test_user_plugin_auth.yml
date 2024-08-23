@@ -9,7 +9,6 @@
       login_port: '{{ mysql_primary_port }}'
     test_user_name: 'test_user_plugin_auth'
     test_plugin_type: 'mysql_native_password'
-    test_plugin_type2: 'caching_sha2_password'
     test_plugin_hash: '*0CB5B86F23FDC24DB19A29B8854EB860CBC47793'
     test_plugin_auth_string: 'Fdt8fd^34ds'
     test_plugin_new_hash: '*E74368AC90460FA669F6D41BFB7F2A877DB73745'

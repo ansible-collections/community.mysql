@@ -55,85 +55,6 @@
         user_host: "%"
         priv: "{{ test_default_priv_type }}"
 
-    - name: Plugin auth | Change auth user plugin in check mode
-      community.mysql.mysql_user:
-        <<: *mysql_params
-        name: '{{ test_user_name }}'
-        host: '%'
-        plugin: '{{ test_plugin_type2 }}'
-        plugin_hash_string: '{{ test_plugin_hash }}'
-        priv: '{{ test_default_priv }}'
-      check_mode: true
-      register: result
-
-    - name: Plugin auth | Check that the module reported a change in auth plugin
-      ansible.builtin.assert:
-        that:
-          - result is changed
-
-    - name: Plugin auth | Check that the expected (previous) plugin type is set
-      ansible.builtin.include_tasks: utils/assert_plugin.yml
-      vars:
-        user_name: "{{ test_user_name }}"
-        plugin_type: "{{ test_plugin_type }}"
-
-    - name: Plugin auth | Change user auth plugin
-      community.mysql.mysql_user:
-        <<: *mysql_params
-        name: '{{ test_user_name }}'
-        host: '%'
-        plugin: '{{ test_plugin_type2 }}'
-        plugin_hash_string: '{{ test_plugin_hash }}'
-        priv: '{{ test_default_priv }}'
-      register: result
-
-    - name: Plugin auth | Check that the module made a change auth plugin
-      ansible.builtin.assert:
-        that:
-          - result is changed
-
-    - name: Plugin auth | Check that the expected plugin type is set
-      ansible.builtin.include_tasks: utils/assert_plugin.yml
-      vars:
-        user_name: "{{ test_user_name }}"
-        plugin_type: "{{ test_plugin_type2 }}"
-
-    - name: Plugin auth | Set main auth plugin again
-      community.mysql.mysql_user:
-        <<: *mysql_params
-        name: '{{ test_user_name }}'
-        host: '%'
-        plugin: '{{ test_plugin_type }}'
-        plugin_hash_string: '{{ test_plugin_hash }}'
-        priv: '{{ test_default_priv }}'
-      register: result
-
-    - name: Plugin auth | Check that the module made a change auth plugin
-      ansible.builtin.assert:
-        that:
-          - result is changed
-
-    - name: Plugin auth | Check that the expected plugin type is set
-      ansible.builtin.include_tasks: utils/assert_plugin.yml
-      vars:
-        user_name: "{{ test_user_name }}"
-        plugin_type: "{{ test_plugin_type }}"
-
-    - name: Plugin auth | Set same plugin to check that no changes are reported
-      community.mysql.mysql_user:
-        <<: *mysql_params
-        name: '{{ test_user_name }}'
-        host: '%'
-        plugin: '{{ test_plugin_type }}'
-        plugin_hash_string: '{{ test_plugin_hash }}'
-        priv: '{{ test_default_priv }}'
-      register: result
-
-    - name: Plugin auth | Check that the module made a change auth plugin
-      ansible.builtin.assert:
-        that:
-          - result is not changed
-
     - name: Plugin auth | Get the MySQL version using the newly created creds
       community.mysql.mysql_info:
         login_user: '{{ test_user_name }}'
@@ -624,3 +545,59 @@
         priv: "{{ test_default_priv }}"
       register: result
       failed_when: result is success
+
+    # ============================================================
+    # Test auth plugin change
+    #
+
+    - name: Cleanup user
+      ansible.builtin.include_tasks: utils/remove_user.yml
+      vars:
+        user_name: "{{ test_user_name }}"
+
+    - name: Plugin auth | Create user with mysql_native_password
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: "{{ test_user_name }}"
+        host: "%"
+        plugin: "{{ test_plugin_type }}"
+        password: "{{ test_plugin_auth_string }}"
+        priv: "{{ test_default_priv }}"
+
+    - name: Plugin auth | Connect with user and password
+      ansible.builtin.command: '{{ mysql_command }} -u {{ test_user_name }} -p{{ test_plugin_auth_string }} -e "SELECT 1"'
+
+    - name: Plugin auth | Change auth user plugin in check mode
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        host: '%'
+        plugin: caching_sha2_password
+        plugin_hash_string: '{{ test_plugin_hash }}'
+        priv: '{{ test_default_priv }}'
+      check_mode: true
+      register: result
+      failed_when: result is not changed
+
+    - name: Plugin auth | Check that the expected (previous) plugin type is set
+      ansible.builtin.include_tasks: utils/assert_plugin.yml
+      vars:
+        user_name: "{{ test_user_name }}"
+        plugin_type: "{{ caching_sha2_password }}"
+
+    - name: Plugin auth | Change auth user plugin
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        host: '%'
+        plugin: caching_sha2_password
+        plugin_hash_string: '{{ test_plugin_hash }}'
+        priv: '{{ test_default_priv }}'
+      register: result
+      failed_when: result is not changed
+
+    - name: Plugin auth | Check that the expected (previous) plugin type is set
+      ansible.builtin.include_tasks: utils/assert_plugin.yml
+      vars:
+        user_name: "{{ test_user_name }}"
+        plugin_type: caching_sha2_password

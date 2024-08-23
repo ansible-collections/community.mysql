@@ -5,6 +5,6 @@
   register: result
 
 - name: Utils | Assert plugin | Assert plugin is correct
-  ansible.builtinassert:
+  ansible.builtin.assert:
     that:
       - plugin_type in result.stdout

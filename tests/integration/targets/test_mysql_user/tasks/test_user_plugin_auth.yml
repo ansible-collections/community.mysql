@@ -579,6 +579,7 @@
         host: '%'
         plugin: caching_sha2_password
         plugin_hash_string: '{{ test_plugin_hash }}'
+        salt: '{{ test_salt }}'
         priv: '{{ test_default_priv }}'
       check_mode: true
       register: result
@@ -597,11 +598,30 @@
         host: '%'
         plugin: caching_sha2_password
         plugin_hash_string: '{{ test_plugin_hash }}'
+        salt: '{{ test_salt }}'
         priv: '{{ test_default_priv }}'
       register: result
       failed_when: result is not changed
 
     - name: Plugin auth | Check that the expected (new) plugin type is set
+      ansible.builtin.include_tasks: utils/assert_plugin.yml
+      vars:
+        user_name: "{{ test_user_name }}"
+        plugin_type: caching_sha2_password
+
+    - name: Plugin auth | Change user plugin again (should not change)
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: '{{ test_user_name }}'
+        host: '%'
+        plugin: caching_sha2_password
+        plugin_hash_string: '{{ test_plugin_hash }}'
+        salt: '{{ test_salt }}'
+        priv: '{{ test_default_priv }}'
+      register: result
+      failed_when: result is changed
+
+    - name: Plugin auth | Check that the expected (not changed) plugin type is set
       ansible.builtin.include_tasks: utils/assert_plugin.yml
       vars:
         user_name: "{{ test_user_name }}"

@@ -578,7 +578,7 @@
         name: '{{ test_user_name }}'
         host: '%'
         plugin: caching_sha2_password
-        plugin_hash_string: '{{ test_plugin_hash }}'
+        plugin_auth_string: '{{ test_plugin_hash }}'
         salt: '{{ test_salt }}'
         priv: '{{ test_default_priv }}'
       check_mode: true
@@ -597,7 +597,7 @@
         name: '{{ test_user_name }}'
         host: '%'
         plugin: caching_sha2_password
-        plugin_hash_string: '{{ test_plugin_hash }}'
+        plugin_auth_string: '{{ test_plugin_hash }}'
         salt: '{{ test_salt }}'
         priv: '{{ test_default_priv }}'
       register: result
@@ -615,7 +615,7 @@
         name: '{{ test_user_name }}'
         host: '%'
         plugin: caching_sha2_password
-        plugin_hash_string: '{{ test_plugin_hash }}'
+        plugin_auth_string: '{{ test_plugin_hash }}'
         salt: '{{ test_salt }}'
         priv: '{{ test_default_priv }}'
       register: result
@@ -626,4 +626,3 @@
       vars:
         user_name: "{{ test_user_name }}"
         plugin_type: caching_sha2_password
-

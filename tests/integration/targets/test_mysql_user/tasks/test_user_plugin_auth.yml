@@ -55,7 +55,7 @@
         user_host: "%"
         priv: "{{ test_default_priv_type }}"
 
-    - name: Plugin auth | Change user plugin in check mode
+    - name: Plugin auth | Change auth user plugin in check mode
       community.mysql.mysql_user:
         <<: *mysql_params
         name: '{{ test_user_name }}'
@@ -66,12 +66,12 @@
       check_mode: true
       register: result
 
-    - name: Plugin auth | Check that the module made a change auth plugin
+    - name: Plugin auth | Check that the module reported a change in auth plugin
       ansible.builtin.assert:
         that:
           - result is changed
 
-    - name: Plugin auth | Check that the expected plugin type is set
+    - name: Plugin auth | Check that the expected (previous) plugin type is set
       ansible.builtin.include_tasks: utils/assert_plugin.yml
       vars:
         user_name: "{{ test_user_name }}"
@@ -119,7 +119,7 @@
         user_name: "{{ test_user_name }}"
         plugin_type: "{{ test_plugin_type }}"
 
-    - name: Plugin auth | Set same plugint check that no changes are reported
+    - name: Plugin auth | Set same plugin to check that no changes are reported
       community.mysql.mysql_user:
         <<: *mysql_params
         name: '{{ test_user_name }}'

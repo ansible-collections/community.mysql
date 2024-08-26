@@ -411,7 +411,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 elif not module.check_mode:
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s", (user, host, plugin)
 
-                cursor.execute(*query_with_args)
+                if not module.check_mode:
+                    cursor.execute(*query_with_args)
                 password_changed = True
                 changed = True
 

@@ -396,7 +396,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 query_with_args = None
                 if plugin_hash_string:
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string)
-                elif plugin_auth_string:
+                elif plugin_auth_string and not module.check_mode:
                     # Mysql and MariaDB differ in naming pam plugin and syntax to set it
                     if plugin in ('pam', 'ed25519'):
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s USING %s", (user, host, plugin, plugin_auth_string)
@@ -408,7 +408,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                         query_with_args = ("ALTER USER %s@%s IDENTIFIED WITH %s AS 0x" + generated_hash_string), (user, host, plugin)
                     else:
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s BY %s", (user, host, plugin, plugin_auth_string)
-                else:
+                elif not module.check_mode:
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s", (user, host, plugin)
 
                 cursor.execute(*query_with_args)

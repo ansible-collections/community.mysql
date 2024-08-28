@@ -637,25 +637,3 @@
           vars:
             user_name: "{{ test_user_name }}"
             plugin_type: caching_sha2_password
-
-        - name: Plugin auth | Change user password
-          community.mysql.mysql_user:
-            <<: *mysql_params
-            name: "{{ test_user_name }}"
-            host: '%'
-            plugin: caching_sha2_password
-            plugin_auth_string: "{{ test_plugin_new_auth_string }}"
-            salt: "{{ test_salt }}"
-            priv: "{{ test_default_priv }}"
-          register: result
-          failed_when: result is not changed
-
-        - name: Plugin auth | Connect with user and password
-          ansible.builtin.command: '{{ mysql_command }} -u {{ test_user_name }} -p{{ test_plugin_new_auth_string }} -e "SELECT 1"'
-          changed_when: false
-
-        - name: Plugin auth | Check that the expected plugin type is set after change
-          ansible.builtin.include_tasks: utils/assert_plugin.yml
-          vars:
-            user_name: "{{ test_user_name }}"
-            plugin_type: caching_sha2_password

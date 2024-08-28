@@ -439,7 +439,13 @@ from ansible.module_utils._text import to_native
 def main():
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
-        user=dict(type='str', required=True, aliases=['name']),
+        name=dict(type='str', required=True, aliases=['user'], deprecated_aliases=[
+            {
+                'name': 'user',
+                'version': '5.0.0',
+                'collection_name': 'community.mysql',
+            }],
+        ),
         password=dict(type='str', no_log=True),
         encrypted=dict(type='bool', default=False),
         host=dict(type='str', default='localhost'),

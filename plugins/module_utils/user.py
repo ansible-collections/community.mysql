@@ -393,6 +393,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 update = True
 
             if update:
+                query_with_args = None
                 if plugin_hash_string:
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string)
                 elif plugin_auth_string:

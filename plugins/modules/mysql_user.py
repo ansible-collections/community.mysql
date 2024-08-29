@@ -20,6 +20,7 @@ options:
       - Name of the user (role) to add or remove.
     type: str
     required: true
+    aliases: ['user']
   password:
     description:
       - Set the user's password. Only for C(mysql_native_password) authentication.

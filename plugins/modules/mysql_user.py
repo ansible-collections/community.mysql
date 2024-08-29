@@ -477,7 +477,7 @@ def main():
     )
     login_user = module.params["login_user"]
     login_password = module.params["login_password"]
-    user = module.params["user"]
+    user = module.params["name"]
     password = module.params["password"]
     encrypted = module.boolean(module.params["encrypted"])
     host = module.params["host"].lower()

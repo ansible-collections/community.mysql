@@ -66,7 +66,7 @@
     - name: Idempotency | Remove blank  user with hosts=all (expect changed)
       mysql_user:
         <<: *mysql_params
-        user: ""
+        name: ""
         host_all: true
         state: absent
       register: result
@@ -79,7 +79,7 @@
     - name: Idempotency | Remove blank user with hosts=all (expect ok)
       mysql_user:
         <<: *mysql_params
-        user: ""
+        name: ""
         host_all: true
         state: absent
       register: result

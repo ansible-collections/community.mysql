@@ -1,0 +1,2 @@
+bugfixes:
+  - mysql_user - module makes changes when is executed with ``plugin_auth_string`` parameter and check mode.

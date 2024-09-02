@@ -64,7 +64,7 @@
     - name: Issue-265 | Remove blank mysql user with hosts=all (expect changed)
       mysql_user:
         <<: *mysql_params
-        user: ""
+        name: ""
         host_all: true
         state: absent
         force_context: yes
@@ -78,7 +78,7 @@
     - name: Issue-265 | Remove blank mysql user with hosts=all (expect ok)
       mysql_user:
         <<: *mysql_params
-        user: ""
+        name: ""
         host_all: true
         force_context: yes
         state: absent
@@ -151,7 +151,7 @@
     - name: Issue-265 | Remove blank mysql user with hosts=all (expect changed)
       mysql_user:
         <<: *mysql_params
-        user: ""
+        name: ""
         host_all: true
         state: absent
         force_context: no
@@ -165,7 +165,7 @@
     - name: Issue-265 | Remove blank mysql user with hosts=all (expect ok)
       mysql_user:
         <<: *mysql_params
-        user: ""
+        name: ""
         host_all: true
         force_context: no
         state: absent

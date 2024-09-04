@@ -6,6 +6,25 @@ Community MySQL and MariaDB Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.10.1
+=======
+
+Release Summary
+---------------
+
+This is a patch release of the ``community.mysql`` collection.
+Besides a bugfix, it contains an important upcoming breaking-change information.
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- mysql_user - the ``user`` alias of the ``name`` argument has been deprecated and will be removed in collection version 5.0.0. Use the ``name`` argument instead.
+
+Bugfixes
+--------
+
+- mysql_user - module makes changes when is executed with ``plugin_auth_string`` parameter and check mode.
+
 v3.10.0
 =======
 

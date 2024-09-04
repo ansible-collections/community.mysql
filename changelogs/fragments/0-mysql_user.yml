@@ -1,2 +1,0 @@
-breaking_changes:
-- mysql_user - the ``user`` alias of the ``name`` argument has been deprecated and will be removed in collection version 5.0.0. Use the ``name`` argument instead.

@@ -156,6 +156,23 @@ releases:
     - mysql_user_tls_requires.yml
     - supports_mysql_change_replication_source_to.yml
     release_date: '2024-08-22'
+  3.10.1:
+    changes:
+      breaking_changes:
+      - mysql_user - the ``user`` alias of the ``name`` argument has been deprecated
+        and will be removed in collection version 5.0.0. Use the ``name`` argument
+        instead.
+      bugfixes:
+      - mysql_user - module makes changes when is executed with ``plugin_auth_string``
+        parameter and check mode.
+      release_summary: 'This is a patch release of the ``community.mysql`` collection.
+
+        Besides a bugfix, it contains an important upcoming breaking-change information.'
+    fragments:
+    - 0-mysql_user.yml
+    - 3.10.1.yml
+    - 596-fix-check-changes.yaml
+    release_date: '2024-09-04'
   3.2.0:
     changes:
       bugfixes:

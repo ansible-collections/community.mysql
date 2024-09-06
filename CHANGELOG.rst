@@ -6,6 +6,21 @@ Community MySQL and MariaDB Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.10.2
+=======
+
+Release Summary
+---------------
+
+This is a bugfix release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules and plugins in this
+collection that have been made after the previous release.
+
+Bugfixes
+--------
+
+- mysql_user - add correct ``ed25519`` auth plugin handling when creating a user (https://github.com/ansible-collections/community.mysql/issues/672).
+
 v3.10.1
 =======
 

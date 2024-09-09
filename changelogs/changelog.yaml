@@ -187,6 +187,20 @@ releases:
     - 0-mysql_user.yml
     - 3.10.2.yml
     release_date: '2024-09-06'
+  3.10.3:
+    changes:
+      bugfixes:
+      - mysql_user - add correct ``ed25519`` auth plugin handling when creating a
+        user (https://github.com/ansible-collections/community.mysql/pull/676).
+      release_summary: 'This is a bugfix release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules and plugins in this
+
+        collection that have been made after the previous release.'
+    fragments:
+    - 0-mysql_user.yml
+    - 3.10.3.yml
+    release_date: '2024-09-09'
   3.2.0:
     changes:
       bugfixes:

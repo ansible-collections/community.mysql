@@ -212,8 +212,10 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string)
     elif plugin and plugin_auth_string:
         # Mysql and MariaDB differ in naming pam plugin and Syntax to set it
-        if plugin in ('pam', 'ed25519'):  # Used by MariaDB which requires the USING keyword, not BY
+        if plugin in ('pam'):  # Used by MariaDB which requires the USING keyword, not BY
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s USING %s", (user, host, plugin, plugin_auth_string)
+        elif plugin in ('ed25519'):  # Used by MariaDB which requires the USING keyword, not BY
+            query_with_args = "CREATE USER %s@%s IDENTIFIED WITH %s USING PASSWORD(%s)", (user, host, plugin, plugin_auth_string)
         elif salt:
             if plugin in ['caching_sha2_password', 'sha256_password']:
                 generated_hash_string = mysql_sha256_password_hash_hex(password=plugin_auth_string, salt=salt)
@@ -398,8 +400,10 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s AS %s", (user, host, plugin, plugin_hash_string)
                 elif plugin_auth_string:
                     # Mysql and MariaDB differ in naming pam plugin and syntax to set it
-                    if plugin in ('pam', 'ed25519'):
+                    if plugin in ('pam'):                                                
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s USING %s", (user, host, plugin, plugin_auth_string)
+                    elif plugin in ('ed25519'):                                                
+                        query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s USING PASSWORD(%s)", (user, host, plugin, plugin_auth_string)
                     elif salt:
                         if plugin in ['caching_sha2_password', 'sha256_password']:
                             generated_hash_string = mysql_sha256_password_hash_hex(password=plugin_auth_string, salt=salt)

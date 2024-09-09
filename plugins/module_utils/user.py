@@ -402,7 +402,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     # Mysql and MariaDB differ in naming pam plugin and syntax to set it
                     if plugin == 'pam': 
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s USING %s", (user, host, plugin, plugin_auth_string)
-                    elif plugin in ('ed25519'):                                                
+                    elif plugin == 'ed25519':                                                
                         query_with_args = "ALTER USER %s@%s IDENTIFIED WITH %s USING PASSWORD(%s)", (user, host, plugin, plugin_auth_string)
                     elif salt:
                         if plugin in ['caching_sha2_password', 'sha256_password']:

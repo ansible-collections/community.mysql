@@ -45,8 +45,8 @@ Release Summary
 This is a patch release of the ``community.mysql`` collection.
 Besides a bugfix, it contains an important upcoming breaking-change information.
 
-Breaking Changes / Porting Guide
---------------------------------
+Deprecated Features
+-------------------
 
 - mysql_user - the ``user`` alias of the ``name`` argument has been deprecated and will be removed in collection version 5.0.0. Use the ``name`` argument instead.
 
@@ -75,8 +75,8 @@ Minor Changes
 - mysql_replication - Improve detection of IsReplica and IsPrimary by inspecting the dictionary returned from the SQL query instead of relying on variable types. This ensures compatibility with changes in the connector or the output of SHOW REPLICA STATUS and SHOW MASTER STATUS, allowing for easier maintenance if these change in the future.
 - mysql_user - Add salt parameter to generate static hash for `caching_sha2_password` and `sha256_password` plugins.
 
-Breaking Changes / Porting Guide
---------------------------------
+Deprecated Features
+-------------------
 
 - collection - support of mysqlclient connector is deprecated - use PyMySQL connector instead! We will stop testing against it in collection version 4.0.0 and remove the related code in 5.0.0 (https://github.com/ansible-collections/community.mysql/issues/654).
 - mysql_info - The ``users_info`` filter returned variable ``plugin_auth_string`` contains the hashed password and it's misleading, it will be removed from community.mysql 4.0.0. Use the `plugin_hash_string` return value instead (https://github.com/ansible-collections/community.mysql/pull/629).

@@ -90,7 +90,6 @@ Here is the table for the support timeline:
 
 ### ansible-core
 
-- stable-2.15
 - stable-2.16
 - stable-2.17
 - stable-2.18

@@ -45,7 +45,7 @@
         <<: *mysql_params
         variable: sql_mode
         value: '{{ sql_mode_orig.query_result[0][0].sql_mode }},ANSI_QUOTES'
-        mode: persist
+        mode: "{% if db_engine == 'mariadb' %}global{% else %}persist{% endif %}"
 
     - name: Issue-671| test setup | get value of GLOBAL.sql_mode
       mysql_query:
@@ -105,7 +105,7 @@
         <<: *mysql_params
         variable: sql_mode
         value: '{{ sql_mode_orig.query_result[0][0].sql_mode }}'
-        mode: persist
+        mode: "{% if db_engine == 'mariadb' %}global{% else %}persist{% endif %}"
 
     - include_tasks: utils/remove_user.yml
       vars:

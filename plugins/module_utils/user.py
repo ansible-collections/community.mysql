@@ -32,7 +32,7 @@ class InvalidPrivsError(Exception):
 
 
 def get_mode(cursor):
-    cursor.execute('SELECT @@GLOBAL.sql_mode')
+    cursor.execute('SELECT @@sql_mode')
     result = cursor.fetchone()
     mode_str = result[0]
     if 'ANSI' in mode_str:

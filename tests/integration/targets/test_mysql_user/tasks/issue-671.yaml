@@ -40,17 +40,17 @@
         query: 'select @@GLOBAL.sql_mode AS sql_mode'
       register: sql_mode_orig
 
+    - name: Issue-671| Assert sql_mode_orig
+      assert:
+        that:
+          - sql_mode_orig.query_result[0][0].sql_mode != None  
+
     - name: Issue-671| enable sql_mode ANSI_QUOTES
       mysql_variables:
         <<: *mysql_params
         variable: sql_mode
         value: '{{ sql_mode_orig.query_result[0][0].sql_mode }},ANSI_QUOTES'
         mode: "{% if db_engine == 'mariadb' %}global{% else %}persist{% endif %}"
-
-    - name: Issue-671| test setup | get value of GLOBAL.sql_mode
-      mysql_query:
-        <<: *mysql_params
-        query: 'select @@GLOBAL.sql_mode'
 
     - name: Issue-671| Copy SQL scripts to remote
       copy:

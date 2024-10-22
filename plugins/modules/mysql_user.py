@@ -45,7 +45,8 @@ options:
     default: false
   priv:
     description:
-      - "MySQL privileges string in the format: C(db.table:priv1,priv2). Additionally, there must be no spaces between the table and the privilege as this will yield a non-idempotent check mode."
+      - "MySQL privileges string in the format: C(db.table:priv1,priv2)."
+      - Additionally, there must be no spaces between the table and the privilege as this will yield a non-idempotent check mode.
       - "Multiple privileges can be specified by separating each one using
         a forward slash: C(db.table1:priv/db.table2:priv)."
       - The format is based on MySQL C(GRANT) statement.

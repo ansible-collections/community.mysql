@@ -1,0 +1,75 @@
+---
+
+- module_defaults:
+    community.mysql.mysql_db: &mysql_defaults
+      login_user: "{{ mysql_user }}"
+      login_password: "{{ mysql_password }}"
+      login_host: "{{ mysql_host }}"
+      login_port: "{{ mysql_primary_port }}"
+    community.mysql.mysql_query: *mysql_defaults
+    community.mysql.mysql_info: *mysql_defaults
+    community.mysql.mysql_user: *mysql_defaults
+
+  block:
+
+    # ================================ Prepare ==============================
+    - name: Mysql_info users_info | Create databases
+      community.mysql.mysql_db:
+        name:
+          - db_tables_count_empty
+          - db_tables_count_1
+          - db_tables_count_2
+        state: present
+
+    - name: Mysql_info users_info | Create tables
+      community.mysql.mysql_query:
+        query:
+          - >-
+            CREATE TABLE IF NOT EXISTS db_tables_count_1.t1
+            (id int, name varchar(9))
+          - >-
+            CREATE TABLE IF NOT EXISTS db_tables_count_2.t1
+            (id int, name1 varchar(9))
+          - >-
+            CREATE TABLE IF NOT EXISTS db_tables_count_2.t2
+            (id int, name1 varchar(9))
+
+    # ================================== Tests ==============================
+
+    - name: Mysql_info users_info | Collect all databases fields
+      community.mysql.mysql_info:
+        filter:
+          - databases
+      register: result
+      # failed_when:
+      #   - TODO
+
+    - name: Mysql_info users_info | Collect all databases fields except db_size
+      community.mysql.mysql_info:
+        filter:
+          - databases
+        exclude_fileds:
+          - db_size
+      register: result
+      # failed_when:
+      #   - TODO
+
+    - name: Mysql_info users_info | Collect all databases fields except db_table_count
+      community.mysql.mysql_info:
+        filter:
+          - databases
+        exclude_fileds:
+          - db_table_count
+      register: result
+      # failed_when:
+      #   - TODO
+
+    # ================================== Cleanup ============================
+
+    - name: Mysql_info users_info | Cleanup databases
+      community.mysql.mysql_db:
+        name:
+          - db_tables_count_empty
+          - db_tables_count_1
+          - db_tables_count_2
+        state: present

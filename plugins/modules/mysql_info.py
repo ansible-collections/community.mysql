@@ -35,7 +35,7 @@ options:
   exclude_fields:
     description:
     - List of fields which are not needed to collect.
-    - "Supports elements: C(db_size). Unsupported elements will be ignored."
+    - "Supports elements: C(db_size), C(db_table_count). Unsupported elements will be ignored."
     type: list
     elements: str
     version_added: '0.1.0'
@@ -656,15 +656,20 @@ class MySQL_Info(object):
 
     def __get_databases(self, exclude_fields, return_empty_dbs):
         """Get info about databases."""
-        if not exclude_fields:
-            query = ('SELECT table_schema AS "name", '
-                     'SUM(data_length + index_length) AS "size" '
-                     'FROM information_schema.TABLES GROUP BY table_schema')
-        else:
-            if 'db_size' in exclude_fields:
-                query = ('SELECT table_schema AS "name" '
-                         'FROM information_schema.TABLES GROUP BY table_schema')
 
+        cmd_start = 'SELECT table_schema AS "name"'
+        cmd_db_size = 'SUM(data_length + index_length) AS "size"'
+        cmd_db_table_count = 'COUNT(table_name) as "tables"'
+        cmd_end = ' FROM information_schema.TABLES GROUP BY table_schema'
+        cmd_start_and_fields = [cmd_start, cmd_db_size, cmd_db_table_count]
+
+        if exclude_fields and 'db_size' in exclude_fields:
+            cmd_start_and_fields.remove(cmd_db_size)
+
+        if exclude_fields and 'db_table_count' in exclude_fields:
+            cmd_start_and_fields.remove(cmd_db_table_count)
+
+        query = ', '.join(cmd_start_and_fields) + cmd_end
         res = self.__exec_sql(query)
 
         if res:
@@ -676,6 +681,12 @@ class MySQL_Info(object):
                         db['size'] = 0
 
                     self.info['databases'][db['name']]['size'] = int(db['size'])
+
+                if not exclude_fields or 'db_table_count' not in exclude_fields:
+                    if db['tables'] is None:
+                        db['tables'] = 0
+
+                    self.info['databases'][db['name']]['tables'] = int(db['tables'])
 
         # If empty dbs are not needed in the returned dict, exit from the method
         if not return_empty_dbs:
@@ -690,6 +701,9 @@ class MySQL_Info(object):
 
                     if not exclude_fields or 'db_size' not in exclude_fields:
                         self.info['databases'][db['Database']]['size'] = 0
+
+                    if not exclude_fields or 'db_table_count' not in exclude_fields:
+                        self.info['databases'][db['Database']]['tables'] = 0
 
     def __exec_sql(self, query, ddl=False):
         """Execute SQL.

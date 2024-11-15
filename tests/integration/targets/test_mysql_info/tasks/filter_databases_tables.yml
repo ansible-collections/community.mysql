@@ -36,33 +36,62 @@
 
     # ================================== Tests ==============================
 
-    - name: Mysql_info users_info | Collect all databases fields
+    - name: Mysql_info users_info | Collect all non-empty databases fields
       community.mysql.mysql_info:
         filter:
           - databases
       register: result
-      # failed_when:
-      #   - TODO
+      failed_when:
+        - >
+          result.databases['db_tables_count_1'].size != 16384 or
+          result.databases['db_tables_count_1'].tables != 1 or
+          result.databases['db_tables_count_2'].size != 32768 or
+          result.databases['db_tables_count_2'].tables != 2 or
+          'db_tables_count_empty' in result.databases | dict2items
+          | map(attribute='key')
 
     - name: Mysql_info users_info | Collect all databases fields except db_size
       community.mysql.mysql_info:
         filter:
           - databases
-        exclude_fileds:
+        exclude_fields:
           - db_size
       register: result
-      # failed_when:
-      #   - TODO
+      failed_when:
+        - >
+          result.databases['db_tables_count_1'].size is defined or
+          result.databases['db_tables_count_2'].size is defined or
+          'db_tables_count_empty' in result.databases | dict2items
+          | map(attribute='key')
 
-    - name: Mysql_info users_info | Collect all databases fields except db_table_count
+    - name: Mysql_info users_info | Collect all databases fields except tables
       community.mysql.mysql_info:
         filter:
           - databases
-        exclude_fileds:
+        exclude_fields:
           - db_table_count
       register: result
-      # failed_when:
-      #   - TODO
+      failed_when:
+        - >
+          result.databases['db_tables_count_1'].tables is defined or
+          result.databases['db_tables_count_2'].tables is defined or
+          'db_tables_count_empty' in result.databases | dict2items
+          | map(attribute='key')
+
+    - name: Mysql_info users_info | Collect all databases even empty ones
+      community.mysql.mysql_info:
+        filter:
+          - databases
+        return_empty_dbs: true
+      register: result
+      failed_when:
+        - >
+          result.databases['db_tables_count_1'].size != 16384 or
+          result.databases['db_tables_count_1'].tables != 1 or
+          result.databases['db_tables_count_2'].size != 32768 or
+          result.databases['db_tables_count_2'].tables != 2 or
+          result.databases['db_tables_count_empty'].size != 0 or
+          result.databases['db_tables_count_empty'].tables != 0
 
     # ================================== Cleanup ============================
 

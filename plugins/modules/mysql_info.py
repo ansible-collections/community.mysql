@@ -656,54 +656,39 @@ class MySQL_Info(object):
 
     def __get_databases(self, exclude_fields, return_empty_dbs):
         """Get info about databases."""
+        
+        def is_field_included(field_name):
+            return not exclude_fields or f'db_{field_name}' not in exclude_fields
+        
+        def create_db_info(db_data):
+            info = {}
+            if is_field_included('size'):
+                info['size'] = int(db_data.get('size', 0) or 0)
+            if is_field_included('table_count'):
+                info['tables'] = int(db_data.get('tables', 0) or 0)
+            return info
 
-        cmd_start = 'SELECT table_schema AS "name"'
-        cmd_db_size = 'SUM(data_length + index_length) AS "size"'
-        cmd_db_table_count = 'COUNT(table_name) as "tables"'
-        cmd_end = ' FROM information_schema.TABLES GROUP BY table_schema'
-        cmd_start_and_fields = [cmd_start, cmd_db_size, cmd_db_table_count]
-
-        if exclude_fields and 'db_size' in exclude_fields:
-            cmd_start_and_fields.remove(cmd_db_size)
-
-        if exclude_fields and 'db_table_count' in exclude_fields:
-            cmd_start_and_fields.remove(cmd_db_table_count)
-
-        query = ', '.join(cmd_start_and_fields) + cmd_end
-        res = self.__exec_sql(query)
-
-        if res:
-            for db in res:
-                self.info['databases'][db['name']] = {}
-
-                if not exclude_fields or 'db_size' not in exclude_fields:
-                    if db['size'] is None:
-                        db['size'] = 0
-
-                    self.info['databases'][db['name']]['size'] = int(db['size'])
-
-                if not exclude_fields or 'db_table_count' not in exclude_fields:
-                    if db['tables'] is None:
-                        db['tables'] = 0
-
-                    self.info['databases'][db['name']]['tables'] = int(db['tables'])
-
-        # If empty dbs are not needed in the returned dict, exit from the method
-        if not return_empty_dbs:
-            return None
-
-        # Add info about empty databases (issue #65727):
-        res = self.__exec_sql('SHOW DATABASES')
-        if res:
-            for db in res:
-                if db['Database'] not in self.info['databases']:
-                    self.info['databases'][db['Database']] = {}
-
-                    if not exclude_fields or 'db_size' not in exclude_fields:
-                        self.info['databases'][db['Database']]['size'] = 0
-
-                    if not exclude_fields or 'db_table_count' not in exclude_fields:
-                        self.info['databases'][db['Database']]['tables'] = 0
+        # Build the main query
+        query_parts = ['SELECT table_schema AS "name"']
+        if is_field_included('size'):
+            query_parts.append('SUM(data_length + index_length) AS "size"')
+        if is_field_included('table_count'):
+            query_parts.append('COUNT(table_name) as "tables"')
+        
+        query = f"{', '.join(query_parts)} FROM information_schema.TABLES GROUP BY table_schema"
+        
+        # Get and process databases with tables
+        databases = self.__exec_sql(query) or []
+        for db in databases:
+            self.info['databases'][db['name']] = create_db_info(db)
+        
+        # Handle empty databases if requested
+        if return_empty_dbs:
+            empty_databases = self.__exec_sql('SHOW DATABASES') or []
+            for db in empty_databases:
+                db_name = db['Database']
+                if db_name not in self.info['databases']:
+                    self.info['databases'][db_name] = create_db_info({})
 
     def __exec_sql(self, query, ddl=False):
         """Execute SQL.

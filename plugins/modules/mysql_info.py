@@ -664,7 +664,7 @@ class MySQL_Info(object):
         """Get info about databases."""
 
         def is_field_included(field_name):
-            return not exclude_fields or f'db_{field_name}' not in exclude_fields
+            return not exclude_fields or 'db_{}'.format(field_name) not in exclude_fields
 
         def create_db_info(db_data):
             info = {}
@@ -681,7 +681,7 @@ class MySQL_Info(object):
         if is_field_included('table_count'):
             query_parts.append('COUNT(table_name) as "tables"')
 
-        query = f"{', '.join(query_parts)} FROM information_schema.TABLES GROUP BY table_schema"
+        query = "{} FROM information_schema.TABLES GROUP BY table_schema".format(", ".join(query_parts))
 
         # Get and process databases with tables
         databases = self.__exec_sql(query) or []

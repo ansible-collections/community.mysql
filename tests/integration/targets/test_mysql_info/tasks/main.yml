@@ -223,7 +223,7 @@
 
     - name: Import tasks file to tests tables count in database filter
       ansible.builtin.import_tasks:
-        file: filter_databases_tables.yml
+        file: filter_databases.yml
 
     - name: Import tasks file to tests users_info filter
       ansible.builtin.import_tasks:

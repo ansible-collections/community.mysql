@@ -216,7 +216,7 @@ databases:
       returned: if not excluded by filter
       type: dict
       sample: { 'tables': 12 }
-      version_added: '3.11.0'
+      version_added: '3.10.4'
 settings:
   description: Global settings (variables) information.
   returned: if not excluded by filter

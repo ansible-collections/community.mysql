@@ -204,13 +204,19 @@ databases:
   returned: if not excluded by filter
   type: dict
   sample:
-  - { "mysql": { "size": 656594 }, "information_schema": { "size": 73728 } }
+  - { "mysql": { "size": 656594, "tables": 31 }, "information_schema": { "size": 73728, "tables": 79 } }
   contains:
     size:
       description: Database size in bytes.
       returned: if not excluded by filter
       type: dict
       sample: { 'size': 656594 }
+    tables:
+      description: Count of tables and views in that database.
+      returned: if not excluded by filter
+      type: dict
+      sample: { 'tables': 12 }
+      version_added: '3.11.0'
 settings:
   description: Global settings (variables) information.
   returned: if not excluded by filter

@@ -141,3 +141,4 @@
           - db_tables_count_1
           - db_tables_count_2
           - db_only_views
+        state: absent

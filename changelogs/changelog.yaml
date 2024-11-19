@@ -99,13 +99,6 @@ releases:
     release_date: '2022-04-26'
   3.10.0:
     changes:
-      deprecated_features:
-      - collection - support of mysqlclient connector is deprecated - use PyMySQL
-        connector instead! We will stop testing against it in collection version 4.0.0
-        and remove the related code in 5.0.0 (https://github.com/ansible-collections/community.mysql/issues/654).
-      - mysql_info - The ``users_info`` filter returned variable ``plugin_auth_string``
-        contains the hashed password and it's misleading, it will be removed from
-        community.mysql 4.0.0. Use the `plugin_hash_string` return value instead (https://github.com/ansible-collections/community.mysql/pull/629).
       bugfixes:
       - mysql_info - Add ``plugin_hash_string`` to ``users_info`` filter's output.
         The existing ``plugin_auth_string`` contained the hashed password and thus
@@ -122,6 +115,13 @@ releases:
         avoid versions 3.8.0 to 3.9.0 (https://github.com/ansible-collections/community.mysql/pull/642).
       - mysql_user - add correct ``ed25519`` auth plugin handling (https://github.com/ansible-collections/community.mysql/issues/6).
       - mysql_variables - fix the module always changes on boolean values (https://github.com/ansible-collections/community.mysql/issues/652).
+      deprecated_features:
+      - collection - support of mysqlclient connector is deprecated - use PyMySQL
+        connector instead! We will stop testing against it in collection version 4.0.0
+        and remove the related code in 5.0.0 (https://github.com/ansible-collections/community.mysql/issues/654).
+      - mysql_info - The ``users_info`` filter returned variable ``plugin_auth_string``
+        contains the hashed password and it's misleading, it will be removed from
+        community.mysql 4.0.0. Use the `plugin_hash_string` return value instead (https://github.com/ansible-collections/community.mysql/pull/629).
       minor_changes:
       - mysql_info - Add ``tls_requires`` returned value for the ``users_info`` filter
         (https://github.com/ansible-collections/community.mysql/pull/628).
@@ -158,13 +158,13 @@ releases:
     release_date: '2024-08-22'
   3.10.1:
     changes:
+      bugfixes:
+      - mysql_user - module makes changes when is executed with ``plugin_auth_string``
+        parameter and check mode.
       deprecated_features:
       - mysql_user - the ``user`` alias of the ``name`` argument has been deprecated
         and will be removed in collection version 5.0.0. Use the ``name`` argument
         instead.
-      bugfixes:
-      - mysql_user - module makes changes when is executed with ``plugin_auth_string``
-        parameter and check mode.
       release_summary: 'This is a patch release of the ``community.mysql`` collection.
 
         Besides a bugfix, it contains an important upcoming breaking-change information.'
@@ -201,6 +201,35 @@ releases:
     - 0-mysql_user.yml
     - 3.10.3.yml
     release_date: '2024-09-09'
+  3.11.0:
+    changes:
+      bugfixes:
+      - mysql_user,mysql_role - The sql_mode ANSI_QUOTES affects how the modules mysql_user
+        and mysql_role compare the existing privileges with the configured privileges,
+        as well as decide whether double quotes or backticks should be used in the
+        GRANT statements. Pointing out in issue 671, the modules mysql_user and mysql_role
+        allow users to enable/disable ANSI_QUOTES in session variable (within a DB
+        session, the session variable always overwrites the global one). But due to
+        the issue, the modules do not check for ANSI_MODE in the session variable,
+        instead, they only check in the GLOBAL one.That behavior is not only limiting
+        the users' flexibility, but also not allowing users to explicitly disable
+        ANSI_MODE to work around such bugs like https://bugs.mysql.com/bug.php?id=115953.
+        (https://github.com/ansible-collections/community.mysql/issues/671)
+      minor_changes:
+      - mysql_info - adds the count of tables for each database to the returned values.
+        It is possible to exclude this new field using the ``db_table_count`` exclusion
+        filter. (https://github.com/ansible-collections/community.mysql/pull/691)
+      release_summary: 'This is a minor release of the ``community.mysql`` collection.
+
+
+        This changelog contains all changes to the modules and plugins in this
+
+        collection that have been made after the previous release.'
+    fragments:
+    - 3.11.0.yml
+    - 591-mysql_info-db_tables_count.yml
+    - 671-modules_util_user.yml
+    release_date: '2024-11-19'
   3.2.0:
     changes:
       bugfixes:

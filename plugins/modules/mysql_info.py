@@ -35,7 +35,7 @@ options:
   exclude_fields:
     description:
     - List of fields which are not needed to collect.
-    - "Supports elements: C(db_size). Unsupported elements will be ignored."
+    - "Supports elements: C(db_size), C(db_table_count). Unsupported elements will be ignored."
     type: list
     elements: str
     version_added: '0.1.0'
@@ -204,13 +204,19 @@ databases:
   returned: if not excluded by filter
   type: dict
   sample:
-  - { "mysql": { "size": 656594 }, "information_schema": { "size": 73728 } }
+  - { "mysql": { "size": 656594, "tables": 31 }, "information_schema": { "size": 73728, "tables": 79 } }
   contains:
     size:
       description: Database size in bytes.
       returned: if not excluded by filter
       type: dict
       sample: { 'size': 656594 }
+    tables:
+      description: Count of tables and views in that database.
+      returned: if not excluded by filter
+      type: dict
+      sample: { 'tables': 12 }
+      version_added: '3.11.0'
 settings:
   description: Global settings (variables) information.
   returned: if not excluded by filter
@@ -656,40 +662,39 @@ class MySQL_Info(object):
 
     def __get_databases(self, exclude_fields, return_empty_dbs):
         """Get info about databases."""
-        if not exclude_fields:
-            query = ('SELECT table_schema AS "name", '
-                     'SUM(data_length + index_length) AS "size" '
-                     'FROM information_schema.TABLES GROUP BY table_schema')
-        else:
-            if 'db_size' in exclude_fields:
-                query = ('SELECT table_schema AS "name" '
-                         'FROM information_schema.TABLES GROUP BY table_schema')
 
-        res = self.__exec_sql(query)
+        def is_field_included(field_name):
+            return not exclude_fields or 'db_{}'.format(field_name) not in exclude_fields
 
-        if res:
-            for db in res:
-                self.info['databases'][db['name']] = {}
+        def create_db_info(db_data):
+            info = {}
+            if is_field_included('size'):
+                info['size'] = int(db_data.get('size', 0) or 0)
+            if is_field_included('table_count'):
+                info['tables'] = int(db_data.get('tables', 0) or 0)
+            return info
 
-                if not exclude_fields or 'db_size' not in exclude_fields:
-                    if db['size'] is None:
-                        db['size'] = 0
+        # Build the main query
+        query_parts = ['SELECT table_schema AS "name"']
+        if is_field_included('size'):
+            query_parts.append('SUM(data_length + index_length) AS "size"')
+        if is_field_included('table_count'):
+            query_parts.append('COUNT(table_name) as "tables"')
 
-                    self.info['databases'][db['name']]['size'] = int(db['size'])
+        query = "{} FROM information_schema.TABLES GROUP BY table_schema".format(", ".join(query_parts))
 
-        # If empty dbs are not needed in the returned dict, exit from the method
-        if not return_empty_dbs:
-            return None
+        # Get and process databases with tables
+        databases = self.__exec_sql(query) or []
+        for db in databases:
+            self.info['databases'][db['name']] = create_db_info(db)
 
-        # Add info about empty databases (issue #65727):
-        res = self.__exec_sql('SHOW DATABASES')
-        if res:
-            for db in res:
-                if db['Database'] not in self.info['databases']:
-                    self.info['databases'][db['Database']] = {}
-
-                    if not exclude_fields or 'db_size' not in exclude_fields:
-                        self.info['databases'][db['Database']]['size'] = 0
+        # Handle empty databases if requested
+        if return_empty_dbs:
+            empty_databases = self.__exec_sql('SHOW DATABASES') or []
+            for db in empty_databases:
+                db_name = db['Database']
+                if db_name not in self.info['databases']:
+                    self.info['databases'][db_name] = create_db_info({})
 
     def __exec_sql(self, query, ddl=False):
         """Execute SQL.

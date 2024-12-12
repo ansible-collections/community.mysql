@@ -269,7 +269,7 @@ EXAMPLES = r'''
     priv: '*.*:ALL,GRANT'
     state: present
     session_vars:
-      wsrep_on: off
+      wsrep_on: 'off'
 
 - name: Create user with password, all database privileges and 'WITH GRANT OPTION' in db1 and db2
   community.mysql.mysql_user:

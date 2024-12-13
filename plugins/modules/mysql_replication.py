@@ -284,7 +284,6 @@ EXAMPLES = r'''
   community.mysql.mysql_replication:
     mode: changeprimary
     fail_on_error: true
-
 '''
 
 RETURN = r'''

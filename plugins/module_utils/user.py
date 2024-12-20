@@ -175,6 +175,8 @@ def user_add(cursor, user, host, host_all, password, encrypted,
     # Determine what user management method server uses
     impl = get_user_implementation(cursor)
     old_user_mgmt = impl.use_old_user_mgmt(cursor)
+    # whether the server is oceanbase
+    use_oceanbase = impl.use_oceanbase(cursor)
 
     mogrify = do_not_mogrify_requires if old_user_mgmt else mogrify_requires
 
@@ -202,7 +204,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         else:
             query_with_args = "CREATE USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, password)
     elif password and not encrypted:
-        if old_user_mgmt:
+        if old_user_mgmt or use_oceanbase:
             query_with_args = "CREATE USER %s@%s IDENTIFIED BY %s", (user, host, password)
         else:
             cursor.execute("SELECT CONCAT('*', UCASE(SHA1(UNHEX(SHA1(%s)))))", (password,))
@@ -272,6 +274,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
     # Determine what user management method server uses
     impl = get_user_implementation(cursor)
     old_user_mgmt = impl.use_old_user_mgmt(cursor)
+    # whether the server is oceanbase
+    use_oceanbase = impl.use_oceanbase(cursor)
 
     if host_all and not role:
         hostnames = user_get_hostnames(cursor, user)
@@ -321,6 +325,9 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     else:
                         cursor.execute("SELECT CONCAT('*', UCASE(SHA1(UNHEX(SHA1(%s)))))", (password,))
                     encrypted_password = cursor.fetchone()[0]
+                    # oceanbase encrypted password string are stored in lower case, so need to be converted to lower case for comparison
+                    if use_oceanbase:
+                        encrypted_password = encrypted_password.lower()
 
                 if current_pass_hash != encrypted_password:
                     password_changed = True
@@ -329,6 +336,9 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                         if old_user_mgmt:
                             cursor.execute("SET PASSWORD FOR %s@%s = %s", (user, host, encrypted_password))
                             msg = "Password updated (old style)"
+                        elif use_oceanbase:
+                            cursor.execute("SET PASSWORD FOR %s = PASSWORD(%s)", (user, encrypted_password))
+                            msg = "Password updated (OceanBase style)"
                         else:
                             try:
                                 cursor.execute("ALTER USER %s@%s IDENTIFIED WITH mysql_native_password AS %s", (user, host, encrypted_password))

@@ -17,7 +17,10 @@ def use_old_user_mgmt(cursor):
 
     return LooseVersion(version) < LooseVersion("5.7")
 
-
+def use_oceanbase(cursor):
+    version = get_server_version(cursor)
+    return 'oceanbase' in version.lower()
+    
 def supports_identified_by_password(cursor):
     version = get_server_version(cursor)
     return LooseVersion(version) < LooseVersion("8")

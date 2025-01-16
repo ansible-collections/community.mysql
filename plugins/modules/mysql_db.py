@@ -46,8 +46,8 @@ options:
   target:
     description:
     - Location, on the remote host, of the dump file to read from or write to.
-    - Uncompressed SQL files (C(.sql)) as well as bzip2 (C(.bz2)), gzip (C(.gz)) and
-      xz (Added in 2.0) compressed files are supported.
+    - Uncompressed SQL files (C(.sql)) as well as bzip2 (C(.bz2)), gzip (C(.gz)),
+      xz (Added in 2.0) and zstd (C(.zst)) (Added in 3.12.0) compressed files are supported.
     type: path
   single_transaction:
     description:
@@ -455,6 +455,8 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
         path = module.get_bin_path('bzip2', True)
     elif os.path.splitext(target)[-1] == '.xz':
         path = module.get_bin_path('xz', True)
+    elif os.path.splitext(target)[-1] == '.zst':
+        path = module.get_bin_path('zstd', True)
 
     if path:
         cmd = '%s | %s > %s' % (cmd, path, shlex_quote(target))
@@ -526,6 +528,8 @@ def db_import(module, host, user, password, db_name, target, all_databases, port
         comp_prog_path = module.get_bin_path('bzip2', required=True)
     elif os.path.splitext(target)[-1] == '.xz':
         comp_prog_path = module.get_bin_path('xz', required=True)
+    elif os.path.splitext(target)[-1] == '.zst':
+        comp_prog_path = module.get_bin_path('zstd', required=True)
     if comp_prog_path:
         # The line below is for returned data only:
         executed_commands.append('%s -dc %s | %s' % (comp_prog_path, target, cmd))

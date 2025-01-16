@@ -1,0 +1,3 @@
+minor_changes:
+- mysql_db - added ``zstd`` (de)compression support for ``import``/``dump`` states
+  (https://github.com/ansible-collections/community.mysql/issues/696).

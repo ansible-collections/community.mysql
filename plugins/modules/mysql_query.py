@@ -62,7 +62,6 @@ author:
 - Andrew Klychkov (@Andersson007)
 extends_documentation_fragment:
 - community.mysql.mysql
-
 '''
 
 EXAMPLES = r'''
@@ -117,8 +116,18 @@ rowcount:
     returned: changed
     type: list
     sample: [5, 1]
+execution_time_ms:
+    description:
+    - A list containing execution time per query in milliseconds.
+    - The measurements are done right before and after passing
+      the query to the driver for execution.
+    returned: success
+    type: list
+    sample: [7104, 85]
+    version_added: '3.12.0'
 '''
 
+import time
 import warnings
 
 from ansible.module_utils.basic import AnsibleModule
@@ -138,6 +147,18 @@ DDL_QUERY_KEYWORDS = ('CREATE', 'DROP', 'ALTER', 'RENAME', 'TRUNCATE')
 # ===========================================
 # Module execution.
 #
+
+
+def execute_and_return_time(cursor, query, args):
+    # Measure query execution time in milliseconds
+    start_time = time.perf_counter()
+
+    cursor.execute(query, args)
+
+    # Calculate the execution time rounding it to 4 decimal places
+    exec_time_ms = round((time.perf_counter() - start_time) * 1000, 4)
+    return cursor, exec_time_ms
+
 
 def main():
     argument_spec = mysql_common_argument_spec()
@@ -213,6 +234,7 @@ def main():
     query_result = []
     executed_queries = []
     rowcount = []
+    execution_time_ms = []
 
     already_exists = False
     for q in query:
@@ -223,7 +245,8 @@ def main():
                                         category=mysql_driver.Warning)
 
                 try:
-                    cursor.execute(q, arguments)
+                    cursor, exec_time_ms = execute_and_return_time(cursor, q, arguments)
+                    execution_time_ms.append(exec_time_ms)
                 except mysql_driver.Warning:
                     # When something is run with IF NOT EXISTS
                     # and there's "already exists" MySQL warning,
@@ -280,6 +303,7 @@ def main():
         'executed_queries': executed_queries,
         'query_result': query_result,
         'rowcount': rowcount,
+        'execution_time_ms': execution_time_ms,
     }
 
     # Exit:

@@ -1,2 +1,0 @@
-minor_changes:
-- mysql_query - returns the ``execution_time_ms`` list containing execution time per query in milliseconds.

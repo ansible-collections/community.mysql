@@ -6,6 +6,22 @@ Community MySQL and MariaDB Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.12.0
+=======
+
+Release Summary
+---------------
+
+This is a minor release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules and plugins in this
+collection that have been made after the previous release.
+
+Minor Changes
+-------------
+
+- mysql_db - added ``zstd`` (de)compression support for ``import``/``dump`` states (https://github.com/ansible-collections/community.mysql/issues/696).
+- mysql_query - returns the ``execution_time_ms`` list containing execution time per query in milliseconds.
+
 v3.11.0
 =======
 
@@ -13,6 +29,7 @@ Release Summary
 ---------------
 
 This is a minor release of the ``community.mysql`` collection.
+
 This changelog contains all changes to the modules and plugins in this
 collection that have been made after the previous release.
 

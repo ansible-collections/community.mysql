@@ -52,6 +52,22 @@ def user_exists(cursor, user, host, host_all):
     return count[0] > 0
 
 
+def user_is_locked(cursor, user, host, host_all):
+    if host_all:
+        cursor.execute("SHOW CREATE USER %s", (user,))
+    else:
+        cursor.execute("SHOW CREATE USER %s@%s", (user, host))
+
+    # Unless I am very much mistaken there should only be 1 answer to this query ever.
+    result = cursor.fetchone()
+
+    for res in result.values():
+        if res.endswith('ACCOUNT LOCK'):
+            return True
+
+    return False
+
+
 def sanitize_requires(tls_requires):
     sanitized_requires = {}
     if tls_requires:

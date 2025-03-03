@@ -266,6 +266,9 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         cursor.execute("ALTER USER %s@%s ATTRIBUTE %s", (user, host, json.dumps(attributes)))
         final_attributes = attributes_get(cursor, user, host)
 
+#    if locked:
+#        cursor.execute("ALTER USER %s@%s ACCOUNT LOCK")
+
     return {'changed': True, 'password_changed': not used_existing_password, 'attributes': final_attributes}
 
 
@@ -574,6 +577,13 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
                 cursor.execute(*query_with_args)
             changed = True
+
+#        if user_is_locked(cursor, user, host, False) != locked:
+#            if locked:
+#                cursor.execute("ALTER USER %s@%s ACCOUNT LOCK", (user, host))
+#            else:
+#                cursor.execute("ALTER USER %s@%s ACCOUNT UNLOCK", (user, host))
+#            changed = True
 
     return {'changed': changed, 'msg': msg, 'password_changed': password_changed, 'attributes': final_attributes}
 

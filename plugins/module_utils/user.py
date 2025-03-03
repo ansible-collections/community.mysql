@@ -267,7 +267,7 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         final_attributes = attributes_get(cursor, user, host)
 
 #    if locked:
-#        cursor.execute("ALTER USER %s@%s ACCOUNT LOCK")
+#        cursor.execute("ALTER USER %s@%s ACCOUNT LOCK", (user, host))
 
     return {'changed': True, 'password_changed': not used_existing_password, 'attributes': final_attributes}
 

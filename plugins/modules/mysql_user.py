@@ -470,6 +470,7 @@ def main():
         column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
         password_expire=dict(type='str', choices=['now', 'never', 'default', 'interval'], no_log=True),
         password_expire_interval=dict(type='int', required_if=[('password_expire', 'interval', True)], no_log=True),
+        locked=dict(type='bool', default='no'),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -510,6 +511,7 @@ def main():
     column_case_sensitive = module.params["column_case_sensitive"]
     password_expire = module.params["password_expire"]
     password_expire_interval = module.params["password_expire_interval"]
+    locked = module.boolean(module.params['locked'])
 
     if priv and not isinstance(priv, (str, dict)):
         module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
@@ -577,13 +579,13 @@ def main():
                     result = user_mod(cursor, user, host, host_all, password, encrypted,
                                       plugin, plugin_hash_string, plugin_auth_string, salt,
                                       priv, append_privs, subtract_privs, attributes, tls_requires, module,
-                                      password_expire, password_expire_interval)
+                                      password_expire, password_expire_interval, locked)
 
                 else:
                     result = user_mod(cursor, user, host, host_all, None, encrypted,
                                       None, None, None, None,
                                       priv, append_privs, subtract_privs, attributes, tls_requires, module,
-                                      password_expire, password_expire_interval)
+                                      password_expire, password_expire_interval, locked)
                 changed = result['changed']
                 msg = result['msg']
                 password_changed = result['password_changed']
@@ -601,7 +603,7 @@ def main():
                 result = user_add(cursor, user, host, host_all, password, encrypted,
                                   plugin, plugin_hash_string, plugin_auth_string, salt,
                                   priv, attributes, tls_requires, reuse_existing_password, module,
-                                  password_expire, password_expire_interval)
+                                  password_expire, password_expire_interval, locked)
                 changed = result['changed']
                 password_changed = result['password_changed']
                 final_attributes = result['attributes']

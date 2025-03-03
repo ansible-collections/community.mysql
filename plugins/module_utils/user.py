@@ -61,9 +61,8 @@ def user_is_locked(cursor, user, host, host_all):
     # Unless I am very much mistaken there should only be 1 answer to this query ever.
     result = cursor.fetchone()
 
-    for res in result.values():
-        if res.endswith('ACCOUNT LOCK'):
-            return True
+    if result[0].endswith('ACCOUNT LOCK'):
+        return True
 
     return False
 
@@ -176,7 +175,7 @@ def get_existing_authentication(cursor, user, host=None):
 def user_add(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, salt, new_priv,
              attributes, tls_requires, reuse_existing_password, module,
-             password_expire, password_expire_interval):
+             password_expire, password_expire_interval, locked=False):
     # If attributes are set, perform a sanity check to ensure server supports user attributes before creating user
     if attributes and not get_attribute_support(cursor):
         module.fail_json(msg="user attributes were specified but the server does not support user attributes")
@@ -266,8 +265,8 @@ def user_add(cursor, user, host, host_all, password, encrypted,
         cursor.execute("ALTER USER %s@%s ATTRIBUTE %s", (user, host, json.dumps(attributes)))
         final_attributes = attributes_get(cursor, user, host)
 
-#    if locked:
-#        cursor.execute("ALTER USER %s@%s ACCOUNT LOCK", (user, host))
+    if locked:
+        cursor.execute("ALTER USER %s@%s ACCOUNT LOCK", (user, host))
 
     return {'changed': True, 'password_changed': not used_existing_password, 'attributes': final_attributes}
 
@@ -283,7 +282,7 @@ def is_hash(password):
 def user_mod(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, salt, new_priv,
              append_privs, subtract_privs, attributes, tls_requires, module,
-             password_expire, password_expire_interval, role=False, maria_role=False):
+             password_expire, password_expire_interval, locked=False, role=False, maria_role=False):
     changed = False
     msg = "User unchanged"
     grant_option = False
@@ -555,6 +554,15 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             if attribute_support:
                 final_attributes = attributes_get(cursor, user, host)
 
+        if user_is_locked(cursor, user, host, False) != locked:
+            if locked:
+                cursor.execute("ALTER USER %s@%s ACCOUNT LOCK", (user, host))
+                msg = 'User locked'
+            else:
+                cursor.execute("ALTER USER %s@%s ACCOUNT UNLOCK", (user, host))
+                msg = 'User unlocked'
+            changed = True
+
         if role:
             continue
 
@@ -577,13 +585,6 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
                 cursor.execute(*query_with_args)
             changed = True
-
-#        if user_is_locked(cursor, user, host, False) != locked:
-#            if locked:
-#                cursor.execute("ALTER USER %s@%s ACCOUNT LOCK", (user, host))
-#            else:
-#                cursor.execute("ALTER USER %s@%s ACCOUNT UNLOCK", (user, host))
-#            changed = True
 
     return {'changed': changed, 'msg': msg, 'password_changed': password_changed, 'attributes': final_attributes}
 

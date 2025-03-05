@@ -22,9 +22,8 @@
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
-        host: '%'
         password: 'msandbox'
-        locked: yes
+        locked: true
         priv:
           'mysql_lock_user_test.*': 'SELECT'
 
@@ -41,8 +40,7 @@
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
-        host: '%'
-        locked: no
+        locked: false
         priv:
           'mysql_lock_user_test.*': 'SELECT'
 
@@ -59,16 +57,14 @@
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
-        host: '%'
         state: absent
         
     - name: Mysql_user Lock user | create unlocked | Create test user
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
-        host: '%'
         password: 'msandbox'
-        locked: no
+        locked: false
         priv:
           'mysql_lock_user_test.*': 'SELECT'
 
@@ -85,8 +81,7 @@
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
-        host: '%'
-        locked: yes
+        locked: true
         priv:
           'mysql_lock_user_test.*': 'SELECT'
 
@@ -103,14 +98,12 @@
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
-        host: '%'
         state: absent
 
     - name: Mysql_user Lock user | create default | Create test user
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
-        host: '%'
         password: 'msandbox'
         priv:
           'mysql_lock_user_test.*': 'SELECT'
@@ -128,7 +121,6 @@
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
-        host: '%'
         state: absent
 
     # ========================= Teardown ======================================

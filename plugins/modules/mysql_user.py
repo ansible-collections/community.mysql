@@ -193,7 +193,7 @@ options:
   locked:
     description:
       - Lock account to prevent connections using it, this is primarily used for creating a user that will act as a DEFINER on stored procedures.
-      - The C(default) is C(false)
+    default: false
     type: bool
     version_added: '3.13.0'
 
@@ -408,6 +408,13 @@ EXAMPLES = r'''
     priv:
       'db1.*': DELETE
 
+- name: Create locked user to act as a definer on procedures
+  community.mysql.mysql_user:
+    name: readonly_procedures_locked
+    locked: true
+    priv:
+      db1.*: SELECT
+
 # Example .my.cnf file for setting the root password
 # [client]
 # user=root
@@ -478,7 +485,7 @@ def main():
         column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
         password_expire=dict(type='str', choices=['now', 'never', 'default', 'interval'], no_log=True),
         password_expire_interval=dict(type='int', required_if=[('password_expire', 'interval', True)], no_log=True),
-        locked=dict(type='bool', default='no'),
+        locked=dict(type='bool', default='false'),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,

@@ -1,0 +1,3 @@
+---
+minor_changes:
+  - Integration tests for MariaDB 11.4 have replaced those for 10.5. The previous version is now 10.11.

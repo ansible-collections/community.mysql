@@ -189,6 +189,14 @@ options:
         fields names in privileges.
     type: bool
     version_added: '3.8.0'
+
+  locked:
+    description:
+      - Lock account to prevent connections using it, this is primarily used for creating a user that will act as a DEFINER on stored procedures.
+      - The default is C(false)
+    type: bool
+    version_added: 'TBA'
+
   attributes:
     description:
       - "Create, update, or delete user attributes (arbitrary 'key: value' comments) for the user."

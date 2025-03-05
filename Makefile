@@ -11,6 +11,17 @@ ifdef continue_on_errors
 	_continue_on_errors = --continue-on-error
 endif
 
+# Set command variables based on database engine
+# Required for MariaDB 11+ which no longer includes mysql named compatible
+# executable symlinks
+ifeq ($(db_engine_name),mysql)
+	_command = mysqld
+	_health_cmd = mysqladmin
+else
+	_command = mariadbd
+	_health_cmd = mariadb-admin
+endif
+
 .PHONY: test-integration
 test-integration:
 	@echo -n $(db_engine_name) > tests/integration/db_engine_name
@@ -29,9 +40,9 @@ test-integration:
 		--env MYSQL_ROOT_PASSWORD=msandbox \
 		--network podman \
 		--publish 3307:3306 \
-		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
+		--health-cmd '$(_health_cmd) ping -P 3306 -pmsandbox | grep alive || exit 1' \
 		docker.io/library/$(db_engine_name):$(db_engine_version) \
-		mysqld
+		$(_command)
 	podman run \
 		--detach \
 		--replace \
@@ -40,9 +51,9 @@ test-integration:
 		--env MYSQL_ROOT_PASSWORD=msandbox \
 		--network podman \
 		--publish 3308:3306 \
-		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
+		--health-cmd '$(_health_cmd) ping -P 3306 -pmsandbox | grep alive || exit 1' \
 		docker.io/library/$(db_engine_name):$(db_engine_version) \
-		mysqld
+		$(_command)
 	podman run \
 		--detach \
 		--replace \
@@ -51,9 +62,9 @@ test-integration:
 		--env MYSQL_ROOT_PASSWORD=msandbox \
 		--network podman \
 		--publish 3309:3306 \
-		--health-cmd 'mysqladmin ping -P 3306 -pmsandbox | grep alive || exit 1' \
+		--health-cmd '$(_health_cmd) ping -P 3306 -pmsandbox | grep alive || exit 1' \
 		docker.io/library/$(db_engine_name):$(db_engine_version) \
-		mysqld
+		$(_command)
 	# Setup replication and restart containers using the same subshell to keep variables alive
 	db_ver=$(db_engine_version); \
 	maj="$${db_ver%.*.*}"; \

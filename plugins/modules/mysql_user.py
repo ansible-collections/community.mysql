@@ -193,9 +193,9 @@ options:
   locked:
     description:
       - Lock account to prevent connections using it, this is primarily used for creating a user that will act as a DEFINER on stored procedures.
-      - The default is C(false)
+      - The C(default) is C(false)
     type: bool
-    version_added: 'TBA'
+    version_added: '3.13.0'
 
   attributes:
     description:

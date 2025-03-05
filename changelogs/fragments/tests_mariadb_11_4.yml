@@ -1,3 +1,5 @@
 ---
 minor_changes:
   - Integration tests for MariaDB 11.4 have replaced those for 10.5. The previous version is now 10.11.
+bugfixes:
+  - mysql_db - fix dump and import to find MariaDB binaries (mariadb and mariadb-dump) when MariaDB 11+ is used and symbolic links to MySQL binaries are absent.

@@ -52,16 +52,14 @@ def user_exists(cursor, user, host, host_all):
     return count[0] > 0
 
 
-def user_is_locked(cursor, user, host, host_all):
-    if host_all:
-        cursor.execute("SHOW CREATE USER %s", (user,))
-    else:
-        cursor.execute("SHOW CREATE USER %s@%s", (user, host))
+def user_is_locked(cursor, user, host):
+    cursor.execute("SHOW CREATE USER %s@%s", (user, host))
 
-    # Unless I am very much mistaken there should only be 1 answer to this query ever.
+    # Per discussions on irc:libera.chat:#maria the query may return up to 2 rows but "ACCOUNT LOCK" should always be in the first row.
     result = cursor.fetchone()
 
-    if result[0].endswith('ACCOUNT LOCK'):
+    # ACCOUNT LOCK does not have to be the last option in the CREATE USER query.
+    if result[0].find('ACCOUNT LOCK') > 0:
         return True
 
     return False
@@ -554,7 +552,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             if attribute_support:
                 final_attributes = attributes_get(cursor, user, host)
 
-        if user_is_locked(cursor, user, host, False) != locked:
+        if user_is_locked(cursor, user, host) != locked:
             if locked:
                 cursor.execute("ALTER USER %s@%s ACCOUNT LOCK", (user, host))
                 msg = 'User locked'

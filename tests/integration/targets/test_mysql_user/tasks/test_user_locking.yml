@@ -92,7 +92,7 @@
           - SHOW CREATE USER 'mysql_locked_user'@'localhost'
       register: locked_user_creation
       failed_when:
-        - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
+        - locked_user_creation.query_result[0][0] is not search('ACCOUNT LOCK')
 
     - name: Mysql_user Lock user | create unlocked | Remove test user
       community.mysql.mysql_user:

@@ -386,7 +386,14 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
             encoding=None, force=False, master_data=0, skip_lock_tables=False,
             dump_extra_args=None, unsafe_password=False, restrict_config_file=False,
             check_implicit_admin=False, pipefail=False):
-    cmd = module.get_bin_path('mysqldump', True)
+
+    if server_implementation == 'mysql':
+      cmd = module.get_bin_path('mysqldump', True)
+    elif server_implementation == 'mariadb': 
+      cmd = module.get_bin_path('mariadb-dump', True)
+    else:
+      return module.fail_json(msg="Unknown server implementation %s" % server_implementation)
+
     # If defined, mysqldump demands --defaults-extra-file be the first option
     if config_file:
         if restrict_config_file:
@@ -476,13 +483,20 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
 
 
 def db_import(module, host, user, password, db_name, target, all_databases, port, config_file,
-              socket=None, ssl_cert=None, ssl_key=None, ssl_ca=None, encoding=None, force=False,
+              server_implementation, socket=None, ssl_cert=None, ssl_key=None, ssl_ca=None,
+              encoding=None, force=False,
               use_shell=False, unsafe_password=False, restrict_config_file=False,
               check_implicit_admin=False):
     if not os.path.exists(target):
         return module.fail_json(msg="target %s does not exist on the host" % target)
 
-    cmd = [module.get_bin_path('mysql', True)]
+    if server_implementation == 'mysql':
+      cmd = [module.get_bin_path('mysql', True)]
+    elif server_implementation == 'mariadb':
+      cmd = [module.get_bin_path('mariadb', True)]
+    else:
+      return module.fail_json(msg="Unknown server implementation %s" % server_implementation)
+
     # --defaults-file must go first, or errors out
     if config_file:
         if restrict_config_file:
@@ -772,7 +786,7 @@ def main():
         rc, stdout, stderr = db_import(module, login_host, login_user,
                                        login_password, db, target,
                                        all_databases,
-                                       login_port, config_file,
+                                       login_port, config_file, server_implementation,
                                        socket, ssl_cert, ssl_key, ssl_ca,
                                        encoding, force, use_shell, unsafe_login_password,
                                        restrict_config_file, check_implicit_admin)

@@ -1,0 +1,140 @@
+---
+
+- vars:
+    mysql_parameters: &mysql_params
+      login_user: '{{ mysql_user }}'
+      login_password: '{{ mysql_password }}'
+      login_host: '{{ mysql_host }}'
+      login_port: '{{ mysql_primary_port }}'
+
+  block:
+
+    # ========================= Prepare =======================================
+    - name: Mysql_user Lock user | Create a test database
+      community.mysql.mysql_db:
+        <<: *mysql_params
+        name: mysql_lock_user_test
+        state: present
+
+    # ========================== Tests ========================================
+
+    - name: Mysql_user Lock user | Create test user locked
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: mysql_locked_user
+        host: '%'
+        password: 'msandbox'
+        locked: yes
+        priv:
+          'mysql_lock_user_test.*': 'SELECT'
+
+    - name: Mysql_user Lock user | Assert that test user is locked
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        query:
+          - SHOW CREATE USER 'mysql_locked_user'@'%'
+      register: locked_user_creation
+      failed_when:
+        - locked_user_creation.query_result[0][0] is not search('ACCOUNT LOCK')
+
+    - name: Mysql_user Lock user | Unlock test user
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: mysql_locked_user
+        host: '%'
+        locked: no
+        priv:
+          'mysql_lock_user_test.*': 'SELECT'
+
+    - name: Mysql_user Lock user | Assert that test user is not locked
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        query:
+          - SHOW CREATE USER 'mysql_locked_user'@'%'
+      register: locked_user_creation
+      failed_when:
+        - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
+
+    - name: Mysql_user Lock user | Remove test user
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: mysql_locked_user
+        host: '%'
+        state: absent
+        
+    - name: Mysql_user Lock user | Create test user unlocked
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: mysql_locked_user
+        host: '%'
+        password: 'msandbox'
+        locked: no
+        priv:
+          'mysql_lock_user_test.*': 'SELECT'
+
+    - name: Mysql_user Lock user | Assert that test user is not locked
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        query:
+          - SHOW CREATE USER 'mysql_locked_user'@'%'
+      register: locked_user_creation
+      failed_when:
+        - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
+
+    - name: Mysql_user Lock user | Lock test user
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: mysql_locked_user
+        host: '%'
+        locked: yes
+        priv:
+          'mysql_lock_user_test.*': 'SELECT'
+
+    - name: Mysql_user Lock user | Assert that test user is locked
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        query:
+          - SHOW CREATE USER 'mysql_locked_user'@'%'
+      register: locked_user_creation
+      failed_when:
+        - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
+
+    - name: Mysql_user Lock user | Remove test user
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: mysql_locked_user
+        host: '%'
+        state: absent
+
+    - name: Mysql_user Lock user | Create test user default lock action
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: mysql_locked_user
+        host: '%'
+        password: 'msandbox'
+        priv:
+          'mysql_lock_user_test.*': 'SELECT'
+
+    - name: Mysql_user Lock user | Assert that test user is not locked
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        query:
+          - SHOW CREATE USER 'mysql_locked_user'@'%'
+      register: locked_user_creation
+      failed_when:
+        - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
+
+    - name: Mysql_user Lock user | Remove test user
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: mysql_locked_user
+        host: '%'
+        state: absent
+
+    # ========================= Teardown ======================================
+
+    - name: Mysql_user Lock user | Delete test database
+      community.mysql.mysql_db:
+        <<: *mysql_params
+        name: mysql_lock_user_test
+        state: absent

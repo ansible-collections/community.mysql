@@ -18,7 +18,7 @@
 
     # ========================== Tests ========================================
 
-    - name: Mysql_user Lock user | Create test user locked
+    - name: Mysql_user Lock user | create locked | Create test user
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
@@ -28,7 +28,7 @@
         priv:
           'mysql_lock_user_test.*': 'SELECT'
 
-    - name: Mysql_user Lock user | Assert that test user is locked
+    - name: Mysql_user Lock user | create locked | Assert that test user is locked
       community.mysql.mysql_query:
         <<: *mysql_params
         query:
@@ -37,7 +37,7 @@
       failed_when:
         - locked_user_creation.query_result[0][0] is not search('ACCOUNT LOCK')
 
-    - name: Mysql_user Lock user | Unlock test user
+    - name: Mysql_user Lock user | create locked | Unlock test user
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
@@ -46,7 +46,7 @@
         priv:
           'mysql_lock_user_test.*': 'SELECT'
 
-    - name: Mysql_user Lock user | Assert that test user is not locked
+    - name: Mysql_user Lock user | create locked | Assert that test user is not locked
       community.mysql.mysql_query:
         <<: *mysql_params
         query:
@@ -55,14 +55,14 @@
       failed_when:
         - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
 
-    - name: Mysql_user Lock user | Remove test user
+    - name: Mysql_user Lock user | create locked | Remove test user
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
         host: '%'
         state: absent
         
-    - name: Mysql_user Lock user | Create test user unlocked
+    - name: Mysql_user Lock user | create unlocked | Create test user
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
@@ -72,7 +72,7 @@
         priv:
           'mysql_lock_user_test.*': 'SELECT'
 
-    - name: Mysql_user Lock user | Assert that test user is not locked
+    - name: Mysql_user Lock user | create unlocked | Assert that test user is not locked
       community.mysql.mysql_query:
         <<: *mysql_params
         query:
@@ -81,7 +81,7 @@
       failed_when:
         - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
 
-    - name: Mysql_user Lock user | Lock test user
+    - name: Mysql_user Lock user | create unlocked | Lock test user
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
@@ -90,7 +90,7 @@
         priv:
           'mysql_lock_user_test.*': 'SELECT'
 
-    - name: Mysql_user Lock user | Assert that test user is locked
+    - name: Mysql_user Lock user | create unlocked | Assert that test user is locked
       community.mysql.mysql_query:
         <<: *mysql_params
         query:
@@ -99,14 +99,14 @@
       failed_when:
         - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
 
-    - name: Mysql_user Lock user | Remove test user
+    - name: Mysql_user Lock user | create unlocked | Remove test user
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
         host: '%'
         state: absent
 
-    - name: Mysql_user Lock user | Create test user default lock action
+    - name: Mysql_user Lock user | create default | Create test user
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
@@ -115,7 +115,7 @@
         priv:
           'mysql_lock_user_test.*': 'SELECT'
 
-    - name: Mysql_user Lock user | Assert that test user is not locked
+    - name: Mysql_user Lock user | create default | Assert that test user is not locked
       community.mysql.mysql_query:
         <<: *mysql_params
         query:
@@ -124,7 +124,7 @@
       failed_when:
         - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
 
-    - name: Mysql_user Lock user | Remove test user
+    - name: Mysql_user Lock user | create default | Remove test user
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user

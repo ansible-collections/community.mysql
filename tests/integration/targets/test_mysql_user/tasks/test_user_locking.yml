@@ -31,7 +31,7 @@
       community.mysql.mysql_query:
         <<: *mysql_params
         query:
-          - SHOW CREATE USER 'mysql_locked_user'@'%'
+          - SHOW CREATE USER 'mysql_locked_user'@'localhost'
       register: locked_user_creation
       failed_when:
         - locked_user_creation.query_result[0][0] is not search('ACCOUNT LOCK')
@@ -48,7 +48,7 @@
       community.mysql.mysql_query:
         <<: *mysql_params
         query:
-          - SHOW CREATE USER 'mysql_locked_user'@'%'
+          - SHOW CREATE USER 'mysql_locked_user'@'localhost'
       register: locked_user_creation
       failed_when:
         - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
@@ -72,7 +72,7 @@
       community.mysql.mysql_query:
         <<: *mysql_params
         query:
-          - SHOW CREATE USER 'mysql_locked_user'@'%'
+          - SHOW CREATE USER 'mysql_locked_user'@'localhost'
       register: locked_user_creation
       failed_when:
         - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
@@ -89,7 +89,7 @@
       community.mysql.mysql_query:
         <<: *mysql_params
         query:
-          - SHOW CREATE USER 'mysql_locked_user'@'%'
+          - SHOW CREATE USER 'mysql_locked_user'@'localhost'
       register: locked_user_creation
       failed_when:
         - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
@@ -112,7 +112,7 @@
       community.mysql.mysql_query:
         <<: *mysql_params
         query:
-          - SHOW CREATE USER 'mysql_locked_user'@'%'
+          - SHOW CREATE USER 'mysql_locked_user'@'localhost'
       register: locked_user_creation
       failed_when:
         - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')

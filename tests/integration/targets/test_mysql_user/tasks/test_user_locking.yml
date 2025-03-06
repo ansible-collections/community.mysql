@@ -36,7 +36,7 @@
       failed_when:
         - locked_user_creation.query_result[0][0] is not search('ACCOUNT LOCK')
 
-    - name: Mysql_user Lock user | create locked | Unlock test user check_mode: true
+    - name: 'Mysql_user Lock user | create locked | Unlock test user check_mode: true'
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user
@@ -95,7 +95,7 @@
       failed_when:
         - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
 
-    - name: Mysql_user Lock user | create unlocked | Lock test user check_mode: true
+    - name: 'Mysql_user Lock user | create unlocked | Lock test user check_mode: true'
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user

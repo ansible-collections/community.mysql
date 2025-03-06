@@ -387,12 +387,13 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
             dump_extra_args=None, unsafe_password=False, restrict_config_file=False,
             check_implicit_admin=False, pipefail=False):
 
-    if server_implementation == 'mysql':
-        cmd = module.get_bin_path('mysqldump', True)
-    elif server_implementation == 'mariadb' and LooseVersion(server_version) >= LooseVersion("10.4.6"):
-        cmd = module.get_bin_path('mariadb-dump', True)
-    else:
-        return module.fail_json(msg="Unknown server implementation %s" % server_implementation)
+    cmd_str = 'mysqldump'
+    if server_implementation == 'mariadb' and LooseVersion(server_version) >= LooseVersion("10.4.6"):
+        cmd_str = 'mariadb-dump'
+    try:
+        cmd = module.get_bin_path(cmd_str, True)
+    except Exception as e:
+        return 1, "", "Error determining dump command: %s" % str(e)
 
     # If defined, mysqldump demands --defaults-extra-file be the first option
     if config_file:
@@ -490,12 +491,13 @@ def db_import(module, host, user, password, db_name, target, all_databases, port
     if not os.path.exists(target):
         return module.fail_json(msg="target %s does not exist on the host" % target)
 
-    if server_implementation == 'mysql':
-        cmd = [module.get_bin_path('mysql', True)]
-    elif server_implementation == 'mariadb' and LooseVersion(server_version) >= LooseVersion("10.4.6"):
-        cmd = [module.get_bin_path('mariadb', True)]
-    else:
-        return module.fail_json(msg="Unknown server implementation %s" % server_implementation)
+    cmd_str = 'mysql'
+    if server_implementation == 'mariadb' and LooseVersion(server_version) >= LooseVersion("10.4.6"):
+        cmd_str = 'mariadb'
+    try:
+        cmd = module.get_bin_path(cmd_str, True)
+    except Exception as e:
+        return 1, "", "Error determining mysql/mariadb command: %s" % str(e)
 
     # --defaults-file must go first, or errors out
     if config_file:

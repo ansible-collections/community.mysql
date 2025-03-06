@@ -36,6 +36,24 @@
       failed_when:
         - locked_user_creation.query_result[0][0] is not search('ACCOUNT LOCK')
 
+    - name: Mysql_user Lock user | create locked | Unlock test user check_mode: true
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: mysql_locked_user
+        locked: false
+        check_mode: true
+        priv:
+          'mysql_lock_user_test.*': 'SELECT'
+
+    - name: Mysql_user Lock user | create locked | Assert that test user is locked
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        query:
+          - SHOW CREATE USER 'mysql_locked_user'@'localhost'
+      register: locked_user_creation
+      failed_when:
+        - locked_user_creation.query_result[0][0] is not search('ACCOUNT LOCK')
+
     - name: Mysql_user Lock user | create locked | Unlock test user
       community.mysql.mysql_user:
         <<: *mysql_params
@@ -65,6 +83,24 @@
         name: mysql_locked_user
         password: 'msandbox'
         locked: false
+        priv:
+          'mysql_lock_user_test.*': 'SELECT'
+
+    - name: Mysql_user Lock user | create unlocked | Assert that test user is not locked
+      community.mysql.mysql_query:
+        <<: *mysql_params
+        query:
+          - SHOW CREATE USER 'mysql_locked_user'@'localhost'
+      register: locked_user_creation
+      failed_when:
+        - locked_user_creation.query_result[0][0] is search('ACCOUNT LOCK')
+
+    - name: Mysql_user Lock user | create unlocked | Lock test user check_mode: true
+      community.mysql.mysql_user:
+        <<: *mysql_params
+        name: mysql_locked_user
+        locked: true
+        check_mode: true
         priv:
           'mysql_lock_user_test.*': 'SELECT'
 

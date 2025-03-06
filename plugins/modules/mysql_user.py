@@ -598,10 +598,12 @@ def main():
                                       password_expire, password_expire_interval, locked=locked)
 
                 else:
-                    result = user_mod(cursor, user, host, host_all, None, encrypted,
-                                      None, None, None, None,
-                                      priv, append_privs, subtract_privs, attributes, tls_requires, module,
-                                      password_expire, password_expire_interval, locked=locked)
+                    result = user_mod(cursor=cursor, user=user, host=host, host_all=host_all, password=None,
+                                      encrypted=encrypted, plugin=None, plugin_hash_string=None, plugin_auth_string=None,
+                                      salt=None, new_priv=priv, append_privs=append_privs, subtract_privs=subtract_privs,
+                                      attributes=attributes, tls_requires=tls_requires, module=module,
+                                      password_expire=password_expire, password_expire_interval=password_expire_interval,
+                                      locked=locked)
                 changed = result['changed']
                 msg = result['msg']
                 password_changed = result['password_changed']

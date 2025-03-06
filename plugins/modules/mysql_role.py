@@ -930,11 +930,12 @@ class Role():
                                                       set_default_role_all=set_default_role_all)
 
         if privs:
-            result = user_mod(self.cursor, self.name, self.host,
-                              None, None, None, None, None, None, None,
-                              privs, append_privs, subtract_privs, None, None,
-                              self.module, None, None, role=True,
-                              maria_role=self.is_mariadb)
+            result = user_mod(cursor=self.cursor, user=self.name, host=self.host,
+                              host_all=None, password=None, encrypted=None, plugin=None,
+                              plugin_auth_string=None, plugin_hash_string=None, salt=None,
+                              new_priv=privs, append_privs=append_privs, subtract_privs=subtract_privs,
+                              attributes=None, tls_requires=None, module=self.module, password_expire=None,
+                              password_expire_interval=None, role=True, maria_role=self.is_mariadb)
             changed = result['changed']
 
         if admin:

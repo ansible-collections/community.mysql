@@ -170,13 +170,12 @@ jobs:
         env:
           MARIADB_ROOT_PASSWORD: msandbox
           MYSQL_ROOT_PASSWORD: msandbox
-          HEALTH_CMD: ${{ matrix.db_engine_name == 'mysql' && 'mysqladmin' || 'mariadb-admin' }}
         ports:
           - 3307:3306
         # We write our own health-cmd because the mariadb container does not
         # provide a healthcheck
         options: >-
-          --health-cmd "${{ env.HEALTH_CMD }} ping -P 3306 -pmsandbox |grep alive || exit 1"
+          --health-cmd "${{ matrix.db_engine_name == 'mysql' && 'mysqladmin' || 'mariadb-admin' }} ping -P 3306 -pmsandbox |grep alive || exit 1"
           --health-start-period 10s
           --health-interval 10s
           --health-timeout 5s
@@ -187,11 +186,10 @@ jobs:
         env:
           MARIADB_ROOT_PASSWORD: msandbox
           MYSQL_ROOT_PASSWORD: msandbox
-          HEALTH_CMD: ${{ matrix.db_engine_name == 'mysql' && 'mysqladmin' || 'mariadb-admin' }}
         ports:
           - 3308:3306
         options: >-
-          --health-cmd "${{ env.HEALTH_CMD }} ping -P 3306 -pmsandbox |grep alive || exit 1"
+          --health-cmd "${{ matrix.db_engine_name == 'mysql' && 'mysqladmin' || 'mariadb-admin' }} ping -P 3306 -pmsandbox |grep alive || exit 1"
           --health-start-period 10s
           --health-interval 10s
           --health-timeout 5s
@@ -202,11 +200,10 @@ jobs:
         env:
           MARIADB_ROOT_PASSWORD: msandbox
           MYSQL_ROOT_PASSWORD: msandbox
-          HEALTH_CMD: ${{ matrix.db_engine_name == 'mysql' && 'mysqladmin' || 'mariadb-admin' }}
         ports:
           - 3309:3306
         options: >-
-          --health-cmd "${{ env.HEALTH_CMD }} ping -P 3306 -pmsandbox |grep alive || exit 1"
+          --health-cmd "${{ matrix.db_engine_name == 'mysql' && 'mysqladmin' || 'mariadb-admin' }} ping -P 3306 -pmsandbox |grep alive || exit 1"
           --health-start-period 10s
           --health-interval 10s
           --health-timeout 5s

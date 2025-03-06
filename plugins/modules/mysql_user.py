@@ -594,13 +594,13 @@ def main():
                     result = user_mod(cursor, user, host, host_all, password, encrypted,
                                       plugin, plugin_hash_string, plugin_auth_string, salt,
                                       priv, append_privs, subtract_privs, attributes, tls_requires, module,
-                                      password_expire, password_expire_interval, locked)
+                                      password_expire, password_expire_interval, locked=locked)
 
                 else:
                     result = user_mod(cursor, user, host, host_all, None, encrypted,
                                       None, None, None, None,
                                       priv, append_privs, subtract_privs, attributes, tls_requires, module,
-                                      password_expire, password_expire_interval, locked)
+                                      password_expire, password_expire_interval, locked=locked)
                 changed = result['changed']
                 msg = result['msg']
                 password_changed = result['password_changed']
@@ -618,7 +618,7 @@ def main():
                 result = user_add(cursor, user, host, host_all, password, encrypted,
                                   plugin, plugin_hash_string, plugin_auth_string, salt,
                                   priv, attributes, tls_requires, reuse_existing_password, module,
-                                  password_expire, password_expire_interval, locked)
+                                  password_expire, password_expire_interval, locked=locked)
                 changed = result['changed']
                 password_changed = result['password_changed']
                 final_attributes = result['attributes']

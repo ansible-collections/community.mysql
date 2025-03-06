@@ -164,15 +164,13 @@ jobs:
           - connector_version: '1.1.1'
             db_engine_version: '10.11.8'
 
-    env:
-      HEALTH_CMD: ${{ matrix.db_engine_name == 'mysql' && 'mysqladmin' || 'mariadb-admin' }}
-
     services:
       db_primary:
         image: docker.io/library/${{ matrix.db_engine_name }}:${{ matrix.db_engine_version }}
         env:
           MARIADB_ROOT_PASSWORD: msandbox
           MYSQL_ROOT_PASSWORD: msandbox
+          HEALTH_CMD: ${{ matrix.db_engine_name == 'mysql' && 'mysqladmin' || 'mariadb-admin' }}
         ports:
           - 3307:3306
         # We write our own health-cmd because the mariadb container does not
@@ -189,6 +187,7 @@ jobs:
         env:
           MARIADB_ROOT_PASSWORD: msandbox
           MYSQL_ROOT_PASSWORD: msandbox
+          HEALTH_CMD: ${{ matrix.db_engine_name == 'mysql' && 'mysqladmin' || 'mariadb-admin' }}
         ports:
           - 3308:3306
         options: >-
@@ -203,6 +202,7 @@ jobs:
         env:
           MARIADB_ROOT_PASSWORD: msandbox
           MYSQL_ROOT_PASSWORD: msandbox
+          HEALTH_CMD: ${{ matrix.db_engine_name == 'mysql' && 'mysqladmin' || 'mariadb-admin' }}
         ports:
           - 3309:3306
         options: >-

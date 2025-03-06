@@ -192,7 +192,8 @@ options:
 
   locked:
     description:
-      - Lock account to prevent connections using it, this is primarily used for creating a user that will act as a DEFINER on stored procedures.
+      - Lock account to prevent connections using it.
+      - This is primarily used for creating a user that will act as a DEFINER on stored procedures.
     default: false
     type: bool
     version_added: '3.13.0'

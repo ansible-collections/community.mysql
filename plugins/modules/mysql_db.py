@@ -388,11 +388,11 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
             check_implicit_admin=False, pipefail=False):
 
     if server_implementation == 'mysql':
-      cmd = module.get_bin_path('mysqldump', True)
-    elif server_implementation == 'mariadb': 
-      cmd = module.get_bin_path('mariadb-dump', True)
+        cmd = module.get_bin_path('mysqldump', True)
+    elif server_implementation == 'mariadb' and LooseVersion(server_version) >= LooseVersion("10.4.6"):
+        cmd = module.get_bin_path('mariadb-dump', True)
     else:
-      return module.fail_json(msg="Unknown server implementation %s" % server_implementation)
+        return module.fail_json(msg="Unknown server implementation %s" % server_implementation)
 
     # If defined, mysqldump demands --defaults-extra-file be the first option
     if config_file:
@@ -483,7 +483,7 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
 
 
 def db_import(module, host, user, password, db_name, target, all_databases, port, config_file,
-              server_implementation, socket=None, ssl_cert=None, ssl_key=None, ssl_ca=None,
+              server_implementation, server_version, socket=None, ssl_cert=None, ssl_key=None, ssl_ca=None,
               encoding=None, force=False,
               use_shell=False, unsafe_password=False, restrict_config_file=False,
               check_implicit_admin=False):
@@ -491,11 +491,11 @@ def db_import(module, host, user, password, db_name, target, all_databases, port
         return module.fail_json(msg="target %s does not exist on the host" % target)
 
     if server_implementation == 'mysql':
-      cmd = [module.get_bin_path('mysql', True)]
-    elif server_implementation == 'mariadb':
-      cmd = [module.get_bin_path('mariadb', True)]
+        cmd = [module.get_bin_path('mysql', True)]
+    elif server_implementation == 'mariadb' and LooseVersion(server_version) >= LooseVersion("10.4.6"):
+        cmd = [module.get_bin_path('mariadb', True)]
     else:
-      return module.fail_json(msg="Unknown server implementation %s" % server_implementation)
+        return module.fail_json(msg="Unknown server implementation %s" % server_implementation)
 
     # --defaults-file must go first, or errors out
     if config_file:
@@ -787,7 +787,7 @@ def main():
                                        login_password, db, target,
                                        all_databases,
                                        login_port, config_file, server_implementation,
-                                       socket, ssl_cert, ssl_key, ssl_ca,
+                                       server_version, socket, ssl_cert, ssl_key, ssl_ca,
                                        encoding, force, use_shell, unsafe_login_password,
                                        restrict_config_file, check_implicit_admin)
         if rc != 0:

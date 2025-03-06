@@ -391,7 +391,7 @@ def db_dump(module, host, user, password, db_name, target, all_databases, port,
     if server_implementation == 'mariadb' and LooseVersion(server_version) >= LooseVersion("10.4.6"):
         cmd_str = 'mariadb-dump'
     try:
-        cmd = module.get_bin_path(cmd_str, True)
+        cmd = [module.get_bin_path(cmd_str, True)]
     except Exception as e:
         return 1, "", "Error determining dump command: %s" % str(e)
 
@@ -495,7 +495,7 @@ def db_import(module, host, user, password, db_name, target, all_databases, port
     if server_implementation == 'mariadb' and LooseVersion(server_version) >= LooseVersion("10.4.6"):
         cmd_str = 'mariadb'
     try:
-        cmd = module.get_bin_path(cmd_str, True)
+        cmd = [module.get_bin_path(cmd_str, True)]
     except Exception as e:
         return 1, "", "Error determining mysql/mariadb command: %s" % str(e)
 

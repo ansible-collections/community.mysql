@@ -552,7 +552,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             if attribute_support:
                 final_attributes = attributes_get(cursor, user, host)
 
-        if user_is_locked(cursor, user, host) != locked:
+        if not role and user_is_locked(cursor, user, host) != locked:
             if not module.check_mode:
                 if locked:
                     cursor.execute("ALTER USER %s@%s ACCOUNT LOCK", (user, host))

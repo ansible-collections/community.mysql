@@ -117,7 +117,7 @@
       register: idempotence_check
       failed_when: idempotence_check is changed
 
-      - name: 'Mysql_user Lock user | create unlocked | Lock test user check_mode: true'
+    - name: 'Mysql_user Lock user | create unlocked | Lock test user check_mode: true'
       community.mysql.mysql_user:
         <<: *mysql_params
         name: mysql_locked_user

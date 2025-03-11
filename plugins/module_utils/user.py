@@ -60,10 +60,10 @@ def user_is_locked(cursor, user, host):
 
     # ACCOUNT LOCK does not have to be the last option in the CREATE USER query.
     # Need to handle both DictCursor and non-DictCursor
-    if type(result) is list:
+    if isinstance(result, list):
         if result[0] and result[0].find('ACCOUNT LOCK') > 0:
             return True
-    elif type(result) is dict:
+    elif isinstance(result, dict):
         for res in result.values():
             if res.find('ACCOUNT LOCK') > 0:
                 return True

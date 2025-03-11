@@ -276,6 +276,7 @@
         - item.name != 'mariadb.sys'
         - item.name != 'mysql.sys'
         - item.name != 'mysql.infoschema'
+        - item.name != 'mysql.session'
 
 
     # ================================== Cleanup ============================

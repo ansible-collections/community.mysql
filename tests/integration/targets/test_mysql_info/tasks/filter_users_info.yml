@@ -261,6 +261,7 @@
         resource_limits: "{{ item.resource_limits | default(omit) }}"
         column_case_sensitive: true
         state: present
+        locked: "{{ item.locked | default(omit) }}"
       loop: "{{ result.users_info }}"
       loop_control:
         label: "{{ item.name }}@{{ item.host }}"

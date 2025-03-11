@@ -318,6 +318,7 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     get_resource_limits,
     get_existing_authentication,
     get_user_implementation,
+    user_is_locked,
 )
 from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
@@ -652,8 +653,10 @@ class MySQL_Info(object):
             if authentications:
                 output_dict.update(authentications[0])
 
+            if not line['is_role']:
+                output_dict['locked'] = user_is_locked(self.cursor, user, host)
+
             # TODO password_option
-            # TODO lock_option
             # but both are not supported by mysql_user atm. So no point yet.
 
             output.append(output_dict)

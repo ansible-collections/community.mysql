@@ -58,12 +58,15 @@ def user_is_locked(cursor, user, host):
     # Per discussions on irc:libera.chat:#maria the query may return up to 2 rows but "ACCOUNT LOCK" should always be in the first row.
     result = cursor.fetchone()
 
-    from pprint import pprint
-    pprint(result)
-
     # ACCOUNT LOCK does not have to be the last option in the CREATE USER query.
-    if result[0] and result[0].find('ACCOUNT LOCK') > 0:
-        return True
+    # Need to handle both DictCursor and non-DictCursor
+    if type(result) == type([]):
+        if result[0] and result[0].find('ACCOUNT LOCK') > 0:
+            return True
+    elif type(result) == type({}):
+        for res in result.values():
+            if res.find('ACCOUNT LOCK') > 0:
+                return True
 
     return False
 

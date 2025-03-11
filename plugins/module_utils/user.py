@@ -566,6 +566,12 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 else:
                     cursor.execute("ALTER USER %s@%s ACCOUNT UNLOCK", (user, host))
                     msg = 'User unlocked'
+            else:
+                if locked:
+                    msg = 'User will be locked'
+                else:
+                    msg = 'User will be unlocked'
+
             changed = True
 
         if role:

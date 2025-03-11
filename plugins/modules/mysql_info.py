@@ -653,8 +653,11 @@ class MySQL_Info(object):
             if authentications:
                 output_dict.update(authentications[0])
 
-            if not line['is_role']:
+            if line.get('is_role') and not line['is_role']:
                 output_dict['locked'] = user_is_locked(self.cursor, user, host)
+            else:
+                from pprint import pprint
+                pprint(line)
 
             # TODO password_option
             # but both are not supported by mysql_user atm. So no point yet.

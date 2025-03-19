@@ -189,6 +189,15 @@ options:
         fields names in privileges.
     type: bool
     version_added: '3.8.0'
+
+  locked:
+    description:
+      - Lock account to prevent connections using it.
+      - This is primarily used for creating a user that will act as a DEFINER on stored procedures.
+      - If not specified leaves the lock state as is (for a new user creates unlocked).
+    type: bool
+    version_added: '3.13.0'
+
   attributes:
     description:
       - "Create, update, or delete user attributes (arbitrary 'key: value' comments) for the user."
@@ -225,6 +234,7 @@ author:
 - Lukasz Tomaszkiewicz (@tomaszkiewicz)
 - kmarse (@kmarse)
 - Laurent Indermühle (@laurent-indermuehle)
+- E.S. Rosenberg (@Keeper-of-the-Keys)
 
 extends_documentation_fragment:
 - community.mysql.mysql
@@ -400,6 +410,13 @@ EXAMPLES = r'''
     priv:
       'db1.*': DELETE
 
+- name: Create locked user to act as a definer on procedures
+  community.mysql.mysql_user:
+    name: readonly_procedures_locked
+    locked: true
+    priv:
+      db1.*: SELECT
+
 # Example .my.cnf file for setting the root password
 # [client]
 # user=root
@@ -470,6 +487,7 @@ def main():
         column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
         password_expire=dict(type='str', choices=['now', 'never', 'default', 'interval'], no_log=True),
         password_expire_interval=dict(type='int', required_if=[('password_expire', 'interval', True)], no_log=True),
+        locked=dict(type='bool'),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,
@@ -510,6 +528,7 @@ def main():
     column_case_sensitive = module.params["column_case_sensitive"]
     password_expire = module.params["password_expire"]
     password_expire_interval = module.params["password_expire_interval"]
+    locked = module.boolean(module.params['locked'])
 
     if priv and not isinstance(priv, (str, dict)):
         module.fail_json(msg="priv parameter must be str or dict but %s was passed" % type(priv))
@@ -577,13 +596,15 @@ def main():
                     result = user_mod(cursor, user, host, host_all, password, encrypted,
                                       plugin, plugin_hash_string, plugin_auth_string, salt,
                                       priv, append_privs, subtract_privs, attributes, tls_requires, module,
-                                      password_expire, password_expire_interval)
+                                      password_expire, password_expire_interval, locked=locked)
 
                 else:
-                    result = user_mod(cursor, user, host, host_all, None, encrypted,
-                                      None, None, None, None,
-                                      priv, append_privs, subtract_privs, attributes, tls_requires, module,
-                                      password_expire, password_expire_interval)
+                    result = user_mod(cursor=cursor, user=user, host=host, host_all=host_all, password=None,
+                                      encrypted=encrypted, plugin=None, plugin_hash_string=None, plugin_auth_string=None,
+                                      salt=None, new_priv=priv, append_privs=append_privs, subtract_privs=subtract_privs,
+                                      attributes=attributes, tls_requires=tls_requires, module=module,
+                                      password_expire=password_expire, password_expire_interval=password_expire_interval,
+                                      locked=locked)
                 changed = result['changed']
                 msg = result['msg']
                 password_changed = result['password_changed']
@@ -601,7 +622,7 @@ def main():
                 result = user_add(cursor, user, host, host_all, password, encrypted,
                                   plugin, plugin_hash_string, plugin_auth_string, salt,
                                   priv, attributes, tls_requires, reuse_existing_password, module,
-                                  password_expire, password_expire_interval)
+                                  password_expire, password_expire_interval, locked=locked)
                 changed = result['changed']
                 password_changed = result['password_changed']
                 final_attributes = result['attributes']

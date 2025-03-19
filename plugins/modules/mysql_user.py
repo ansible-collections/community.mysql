@@ -194,7 +194,7 @@ options:
     description:
       - Lock account to prevent connections using it.
       - This is primarily used for creating a user that will act as a DEFINER on stored procedures.
-    default: false
+      - If not specified leaves the lock state as is (for a new user creates unlocked).
     type: bool
     version_added: '3.13.0'
 

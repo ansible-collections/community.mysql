@@ -286,7 +286,7 @@ def is_hash(password):
 def user_mod(cursor, user, host, host_all, password, encrypted,
              plugin, plugin_hash_string, plugin_auth_string, salt, new_priv,
              append_privs, subtract_privs, attributes, tls_requires, module,
-             password_expire, password_expire_interval, locked=False, role=False, maria_role=False):
+             password_expire, password_expire_interval, locked=None, role=False, maria_role=False):
     changed = False
     msg = "User unchanged"
     grant_option = False
@@ -558,7 +558,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             if attribute_support:
                 final_attributes = attributes_get(cursor, user, host)
 
-        if not role and user_is_locked(cursor, user, host) != locked:
+        if not role and locked is not None and user_is_locked(cursor, user, host) != locked:
             if not module.check_mode:
                 if locked:
                     cursor.execute("ALTER USER %s@%s ACCOUNT LOCK", (user, host))

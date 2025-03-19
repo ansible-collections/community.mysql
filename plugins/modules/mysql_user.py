@@ -234,6 +234,7 @@ author:
 - Lukasz Tomaszkiewicz (@tomaszkiewicz)
 - kmarse (@kmarse)
 - Laurent Indermühle (@laurent-indermuehle)
+- E.S. Rosenberg (@Keeper-of-the-Keys)
 
 extends_documentation_fragment:
 - community.mysql.mysql
@@ -486,7 +487,7 @@ def main():
         column_case_sensitive=dict(type='bool', default=None),  # TODO 4.0.0 add default=True
         password_expire=dict(type='str', choices=['now', 'never', 'default', 'interval'], no_log=True),
         password_expire_interval=dict(type='int', required_if=[('password_expire', 'interval', True)], no_log=True),
-        locked=dict(type='bool', default='false'),
+        locked=dict(type='bool'),
     )
     module = AnsibleModule(
         argument_spec=argument_spec,

@@ -1,2 +1,0 @@
-minor_changes:
-- mysql_user - add ``locked`` option to lock/unlock users, this is mainly used to have users that will act as definers on stored procedures.

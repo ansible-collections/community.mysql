@@ -247,6 +247,26 @@ releases:
     - 3.12.0.yml
     - 696-mysql-db-add-zstd-support.yml
     release_date: '2025-01-17'
+  3.13.0:
+    changes:
+      bugfixes:
+      - mysql_db - fix dump and import to find MariaDB binaries (mariadb and mariadb-dump)
+        when MariaDB 11+ is used and symbolic links to MySQL binaries are absent.
+      minor_changes:
+      - Integration tests for MariaDB 11.4 have replaced those for 10.5. The previous
+        version is now 10.11.
+      - mysql_user - add ``locked`` option to lock/unlock users, this is mainly used
+        to have users that will act as definers on stored procedures.
+      release_summary: 'This is a minor release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules and plugins in this
+
+        collection that have been made after the previous release.'
+    fragments:
+    - 3.13.0.yml
+    - 702-user_locking.yaml
+    - tests_mariadb_11_4.yml
+    release_date: '2025-03-21'
   3.2.0:
     changes:
       bugfixes:

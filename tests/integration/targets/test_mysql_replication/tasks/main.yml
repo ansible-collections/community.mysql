@@ -31,3 +31,6 @@
   when:
     - db_engine == 'mysql'
     - db_version is version('8.0.23', '>=')
+
+# primary_ssl_verify_server_cert
+- import_tasks: issue-689.yml

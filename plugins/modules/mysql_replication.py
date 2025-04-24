@@ -139,7 +139,6 @@ options:
     description:
     - Same as mysql variable.
     type: bool
-    default: false
     version_added: '3.5.0'
   primary_auto_position:
     description:

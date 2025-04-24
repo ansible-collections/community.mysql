@@ -161,6 +161,7 @@ EXAMPLES = r'''
       - item.name != 'root'  # In case you don't want to import admin accounts
       - item.name != 'mariadb.sys'
       - item.name != 'mysql'
+      - item.name != 'PUBLIC'  # MariaDB roles are not supported
 '''
 
 RETURN = r'''

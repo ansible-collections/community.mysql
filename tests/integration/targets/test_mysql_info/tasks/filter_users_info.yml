@@ -290,7 +290,7 @@
         - item.name != 'mysql.sys'
         - item.name != 'mysql.infoschema'
         - item.name != 'mysql.session'
-
+        - item.name != 'PUBLIC'  # MariaDB roles are not supported
 
     # ================================== Cleanup ============================
 

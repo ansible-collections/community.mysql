@@ -151,6 +151,7 @@ EXAMPLES = r'''
       tls_requires: "{{ item.tls_requires | default(omit) }}"
       priv: "{{ item.priv | default(omit) }}"
       resource_limits: "{{ item.resource_limits | default(omit) }}"
+      locked: "{{ item.locked | default(omit) }}"
       column_case_sensitive: true
       state: present
     loop: "{{ result.users_info }}"
@@ -246,6 +247,7 @@ users_info:
       If the output is fed to M(community.mysql.mysql_user), the
       ``plugin_auth_string`` will most likely be unreadable due to non-binary
       characters.
+    - The "locked" field was aded in ``community.mysql`` 3.13.
   returned: if not excluded by filter
   type: dict
   sample:
@@ -255,7 +257,8 @@ users_info:
       "plugin": "mysql_native_password",
       "priv": "db1.*:SELECT/db2.*:SELECT",
       "resource_limits": { "MAX_USER_CONNECTIONS": 100 },
-      "tls_requires": { "SSL": null } }
+      "tls_requires": { "SSL": null },
+      "locked": false }
   version_added: '3.8.0'
 engines:
   description: Information about the server's storage engines.

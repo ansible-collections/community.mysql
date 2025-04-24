@@ -607,7 +607,9 @@ class MySQL_Info(object):
             user = line['User']
             host = line['Host']
 
-            user_priv = privileges_get(self.cursor, user, host)
+            # MariaDB roles have no host
+            is_role = self.server_implementation == 'mariadb' and not host
+            user_priv = privileges_get(self.cursor, user, host, maria_role=is_role)
 
             if not user_priv:
                 self.module.warn("No privileges found for %s on host %s" % (user, host))

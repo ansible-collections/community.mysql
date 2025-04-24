@@ -291,9 +291,9 @@
     # Bugfix https://github.com/ansible-collections/community.mysql/issues/652
 
     - name: Get server version
-      register: result
       mysql_info:
         <<: *mysql_params
+      register: result
 
     - name: Set variable name when running on MySQL
       set_fact:

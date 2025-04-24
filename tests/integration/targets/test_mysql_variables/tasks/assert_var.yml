@@ -33,5 +33,5 @@
   assert:
     that:
       - result is changed
-      - "'{{ var_name }}' in result.stdout"
-      - "'{{ var_value }}' in result.stdout"
+      - var_name | string in result.stdout
+      - var_value | string in result.stdout

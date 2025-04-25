@@ -487,18 +487,22 @@
     login_password: '{{ mysql_password }}'
     login_host: '{{ mysql_host }}'
     login_port: '{{ mysql_primary_port }}'
-    name: '{{ item }}'
+    name: '{{ cleanup_db }}'
     state: absent
   loop:
     - '{{ db_name }}'
     - '{{ db_name2 }}'
+  loop_control:
+    loop_var: cleanup_db
 
 - name: Dump and Import | Clean up files
   file:
-    name: '{{ item }}'
+    name: '{{ cleanup_file }}'
     state: absent
   loop:
     - '{{ db_file_name }}'
     - '{{ wrong_sql_file }}'
     - '{{ dump_file1 }}'
     - '{{ dump_file2 }}'
+  loop_control:
+    loop_var: cleanup_file

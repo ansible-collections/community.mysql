@@ -50,6 +50,7 @@ notes:
 - Compatible with MariaDB or MySQL.
 - Calculating the size of a database might be slow, depending on the number and size of tables in it.
   To avoid this, use I(exclude_fields=db_size).
+- filters C(users_info) doesn't support MariaDB roles.
 
 attributes:
   check_mode:
@@ -161,6 +162,7 @@ EXAMPLES = r'''
       - item.name != 'root'  # In case you don't want to import admin accounts
       - item.name != 'mariadb.sys'
       - item.name != 'mysql'
+      - item.name != 'PUBLIC'  # MariaDB roles are not supported
 '''
 
 RETURN = r'''
@@ -606,7 +608,9 @@ class MySQL_Info(object):
             user = line['User']
             host = line['Host']
 
-            user_priv = privileges_get(self.cursor, user, host)
+            # MariaDB roles have no host
+            is_role = self.server_implementation == 'mariadb' and not host
+            user_priv = privileges_get(self.cursor, user, host, maria_role=is_role)
 
             if not user_priv:
                 self.module.warn("No privileges found for %s on host %s" % (user, host))

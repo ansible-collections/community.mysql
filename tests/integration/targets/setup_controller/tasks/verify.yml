@@ -52,7 +52,7 @@
       ansible.builtin.debug:
         msg: >
           Python in use inside the test container:
-          ${{ python_version_in_use.stdout }}
+          {{ python_version_in_use.stdout }}
       when:
         - python_version_in_use is defined
 

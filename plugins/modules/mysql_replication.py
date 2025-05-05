@@ -643,9 +643,9 @@ def main():
         if primary_ssl_cipher is not None:
             chm.append("%s='%s'" % (command_resolver.resolve_command('MASTER_SSL_CIPHER'), primary_ssl_cipher))
         if primary_ssl_verify_server_cert:
-                chm.append("%s=1" % command_resolver.resolve_command('MASTER_SSL_VERIFY_SERVER_CERT'))
-            else:
-                chm.append("%s=0" % command_resolver.resolve_command('MASTER_SSL_VERIFY_SERVER_CERT'))
+            chm.append("%s=1" % command_resolver.resolve_command('MASTER_SSL_VERIFY_SERVER_CERT'))
+        else:
+            chm.append("%s=0" % command_resolver.resolve_command('MASTER_SSL_VERIFY_SERVER_CERT'))
         if primary_auto_position:
             chm.append("%s=1" % command_resolver.resolve_command('MASTER_AUTO_POSITION'))
         if primary_use_gtid is not None:

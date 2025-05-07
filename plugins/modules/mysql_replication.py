@@ -139,6 +139,7 @@ options:
     description:
     - Same as C(MASTER_SSL_VERIFY_SERVER_CERT) MySQL/MariaDB variable.
     - The module switch automatically to C(SOURCE_SSL_VERIFY_SERVER_CERT) for MySQL 8.0.23 and later.
+    - Prior to community.mysql 3.14.0 C(false) had no effect.
     type: bool
     version_added: '3.5.0'
   primary_auto_position:

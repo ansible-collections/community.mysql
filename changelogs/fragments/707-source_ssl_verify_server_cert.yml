@@ -1,3 +1,6 @@
 ---
 bugfixes:
   - mysql_replication - fixed an issue where setting ``primary_ssl_verify_server_cert`` to false had no effect.
+
+minor_changes:
+  - mysql_replication - change default value for ``primary_ssl_verify_server_cert`` from False to None. This should not affect existing playbooks.

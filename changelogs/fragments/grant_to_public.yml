@@ -1,3 +1,0 @@
----
-bugfixes:
-  - mysql_info - fix a crash (ERROR 1141, There is no such grant defined for user 'PUBLIC' on host '%') when using the ``users_info`` filter with a PUBLIC role present in MariaDB 10.11+. Do note that the fix doesn't change the fact that the module won't return the privileges from the PUBLIC role in the users privileges list. It can't do that because you have to login as the particular user and use `SHOW GRANTS FOR CURRENT_USER`. We considered using an aggregation with the `SHOW GRANTS FOR PUBLIC` command. However, this approach would make copying users from one server to another transform the privileges inherited from the role as if they were direct privileges on the user.

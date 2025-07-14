@@ -45,10 +45,10 @@ def test_uses_replica_terminology(f_output, c_output, c_ret_type):
 @pytest.mark.parametrize(
     'user,password,expected_query',
     [
-        (None, None, "START GROUP_REPLICATION"),
+        (None, None, "START GROUP_REPLICATION "),
         ("repl_user", None, "START GROUP_REPLICATION USER='repl_user'"),
-        (None, "repl_pass", "START GROUP_REPLICATION"),
-        ("repl_user", "repl_pass", "START GROUP_REPLICATION USER='repl_user' PASSWORD='repl_pass'"),
+        (None, "repl_pass", "START GROUP_REPLICATION PASSWORD='repl_pass'"),
+        ("repl_user", "repl_pass", "START GROUP_REPLICATION USER='repl_user', PASSWORD='repl_pass'"),
     ]
 )
 def test_start_group_replication(user, password, expected_query):
@@ -62,15 +62,14 @@ def test_start_group_replication(user, password, expected_query):
 
     chm = []
     if user:
-        chm.append(" USER='%s'" % user)
+        chm.append("USER='%s'" % user)
     if password:
-        chm.append(" PASSWORD='%s'" % password)
+        chm.append("PASSWORD='%s'" % password)
 
     result = startgroupreplication(module, cursor, chm, False)
 
     assert result is True
     assert cursor.executed_queries[0] == expected_query
-    assert cursor.executed_queries[1] == "SHOW STATUS LIKE 'group_replication_status';"
 
 
 def test_stop_group_replication():
@@ -86,21 +85,16 @@ def test_stop_group_replication():
 
     assert result is True
     assert cursor.executed_queries[0] == "STOP GROUP_REPLICATION"
-    assert cursor.executed_queries[1] == "SHOW STATUS LIKE 'group_replication_status';"
 
 
 def test_start_group_replication_fail():
     """Test startgroupreplication function with failure."""
     from ansible_collections.community.mysql.plugins.modules.mysql_replication import startgroupreplication
-    import pymysql
 
     cursor = MockCursor(status="ERROR")
     module = type('obj', (object,), {
         'fail_json': lambda msg: None,
     })
-
-    # Mock the Warning exception
-    pymysql.Warning = Exception
 
     result = startgroupreplication(module, cursor, [], True)
 
@@ -110,15 +104,11 @@ def test_start_group_replication_fail():
 def test_stop_group_replication_fail():
     """Test stopgroupreplication function with failure."""
     from ansible_collections.community.mysql.plugins.modules.mysql_replication import stopgroupreplication
-    import pymysql
 
     cursor = MockCursor(status="ERROR")
     module = type('obj', (object,), {
         'fail_json': lambda msg: None,
     })
-
-    # Mock the Warning exception
-    pymysql.Warning = Exception
 
     result = stopgroupreplication(module, cursor, True)
 

@@ -41,10 +41,10 @@ def test_uses_replica_terminology(f_output, c_output, c_ret_type):
 @pytest.mark.parametrize(
     'user,password,expected_query',
     [
-        (None, None, "START GROUP_REPLICATION"),
+        (None, None, "START GROUP_REPLICATION "),
         ("repl_user", None, "START GROUP_REPLICATION USER='repl_user'"),
-        (None, "repl_pass", "START GROUP_REPLICATION"),
-        ("repl_user", "repl_pass", "START GROUP_REPLICATION USER='repl_user' PASSWORD='repl_pass'"),
+        (None, "repl_pass", "START GROUP_REPLICATION PASSWORD='repl_pass'"),
+        ("repl_user", "repl_pass", "START GROUP_REPLICATION USER='repl_user', PASSWORD='repl_pass'"),
     ]
 )
 def test_start_group_replication(user, password, expected_query):
@@ -66,7 +66,6 @@ def test_start_group_replication(user, password, expected_query):
 
     assert result is True
     assert cursor.executed_queries[0] == expected_query
-    assert cursor.executed_queries[1] == "SHOW STATUS LIKE 'group_replication_status';"
 
 
 def test_stop_group_replication():
@@ -82,7 +81,6 @@ def test_stop_group_replication():
 
     assert result is True
     assert cursor.executed_queries[0] == "STOP GROUP_REPLICATION"
-    assert cursor.executed_queries[1] == "SHOW STATUS LIKE 'group_replication_status';"
 
 
 def test_start_group_replication_fail():

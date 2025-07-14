@@ -17,11 +17,14 @@
         IDENTIFIED {% if db_engine == 'mysql' %}WITH mysql_native_password {% endif %}BY '{{ group_replication_pass }}'; \
         GRANT REPLICATION SLAVE ON *.* TO \
         '{{ group_replication_user }}'@'{{ mysql_host }}'; \
+        GRANT CONNECTION_ADMIN ON *.* TO \
+        '{{ group_replication_user }}'@'{{ mysql_host }}'; \
         GRANT BACKUP_ADMIN ON *.* TO \
         '{{ group_replication_user }}'@'{{ mysql_host }}'; \
         GRANT GROUP_REPLICATION_STREAM ON *.* TO \
-        '{{ group_replication_user }}'@'{{ mysql_host }}';\" | {{ mysql_command }}"
-      when: db_version is version('8.0.0', '>=')
+        '{{ group_replication_user }}'@'{{ mysql_host }}'; \
+        FLUSH PRIVILEGES;\" | {{ mysql_command }}"
+      when: db_engine == 'mysql' and db_version is version('8.0.0', '>=')
 
     - name: Create group replication user for MariaDB
       shell:

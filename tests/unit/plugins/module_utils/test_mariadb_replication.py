@@ -86,15 +86,11 @@ def test_stop_group_replication():
 def test_start_group_replication_fail():
     """Test startgroupreplication function with failure."""
     from ansible_collections.community.mysql.plugins.modules.mysql_replication import startgroupreplication
-    import pymysql
 
     cursor = MockCursor(status="ERROR")
     module = type('obj', (object,), {
         'fail_json': lambda msg: None,
     })
-
-    # Mock the Warning exception
-    pymysql.Warning = Exception
 
     result = startgroupreplication(module, cursor, [], True)
 
@@ -104,15 +100,11 @@ def test_start_group_replication_fail():
 def test_stop_group_replication_fail():
     """Test stopgroupreplication function with failure."""
     from ansible_collections.community.mysql.plugins.modules.mysql_replication import stopgroupreplication
-    import pymysql
 
     cursor = MockCursor(status="ERROR")
     module = type('obj', (object,), {
         'fail_json': lambda msg: None,
     })
-
-    # Mock the Warning exception
-    pymysql.Warning = Exception
 
     result = stopgroupreplication(module, cursor, True)
 

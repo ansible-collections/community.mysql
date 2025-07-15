@@ -35,8 +35,8 @@ options:
       C(resetprimary) (RESET MASTER) - supported since community.mysql 0.1.0,
       C(resetreplica) (RESET REPLICA),
       C(resetreplicaall) (RESET REPLICA ALL),
-      C(startgroupreplication) (START GROUP_REPLICATION) - supported since community.mysql 3.10.0,
-      C(stopgroupreplication) (STOP GROUP_REPLICATION) - supported since community.mysql 3.10.0.
+      C(startgroupreplication) (START GROUP_REPLICATION) - supported since community.mysql 3.15.0,
+      C(stopgroupreplication) (STOP GROUP_REPLICATION) - supported since community.mysql 3.15.0.
     type: str
     choices:
     - changeprimary
@@ -200,12 +200,12 @@ options:
     description:
     - User for group replication.
     type: str
-    version_added: '3.10.0'
+    version_added: '3.15.0'
   group_replication_password:
     description:
     - Password for group replication user.
     type: str
-    version_added: '3.10.0'
+    version_added: '3.15.0'
 notes:
    - Compatible with MariaDB or MySQL.
    - If an empty value for the parameter of string type is needed, use an empty string.

@@ -19,22 +19,22 @@ class dummy_cursor_class():
             return [self.output]
 
 
-class MockCursor:
-    Warning = None
+# Define MockWarning at module level to ensure it's a proper exception class
+class MockWarning(Exception):
+    pass
 
-    def __init__(self, status="ONLINE", warning=None):
+
+class MockCursor:
+    # Set the Warning class at the class level
+    Warning = MockWarning
+
+    def __init__(self, status="ONLINE"):
         self.status = status
         self.executed_queries = []
-        self.Warning = warning
 
     def execute(self, query):
         self.executed_queries.append(query)
         if self.status == "ERROR":
-            # Create a custom exception that mimics mysql_driver.Warning
-            class MockWarning(Exception):
-                pass
-            # Make it available as a class attribute for tests to use
-            MockCursor.Warning = MockWarning
             raise MockWarning("Mocked execution error")
 
     def fetchone(self):

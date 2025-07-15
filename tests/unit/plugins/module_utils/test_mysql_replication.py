@@ -76,10 +76,11 @@ def test_stop_group_replication():
 def test_start_group_replication_fail():
     """Test startgroupreplication function with failure."""
     from ansible_collections.community.mysql.plugins.modules.mysql_replication import startgroupreplication
+    from ..utils import MockWarning
 
     # Create a mock mysql_driver with a Warning attribute
     class MockDriver:
-        Warning = MockCursor.Warning
+        Warning = MockWarning
 
     # Save the original mysql_driver
     from ansible_collections.community.mysql.plugins.modules import mysql_replication
@@ -105,10 +106,11 @@ def test_start_group_replication_fail():
 def test_stop_group_replication_fail():
     """Test stopgroupreplication function with failure."""
     from ansible_collections.community.mysql.plugins.modules.mysql_replication import stopgroupreplication
+    from ..utils import MockWarning
 
     # Create a mock mysql_driver with a Warning attribute
     class MockDriver:
-        Warning = MockCursor.Warning
+        Warning = MockWarning
 
     # Save the original mysql_driver
     from ansible_collections.community.mysql.plugins.modules import mysql_replication

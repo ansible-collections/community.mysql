@@ -38,7 +38,8 @@
     # Configure group replication settings
     - name: Configure group replication settings for MySQL
       shell:
-        "echo \"SET GLOBAL group_replication_group_name='{{ group_replication_group_name }}'; \
+        "echo \"INSTALL PLUGIN group_replication SONAME 'group_replication.so'; \
+        SET GLOBAL group_replication_group_name='{{ group_replication_group_name }}'; \
         SET GLOBAL group_replication_local_address='{{ mysql_host }}:{{ group_replication_port }}'; \
         SET GLOBAL group_replication_group_seeds='{{ mysql_host }}:{{ group_replication_port }}'; \
         SET GLOBAL group_replication_bootstrap_group=ON;\" | {{ mysql_command }}"

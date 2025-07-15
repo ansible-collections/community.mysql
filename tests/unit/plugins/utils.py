@@ -20,9 +20,12 @@ class dummy_cursor_class():
 
 
 class MockCursor:
-    def __init__(self, status="ONLINE"):
+    Warning = None
+
+    def __init__(self, status="ONLINE", warning = None):
         self.status = status
         self.executed_queries = []
+        self.Warning = warning
 
     def execute(self, query):
         self.executed_queries.append(query)

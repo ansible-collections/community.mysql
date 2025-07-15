@@ -22,7 +22,7 @@ class dummy_cursor_class():
 class MockCursor:
     Warning = None
 
-    def __init__(self, status="ONLINE", warning = None):
+    def __init__(self, status="ONLINE", warning=None):
         self.status = status
         self.executed_queries = []
         self.Warning = warning

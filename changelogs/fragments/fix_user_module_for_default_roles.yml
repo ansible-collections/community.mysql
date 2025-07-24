@@ -1,3 +1,0 @@
----
-bugfixes:
-  - "mysql_user - fix a crash (unable to parse the MySQL grant string: SET DEFAULT ROLE `somerole` FOR `someuser`@`%`) when using the ``mysql_user`` module with a DEFAULT role present in MariaDB. The DEFAULT role is now ignored by the parser (https://github.com/ansible-collections/community.mysql/issues/710)."

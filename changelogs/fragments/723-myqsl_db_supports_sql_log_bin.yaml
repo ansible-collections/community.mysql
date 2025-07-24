@@ -1,3 +1,0 @@
----
-minor_changes:
-  - mysql_db - Add support for ``sql_log_bin`` option (https://github.com/ansible-collections/community.mysql/issues/700).

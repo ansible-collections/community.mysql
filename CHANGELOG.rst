@@ -6,6 +6,27 @@ Community MySQL and MariaDB Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.15.0
+=======
+
+Release Summary
+---------------
+
+This is a minor release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules and plugins in this collection
+that have been made after the previous release.'
+
+Minor Changes
+-------------
+
+- mysql_db - Add support for ``sql_log_bin`` option (https://github.com/ansible-collections/community.mysql/issues/700).
+
+Bugfixes
+--------
+
+- mysql_query - fix a Python 2 compatibility issue caused by the addition of ``execution_time_ms`` in version 3.12 (see https://github.com/ansible-collections/community.mysql/issues/716).
+- mysql_user - fix a crash (unable to parse the MySQL grant string: SET DEFAULT ROLE `somerole` FOR `someuser`@`%`) when using the ``mysql_user`` module with a DEFAULT role present in MariaDB. The DEFAULT role is now ignored by the parser (https://github.com/ansible-collections/community.mysql/issues/710).
+
 v3.14.0
 =======
 

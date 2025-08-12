@@ -30,6 +30,8 @@ from ansible_collections.community.mysql.plugins.module_utils.implementations.my
 class InvalidPrivsError(Exception):
     pass
 
+diff_current = {}
+diff_new = {}
 
 def get_mode(cursor):
     cursor.execute('SELECT @@sql_mode')
@@ -49,6 +51,10 @@ def user_exists(cursor, user, host, host_all):
         cursor.execute("SELECT count(*) FROM mysql.user WHERE user = %s AND host = %s", (user, host))
 
     count = cursor.fetchone()
+    if count[0] > 0:
+        diff_current['state'] = "present"
+    else:
+        diff_current['state'] = "absent"
     return count[0] > 0
 
 
@@ -62,12 +68,15 @@ def user_is_locked(cursor, user, host):
     # Need to handle both DictCursor and non-DictCursor
     if isinstance(result, tuple):
         if result[0].find('ACCOUNT LOCK') > 0:
+            diff_current['locked'] = True
             return True
     elif isinstance(result, dict):
         for res in result.values():
             if res.find('ACCOUNT LOCK') > 0:
+                diff_current['locked'] = True
                 return True
 
+    diff_current['locked'] = False
     return False
 
 
@@ -111,6 +120,7 @@ def get_grants(cursor, user, host):
     grants_line = list(filter(lambda x: "ON *.*" in x[0], cursor.fetchall()))[0]
     pattern = r"(?<=\bGRANT\b)(.*?)(?=(?:\bON\b))"
     grants = re.search(pattern, grants_line[0]).group().strip()
+    diff_current['grants'] = grants.split(", ")
     return grants.split(", ")
 
 
@@ -172,6 +182,7 @@ def get_existing_authentication(cursor, user, host=None):
             'plugin': r[0],
             'plugin_auth_string': r[1],
             'plugin_hash_string': r[1]})
+    diff_current['auth_list'] = existing_auth_list
 
     return existing_auth_list
 
@@ -301,6 +312,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
         hostnames = [host]
 
     password_changed = False
+    diff_current['password'] = "<filtered password>"
+    diff_new['password'] = "<filtered password>"
     for host in hostnames:
         # Handle clear text and hashed passwords.
         if not role:
@@ -345,6 +358,7 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                     encrypted_password = cursor.fetchone()[0]
 
                 if current_pass_hash != encrypted_password:
+                    diff_new['password'] = "<filtered new password>"
                     password_changed = True
                     msg = "Password updated"
                     if not module.check_mode:
@@ -378,6 +392,14 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             mariadb_role = True if "mariadb" in str(impl.__name__) else False
             current_password_policy = get_password_expiration_policy(cursor, user, host, maria_role=mariadb_role)
             password_expired = is_password_expired(cursor, user, host)
+            diff_current['password_policy'] = current_password_policy
+            if password_expired == "default":
+                diff_new['password_policy'] = -1
+            elif password_expired == "never":
+                diff_new['password_policy'] = 0
+            elif password_expired == "interval":
+                diff_new['password_policy'] = 1
+
             # Check if changes needed to be applied.
             if not ((current_password_policy == -1 and password_expire == "default") or
                     (current_password_policy == 0 and password_expire == "never") or
@@ -396,6 +418,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             cursor.execute("SELECT plugin, authentication_string FROM mysql.user "
                            "WHERE user = %s AND host = %s", (user, host))
             current_plugin = cursor.fetchone()
+            diff_current['plugin'] = current_plugin
+            diff_new['plugin'] = plugin
 
             update = False
 
@@ -469,6 +493,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                         if not module.check_mode:
                             privileges_grant(cursor, user, host, db_table, priv, tls_requires, maria_role)
                         changed = True
+            diff_current['privileges'] = curr_priv
+            diff_new['privileges'] = new_priv
 
             # If the db.table specification exists in both the user's current privileges
             # and in the new privileges, then we need to see if there's a difference.
@@ -527,6 +553,8 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 module.fail_json(msg="user attributes were specified but the server does not support user attributes")
             else:
                 current_attributes = attributes_get(cursor, user, host)
+                diff_current['attributes'] = current_attributes
+                diff_new['attributes'] = attributes
 
                 if current_attributes is None:
                     current_attributes = {}
@@ -558,6 +586,11 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
             if attribute_support:
                 final_attributes = attributes_get(cursor, user, host)
 
+        diff_current['locked'] = user_is_locked(cursor, user, host)
+        diff_new['locked'] = locked
+        if diff_new['locked'] is None:
+            diff_new['locked'] = False
+
         if not role and locked is not None and user_is_locked(cursor, user, host) != locked:
             if not module.check_mode:
                 if locked:
@@ -579,6 +612,10 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
 
         # Handle TLS requirements
         current_requires = sanitize_requires(impl.get_tls_requires(cursor, user, host))
+
+        diff_current['requires_tls'] = current_requires
+        diff_new['requires_tls'] = tls_requires
+
         if current_requires != tls_requires:
             msg = "TLS requires updated"
             if not module.check_mode:
@@ -597,10 +634,10 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 cursor.execute(*query_with_args)
             changed = True
 
-    return {'changed': changed, 'msg': msg, 'password_changed': password_changed, 'attributes': final_attributes}
-
+    return {'changed': changed, 'msg': msg, 'password_changed': password_changed, 'attributes': final_attributes, 'diff_current': diff_current, 'diff_new': diff_new}
 
 def user_delete(cursor, user, host, host_all, check_mode):
+    diff_new['state'] = "absent"
     if check_mode:
         return True
 
@@ -625,6 +662,8 @@ def user_get_hostnames(cursor, user):
 
     for hostname_raw in hostnames_raw:
         hostnames.append(hostname_raw[0])
+
+    diff_current['hostnames'] = hostnames
 
     return hostnames
 
@@ -1022,6 +1061,8 @@ def match_resource_limits(module, current, desired):
     Returns: Dictionary containing parameters that need to change.
     """
 
+    diff_current['resource_limits'] = current
+    diff_new['resource_limits'] = desired
     if not current:
         # It means the user does not exists, so we need
         # to set all limits after its creation

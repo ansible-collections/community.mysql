@@ -650,7 +650,8 @@ def main():
         else:
             changed = False
             msg = "User doesn't exist"
-    module.exit_json(changed=changed, diff={'before': diff_current, 'after': diff_new}, user=user, msg=msg, password_changed=password_changed, attributes=final_attributes)
+    module.exit_json(changed=changed, diff={'before': diff_current, 'after': diff_new}, user=user, msg=msg,
+                     password_changed=password_changed, attributes=final_attributes)
 
 
 if __name__ == '__main__':

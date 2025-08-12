@@ -30,8 +30,10 @@ from ansible_collections.community.mysql.plugins.module_utils.implementations.my
 class InvalidPrivsError(Exception):
     pass
 
+
 diff_current = {}
 diff_new = {}
+
 
 def get_mode(cursor):
     cursor.execute('SELECT @@sql_mode')
@@ -634,7 +636,9 @@ def user_mod(cursor, user, host, host_all, password, encrypted,
                 cursor.execute(*query_with_args)
             changed = True
 
-    return {'changed': changed, 'msg': msg, 'password_changed': password_changed, 'attributes': final_attributes, 'diff_current': diff_current, 'diff_new': diff_new}
+    return {'changed': changed, 'msg': msg, 'password_changed': password_changed, 'attributes': final_attributes,
+            'diff_current': diff_current, 'diff_new': diff_new}
+
 
 def user_delete(cursor, user, host, host_all, check_mode):
     diff_new['state'] = "absent"

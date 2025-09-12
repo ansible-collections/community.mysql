@@ -316,6 +316,19 @@ releases:
     - fix_python2_compatibility.yml
     - fix_user_module_for_default_roles.yml
     release_date: '2025-07-24'
+  3.16.0:
+    changes:
+      minor_changes:
+      - '`mysql_query` - add new `session_vars` argument, similar to ansible-collections/community.mysql#489.'
+      release_summary: 'This is the minor release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules and plugins in this collection
+
+        that have been made after the previous release.'
+    fragments:
+    - 0_mysql_query_session_vars.yml
+    - release_3_16_0.yml
+    release_date: '2025-09-12'
   3.2.0:
     changes:
       bugfixes:

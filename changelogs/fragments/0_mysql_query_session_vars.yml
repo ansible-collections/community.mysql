@@ -1,3 +1,0 @@
----
-minor_changes:
-  - '`mysql_query` - add new `session_vars` argument, similar to ansible-collections/community.mysql#489.'

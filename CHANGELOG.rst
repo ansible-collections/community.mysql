@@ -6,6 +6,21 @@ Community MySQL and MariaDB Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v3.16.0
+=======
+
+Release Summary
+---------------
+
+This is the minor release of the ``community.mysql`` collection.
+This changelog contains all changes to the modules and plugins in this collection
+that have been made after the previous release.
+
+Minor Changes
+-------------
+
+- `mysql_query` - add new `session_vars` argument, similar to ansible-collections/community.mysql#489.
+
 v3.15.0
 =======
 

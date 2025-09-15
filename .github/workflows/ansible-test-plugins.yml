@@ -58,11 +58,7 @@ jobs:
           - '11.4.5'
         connector_name:
           - pymysql
-          - mysqlclient
         connector_version:
-          - '0.9.3'
-          - '1.0.2'
-          - '1.1.1'
           - '2.0.1'
           - '2.0.3'
           - '2.1.1'
@@ -106,15 +102,6 @@ jobs:
 
           - connector_name: pymysql
             connector_version: '2.1.1'
-
-          - connector_name: mysqlclient
-            connector_version: '0.9.3'
-
-          - connector_name: mysqlclient
-            connector_version: '1.0.2'
-
-          - connector_name: mysqlclient
-            connector_version: '1.1.1'
 
           - db_engine_version: '8.0.38'
             ansible: stable-2.17

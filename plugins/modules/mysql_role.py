@@ -317,7 +317,6 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     privileges_unpack,
 )
 from ansible.module_utils._text import to_native
-from ansible.module_utils.six import iteritems
 
 
 def normalize_users(module, users, is_mariadb=False):
@@ -788,7 +787,7 @@ class Role():
             self.update_members(users, set_default_role_all=set_default_role_all)
 
         if privs:
-            for db_table, priv in iteritems(privs):
+            for db_table, priv in privs.items():
                 privileges_grant(self.cursor, self.name, self.host,
                                  db_table, priv, tls_requires=None,
                                  maria_role=self.is_mariadb)

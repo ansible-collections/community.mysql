@@ -326,7 +326,6 @@ from ansible_collections.community.mysql.plugins.module_utils.user import (
     get_user_implementation,
     user_is_locked,
 )
-from ansible.module_utils.six import iteritems
 from ansible.module_utils._text import to_native
 
 
@@ -456,7 +455,7 @@ class MySQL_Info(object):
                 engine = line['Engine']
                 self.info['engines'][engine] = {}
 
-                for vname, val in iteritems(line):
+                for vname, val in line.items():
                     if vname != 'Engine':
                         self.info['engines'][engine][vname] = val
 
@@ -524,7 +523,7 @@ class MySQL_Info(object):
         res = self.__exec_sql(query)
         if res:
             for line in res:
-                for vname, val in iteritems(line):
+                for vname, val in line.items():
                     self.info['master_status'][vname] = self.__convert(val)
 
     def __get_slave_status(self):
@@ -545,7 +544,7 @@ class MySQL_Info(object):
                 if user not in self.info['slave_status'][host][port]:
                     self.info['slave_status'][host][port][user] = {}
 
-                for vname, val in iteritems(line):
+                for vname, val in line.items():
                     if vname not in ('Master_Host', 'Master_Port', 'Master_User'):
                         self.info['slave_status'][host][port][user][vname] = self.__convert(val)
 
@@ -559,7 +558,7 @@ class MySQL_Info(object):
                 if srv_id not in self.info['slave_hosts']:
                     self.info['slave_hosts'][srv_id] = {}
 
-                for vname, val in iteritems(line):
+                for vname, val in line.items():
                     if vname != 'Server_id':
                         self.info['slave_hosts'][srv_id][vname] = self.__convert(val)
 
@@ -575,7 +574,7 @@ class MySQL_Info(object):
                 user = line['User']
                 self.info['users'][host][user] = {}
 
-                for vname, val in iteritems(line):
+                for vname, val in line.items():
                     if vname not in ('Host', 'User'):
                         self.info['users'][host][user][vname] = self.__convert(val)
 

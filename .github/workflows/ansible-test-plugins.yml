@@ -59,9 +59,9 @@ jobs:
         connector_name:
           - pymysql
         connector_version:
-          - '2.0.1'
-          - '2.0.3'
-          - '2.1.1'
+          - '0.9.3'
+          - '1.0.2'
+          - '1.1.1'
 
         include:
 
@@ -94,15 +94,6 @@ jobs:
           - db_engine_name: mariadb
             db_engine_version: '8.4.1'
 
-          - connector_name: pymysql
-            connector_version: '2.0.1'
-
-          - connector_name: pymysql
-            connector_version: '2.0.3'
-
-          - connector_name: pymysql
-            connector_version: '2.1.1'
-
           - db_engine_version: '8.0.38'
             ansible: stable-2.17
 
@@ -116,24 +107,12 @@ jobs:
             ansible: devel
 
           - db_engine_version: '8.4.1'
-            connector_version: '0.9.3'
-
-          - db_engine_version: '8.4.1'
-            connector_version: '1.0.2'
-
-          - db_engine_version: '8.4.1'
             connector_version: '2.0.1'
 
           - db_engine_version: '8.4.1'
             connector_version: '2.0.3'
 
           - db_engine_version: '10.11.8'
-            connector_version: '0.9.3'
-
-          - db_engine_version: '10.11.8'
-            connector_version: '1.0.2'
-
-          - db_engine_version: '10.11.8'
             connector_version: '2.0.1'
 
           - db_engine_version: '10.11.8'
@@ -144,12 +123,6 @@ jobs:
 
           - db_engine_version: '8.4.1'
             ansible: stable-2.15
-
-          - connector_version: '1.1.1'
-            db_engine_version: '8.0.38'
-
-          - connector_version: '1.1.1'
-            db_engine_version: '10.11.8'
 
     services:
       db_primary:

@@ -147,7 +147,6 @@ EXAMPLES = r'''
       name: "{{ item.name }}"
       host: "{{ item.host }}"
       plugin: "{{ item.plugin | default(omit) }}"
-      plugin_auth_string: "{{ item.plugin_auth_string | default(omit) }}"
       plugin_hash_string: "{{ item.plugin_hash_string | default(omit) }}"
       tls_requires: "{{ item.tls_requires | default(omit) }}"
       priv: "{{ item.priv | default(omit) }}"
@@ -247,13 +246,13 @@ users_info:
     - Does not support proxy privileges. If an account has proxy privileges, they won't appear in the output.
     - Causes issues with authentications plugins C(sha256_password) and C(caching_sha2_password).
       If the output is fed to M(community.mysql.mysql_user), the
-      ``plugin_auth_string`` will most likely be unreadable due to non-binary
+      ``plugin_hash_string`` will most likely be unreadable due to non-binary
       characters.
     - The "locked" field was aded in ``community.mysql`` 3.13.
   returned: if not excluded by filter
   type: dict
   sample:
-  - { "plugin_auth_string": '*1234567',
+  - { "plugin_hash_string": '*1234567',
       "name": "user1",
       "host": "host.com",
       "plugin": "mysql_native_password",
@@ -659,6 +658,8 @@ class MySQL_Info(object):
             authentications = get_existing_authentication(self.cursor, user, host)
             if authentications:
                 output_dict.update(authentications[0])
+                # https://github.com/ansible-collections/community.mysql/pull/629
+                output_dict.pop('plugin_auth_string', None)
 
             if line.get('is_role') and line['is_role'] == 'N':
                 output_dict['locked'] = user_is_locked(self.cursor, user, host)

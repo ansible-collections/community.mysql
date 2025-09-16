@@ -187,6 +187,7 @@ options:
       - When C(false), the field names will be upper-cased. This is the default
       - This feature was introduced because MySQL 8 and above uses case sensitive
         fields names in privileges.
+      - The default changed from C(false) to C(true) in v4.0.0
     type: bool
     default: true
     version_added: '3.8.0'

@@ -73,7 +73,6 @@ The Makefile accept the following options
   - Mandatory: true
   - Choices:
     - "pymysql"
-    - "mysqlclient"
   - Description: The python package of the connector to use. In addition to selecting the test container, this value is also used for tests filtering: `when: connector_name == 'pymysql'`.
 
 - `connector_version`
@@ -118,7 +117,7 @@ make ansible="stable-2.16" db_engine_name="mysql" db_engine_version="8.0.31" con
 
 # Keep databases and ansible tests containers alives
 # A single target and continue on errors
-make ansible="stable-2.17" db_engine_name="mysql" db_engine_version="8.0.31" connector_name="mysqlclient" connector_version="2.0.3" target="test_mysql_query" keep_containers_alive=1 continue_on_errors=1
+make ansible="stable-2.17" db_engine_name="mysql" db_engine_version="8.0.31" connector_name="pymysql" connector_version="1.0.2" target="test_mysql_query" keep_containers_alive=1 continue_on_errors=1
 
 # If your system has an usupported version of Python:
 make local_python_version="3.10" ansible="stable-2.17" db_engine_name="mariadb" db_engine_version="11.4.5" connector_name="pymysql" connector_version="1.0.2"

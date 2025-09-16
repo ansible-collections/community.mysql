@@ -1,0 +1,2 @@
+breaking_changes:
+- collection - stop testing against mysqlclient connector as its support was deprecated in this collection - use PyMySQL connector instead! It'll stop working in 5.0.0 when we remove all related code (https://github.com/ansible-collections/community.mysql/issues/654).

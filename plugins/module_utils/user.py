@@ -163,7 +163,8 @@ def get_existing_authentication(cursor, user, host=None):
 
     existing_auth_list = []
 
-    # 'plugin_auth_string' contains the hash string. Must be removed in c.mysql 4.0
+    # 'plugin_auth_string' contains the hash string.
+    # Removed from mysql_info output in c.mysql 4.0.0
     # See https://github.com/ansible-collections/community.mysql/pull/629
     for r in rows:
         existing_auth_list.append({

@@ -1,0 +1,2 @@
+breaking_changes:
+- Since version 4.0.0, the collection accepts code written in Python 3. Modules aren't tested against Python 2 and might not work in Python 2 environments.

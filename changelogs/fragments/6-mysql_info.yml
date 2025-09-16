@@ -1,2 +1,0 @@
-breaking_changes:
-  - mysql_info - The ``users_info`` filter does not return the ``plugin_auth_string`` field anymore. Use the `plugin_hash_string` return value instead (https://github.com/ansible-collections/community.mysql/pull/629).

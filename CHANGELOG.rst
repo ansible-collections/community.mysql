@@ -6,6 +6,26 @@ Community MySQL and MariaDB Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v4.0.0
+======
+
+Release Summary
+---------------
+
+This is a major release of the ``community.mysql`` collection.
+This changelog contains all breaking changes to the modules in this collection
+that have been added after the release of ``community.mysql`` 3.16.0.
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- Since version 4.0.0, the collection accepts code written in Python 3. Modules aren't tested against Python 2 and might not work in Python 2 environments.
+- collection - stop testing against mysqlclient connector as its support was deprecated in this collection - use PyMySQL connector instead! It'll stop working in 5.0.0 when we remove all related code (https://github.com/ansible-collections/community.mysql/issues/654).
+- mysql_db - the ``pipefail`` argument's default value is set to ``true``.  If your target machines do not use ``bash`` as a default interpreter, set ``pipefail`` to ``false`` explicitly. However, we strongly recommend setting up ``bash`` as a default and ``pipefail=true`` as it will protect you from getting broken dumps you don't know about (https://github.com/ansible-collections/community.mysql/issues/407).
+- mysql_info - The ``users_info`` filter does not return the ``plugin_auth_string`` field anymore. Use the `plugin_hash_string` return value instead (https://github.com/ansible-collections/community.mysql/pull/629).
+- mysql_role - the ``column_case_sensitive`` argument's default value has been changed to ``true``. If your playbook expected the column to be automatically uppercased for your users privileges, you should set this to ``false`` explicitly (https://github.com/ansible-collections/community.mysql/issues/578).
+- mysql_user - the ``column_case_sensitive`` argument's default value has been changed to ``true``. If your playbook expected the column to be automatically uppercased for your users privileges, you should set this to ``false`` explicitly (https://github.com/ansible-collections/community.mysql/issues/577).
+
 v3.16.0
 =======
 

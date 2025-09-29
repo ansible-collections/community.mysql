@@ -1,0 +1,2 @@
+bugfixes:
+  - fix not existent grant when revoking perms on user which do not have any other perms than grant option.

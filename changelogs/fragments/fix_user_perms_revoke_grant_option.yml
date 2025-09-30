@@ -1,2 +1,2 @@
 bugfixes:
-  - fix not existent grant when revoking perms on user which do not have any other perms than grant option.
+  - mysql_user, mysql_role - fix not existent grant when revoking perms on user/role which do not have any other perms than grant option (https://github.com/ansible-collections/community.mysql/issues/664).

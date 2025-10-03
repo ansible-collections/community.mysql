@@ -1,0 +1,2 @@
+bugfixes:
+  - mysql_info - Fix slave status for source terminology (https://github.com/ansible-collections/community.mysql/issues/682).

@@ -1,2 +1,2 @@
 bugfixes:
-  - mysql_info - Fix slave status for source terminology (https://github.com/ansible-collections/community.mysql/issues/682).
+  - mysql_info - Fix slave status for source terminology introduced in MySQL 8.0.23 (https://github.com/ansible-collections/community.mysql/issues/682).

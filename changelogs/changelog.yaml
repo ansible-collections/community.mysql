@@ -329,6 +329,23 @@ releases:
     - 0_mysql_query_session_vars.yml
     - release_3_16_0.yml
     release_date: '2025-09-12'
+  3.16.1:
+    changes:
+      bugfixes:
+      - mysql_info - Fix slave status for source terminology introduced in MySQL 8.0.23
+        (https://github.com/ansible-collections/community.mysql/issues/682).
+      - mysql_user, mysql_role - fix not existent grant when revoking perms on user/role
+        which do not have any other perms than grant option (https://github.com/ansible-collections/community.mysql/issues/664).
+      release_summary: 'This is a patch release of the ``community.mysql`` collection.
+
+        This changelog contains all changes to the modules and plugins in this collection
+
+        that have been made after the previous release.'
+    fragments:
+    - 3.16.1.yml
+    - fix_user_perms_revoke_grant_option.yml
+    - mysql_info_fix_slave_status_for_source_terminology.yaml
+    release_date: '2025-10-16'
   3.2.0:
     changes:
       bugfixes:

@@ -93,6 +93,7 @@ Here is the table for the support timeline:
 - stable-2.17
 - stable-2.18
 - stable-2.19
+- stable-2.20
 - current development version
 
 ### Python

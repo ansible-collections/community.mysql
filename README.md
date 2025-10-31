@@ -115,8 +115,8 @@ For MariaDB, only Long Term releases are tested. When multiple LTS are available
 - mariadb:10.5.18 (collection version >= 3.5.2, < 3.10.0)
 - mariadb:10.5.25 (collection version >= 3.10.0, <3.13.0)
 - mariadb:10.6.11 (collection version >= 3.5.2, < 3.10.0)
-- mariadb:10.11.8 (collection version >= 3.10.0)
-- mariadb:11.4.5 (collection version >= 3.13.0)
+- mariadb:10.11 (collection version >= 3.10.0)
+- mariadb:11.8  (collection version >= 4.0.1)
 
 ### Database connectors
 

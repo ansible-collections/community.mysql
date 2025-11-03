@@ -2,29 +2,29 @@
 
 # We use the ubuntu2204 image provided by ansible-test.
 
-# # The GPG key is imported in the files folder from:
-# #   https://dev.mysql.com/doc/refman/8.4/en/checking-gpg-signature.html
-# # Downloading the key on each iteration of the tests is too slow.
-# - name: Install MySQL PGP public key
-#   ansible.builtin.copy:
-#     src: files/mysql_pubkey.asc
-#     dest: /usr/share/keyrings/mysql_pubkey.asc
-#     owner: root
-#     group: root
-#     mode: '0644'
-#   when:
-#     - db_engine == 'mysql'
-#     - db_version is version('8.4', '>=')
+# The GPG key is imported in the files folder from:
+#   https://dev.mysql.com/doc/refman/8.4/en/checking-gpg-signature.html
+# Downloading the key on each iteration of the tests is too slow.
+- name: Install MySQL PGP public key
+  ansible.builtin.copy:
+    src: files/mysql_pubkey.asc
+    dest: /usr/share/keyrings/mysql_pubkey.asc
+    owner: root
+    group: root
+    mode: '0644'
+  when:
+    - db_engine == 'mysql'
+    - db_version is version('8.4', '>=')
 
-# # https://dev.mysql.com/doc/refman/8.4/en/checking-gpg-signature.html
-# - name: Add Apt signing key to keyring
-#   ansible.builtin.apt_key:
-#     id: B7B3B788A8D3785C  # Expire 2027-10-23
-#     file: /usr/share/keyrings/mysql_pubkey.asc
-#     state: present
-#   when:
-#     - db_engine == 'mysql'
-#     - db_version is version('8.4', '>=')
+# https://dev.mysql.com/doc/refman/8.4/en/checking-gpg-signature.html
+- name: Add Apt signing key to keyring
+  ansible.builtin.apt_key:
+    id: B7B3B788A8D3785C  # Expire 2027-10-23
+    file: /usr/share/keyrings/mysql_pubkey.asc
+    state: present
+  when:
+    - db_engine == 'mysql'
+    - db_version is version('8.4', '>=')
 
 - name: Add MySQL 8.4 repository
   ansible.builtin.apt_repository:

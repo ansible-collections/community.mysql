@@ -7,8 +7,8 @@
 # Downloading the key on each iteration of the tests is too slow.
 - name: Install MySQL PGP public key
   ansible.builtin.copy:
-    src: files/mysql.gpg
-    dest: /usr/share/keyrings/mysql.gpg
+    src: files/mysql_pubkey.asc
+    dest: /usr/share/keyrings/mysql_pubkey.asc
     owner: root
     group: root
     mode: '0644'

@@ -31,6 +31,7 @@
       - bzip2     # To test mysql_db dump compression
       - "{{ db_engine }}-client"
     allow_unauthenticated: true
+    update_cache: true
     state: present
 
 - name: "{{ role_name }} | Requirements | Install Python packages"

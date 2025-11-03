@@ -19,8 +19,8 @@
 # https://dev.mysql.com/doc/refman/8.4/en/checking-gpg-signature.html
 - name: Add Apt signing key to keyring
   ansible.builtin.apt_key:
-    id: B7B3B788A8D3785C
-    file: /usr/share/keyrings/mysql.gpg
+    id: B7B3B788A8D3785C  # Expire 2027-10-23
+    file: /usr/share/keyrings/mysql_pubkey.asc
     state: present
   when:
     - db_engine == 'mysql'

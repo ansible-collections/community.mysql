@@ -82,8 +82,9 @@ Here is the table for the support timeline:
 
 - 1.x.y: released 2020-08-17, EOL
 - 2.x.y: released 2021-04-15, EOL
-- 3.x.y: released 2021-12-01, current
-- 4.x.y: To be released
+- 3.x.y: released 2021-12-01, EOL 2027-09-30
+- 4.x.y: released 2025-09-15, current
+- 5.x.y: To be released
 
 
 ## Tested with

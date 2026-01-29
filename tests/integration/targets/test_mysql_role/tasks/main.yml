@@ -25,6 +25,7 @@
 
 # Test sql_log_bin parameter
 # (https://github.com/ansible-collections/community.mysql/issues/742)
-- include_tasks: test_sql_log_bin.yml
+- name: Test sql_log_bin parameter
+  ansible.builtin.include_tasks: test_sql_log_bin.yml
   when:
     - db_engine == 'mysql'

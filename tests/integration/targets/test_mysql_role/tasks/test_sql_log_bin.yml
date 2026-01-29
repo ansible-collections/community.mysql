@@ -3,7 +3,7 @@
 # https://github.com/ansible-collections/community.mysql/issues/742
 
 - name: Sql_log_bin | Set show_master_status variable
-  set_fact:
+  ansible.builtin.set_fact:
     show_master_status: >-
       {% if db_engine == 'mysql' and db_version is version('8.4', '>=') %}
         SHOW BINARY LOG STATUS
@@ -15,11 +15,11 @@
 # Test sql_log_bin: true (default behavior - binlog events should be written)
 # ============================================================
 - name: Sql_log_bin | Capture binlog position before creating role with sql_log_bin enabled
-  command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
+  ansible.builtin.command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
   register: bin_log_position_1
 
 - name: Sql_log_bin | Create role with sql_log_bin enabled
-  mysql_role:
+  community.mysql.mysql_role:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
     login_host: '{{ mysql_host }}'
@@ -29,16 +29,12 @@
     state: present
 
 - name: Sql_log_bin | Capture binlog position after creating role with sql_log_bin enabled
-  command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
+  ansible.builtin.command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
   register: bin_log_position_2
-
-- name: Sql_log_bin | Assert binlog events were written when sql_log_bin is true
-  assert:
-    that:
-      - bin_log_position_1.stdout_lines[2] != bin_log_position_2.stdout_lines[2]
+  failed_when: bin_log_position_1.stdout_lines[2] == bin_log_position_2.stdout_lines[2]
 
 - name: Sql_log_bin | Remove role with sql_log_bin enabled
-  mysql_role:
+  community.mysql.mysql_role:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
     login_host: '{{ mysql_host }}'
@@ -48,23 +44,19 @@
     state: absent
 
 - name: Sql_log_bin | Capture binlog position after removing role with sql_log_bin enabled
-  command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
+  ansible.builtin.command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
   register: bin_log_position_3
-
-- name: Sql_log_bin | Assert binlog events were written when removing role with sql_log_bin true
-  assert:
-    that:
-      - bin_log_position_2.stdout_lines[2] != bin_log_position_3.stdout_lines[2]
+  failed_when: bin_log_position_2.stdout_lines[2] == bin_log_position_3.stdout_lines[2]
 
 # ============================================================
 # Test sql_log_bin: false (binlog events should NOT be written)
 # ============================================================
 - name: Sql_log_bin | Capture binlog position before creating role with sql_log_bin disabled
-  command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
+  ansible.builtin.command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
   register: bin_log_position_4
 
 - name: Sql_log_bin | Create role with sql_log_bin disabled
-  mysql_role:
+  community.mysql.mysql_role:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
     login_host: '{{ mysql_host }}'
@@ -74,16 +66,12 @@
     state: present
 
 - name: Sql_log_bin | Capture binlog position after creating role with sql_log_bin disabled
-  command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
+  ansible.builtin.command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
   register: bin_log_position_5
-
-- name: Sql_log_bin | Assert binlog events were not written when sql_log_bin is false
-  assert:
-    that:
-      - bin_log_position_4.stdout_lines[2] == bin_log_position_5.stdout_lines[2]
+  failed_when: bin_log_position_4.stdout_lines[2] != bin_log_position_5.stdout_lines[2]
 
 - name: Sql_log_bin | Remove role with sql_log_bin disabled
-  mysql_role:
+  community.mysql.mysql_role:
     login_user: '{{ mysql_user }}'
     login_password: '{{ mysql_password }}'
     login_host: '{{ mysql_host }}'
@@ -93,10 +81,6 @@
     state: absent
 
 - name: Sql_log_bin | Capture binlog position after removing role with sql_log_bin disabled
-  command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
+  ansible.builtin.command: "{{ mysql_command }} -e \"{{ show_master_status }}\\G\""
   register: bin_log_position_6
-
-- name: Sql_log_bin | Assert binlog events were not written when removing role with sql_log_bin false
-  assert:
-    that:
-      - bin_log_position_5.stdout_lines[2] == bin_log_position_6.stdout_lines[2]
+  failed_when: bin_log_position_5.stdout_lines[2] != bin_log_position_6.stdout_lines[2]

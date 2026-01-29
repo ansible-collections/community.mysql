@@ -138,7 +138,7 @@ options:
       - Whether binary logging should be enabled or disabled for the connection.
     type: bool
     default: true
-    version_added: '4.0.0'
+    version_added: '4.1.0'
 
 notes:
   - Roles are supported since MySQL 8.0.0 and MariaDB 10.0.5.

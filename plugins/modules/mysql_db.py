@@ -201,7 +201,7 @@ attributes:
   idempotent:
     support: partial
     details:
-      - The module is not idempotent when O(state=import).
+      - The module is not idempotent when O(state=import) or when O(state=dump).
 extends_documentation_fragment:
 - community.mysql.mysql
 '''

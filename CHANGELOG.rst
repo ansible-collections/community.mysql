@@ -6,6 +6,21 @@ Community MySQL and MariaDB Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v4.1.0
+======
+
+Release Summary
+---------------
+
+This is a minor release of the ``community.mysql`` collection.
+This changelog contains all breaking changes to the modules in this collection
+that have been added after the previous release.
+
+Minor Changes
+-------------
+
+- mysql_role - add ``sql_log_bin`` option to disable binary logging for the connection (https://github.com/ansible-collections/community.mysql/issues/742).
+
 v4.0.1
 ======
 

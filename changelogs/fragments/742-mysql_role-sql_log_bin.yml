@@ -1,2 +1,0 @@
-minor_changes:
-  - mysql_role - add ``sql_log_bin`` option to disable binary logging for the connection (https://github.com/ansible-collections/community.mysql/issues/742).

@@ -459,6 +459,10 @@ from ansible.module_utils._text import to_native
 
 
 def main():
+    diff_current = {}
+    diff_current['state'] = "present"
+    diff_new = {}
+    diff_new['state'] = "present"
     argument_spec = mysql_common_argument_spec()
     argument_spec.update(
         name=dict(type='str', required=True, aliases=['user'], deprecated_aliases=[
@@ -606,6 +610,8 @@ def main():
                 msg = result['msg']
                 password_changed = result['password_changed']
                 final_attributes = result['attributes']
+                diff_current = result['diff_current'] | diff_current
+                diff_new = result['diff_new'] | diff_new
 
             except (SQLParseError, InvalidPrivsError, mysql_driver.Error) as e:
                 module.fail_json(msg=to_native(e))
@@ -625,6 +631,7 @@ def main():
                 final_attributes = result['attributes']
                 if changed:
                     msg = "User added"
+                    diff_new['state'] = "present"
 
             except (SQLParseError, InvalidPrivsError, mysql_driver.Error) as e:
                 module.fail_json(msg=to_native(e))
@@ -636,10 +643,12 @@ def main():
         if user_exists(cursor, user, host, host_all):
             changed = user_delete(cursor, user, host, host_all, module.check_mode)
             msg = "User deleted"
+            diff_new['state'] = "absent"
         else:
             changed = False
             msg = "User doesn't exist"
-    module.exit_json(changed=changed, user=user, msg=msg, password_changed=password_changed, attributes=final_attributes)
+    module.exit_json(changed=changed, diff={'before': diff_current, 'after': diff_new}, user=user, msg=msg,
+                     password_changed=password_changed, attributes=final_attributes)
 
 
 if __name__ == '__main__':

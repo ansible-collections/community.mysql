@@ -180,4 +180,3 @@ body:
       options:
         - label: I agree to follow the Ansible Code of Conduct
           required: true
-...

@@ -37,9 +37,9 @@ body:
   - type: dropdown
     attributes:
       label: Issue Type
-      # FIXME: Once GitHub allows defining the default choice, update this
       options:
         - Documentation Report
+      default: 0
     validations:
       required: true
 

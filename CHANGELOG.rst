@@ -6,6 +6,26 @@ Community MySQL and MariaDB Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v5.0.0
+======
+
+Release Summary
+---------------
+
+This collection has been deprecated. Please use ``ansible.mysql`` instead - https://galaxy.ansible.com/ui/repo/published/ansible/mysql/. All the modules were moved to ``ansible.mysql`` as-is. Your current playbooks that call the modules from ``community.mysql`` will not require any changes and will continue working via redirects to the corresponding modules in ``ansible.mysql``, though we recommend changing FQCN parts in module names in playbook tasks as soon as possible (e.g. ``community.mysql.mysql_info`` -> ``ansible.mysql.mysql_info``).
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- All modules and plugins have been removed from this collection. They have been migrated to the `ansible.mysql <https://galaxy.ansible.com/ui/repo/published/ansible/mysql/>`_ collection. Redirections have been provided.
+  Please install ``ansible.mysql`` and adjust the FQCNs in your playbooks (``community.mysql.mysql_info`` → ``ansible.mysql.mysql_info``).
+
+Removed Features (previously deprecated)
+----------------------------------------
+
+- All modules and plugins have been removed from this collection. They have been migrated to the `ansible.mysql <https://galaxy.ansible.com/ui/repo/published/ansible/mysql/>`_ collection. Redirections have been provided.
+  Please install ``ansible.mysql`` and adjust the FQCNs in your playbooks (``community.mysql.mysql_info`` → ``ansible.mysql.mysql_info``).
+
 v4.2.1
 ======
 

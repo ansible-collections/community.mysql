@@ -6,6 +6,20 @@ Community MySQL and MariaDB Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v4.3.0
+======
+
+Release Summary
+---------------
+
+All modules in this collection have been deprecated and will be removed in version 5.0.0.
+Use the ``ansible.mysql`` collection instead.
+
+Deprecated Features
+-------------------
+
+- All modules in this collection have been deprecated and will be removed in version 5.0.0. The content has been moved to the ``ansible.mysql`` collection as-is. Please use ``ansible.mysql`` instead. After installing it, change FQCN parts in module names in your playbooks from ``community.mysql`` to ``ansible.mysql``, for example, ``community.mysql.mysql_info`` to ``ansible.mysql.mysql_info``.
+
 v4.2.1
 ======
 

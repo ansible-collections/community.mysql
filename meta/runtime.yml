@@ -9,3 +9,40 @@ action_groups:
     - mysql_role
     - mysql_user
     - mysql_variables
+
+plugin_routing:
+  modules:
+    mysql_db:
+      deprecation:
+        removal_version: 5.0.0
+        warning_text: Use ansible.mysql.mysql_db instead
+
+    mysql_info:
+      deprecation:
+        removal_version: 5.0.0
+        warning_text: Use ansible.mysql.mysql_info instead
+
+    mysql_query:
+      deprecation:
+        removal_version: 5.0.0
+        warning_text: Use ansible.mysql.mysql_query instead
+
+    mysql_replication:
+      deprecation:
+        removal_version: 5.0.0
+        warning_text: Use ansible.mysql.mysql_replication instead
+
+    mysql_role:
+      deprecation:
+        removal_version: 5.0.0
+        warning_text: Use ansible.mysql.mysql_role instead
+
+    mysql_user:
+      deprecation:
+        removal_version: 5.0.0
+        warning_text: Use ansible.mysql.mysql_user instead
+
+    mysql_variables:
+      deprecation:
+        removal_version: 5.0.0
+        warning_text: Use ansible.mysql.mysql_variables instead

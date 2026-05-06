@@ -742,3 +742,19 @@ releases:
     - 4.2.1.yml
     - mysql_query_decimal_serialization.yaml
     release_date: '2026-05-04'
+  4.3.0:
+    changes:
+      deprecated_features:
+      - All modules in this collection have been deprecated and will be removed in
+        version 5.0.0. The content has been moved to the ``ansible.mysql`` collection
+        as-is. Please use ``ansible.mysql`` instead. After installing it, change FQCN
+        parts in module names in your playbooks from ``community.mysql`` to ``ansible.mysql``,
+        for example, ``community.mysql.mysql_info`` to ``ansible.mysql.mysql_info``.
+      release_summary: 'All modules in this collection have been deprecated and will
+        be removed in version 5.0.0.
+
+        Use the ``ansible.mysql`` collection instead.'
+    fragments:
+    - 4.3.0.yml
+    - deprecate.yml
+    release_date: '2026-05-06'

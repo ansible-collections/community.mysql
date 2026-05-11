@@ -1,5 +1,12 @@
 ---
 requires_ansible: '>=2.9.10'
+
+action_groups:
+  all:
+    - metadata:
+        extend_group:
+          - ansible.mysql.all
+
 plugin_routing:
   modules:
     mysql_db:

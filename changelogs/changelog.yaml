@@ -767,3 +767,14 @@ releases:
     - 5.0.0.yml
     - remove.yml
     release_date: '2026-05-06'
+  5.0.1:
+    changes:
+      bugfixes:
+      - Add action_groups to meta/runtime.yml to ensure that if the community.mysql
+        action group is used, it also applies to ansible.mysql's action group.
+      release_summary: This is a patch release of the community.mysql collection.
+        It contains a fix for compatibility with ansible.mysql.
+    fragments:
+    - 5.0.1.yml
+    - fix.yml
+    release_date: '2026-05-12'

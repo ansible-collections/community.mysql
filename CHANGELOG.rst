@@ -6,6 +6,19 @@ Community MySQL and MariaDB Collection Release Notes
 
 This changelog describes changes after version 2.0.0.
 
+v5.0.1
+======
+
+Release Summary
+---------------
+
+This is a patch release of the community.mysql collection. It contains a fix for compatibility with ansible.mysql.
+
+Bugfixes
+--------
+
+- Add action_groups to meta/runtime.yml to ensure that if the community.mysql action group is used, it also applies to ansible.mysql's action group.
+
 v5.0.0
 ======
 

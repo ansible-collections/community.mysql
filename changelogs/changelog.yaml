@@ -778,3 +778,10 @@ releases:
     - 5.0.1.yml
     - fix.yml
     release_date: '2026-05-12'
+  5.0.2:
+    changes:
+      release_summary: This is a patch release of community.mysql collections which
+        only adds deprecation warnings to module redirects.
+    fragments:
+    - 5.0.1.yml
+    release_date: '2026-05-25'

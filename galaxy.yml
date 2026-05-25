@@ -8,7 +8,7 @@ authors:
 description: MySQL and MariaDB collection for Ansible
 license_file: COPYING
 dependencies:
-  ansible.mysql: '>=4.2.1,<5.0.0'
+  ansible.mysql: '>=4.2.1'
 tags:
   - database
   - mysql
